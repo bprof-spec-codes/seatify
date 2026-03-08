@@ -35,6 +35,7 @@ Seatify egy jegyfoglaló/jegyértékesítő webalkalmazás, amely kis- és köze
   - Új esemény létrehozása.
   - Esemény módosítása.
   - Esemény másolása.
+  - időpontok megtekintése
   - Esemény törlése (megerősítéssel).
   - Foglalások áttekintése.
   - Foglaló oldal előnézet.
@@ -46,16 +47,19 @@ Seatify egy jegyfoglaló/jegyértékesítő webalkalmazás, amely kis- és köze
   - Nézőtér törlése (megerősítéssel).
 - Nézőtér szerkesztés (seat map editor, MVP-szinten):
   - 1 vagy több „mátrix” létrehozása (sor/oszlop szám megadással).
+  - nézőtér mátrix torzítása
   - Szektorok kezelése (külön mátrixok külön szektorokhoz).
   - Sor- és oszlop-azonosítók (egyszerű számozás; komplexebb szabály későbbi bővítés lehet).
   - Csoportos kijelölés alapú árazás beállítás.
 - Esemény létrehozása/módosítása:
-  - Név, leírás, helyszín, nézőtér, időpont.
+  - Név, leírás, helyszín, nézőtér, időpont/időpontok.
   - Árazás (foglalási díjak):
     - Alap (nézőtér alapárai),
     - Egyedi árazás (ülőhely/szektor szerint),
     - Dinamikus árazás (idő/darabszám/kereslet elv).
   - Esemény kinézetének testreszabása (brand alapján, alapértelmezett fallback-kel).
+  - Foglaló oldal előnézet.
+  - Foglaló link létrehozása.
 - Profil + brand beállítás:
   - Profil adatok módosítása (pl. név, telefonszám, jelszó).
   - Brand/kinézet beállítások (alap megjelenés).
