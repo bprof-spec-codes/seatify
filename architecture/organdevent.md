@@ -475,6 +475,104 @@ Example create response:
 
 ---
 
+# Domain diagram
+
+```mermaid
+classDiagram
+direction LR
+
+class Organizer {
+  +Guid Id
+  +string DisplayName
+  +string Email
+  +string PhoneNumber
+  +DateTime CreatedAtUtc
+  +DateTime UpdatedAtUtc
+}
+
+class OrganizerBrandAppearance {
+  +Guid Id
+  +Guid OrganizerId
+  +string PrimaryColor
+  +string SecondaryColor
+  +string LogoImageUrl
+  +string BannerImageUrl
+  +string ThemePreset
+}
+
+class Event {
+  +Guid Id
+  +Guid OrganizerId
+  +string Slug
+  +string Name
+  +string Description
+  +string Status
+  +DateTime CreatedAtUtc
+  +DateTime UpdatedAtUtc
+}
+
+class EventAppearance {
+  +Guid Id
+  +Guid EventId
+  +string PrimaryColor
+  +string SecondaryColor
+  +string LogoImageUrl
+  +string BannerImageUrl
+  +string ThemePreset
+}
+
+class Venue {
+  +Guid Id
+  +string Name
+  +string City
+  +string PostalCode
+  +string AddressLine
+}
+
+class Auditorium {
+  +Guid Id
+  +Guid VenueId
+  +string Name
+}
+
+class EventOccurrence {
+  +Guid Id
+  +Guid EventId
+  +Guid VenueId
+  +Guid AuditoriumId
+  +DateTime StartsAtUtc
+  +DateTime EndsAtUtc
+  +string Status
+  +DateTime BookingOpenAtUtc
+  +DateTime BookingCloseAtUtc
+  +DateTime CreatedAtUtc
+  +DateTime UpdatedAtUtc
+}
+
+class BookingSession {
+  +Guid Id
+  +Guid EventOccurrenceId
+  +string Phase
+  +string Status
+  +DateTime CreatedAtUtc
+  +DateTime ExpiresAtUtc
+}
+
+Organizer "1" --> "0..*" Event
+Organizer "1" --> "0..1" OrganizerBrandAppearance
+
+Event "1" --> "0..1" EventAppearance
+Event "1" --> "1..*" EventOccurrence
+
+EventOccurrence "0..*" --> "1" Venue
+EventOccurrence "0..*" --> "1" Auditorium
+
+Venue "1" --> "0..*" EventOccurrence
+Auditorium "1" --> "0..*" EventOccurrence
+
+EventOccurrence "1" --> "0..*" BookingSession
+```
+
 # Architectural Summary
 
 Organizer-level entities:

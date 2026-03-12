@@ -425,7 +425,7 @@ This architecture allows the same layout to be reused for multiple occurrences o
 
 ---
 
-# ClassDiagram
+# Domain Diagram
 
 ```mermaid
 classDiagram
@@ -435,6 +435,9 @@ class Organizer {
   +Guid Id
   +string DisplayName
   +string Email
+  +string PhoneNumber
+  +DateTime CreatedAtUtc
+  +DateTime UpdatedAtUtc
 }
 
 class Venue {
@@ -472,20 +475,23 @@ class Seat {
   +Guid Id
   +Guid LayoutMatrixId
   +Guid SectorId
-  +int Row
-  +int Column
+  +string RowLabel
   +string SeatLabel
+  +int X
+  +int Y
+  +decimal BasePrice
   +string SeatType
-  +decimal PriceOverride
 }
 
 class Event {
   +Guid Id
   +Guid OrganizerId
+  +string Slug
   +string Name
   +string Description
-  +string Slug
   +string Status
+  +DateTime CreatedAtUtc
+  +DateTime UpdatedAtUtc
 }
 
 class EventOccurrence {
@@ -498,6 +504,8 @@ class EventOccurrence {
   +string Status
   +DateTime BookingOpenAtUtc
   +DateTime BookingCloseAtUtc
+  +DateTime CreatedAtUtc
+  +DateTime UpdatedAtUtc
 }
 
 Organizer "1" --> "0..*" Venue : owns
@@ -513,6 +521,7 @@ Sector "1" --> "0..*" Seat : groups
 Event "1" --> "0..*" EventOccurrence : has
 EventOccurrence "*" --> "1" Venue : takes place at
 EventOccurrence "*" --> "1" Auditorium : uses
+```
 
 # Architectural Summary
 
