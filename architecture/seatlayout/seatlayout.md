@@ -425,6 +425,95 @@ This architecture allows the same layout to be reused for multiple occurrences o
 
 ---
 
+# ClassDiagram
+
+```mermaid
+classDiagram
+direction LR
+
+class Organizer {
+  +Guid Id
+  +string DisplayName
+  +string Email
+}
+
+class Venue {
+  +Guid Id
+  +Guid OrganizerId
+  +string Name
+  +string City
+  +string PostalCode
+  +string AddressLine
+}
+
+class Auditorium {
+  +Guid Id
+  +Guid VenueId
+  +string Name
+}
+
+class LayoutMatrix {
+  +Guid Id
+  +Guid AuditoriumId
+  +string Name
+  +int Rows
+  +int Columns
+}
+
+class Sector {
+  +Guid Id
+  +Guid AuditoriumId
+  +string Name
+  +string Color
+  +decimal BasePrice
+}
+
+class Seat {
+  +Guid Id
+  +Guid LayoutMatrixId
+  +Guid SectorId
+  +int Row
+  +int Column
+  +string SeatLabel
+  +string SeatType
+  +decimal PriceOverride
+}
+
+class Event {
+  +Guid Id
+  +Guid OrganizerId
+  +string Name
+  +string Description
+  +string Slug
+  +string Status
+}
+
+class EventOccurrence {
+  +Guid Id
+  +Guid EventId
+  +Guid VenueId
+  +Guid AuditoriumId
+  +DateTime StartsAtUtc
+  +DateTime EndsAtUtc
+  +string Status
+  +DateTime BookingOpenAtUtc
+  +DateTime BookingCloseAtUtc
+}
+
+Organizer "1" --> "0..*" Venue : owns
+Organizer "1" --> "0..*" Event : owns
+
+Venue "1" --> "0..*" Auditorium : contains
+Auditorium "1" --> "0..*" LayoutMatrix : contains
+Auditorium "1" --> "0..*" Sector : defines
+
+LayoutMatrix "1" --> "0..*" Seat : contains
+Sector "1" --> "0..*" Seat : groups
+
+Event "1" --> "0..*" EventOccurrence : has
+EventOccurrence "*" --> "1" Venue : takes place at
+EventOccurrence "*" --> "1" Auditorium : uses
+
 # Architectural Summary
 
 Static layout configuration:
@@ -445,3 +534,4 @@ Key principles:
 - seat layouts are reusable templates
 - events may have multiple occurrences
 - seat availability is evaluated per occurrence
+
