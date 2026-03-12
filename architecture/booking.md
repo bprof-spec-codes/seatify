@@ -386,7 +386,7 @@ Key rules:
 
 # Domain Diagram
 
-```mermadid
+```mermaid
 classDiagram
 direction LR
 
