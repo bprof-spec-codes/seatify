@@ -1,11 +1,10 @@
-
 # Seat Layout Architecture
 
 ## Overview
 
 This document describes the architecture and creation workflow of the **Seat Layout system** used in the ticket booking platform.
 
-The seat layout defines the physical seating structure of a venue’s auditorium and is later reused by the booking system when creating event occurrences.
+The seat layout defines the physical seating structure of a venue’s auditorium and is reused by the booking system when creating event occurrences.
 
 The seat layout system is responsible for:
 
@@ -16,7 +15,8 @@ The seat layout system is responsible for:
 - providing layout preview data for the frontend
 - serving as the base template for booking during event occurrences
 
-Seat layouts are **templates** describing the static structure of an auditorium.  
+Seat layouts are **templates** describing the static structure of an auditorium.
+
 Bookings are always evaluated relative to a specific **EventOccurrence**.
 
 ---
@@ -59,12 +59,11 @@ Organizer
 
 ## Booking context
 
-```
-EventOccurrence
-└── Seat
-```
+Seat availability is always evaluated in the context of:
 
-Seat availability is always evaluated in the context of a specific **EventOccurrence**.
+```
+Seat + EventOccurrence
+```
 
 ---
 
@@ -129,6 +128,14 @@ Each matrix describes:
 - number of rows
 - number of columns
 
+When a matrix is created, **rows × columns number of seats are automatically generated**.
+
+Example:
+
+```
+6 rows × 10 columns → 60 seats
+```
+
 Example JSON:
 
 ```json
@@ -140,8 +147,6 @@ Example JSON:
   "columns": 10
 }
 ```
-
-When a matrix is created, seats are automatically generated.
 
 ---
 
@@ -169,8 +174,9 @@ Represents a single selectable seat.
 
 Seat properties:
 
-- row
-- column
+- row label
+- seat label
+- position in the layout grid
 - sector reference
 - seat type
 - optional price override
@@ -181,12 +187,14 @@ Example JSON:
 {
   "id": "seat-001",
   "layoutMatrixId": "matrix-001",
-  "row": 1,
-  "column": 1,
-  "seatLabel": "A1",
   "sectorId": "sector-001",
-  "seatType": "Seat",
-  "priceOverride": null
+  "rowLabel": "A",
+  "seatLabel": "1",
+  "x": 1,
+  "y": 1,
+  "basePrice": 4990,
+  "priceOverride": null,
+  "seatType": "Standard"
 }
 ```
 
@@ -227,7 +235,7 @@ Response:
 API:
 
 ```
-POST /api/auditoriums/{auditoriumId}/matrices
+POST /api/auditoriums/{auditoriumId}/layout-matrices
 ```
 
 Request:
@@ -261,7 +269,7 @@ Seat records are automatically generated after this step.
 API:
 
 ```
-GET /api/matrices/{matrixId}/seats
+GET /api/layout-matrices/{matrixId}/seats
 ```
 
 Response:
@@ -274,15 +282,11 @@ Response:
   "seats": [
     {
       "id": "seat-001",
-      "row": 1,
-      "column": 1,
-      "seatType": "Seat"
-    },
-    {
-      "id": "seat-002",
-      "row": 1,
-      "column": 2,
-      "seatType": "Seat"
+      "rowLabel": "A",
+      "seatLabel": "1",
+      "x": 1,
+      "y": 1,
+      "seatType": "Standard"
     }
   ]
 }
@@ -333,7 +337,9 @@ Request:
 ```json
 {
   "seatIds": ["seat-001", "seat-002", "seat-003"],
-  "sectorId": "sector-001"
+  "sectorId": "sector-001",
+  "seatType": "Standard",
+  "priceOverride": null
 }
 ```
 
@@ -385,8 +391,8 @@ Response:
       "seats": [
         {
           "id": "seat-001",
-          "row": 1,
-          "column": 1,
+          "rowLabel": "A",
+          "seatLabel": "1",
           "sectorId": "sector-001"
         }
       ]
@@ -404,7 +410,10 @@ The frontend uses this endpoint to render the complete seat layout preview.
 Seat layouts are reusable structures used by event occurrences.
 
 ```
-EventOccurrence → Auditorium → LayoutMatrix → Seat
+EventOccurrence
+    └── Auditorium
+          └── LayoutMatrix
+                └── Seat
 ```
 
 The booking system references the same seat structure for each occurrence.
@@ -413,15 +422,18 @@ The booking system references the same seat structure for each occurrence.
 
 # Booking Context
 
-Bookings reference both the occurrence and the seat.
+Bookings reference both the occurrence and the reserved seats through the reservation system.
 
 ```
-Booking
-├── EventOccurrenceId
-└── SeatId
+Reservation
+└── ReservationSeat
+        └── SeatId
 ```
 
-This architecture allows the same layout to be reused for multiple occurrences of an event.
+Seat availability is derived from:
+
+- SeatHold
+- ReservationSeat
 
 ---
 
@@ -480,6 +492,7 @@ class Seat {
   +int X
   +int Y
   +decimal BasePrice
+  +decimal PriceOverride
   +string SeatType
 }
 
@@ -522,25 +535,3 @@ Event "1" --> "0..*" EventOccurrence : has
 EventOccurrence "*" --> "1" Venue : takes place at
 EventOccurrence "*" --> "1" Auditorium : uses
 ```
-
-# Architectural Summary
-
-Static layout configuration:
-
-- Venue
-- Auditorium
-- LayoutMatrix
-- Sector
-- Seat
-
-Dynamic scheduling:
-
-- Event
-- EventOccurrence
-
-Key principles:
-
-- seat layouts are reusable templates
-- events may have multiple occurrences
-- seat availability is evaluated per occurrence
-

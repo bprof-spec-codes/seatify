@@ -41,7 +41,7 @@ This part of the system has five main responsibilities:
 
 ## Ownership and scheduling structure
 
-```text
+```
 Organizer
 ├── OrganizerBrand
 ├── Events
@@ -82,13 +82,14 @@ Example JSON:
   "displayName": "Cinema City",
   "email": "contact@cinemacity.com",
   "phoneNumber": "+361234567",
-  "createdAt": "2026-03-10T12:00:00Z"
+  "createdAtUtc": "2026-03-10T12:00:00Z",
+  "updatedAtUtc": "2026-03-10T12:00:00Z"
 }
 ```
 
 Relationships:
 
-```text
+```
 Organizer 1 → N Event
 Organizer 1 → N Venue
 Organizer 1 → 0..1 OrganizerBrand
@@ -108,7 +109,7 @@ Typical properties:
 - secondary color
 - logo
 - banner
-- optional background image
+- theme preset
 
 Example JSON:
 
@@ -118,15 +119,15 @@ Example JSON:
   "organizerId": "org-001",
   "primaryColor": "#2563EB",
   "secondaryColor": "#1E40AF",
-  "logoUrl": "/assets/organizers/org-001/logo.png",
-  "bannerUrl": "/assets/organizers/org-001/banner.png",
-  "backgroundImageUrl": "/assets/organizers/org-001/background.jpg"
+  "logoImageUrl": "/assets/organizers/org-001/logo.png",
+  "bannerImageUrl": "/assets/organizers/org-001/banner.png",
+  "themePreset": "default"
 }
 ```
 
 Relationship:
 
-```text
+```
 Organizer 1 → 0..1 OrganizerBrand
 ```
 
@@ -153,7 +154,6 @@ Typical event data:
 - description
 - slug
 - publication status
-- visibility settings
 
 Example JSON:
 
@@ -164,15 +164,15 @@ Example JSON:
   "name": "Dune Part II",
   "description": "Sci-fi movie screening",
   "slug": "dune-part-2",
-  "isPublic": true,
   "status": "Published",
-  "createdAt": "2026-03-10T14:00:00Z"
+  "createdAtUtc": "2026-03-10T14:00:00Z",
+  "updatedAtUtc": "2026-03-10T14:00:00Z"
 }
 ```
 
 Relationships:
 
-```text
+```
 Organizer 1 → N Event
 Event 1 → 0..1 EventAppearance
 Event 1 → N EventOccurrence
@@ -193,8 +193,8 @@ Typical properties:
 - primary color
 - secondary color
 - banner
-- poster
-- optional background image
+- logo
+- theme preset
 
 Example JSON:
 
@@ -204,15 +204,15 @@ Example JSON:
   "eventId": "event-001",
   "primaryColor": "#DC2626",
   "secondaryColor": "#991B1B",
-  "bannerUrl": "/assets/events/event-001/banner.jpg",
-  "posterUrl": "/assets/events/event-001/poster.jpg",
-  "backgroundImageUrl": "/assets/events/event-001/background.jpg"
+  "logoImageUrl": "/assets/events/event-001/logo.png",
+  "bannerImageUrl": "/assets/events/event-001/banner.jpg",
+  "themePreset": "cinema"
 }
 ```
 
 Relationship:
 
-```text
+```
 Event 1 → 0..1 EventAppearance
 ```
 
@@ -228,15 +228,14 @@ Examples:
 - Dune Part II on March 20 at 21:00
 - Dune Part II on March 22 at 17:00
 
-This is the entity that connects the event to the actual operational context:
+This is the entity that connects the event to the operational context:
 
 - specific start/end time
 - venue
 - auditorium
 - booking window
-- later booking records
 
-This means that the bookable unit is **EventOccurrence**, not the Event itself.
+The bookable unit is **EventOccurrence**, not the Event itself.
 
 Example JSON:
 
@@ -246,17 +245,19 @@ Example JSON:
   "eventId": "event-001",
   "venueId": "venue-001",
   "auditoriumId": "aud-001",
-  "startsAt": "2026-03-20T18:00:00Z",
-  "endsAt": "2026-03-20T20:30:00Z",
+  "startsAtUtc": "2026-03-20T18:00:00Z",
+  "endsAtUtc": "2026-03-20T20:30:00Z",
   "status": "Published",
-  "bookingOpenAt": "2026-03-01T08:00:00Z",
-  "bookingCloseAt": "2026-03-20T17:45:00Z"
+  "bookingOpenAtUtc": "2026-03-01T08:00:00Z",
+  "bookingCloseAtUtc": "2026-03-20T17:45:00Z",
+  "createdAtUtc": "2026-03-10T14:10:00Z",
+  "updatedAtUtc": "2026-03-10T14:10:00Z"
 }
 ```
 
 Relationships:
 
-```text
+```
 Event 1 → N EventOccurrence
 EventOccurrence N → 1 Venue
 EventOccurrence N → 1 Auditorium
@@ -274,7 +275,7 @@ When rendering the public event page, the system resolves the visual configurati
 
 Resolution rule:
 
-```text
+```
 EventAppearance ?? OrganizerBrand
 ```
 
@@ -299,12 +300,12 @@ Example:
   "occurrences": [
     {
       "id": "occ-001",
-      "startsAt": "2026-03-20T18:00:00Z",
+      "startsAtUtc": "2026-03-20T18:00:00Z",
       "auditoriumId": "aud-001"
     },
     {
       "id": "occ-002",
-      "startsAt": "2026-03-20T21:00:00Z",
+      "startsAtUtc": "2026-03-20T21:00:00Z",
       "auditoriumId": "aud-001"
     }
   ]
@@ -319,7 +320,7 @@ This allows a single event page to expose multiple available time slots.
 
 When loading the public event page, the frontend may call:
 
-```text
+```
 GET /api/events/{slug}
 ```
 
@@ -336,21 +337,14 @@ Example response:
   "appearance": {
     "primaryColor": "#DC2626",
     "secondaryColor": "#991B1B",
-    "bannerUrl": "/assets/events/event-001/banner.jpg",
-    "posterUrl": "/assets/events/event-001/poster.jpg"
+    "bannerImageUrl": "/assets/events/event-001/banner.jpg",
+    "logoImageUrl": "/assets/events/event-001/logo.png"
   },
   "occurrences": [
     {
       "id": "occ-001",
-      "startsAt": "2026-03-20T18:00:00Z",
-      "endsAt": "2026-03-20T20:30:00Z",
-      "venueId": "venue-001",
-      "auditoriumId": "aud-001"
-    },
-    {
-      "id": "occ-002",
-      "startsAt": "2026-03-20T21:00:00Z",
-      "endsAt": "2026-03-20T23:30:00Z",
+      "startsAtUtc": "2026-03-20T18:00:00Z",
+      "endsAtUtc": "2026-03-20T20:30:00Z",
       "venueId": "venue-001",
       "auditoriumId": "aud-001"
     }
@@ -358,124 +352,11 @@ Example response:
 }
 ```
 
-If the event has no event-specific appearance, the `appearance` object should be resolved from `OrganizerBrand`.
+If the event has no event-specific appearance, the `appearance` object is resolved from `OrganizerBrand`.
 
 ---
 
-# API Endpoints
-
-## Organizer
-
-```text
-GET /api/organizers/{id}
-```
-
----
-
-## OrganizerBrand
-
-Create or update organizer-level branding.
-
-```text
-PUT /api/organizers/{organizerId}/brand
-```
-
-Example request:
-
-```json
-{
-  "primaryColor": "#2563EB",
-  "secondaryColor": "#1E40AF",
-  "logoUrl": "/assets/logo.png",
-  "bannerUrl": "/assets/banner.png"
-}
-```
-
----
-
-## Event
-
-Create a new event.
-
-```text
-POST /api/events
-```
-
-Example request:
-
-```json
-{
-  "organizerId": "org-001",
-  "name": "Dune Part II",
-  "description": "Sci-fi movie screening",
-  "slug": "dune-part-2",
-  "isPublic": true
-}
-```
-
----
-
-## EventAppearance
-
-Create or update event-specific appearance.
-
-```text
-PUT /api/events/{eventId}/appearance
-```
-
-Example request:
-
-```json
-{
-  "primaryColor": "#DC2626",
-  "secondaryColor": "#991B1B",
-  "bannerUrl": "/assets/events/event-001/banner.jpg",
-  "posterUrl": "/assets/events/event-001/poster.jpg"
-}
-```
-
----
-
-## EventOccurrence
-
-Create or update an occurrence under an event.
-
-```text
-POST /api/events/{eventId}/occurrences
-PUT /api/occurrences/{occurrenceId}
-GET /api/events/{eventId}/occurrences
-```
-
-Example create request:
-
-```json
-{
-  "venueId": "venue-001",
-  "auditoriumId": "aud-001",
-  "startsAt": "2026-03-20T18:00:00Z",
-  "endsAt": "2026-03-20T20:30:00Z",
-  "bookingOpenAt": "2026-03-01T08:00:00Z",
-  "bookingCloseAt": "2026-03-20T17:45:00Z"
-}
-```
-
-Example create response:
-
-```json
-{
-  "id": "occ-001",
-  "eventId": "event-001",
-  "venueId": "venue-001",
-  "auditoriumId": "aud-001",
-  "startsAt": "2026-03-20T18:00:00Z",
-  "endsAt": "2026-03-20T20:30:00Z",
-  "status": "Draft"
-}
-```
-
----
-
-# Domain diagram
+# Domain Diagram
 
 ```mermaid
 classDiagram
@@ -490,7 +371,7 @@ class Organizer {
   +DateTime UpdatedAtUtc
 }
 
-class OrganizerBrandAppearance {
+class OrganizerBrand {
   +Guid Id
   +Guid OrganizerId
   +string PrimaryColor
@@ -521,20 +402,6 @@ class EventAppearance {
   +string ThemePreset
 }
 
-class Venue {
-  +Guid Id
-  +string Name
-  +string City
-  +string PostalCode
-  +string AddressLine
-}
-
-class Auditorium {
-  +Guid Id
-  +Guid VenueId
-  +string Name
-}
-
 class EventOccurrence {
   +Guid Id
   +Guid EventId
@@ -549,57 +416,9 @@ class EventOccurrence {
   +DateTime UpdatedAtUtc
 }
 
-class BookingSession {
-  +Guid Id
-  +Guid EventOccurrenceId
-  +string Phase
-  +string Status
-  +DateTime CreatedAtUtc
-  +DateTime ExpiresAtUtc
-}
-
 Organizer "1" --> "0..*" Event
-Organizer "1" --> "0..1" OrganizerBrandAppearance
+Organizer "1" --> "0..1" OrganizerBrand
 
 Event "1" --> "0..1" EventAppearance
 Event "1" --> "1..*" EventOccurrence
-
-EventOccurrence "0..*" --> "1" Venue
-EventOccurrence "0..*" --> "1" Auditorium
-
-Venue "1" --> "0..*" EventOccurrence
-Auditorium "1" --> "0..*" EventOccurrence
-
-EventOccurrence "1" --> "0..*" BookingSession
-```
-
-# Architectural Summary
-
-Organizer-level entities:
-
-- Organizer
-- OrganizerBrand
-
-Event-level entities:
-
-- Event
-- EventAppearance
-
-Scheduling-level entity:
-
-- EventOccurrence
-
-Core rules:
-
-- Organizer owns events and organizer branding.
-- OrganizerBrand acts as the default visual style.
-- EventAppearance is an optional event-level override.
-- Event may have multiple EventOccurrences.
-- Booking and seat availability must be tied to EventOccurrence.
-- The public event page combines event data, resolved appearance, and available occurrences.
-
-Inheritance rule:
-
-```text
-EventAppearance → overrides → OrganizerBrand
 ```
