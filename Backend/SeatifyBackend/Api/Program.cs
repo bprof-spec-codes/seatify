@@ -21,6 +21,21 @@ namespace Api
             var databaseProvider = builder.Configuration["Database:Provider"];
             var databaseName = builder.Configuration["Database:Name"] ?? "SeatifyDb";
 
+            var allowedOrigins = builder.Configuration
+                .GetSection("AllowedOrigins")
+                .Get<string[]>();
+
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AngularDev", policy =>
+                {
+                    policy
+                    .WithOrigins(allowedOrigins!)
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
+                });
+            });
+
             if (string.Equals(databaseProvider, "InMemory", StringComparison.OrdinalIgnoreCase))
             {
                 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -77,6 +92,8 @@ namespace Api
                     dbContext.SaveChanges();
                 }
             }
+
+            app.UseCors("DefaultCors");
 
             app.Run();
         }
