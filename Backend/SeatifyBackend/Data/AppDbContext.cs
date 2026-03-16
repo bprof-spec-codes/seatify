@@ -7,6 +7,9 @@ namespace Data
     public class AppDbContext : IdentityDbContext
     {
         public DbSet<Event> Events => Set<Event>();
+        public DbSet<Venue> Venues => Set<Venue>();
+        public DbSet<Auditorium> Auditoriums => Set<Auditorium>();
+        public DbSet<LayoutMatrix> LayoutMatrices => Set<LayoutMatrix>();
 
         public AppDbContext(DbContextOptions<AppDbContext> ctx) : base(ctx)
         {
