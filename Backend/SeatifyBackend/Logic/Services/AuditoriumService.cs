@@ -69,9 +69,20 @@ namespace Logic.Services
             };
         }
 
-        public Task<bool> DeleteAsync(string id, CancellationToken ct)
+        public async Task<bool> DeleteAsync(string id, CancellationToken ct)
         {
-            throw new NotImplementedException();
+            Auditorium? auditorium = _ctx.Auditoriums.FirstOrDefault(a => a.Id == id);
+
+            if (auditorium == null)
+            {
+                return false;
+            }
+
+            _ctx.Auditoriums.Remove(auditorium);
+
+            await _ctx.SaveChangesAsync(ct);
+
+            return true;
         }
 
         public Task<IReadOnlyList<AuditoriumViewDto>> GetAllAsync(CancellationToken ct)
@@ -79,14 +90,37 @@ namespace Logic.Services
             throw new NotImplementedException();
         }
 
-        public Task<AuditoriumViewDto?> GetByIdAsync(string id, CancellationToken ct)
+        public async Task<AuditoriumViewDto?> GetByIdAsync(string id, CancellationToken ct)
         {
-            throw new NotImplementedException();
+            return await _ctx.Auditoriums
+                .Where(a => a.Id == id)
+                .Include(a => a.LayoutMatrices)
+                .Select(a => new AuditoriumViewDto
+                {
+                    Id = a.Id,
+                    VenueId = a.VenueId,
+                    Name = a.Name,
+                    Description = a.Description,
+                    CreatedAtUtc = a.CreatedAtUtc,
+                    UpdatedAtUtc = a.UpdatedAtUtc
+                })
+                .FirstOrDefaultAsync(ct);
         }
 
-        public Task<IReadOnlyList<AuditoriumViewDto>> GetByVenueIdAsync(string venueId, CancellationToken ct)
+        public async Task<IReadOnlyList<AuditoriumViewDto>> GetByVenueIdAsync(string venueId, CancellationToken ct)
         {
-            throw new NotImplementedException();
+            return await _ctx.Auditoriums
+                .Where(a => a.VenueId == venueId)
+                .Select(a => new AuditoriumViewDto
+                {
+                    Id = a.Id,
+                    VenueId = a.VenueId,
+                    Name = a.Name,
+                    Description = a.Description,
+                    CreatedAtUtc = a.CreatedAtUtc,
+                    UpdatedAtUtc = a.UpdatedAtUtc
+                })
+                .ToListAsync(ct);
         }
 
         public Task<AuditoriumViewDto?> UpdateAsync(string id, AuditoriumCreateDto request, CancellationToken ct)
