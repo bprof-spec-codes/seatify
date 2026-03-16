@@ -1,9 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Entities.Helpers;
+using System.ComponentModel.DataAnnotations;
 
 namespace Entities.Models
 {
-    public class Auditorium
+    public class Auditorium : IIdEntity
     {
+        [Key]
         public string Id { get; set; } = string.Empty;
         public string VenueId { get; set; } = string.Empty;
         public Venue Venue { get; set; } = null!;
