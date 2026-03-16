@@ -18,7 +18,7 @@ namespace Api.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<EventsController>>> GetAll()
         {
-            var events = _dbContext.Events.ToListAsync();
+            var events = await _dbContext.Events.ToListAsync();
             return Ok(events);
         }
     }

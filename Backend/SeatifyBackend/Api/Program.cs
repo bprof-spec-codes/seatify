@@ -1,6 +1,5 @@
 
 using Data;
-using Entities.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Api
@@ -20,6 +19,21 @@ namespace Api
 
             var databaseProvider = builder.Configuration["Database:Provider"];
             var databaseName = builder.Configuration["Database:Name"] ?? "SeatifyDb";
+
+            var allowedOrigins = builder.Configuration
+                .GetSection("AllowedOrigins")
+                .Get<string[]>();
+
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AngularDev", policy =>
+                {
+                    policy
+                    .WithOrigins(allowedOrigins!)
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
+                });
+            });
 
             if (string.Equals(databaseProvider, "InMemory", StringComparison.OrdinalIgnoreCase))
             {
@@ -44,38 +58,14 @@ namespace Api
 
             app.UseAuthorization();
 
-
             app.MapControllers();
+
+            app.UseCors("DefaultCors");
 
             using (var scope = app.Services.CreateScope())
             {
-                var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-
-                if (!dbContext.Events.Any())
-                {
-                    dbContext.Events.AddRange(
-                        new Event
-                        {
-                            Id = Guid.NewGuid(),
-                            Name = "Teszt esemény 1",
-                            Description = "Elsõ seed esemény",
-                            StartsAt = DateTime.UtcNow.AddDays(7),
-                            EndsAt = DateTime.UtcNow.AddDays(7).AddHours(2),
-                            BasePrice = 4990
-                        },
-                        new Event
-                        {
-                            Id = Guid.NewGuid(),
-                            Name = "Teszt esemény 2",
-                            Description = "Második seed esemény",
-                            StartsAt = DateTime.UtcNow.AddDays(14),
-                            EndsAt = DateTime.UtcNow.AddDays(14).AddHours(3),
-                            BasePrice = 6990
-                        }
-                    );
-
-                    dbContext.SaveChanges();
-                }
+                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                DbSeeder.Seed(db);
             }
 
             app.Run();
