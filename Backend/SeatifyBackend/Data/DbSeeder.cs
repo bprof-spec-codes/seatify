@@ -92,6 +92,31 @@ namespace Data
                 ctx.Auditoriums.AddRange(auditoriums);
                 ctx.SaveChanges();
             }
+
+            if (!ctx.LayoutMatrices.Any())
+            {
+                var layoutMatrices = new List<LayoutMatrix>
+                {
+                    new LayoutMatrix
+                    {
+                        Id = "matrix-id-01",
+                        AuditoriumId = "aud-id-01"
+                    },
+                    new LayoutMatrix
+                    {
+                        Id = "matrix-id-02",
+                        AuditoriumId = "aud-id-02"
+                    },
+                    new LayoutMatrix
+                    {
+                        Id = "matrix-id-03",
+                        AuditoriumId = "aud-id-03"
+                    }
+                };
+
+                ctx.LayoutMatrices.AddRange(layoutMatrices);
+                ctx.SaveChanges();
+            }
         }
     }
 }

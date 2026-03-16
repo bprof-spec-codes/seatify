@@ -111,6 +111,11 @@ namespace Logic.Services
                     VenueId = a.VenueId,
                     Name = a.Name,
                     Description = a.Description,
+                    LayoutMatrices = a.LayoutMatrices.Select(lm => new LayoutMatrix //Ezt is lekell cserélni dto-ra, de nincs még megírva
+                    {
+                        Id = lm.Id,
+                        AuditoriumId = lm.AuditoriumId
+                    }).ToList(),
                     CreatedAtUtc = a.CreatedAtUtc,
                     UpdatedAtUtc = a.UpdatedAtUtc
                 })

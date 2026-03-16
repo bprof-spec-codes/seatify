@@ -19,6 +19,7 @@ namespace Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            //todo: Event, Venue, Auditorium, LayoutMatrix konfigurációk
         }
     }
 }
