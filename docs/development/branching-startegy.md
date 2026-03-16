@@ -86,6 +86,28 @@ git checkout -b feature/#42-seat-layout-editor-fe
 
 ---
 
+# Pull Request Workflow
+
+When your task is complete **do not merge your branch directly into develop.**
+
+Instead you must create a **Pull Request**.
+
+## Required Steps
+
+1. Push your branch to the repository.
+2. Open a **Pull Request from your branch → develop**.
+3. Set **yourself as the assignee**.
+4. Add the following reviewers: @szczukabendeguz (PM) @batoriandras (Architect)
+
+### Important Rule
+
+Never merge directly into `develop` from your local machine.
+
+All merges must happen through an approved **Pull Request**.
+
+---
+
+
 # Merge Checklist
 
 Before merging into develop:
