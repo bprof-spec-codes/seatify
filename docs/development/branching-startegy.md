@@ -47,13 +47,13 @@ Possible prefixes:
 
 feature  
 fix  
-docs
+docs  
 refactor
 
 Examples:
 
 fix/#73-seat-hold-timeout-be  
-docs/#23-developement-guide
+docs/#23-developement-guide  
 refactor/#95-event-service-cleanup-fe  
 
 ### Naming Rules
