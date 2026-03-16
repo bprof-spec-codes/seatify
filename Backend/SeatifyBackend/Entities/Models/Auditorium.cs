@@ -11,9 +11,9 @@ namespace Entities.Models
         [StringLength(50)]
         public string Name { get; set; } = string.Empty;
         [StringLength(500)]
-        public string? Description { get; set; } = string.Empty;
-        public DateTime CreatedAt { get; set; }
-        public DateTime UpdatedAt { get; set; }
+        public string? Description { get; set; }
+        public DateTime CreatedAtUtc { get; set; }
+        public DateTime UpdatedAtUtc { get; set; }
         public Venue Venue { get; set; } = null!;
         public ICollection<LayoutMatrix> LayoutMatrices { get; set; } = new List<LayoutMatrix>();
 
