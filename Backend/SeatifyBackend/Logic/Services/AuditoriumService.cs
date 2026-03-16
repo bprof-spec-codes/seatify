@@ -40,7 +40,7 @@ namespace Logic.Services
 
             var duplicate = await _ctx.Auditoriums.AnyAsync(a => a.VenueId == dto.VenueId && a.Name.ToLower() == dto.Name.ToLower(), ct);
 
-            if (!duplicate)
+            if (duplicate)
             {
                 throw new ArgumentException("Auditorium with this name already exists in this venue.");
             }
