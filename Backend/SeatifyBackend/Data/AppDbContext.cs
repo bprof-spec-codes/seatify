@@ -19,7 +19,20 @@ namespace Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            //todo: Event, Venue, Auditorium, LayoutMatrix konfigurációk
+
+            modelBuilder.Entity<Auditorium>()
+                .HasMany(a => a.LayoutMatrices)
+                .WithOne(lm => lm.Auditorium)
+                .HasForeignKey(lm => lm.AuditoriumId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Auditorium>()
+                .HasOne(a => a.Venue)
+                .WithMany(v => v.Auditoriums)
+                .HasForeignKey(a => a.VenueId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            //todo: Event, Venue, LayoutMatrix konfigurációk
         }
     }
 }
