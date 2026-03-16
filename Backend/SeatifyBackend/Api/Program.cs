@@ -1,5 +1,6 @@
 
 using Data;
+using Logic.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace Api
@@ -23,6 +24,9 @@ namespace Api
             var allowedOrigins = builder.Configuration
                 .GetSection("AllowedOrigins")
                 .Get<string[]>();
+
+            //ide jöhetnek a DI regisztraciok
+            builder.Services.AddScoped<IAuditoriumService, AuditoriumService>();
 
             builder.Services.AddCors(options =>
             {
