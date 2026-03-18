@@ -7,6 +7,7 @@ namespace Data
     public class AppDbContext : IdentityDbContext
     {
         public DbSet<Event> Events => Set<Event>();
+        public DbSet<Venue> Venues => Set<Venue>();
 
         public AppDbContext(DbContextOptions<AppDbContext> ctx) : base(ctx)
         {
