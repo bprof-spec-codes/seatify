@@ -1,5 +1,6 @@
-
 using Data;
+using Logic.Helper;
+using Logic.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace Api
@@ -23,6 +24,10 @@ namespace Api
             var allowedOrigins = builder.Configuration
                 .GetSection("AllowedOrigins")
                 .Get<string[]>();
+
+            builder.Services.AddTransient(typeof(Repository<>));
+            builder.Services.AddScoped<DtoProvider>();
+            builder.Services.AddScoped<VenueService>();
 
             builder.Services.AddCors(options =>
             {
