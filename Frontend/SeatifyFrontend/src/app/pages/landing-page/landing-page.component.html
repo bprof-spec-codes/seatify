@@ -1,1 +1,97 @@
-<p>landing-page works!</p>
+<div class="min-h-screen bg-[#F0F4F8] font-sans text-[#111827] flex flex-col relative overflow-hidden">
+
+  <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-400/20 rounded-full blur-[100px] pointer-events-none"></div>
+  <div class="absolute top-[20%] right-[-5%] w-[30%] h-[50%] bg-amber-400/10 rounded-full blur-[120px] pointer-events-none"></div>
+
+  <header class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50">
+    <div class="container mx-auto px-6 py-4 flex justify-between items-center max-w-7xl">
+      <div class="flex items-center gap-2 cursor-pointer">
+        <div class="w-8 h-8 bg-blue-600 rounded flex items-center justify-center text-white font-bold">S</div>
+        <span class="text-2xl font-extrabold text-[#111827] tracking-tight">Seatify</span>
+      </div>
+      <div class="flex gap-4">
+        <button class="hidden md:block text-blue-600 font-semibold hover:text-blue-800 px-4 py-2 transition">Sign Up</button>
+        <button class="bg-[#F59E0B] text-white px-6 py-2 rounded-lg font-bold hover:bg-[#d97706] shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all">Log In</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-grow container mx-auto px-6 py-12 md:py-20 max-w-6xl z-10">
+    
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+      
+      <div class="space-y-6 text-center lg:text-left">
+        <h1 class="text-5xl md:text-6xl font-extrabold text-[#111827] leading-tight tracking-tight">
+          Sell More Tickets, <br/>
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Effortlessly</span>
+        </h1>
+        <p class="text-lg text-blue-600/80 font-medium md:pr-10">
+          Affordable, customizable, and intuitive ticketing for event creators.
+        </p>
+        <div class="pt-4">
+          <button class="bg-[#F59E0B] text-white px-10 py-4 rounded-xl font-bold text-lg shadow-xl shadow-amber-500/30 hover:shadow-2xl hover:bg-[#ea580c] hover:-translate-y-1 transition-all">
+            START SELLING
+          </button>
+        </div>
+      </div>
+
+      <div class="flex justify-center lg:justify-end">
+        <div class="bg-white p-8 rounded-3xl shadow-2xl shadow-blue-900/10 border border-gray-100 w-full max-w-lg transform hover:scale-[1.02] transition-transform duration-300">
+          <div class="flex flex-col items-center gap-2 mb-8">
+            <div class="flex gap-2"><div class="w-5 h-5 bg-indigo-600 rounded-sm" *ngFor="let i of [1,2,3,4,5,6,7,8,9,10]"></div></div>
+            <div class="flex gap-2"><div class="w-5 h-5 bg-indigo-600 rounded-sm" *ngFor="let i of [1,2,3,4,5,6,7,8,9,10,11]"></div></div>
+            <div class="flex gap-2"><div class="w-5 h-5 bg-indigo-600 rounded-sm" *ngFor="let i of [1,2,3,4,5,6,7,8,9,10,11,12]"></div></div>
+            <div class="flex gap-2 mt-2"><div class="w-5 h-5 bg-emerald-500 rounded-sm" *ngFor="let i of [1,2,3,4,5,6,7,8,9,10,11,12,13]"></div></div>
+            <div class="flex gap-2"><div class="w-5 h-5 bg-emerald-500 rounded-sm" *ngFor="let i of [1,2,3,4,5,6,7,8,9,10,11,12,13,14]"></div></div>
+            <div class="flex gap-2"><div class="w-5 h-5 bg-emerald-500 rounded-sm" *ngFor="let i of [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]"></div></div>
+            <div class="flex gap-2 mt-2"><div class="w-5 h-5 bg-amber-500 rounded-sm" *ngFor="let i of [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]"></div></div>
+            <div class="flex gap-2"><div class="w-5 h-5 bg-amber-500 rounded-sm" *ngFor="let i of [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]"></div></div>
+            <div class="flex gap-2"><div class="w-5 h-5 bg-amber-500 rounded-sm" *ngFor="let i of [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]"></div></div>
+          </div>
+          
+          <hr class="border-gray-100 mb-6"/>
+          <div class="flex justify-center gap-6 text-sm font-medium text-gray-600">
+            <div class="flex items-center gap-2"><div class="w-4 h-4 bg-indigo-600 rounded-sm"></div> VIP</div>
+            <div class="flex items-center gap-2"><div class="w-4 h-4 bg-emerald-500 rounded-sm"></div> Standard</div>
+            <div class="flex items-center gap-2"><div class="w-4 h-4 bg-amber-500 rounded-sm"></div> Discounted</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-24 max-w-4xl mx-auto">
+      
+      <div class="bg-white p-10 rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
+        <div class="flex items-center gap-4 mb-8">
+          <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+          </div>
+          <h2 class="text-2xl font-bold text-gray-900">FOR ORGANIZERS</h2>
+        </div>
+        <ul class="space-y-4 text-gray-600 font-medium">
+          <li class="flex items-center gap-3"><svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Easy Event Setup</li>
+          <li class="flex items-center gap-3"><svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Flexible Seating Maps</li>
+          <li class="flex items-center gap-3"><svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Real-time Analytics</li>
+        </ul>
+      </div>
+
+      <div class="bg-white p-10 rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
+        <div class="flex items-center gap-4 mb-8">
+          <div class="w-12 h-12 bg-amber-50 text-amber-500 rounded-xl flex items-center justify-center text-xl">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+          </div>
+          <h2 class="text-2xl font-bold text-gray-900">FOR FANS</h2>
+        </div>
+        <ul class="space-y-4 text-gray-600 font-medium">
+          <li class="flex items-center gap-3"><svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Interactive Seat Selection</li>
+          <li class="flex items-center gap-3"><svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Secure Checkout</li>
+          <li class="flex items-center gap-3"><svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Mobile Tickets</li>
+        </ul>
+      </div>
+
+    </div>
+  </main>
+
+  <app-footer></app-footer>
+
+</div>
