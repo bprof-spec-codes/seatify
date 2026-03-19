@@ -73,6 +73,8 @@ namespace Logic.Services
 
         public async Task<bool> DeleteAsync(string id, CancellationToken ct)
         {
+            //Ha kész a seat, akkor itt ellenőrizni kell, hogy van-e olyan seat, ami ehhez a sectorhoz tartozik, és ha igen, akkor nem szabad törölni a sectort/vagy törölni a seat tulajdonságai közül
+
             Sector? sector = await _ctx.Sectors.FirstOrDefaultAsync(s => s.Id == id, ct);
             if (sector == null)
             {
