@@ -33,14 +33,14 @@ namespace Data
                 ctx.Events.AddRange(events);
                 ctx.SaveChanges();
             }
-
+            
             if (!ctx.Venues.Any())
             {
                 var venues = new List<Venue>
                 {
                     new Venue
                     {
-                        Id = "1",
+                        Id = "ven1",
                         Name = "Kulturális Fesztivál",
                         City = "Budapest",
                         PostalCode = "1011",
@@ -49,7 +49,7 @@ namespace Data
                     },
                     new Venue
                     {
-                        Id = "2",
+                        Id = "ven2",
                         Name = "Zenei Koncert",
                         City = "Debrecen",
                         PostalCode = "4025",
@@ -58,7 +58,7 @@ namespace Data
                     },
                     new Venue
                     {
-                        Id = "3",
+                        Id = "ven3",
                         Name = "Gasztro Expo",
                         City = "Szeged",
                         PostalCode = "6720",
@@ -68,6 +68,36 @@ namespace Data
                 };
                 
                 ctx.Venues.AddRange(venues);
+                ctx.SaveChanges();
+            }
+            
+            if (!ctx.Auditoriums.Any())
+            {
+                var auditoriums = new List<Auditorium>
+                {
+                    new Auditorium
+                    {
+                        Id = "aud1",
+                        VenueId = "ven1"
+                    },
+                    new Auditorium
+                    {
+                        Id = "aud2",
+                        VenueId = "ven1"
+                    },
+                    new Auditorium
+                    {
+                        Id = "aud3",
+                        VenueId = "ven3"
+                    },
+                    new Auditorium
+                    {
+                        Id = "aud4",
+                        VenueId = "ven3"
+                    }
+                };
+                
+                ctx.Auditoriums.AddRange(auditoriums);
                 ctx.SaveChanges();
             }
         }

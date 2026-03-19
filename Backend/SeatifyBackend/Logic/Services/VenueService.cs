@@ -26,7 +26,9 @@ public class VenueService
 
     public async Task<VenueViewDto> GetVenueByIdAsync(string venueId)
     {
-        Venue? venue = await _venueRepository.GetAll().FirstOrDefaultAsync(e => e.Id == venueId);
+        Venue? venue = await _venueRepository.GetAll()
+            .Include(v => v.Auditoriums)
+            .FirstOrDefaultAsync(e => e.Id == venueId);
 
         if (venue == null)
         {
@@ -39,8 +41,12 @@ public class VenueService
     
     public async Task<List<VenueViewDto>> GetAllVenuesAsync()
     {
-        List<VenueViewDto> venues = dtoProvider.Mapper.Map<List<VenueViewDto>>(await _venueRepository.GetAll().ToListAsync());
-        return venues;
+        var venues = await _venueRepository.GetAll()
+            .Include(v => v.Auditoriums)
+            .ToListAsync();
+        
+        List<VenueViewDto> venueDtos = dtoProvider.Mapper.Map<List<VenueViewDto>>(venues);
+        return venueDtos;
     }
 
     public async Task<Venue> UpdateVenueByIdAsync(VenueUpdateDto updateDto, string venueId)

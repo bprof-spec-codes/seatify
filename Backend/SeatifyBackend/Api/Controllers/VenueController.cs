@@ -60,8 +60,8 @@ public class VenueController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<List<VenueViewDto>>> GetAllVenues()
     {
-        var auditoriums = await _venueService.GetAllVenuesAsync();
-        return Ok(auditoriums);
+        var venue = await _venueService.GetAllVenuesAsync();
+        return Ok(venue);
     }
     
     //[Authorize]
