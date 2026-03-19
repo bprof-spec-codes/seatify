@@ -1,5 +1,7 @@
 ﻿using Data;
 using Entities.Dtos.Sector;
+using Entities.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Logic.Services
 {
@@ -23,7 +25,50 @@ namespace Logic.Services
 
         public async Task<SectorViewDto> CreateAsync(string auditoriumId, SectorCreateUpdateDto dto, CancellationToken ct)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrWhiteSpace(dto.Name))
+            {
+                throw new ArgumentException("Sector name is required.");
+            }
+
+            var auditoriumExists = await _ctx.Auditoriums.AnyAsync(a => a.Id == auditoriumId, ct);
+
+            if (!auditoriumExists)
+            {
+                throw new ArgumentException("Auditorium with the specified ID does not exist.");
+            }
+
+            var normalizedName = dto.Name.Trim().ToLower();
+
+            var duplicateExists = await _ctx.Sectors.AnyAsync(s => s.AuditoriumId == auditoriumId && s.Name.ToLower() == normalizedName, ct);
+
+            if (duplicateExists)
+            {
+                throw new ArgumentException("Sector with this name already exists in this auditorium.");
+            }
+
+            var sector = new Sector
+            {
+                AuditoriumId = auditoriumId,
+                Name = dto.Name.Trim(),
+                Color = string.IsNullOrWhiteSpace(dto.Color) ? "#FFFFFF" : dto.Color.Trim(),
+                BasePrice = dto.BasePrice,
+                CreatedAtUtc = DateTime.UtcNow,
+                UpdatedAtUtc = DateTime.UtcNow
+            };
+
+            _ctx.Sectors.Add(sector);
+            await _ctx.SaveChangesAsync(ct);
+
+            return new SectorViewDto
+            {
+                Id = sector.Id,
+                AuditoriumId = sector.AuditoriumId,
+                Name = sector.Name,
+                Color = sector.Color,
+                BasePrice = sector.BasePrice,
+                CreatedAtUtc = sector.CreatedAtUtc,
+                UpdatedAtUtc = sector.UpdatedAtUtc
+            };
         }
 
         public Task DeleteAsync(string id, CancellationToken ct)
