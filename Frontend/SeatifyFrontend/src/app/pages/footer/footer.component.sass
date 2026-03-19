@@ -1,33 +1,86 @@
+@use '../../../variables' as *
+
 .seatify-footer
-  background-color: #111827
-  color: #d1d5db
-  border-top: 1px solid #1f2937
+  background-color: $color-dark-950
+  color: $color-light-300
+  border-top: 1px solid rgba($color-light-50, 0.05) // Finom felső keret
+  padding-top: 2rem
 
   .brand-logo-box
-    width: 32px
-    height: 32px
-    background-color: #3b82f6
-    border-radius: 6px
+    width: 36px
+    height: 36px
+    background-color: $color-primary-500
+    border-radius: 8px
     display: flex
     align-items: center
     justify-content: center
-    color: white
-    font-weight: bold
+    color: $color-light-50
+    font-weight: 800
+    box-shadow: 0 4px 12px rgba($color-primary-500, 0.3)
 
-  .tracking-wider
-    letter-spacing: 0.05em
+  .footer-brand
+    color: $color-light-50
+    letter-spacing: -0.5px
+
+  .footer-desc
+    color: $color-dark-600
+    font-size: 0.95rem
+    line-height: 1.7
+
+  .social-links
+    a
+      color: $color-dark-600
+      font-size: 1.25rem
+      transition: all 0.3s ease
+      &:hover
+        color: $color-primary-500
+        transform: translateY(-3px)
+
+  .footer-heading
+    color: $color-light-50
+    font-size: 0.85rem
+    font-weight: 700
+    text-transform: uppercase
+    letter-spacing: 0.1em
 
   .footer-links
     li
-      margin-bottom: 0.75rem
-
+      margin-bottom: 0.85rem
       a
-        color: #9ca3af
+        color: $color-light-400
         text-decoration: none
-        transition: color 0.2s ease-in-out
-
+        font-size: 0.9rem
+        transition: all 0.2s ease
+        display: inline-block
         &:hover
-          color: #60a5fa
+          color: $color-primary-400
+          transform: translateX(5px) // Finom eltolás jobbra
 
-  hr.border-secondary
-    border-color: #374151 !important
+    .footer-mail
+      font-weight: 600
+      color: $color-primary-400
+
+  .footer-divider
+    border-color: rgba($color-light-50, 0.08) !important
+    opacity: 1
+
+  .footer-copy
+    color: $color-dark-700
+    font-size: 0.85rem
+
+  .trust-badges
+    .badge-item
+      color: $color-dark-600
+      font-size: 0.8rem
+      display: flex
+      align-items: center
+      gap: 0.5rem
+      
+      i
+        font-size: 1rem
+
+    .icon-success
+      color: $color-success-500
+
+    .icon-info
+      color: $color-info-500

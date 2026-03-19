@@ -1,95 +1,152 @@
+@use '../../../variables' as *
+
 .landing-wrapper
   min-height: 100vh
-  background-color: #f9fafb
+  background-color: $color-light-100
   position: relative
   overflow: hidden
-  font-family: 'Inter', system-ui, sans-serif
+
+.blur-navbar
+  background-color: rgba($color-light-50, 0.85)
+  backdrop-filter: blur(16px)
+  -webkit-backdrop-filter: blur(16px)
+  border-bottom: 1px solid rgba($color-dark-900, 0.05)
 
 .brand-logo-box
-  width: 32px
-  height: 32px
-  background-color: #3b82f6
-  border-radius: 6px
+  width: 36px
+  height: 36px
+  background-color: $color-primary-500
+  border-radius: 8px
   display: flex
   align-items: center
   justify-content: center
-  color: white
-  font-weight: bold
+  color: $color-light-50
+  font-weight: 800
+  font-size: 1.2rem
+  box-shadow: 0 4px 10px rgba($color-primary-500, 0.3)
 
-.blur-navbar
-  backdrop-filter: blur(12px)
-  -webkit-backdrop-filter: blur(12px)
+.nav-brand-text
+  color: $color-dark-950
+  letter-spacing: -0.5px
+
+.nav-link-text
+  color: $color-dark-600
+  transition: color 0.2s ease
+  &:hover
+    color: $color-primary-600
 
 .glow-blob
   position: absolute
   border-radius: 50%
-  filter: blur(100px)
+  filter: blur(120px)
   pointer-events: none
   z-index: 0
 
   &.blob-blue
-    top: -10%
+    top: -5%
     left: -10%
-    width: 40%
-    height: 40%
-    background-color: rgba(59, 130, 246, 0.15)
+    width: 50%
+    height: 50%
+    background-color: rgba($color-primary-500, 0.15)
 
   &.blob-amber
-    top: 20%
-    right: -5%
-    width: 30%
-    height: 50%
-    background-color: rgba(245, 158, 11, 0.1)
+    top: 25%
+    right: -10%
+    width: 40%
+    height: 60%
+    background-color: rgba($color-secondary-500, 0.12)
+
+.hero-title
+  color: $color-dark-950
+  letter-spacing: -1px
+
+.hero-subtitle
+  color: $color-dark-600
+  font-size: 1.15rem
+  line-height: 1.6
 
 .text-gradient
-  background: linear-gradient(90deg, #2563eb, #4f46e5)
+  background: linear-gradient(135deg, $color-primary-600, $color-primary-400)
   -webkit-background-clip: text
   -webkit-text-fill-color: transparent
 
 .btn-accent
-  background-color: #f59e0b
-  color: white
+  background-color: $color-secondary-500
+  color: $color-light-50
   border: none
-  transition: all 0.3s ease
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1)
   
   &:hover
-    background-color: #d97706
-    color: white
-    transform: translateY(-2px)
+    background-color: $color-secondary-600
+    color: $color-light-50
+    transform: translateY(-3px)
+    box-shadow: 0 15px 30px -5px rgba($color-secondary-500, 0.5) !important
 
 .hero-btn
-  box-shadow: 0 10px 25px -5px rgba(245, 158, 11, 0.4) !important
-  
+  box-shadow: 0 10px 25px -5px rgba($color-secondary-500, 0.4) !important
+
+.colosseum-wrapper
+  perspective: 1100px 
+
+.colosseum-card
+  background: linear-gradient(135deg, $color-light-50 0%, #f0f4f8 100%)
+  border: 1px solid rgba(255, 255, 255, 0.8) !important
+  box-shadow: -30px 40px 80px -20px rgba($color-dark-900, 0.2)
+  transform: rotateY(-14deg) rotateX(4deg)
+  transform-style: preserve-3d
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.6s ease
+
   &:hover
-    box-shadow: 0 20px 25px -5px rgba(245, 158, 11, 0.5) !important
+    transform: rotateY(-8deg) rotateX(2deg) translateY(-10px)
+    box-shadow: -40px 50px 90px -20px rgba($color-dark-900, 0.25)
 
-// Legend színek
-.bg-indigo
-  background-color: #4f46e5 !important
-.bg-emerald
-  background-color: #10b981 !important
-.bg-amber
-  background-color: #f59e0b !important
+.colosseum-footer
+  background-color: rgba($color-light-100, 0.6)
+  backdrop-filter: blur(12px)
+  -webkit-backdrop-filter: blur(12px)
+  border-top: 1px solid rgba(255, 255, 255, 0.6) !important
 
-.seat-sm
-  width: 14px
-  height: 14px
-  border-radius: 4px
+.custom-map-cta
+  color: $color-primary-700 // Legyen egy sötétkék, hogy passzoljon a brandhez
+  letter-spacing: -0.5px
+  font-size: 1.15rem
 
+// FEATURE CARDS (Itt a teljes kód, nem fog összeomlani!)
 .feature-card
+  background-color: $color-light-50
   border-radius: 1.5rem
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05)
-  transition: all 0.3s ease
+  box-shadow: 0 10px 25px -5px rgba($color-dark-950, 0.05)
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1)
+  border: 1px solid rgba($color-dark-900, 0.05) !important
   
   &:hover
-    transform: translateY(-5px)
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1)
+    transform: translateY(-8px)
+    box-shadow: 0 25px 50px -12px rgba($color-dark-950, 0.1)
+    border-color: rgba($color-primary-500, 0.2) !important
 
-  .icon-box
-    width: 48px
-    height: 48px
-    border-radius: 12px
-    display: flex
-    align-items: center
-    justify-content: center
-    font-size: 1.5rem
+.feature-title
+  color: $color-dark-950
+  letter-spacing: -0.5px
+
+.feature-list
+  color: $color-dark-600
+  
+.icon-check
+  color: $color-success-500
+
+.icon-box
+  width: 56px
+  height: 56px
+  border-radius: 16px
+  display: flex
+  align-items: center
+  justify-content: center
+  font-size: 1.75rem
+
+.icon-primary
+  color: $color-primary-500
+  background-color: rgba($color-primary-500, 0.1)
+
+.icon-warning
+  color: $color-secondary-500
+  background-color: rgba($color-secondary-500, 0.1)

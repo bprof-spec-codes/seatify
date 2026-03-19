@@ -3,14 +3,14 @@
   <div class="glow-blob blob-blue"></div>
   <div class="glow-blob blob-amber"></div>
 
-  <nav class="navbar navbar-expand-lg bg-white bg-opacity-75 blur-navbar sticky-top shadow-sm py-3">
+  <nav class="navbar navbar-expand-lg blur-navbar sticky-top shadow-sm py-3">
     <div class="container">
       <a class="navbar-brand d-flex align-items-center gap-2" href="#">
         <div class="brand-logo-box">S</div>
-        <span class="fs-4 fw-bolder text-dark">Seatify</span>
+        <span class="fs-4 fw-bolder nav-brand-text">Seatify</span>
       </a>
       <div class="d-flex gap-3">
-        <button class="btn btn-link text-decoration-none text-primary fw-semibold d-none d-md-block">Sign Up</button>
+        <button class="btn btn-link text-decoration-none fw-semibold d-none d-md-block nav-link-text">Sign Up</button>
         <button class="btn btn-accent shadow-sm fw-bold px-4">Log In</button>
       </div>
     </div>
@@ -20,30 +20,30 @@
     <div class="row align-items-center gy-5">
       
       <div class="col-lg-5 text-center text-lg-start pe-lg-4">
-        <h1 class="display-4 fw-bolder text-dark mb-4 lh-sm">
+        <h1 class="display-4 fw-bolder hero-title mb-4 lh-sm">
           Sell More Tickets, <br/>
           <span class="text-gradient">Effortlessly</span>
         </h1>
-        <p class="lead text-primary opacity-75 fw-medium mb-5">
-          Give your audience the ultimate perspective. Professional 3D seating maps for modern venues.
+        <p class="lead hero-subtitle fw-medium mb-5">
+          Give your audience the ultimate perspective.
         </p>
         <button class="btn btn-accent btn-lg px-5 py-3 fw-bold hero-btn shadow">
           START SELLING
         </button>
       </div>
 
-      <div class="col-lg-7">
-        <div class="card border-0 shadow-lg mx-auto rounded-4 overflow-hidden" style="background-color: #0f172a;">
+      <div class="col-lg-7 colosseum-wrapper">
+        <div class="card border-0 mx-auto rounded-4 overflow-hidden colosseum-card">
           
-          <div #canvasContainer class="w-100" style="height: 450px; cursor: grab;"></div>
+          <app-seat-map-display></app-seat-map-display>
           
-          <div class="card-footer bg-dark border-0 py-3">
-            <div class="d-flex justify-content-center gap-4 text-light small fw-medium">
-              <span class="d-flex align-items-center gap-2"><div class="seat-sm bg-indigo"></div> VIP</span>
-              <span class="d-flex align-items-center gap-2"><div class="seat-sm bg-emerald"></div> Standard</span>
-              <span class="d-flex align-items-center gap-2"><div class="seat-sm bg-amber"></div> Discounted</span>
-            </div>
+          <div class="card-footer border-0 py-4 colosseum-footer text-center">
+            <h5 class="mb-0 custom-map-cta fw-bolder">
+              <i class="bi bi-magic text-primary me-2"></i>
+              Build your own custom seating map
+            </h5>
           </div>
+          
         </div>
       </div>
 
@@ -55,15 +55,15 @@
         <div class="card feature-card border-0 p-4 h-100">
           <div class="card-body">
             <div class="d-flex align-items-center gap-3 mb-4">
-              <div class="icon-box text-primary bg-primary bg-opacity-10">
+              <div class="icon-box icon-primary">
                 <i class="bi bi-calendar3"></i>
               </div>
-              <h4 class="fw-bold mb-0">FOR ORGANIZERS</h4>
+              <h4 class="fw-bold mb-0 feature-title">FOR ORGANIZERS</h4>
             </div>
-            <ul class="list-unstyled text-muted fw-medium d-flex flex-column gap-3">
-              <li><i class="bi bi-check-circle-fill text-success me-2"></i> Easy Event Setup</li>
-              <li><i class="bi bi-check-circle-fill text-success me-2"></i> Flexible 3D Seating Maps</li>
-              <li><i class="bi bi-check-circle-fill text-success me-2"></i> Real-time Analytics</li>
+            <ul class="list-unstyled feature-list fw-medium d-flex flex-column gap-3">
+              <li><i class="bi bi-check-circle-fill icon-check me-2"></i> Easy Event Setup</li>
+              <li><i class="bi bi-check-circle-fill icon-check me-2"></i> Flexible Seating Maps</li>
+              <li><i class="bi bi-check-circle-fill icon-check me-2"></i> Real-time Analytics</li>
             </ul>
           </div>
         </div>
@@ -73,15 +73,15 @@
         <div class="card feature-card border-0 p-4 h-100">
           <div class="card-body">
             <div class="d-flex align-items-center gap-3 mb-4">
-              <div class="icon-box text-warning bg-warning bg-opacity-10">
+              <div class="icon-box icon-warning">
                 <i class="bi bi-phone"></i>
               </div>
-              <h4 class="fw-bold mb-0">FOR FANS</h4>
+              <h4 class="fw-bold mb-0 feature-title">FOR FANS</h4>
             </div>
-            <ul class="list-unstyled text-muted fw-medium d-flex flex-column gap-3">
-              <li><i class="bi bi-check-circle-fill text-success me-2"></i> Immersive 3D Seat Selection</li>
-              <li><i class="bi bi-check-circle-fill text-success me-2"></i> Secure Checkout</li>
-              <li><i class="bi bi-check-circle-fill text-success me-2"></i> Mobile Tickets</li>
+            <ul class="list-unstyled feature-list fw-medium d-flex flex-column gap-3">
+              <li><i class="bi bi-check-circle-fill icon-check me-2"></i> Immersive Seat Selection</li>
+              <li><i class="bi bi-check-circle-fill icon-check me-2"></i> Secure Checkout</li>
+              <li><i class="bi bi-check-circle-fill icon-check me-2"></i> Mobile Tickets</li>
             </ul>
           </div>
         </div>
