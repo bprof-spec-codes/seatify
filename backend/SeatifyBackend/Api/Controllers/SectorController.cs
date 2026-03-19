@@ -46,5 +46,37 @@ namespace Api.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+        [HttpPost("sectors/{id}")]
+        public async Task<ActionResult<SectorViewDto>> Update(string id, [FromBody] SectorCreateUpdateDto dto, CancellationToken ct)
+        {
+            try
+            {
+                var result = await _sectorService.UpdateAsync(id, dto, ct);
+                return Ok(result);
+            }
+            catch (ArgumentException ex)
+            {
+                if (ex.Message == "Sector not found.")
+                {
+                    return NotFound(new { message = ex.Message });
+                }
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpDelete("sectors/{id}")]
+        public async Task<ActionResult> Delete(string id, CancellationToken ct)
+        {
+            try
+            {
+                await _sectorService.DeleteAsync(id, ct);
+                return NoContent();
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+        }
     }
 }
