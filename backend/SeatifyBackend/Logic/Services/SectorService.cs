@@ -83,14 +83,39 @@ namespace Logic.Services
             return _ctx.SaveChangesAsync(ct);
         }
 
-        public Task<List<SectorViewDto>> GetByAuditoriumAsync(string auditoriumId, CancellationToken ct)
+        public async Task<List<SectorViewDto>> GetByAuditoriumAsync(string auditoriumId, CancellationToken ct)
         {
-            throw new NotImplementedException();
+            return await _ctx.Sectors
+                .Where(s => s.AuditoriumId == auditoriumId)
+                .OrderBy(s => s.Name)
+                .Select(s => new SectorViewDto
+                {
+                    Id = s.Id,
+                    AuditoriumId = s.AuditoriumId,
+                    Name = s.Name,
+                    Color = s.Color,
+                    BasePrice = s.BasePrice,
+                    CreatedAtUtc = s.CreatedAtUtc,
+                    UpdatedAtUtc = s.UpdatedAtUtc
+                })
+                .ToListAsync(ct);
         }
 
-        public Task<SectorViewDto?> GetByIdAsync(string id, CancellationToken ct)
+        public async Task<SectorViewDto?> GetByIdAsync(string id, CancellationToken ct)
         {
-            throw new NotImplementedException();
+            return await _ctx.Sectors
+                .Where(s => s.Id == id)
+                .Select(s => new SectorViewDto
+                {
+                    Id = s.Id,
+                    AuditoriumId = s.AuditoriumId,
+                    Name = s.Name,
+                    Color = s.Color,
+                    BasePrice = s.BasePrice,
+                    CreatedAtUtc = s.CreatedAtUtc,
+                    UpdatedAtUtc = s.UpdatedAtUtc
+                })
+                .FirstOrDefaultAsync(ct);
         }
 
         public Task<SectorViewDto> UpdateAsync(string id, SectorCreateUpdateDto dto, CancellationToken ct)
