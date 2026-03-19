@@ -11,7 +11,7 @@ namespace Logic.Services
         Task<List<SectorViewDto>> GetByAuditoriumAsync(string auditoriumId, CancellationToken ct);
         Task<SectorViewDto?> GetByIdAsync(string id, CancellationToken ct);
         Task<SectorViewDto> UpdateAsync(string id, SectorCreateUpdateDto dto, CancellationToken ct);
-        Task DeleteAsync(string id, CancellationToken ct);
+        Task<bool> DeleteAsync(string id, CancellationToken ct);
     }
 
     public class SectorService : ISectorService
