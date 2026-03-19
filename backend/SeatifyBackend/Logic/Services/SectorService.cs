@@ -71,16 +71,18 @@ namespace Logic.Services
             };
         }
 
-        public Task DeleteAsync(string id, CancellationToken ct)
+        public async Task<bool> DeleteAsync(string id, CancellationToken ct)
         {
-            var sector = _ctx.Sectors.FirstOrDefaultAsync(s => s.Id == id, ct);
+            Sector? sector = await _ctx.Sectors.FirstOrDefaultAsync(s => s.Id == id, ct);
             if (sector == null)
             {
                 throw new ArgumentException("Sector with the specified ID does not exist.");
             }
 
-            _ctx.Sectors.Remove(sector.Result);
-            return _ctx.SaveChangesAsync(ct);
+            _ctx.Sectors.Remove(sector);
+            await _ctx.SaveChangesAsync(ct);
+
+            return true;
         }
 
         public async Task<List<SectorViewDto>> GetByAuditoriumAsync(string auditoriumId, CancellationToken ct)
@@ -118,9 +120,45 @@ namespace Logic.Services
                 .FirstOrDefaultAsync(ct);
         }
 
-        public Task<SectorViewDto> UpdateAsync(string id, SectorCreateUpdateDto dto, CancellationToken ct)
+        public async Task<SectorViewDto> UpdateAsync(string id, SectorCreateUpdateDto dto, CancellationToken ct)
         {
-            throw new NotImplementedException();
+            var sector = await _ctx.Sectors.FirstOrDefaultAsync(s => s.Id == id, ct);
+
+            if (sector == null)
+            {
+                throw new ArgumentException("Sector with the specified ID does not exist.");
+            }
+
+            if (string.IsNullOrWhiteSpace(dto.Name))
+            {
+                throw new ArgumentException("Sector name is required.");
+            }
+
+            var normalizedName = dto.Name.Trim().ToLower();
+
+            var duplicateExists = await _ctx.Sectors.AnyAsync(s => s.AuditoriumId == sector.AuditoriumId && s.Name.ToLower() == normalizedName && s.Id != id, ct);
+
+            if (duplicateExists)
+            {
+                throw new ArgumentException("Sector with this name already exists in this auditorium.");
+            }
+
+            sector.Name = dto.Name.Trim();
+            sector.Color = string.IsNullOrWhiteSpace(dto.Color) ? "#FFFFFF" : dto.Color.Trim();
+            sector.BasePrice = dto.BasePrice;
+
+            await _ctx.SaveChangesAsync(ct);
+
+            return new SectorViewDto
+            {
+                Id = sector.Id,
+                AuditoriumId = sector.AuditoriumId,
+                Name = sector.Name,
+                Color = sector.Color,
+                BasePrice = sector.BasePrice,
+                CreatedAtUtc = sector.CreatedAtUtc,
+                UpdatedAtUtc = sector.UpdatedAtUtc
+            };
         }
     }
 }
