@@ -73,7 +73,14 @@ namespace Logic.Services
 
         public Task DeleteAsync(string id, CancellationToken ct)
         {
-            throw new NotImplementedException();
+            var sector = _ctx.Sectors.FirstOrDefaultAsync(s => s.Id == id, ct);
+            if (sector == null)
+            {
+                throw new ArgumentException("Sector with the specified ID does not exist.");
+            }
+
+            _ctx.Sectors.Remove(sector.Result);
+            return _ctx.SaveChangesAsync(ct);
         }
 
         public Task<List<SectorViewDto>> GetByAuditoriumAsync(string auditoriumId, CancellationToken ct)
