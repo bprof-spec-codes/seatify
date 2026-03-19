@@ -47,7 +47,7 @@ namespace Api.Controllers
             }
         }
 
-        [HttpPost("sectors/{id}")]
+        [HttpPut("sectors/{id}")]
         public async Task<ActionResult<SectorViewDto>> Update(string id, [FromBody] SectorCreateUpdateDto dto, CancellationToken ct)
         {
             try
