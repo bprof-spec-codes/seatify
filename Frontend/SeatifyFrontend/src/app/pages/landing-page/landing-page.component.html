@@ -19,37 +19,29 @@
   <main class="container py-5 mt-md-5 position-relative z-1">
     <div class="row align-items-center gy-5">
       
-      <div class="col-lg-6 text-center text-lg-start pe-lg-5">
+      <div class="col-lg-5 text-center text-lg-start pe-lg-4">
         <h1 class="display-4 fw-bolder text-dark mb-4 lh-sm">
           Sell More Tickets, <br/>
           <span class="text-gradient">Effortlessly</span>
         </h1>
         <p class="lead text-primary opacity-75 fw-medium mb-5">
-          Affordable, customizable, and intuitive ticketing for event creators.
+          Give your audience the ultimate perspective. Professional 3D seating maps for modern venues.
         </p>
         <button class="btn btn-accent btn-lg px-5 py-3 fw-bold hero-btn shadow">
           START SELLING
         </button>
       </div>
 
-      <div class="col-lg-6">
-        <div class="matrix-card card border-0 shadow-lg mx-auto">
-          <div class="card-body p-4 p-md-5">
-            <div class="seat-matrix d-flex flex-column align-items-center gap-2 mb-4">
-              <div class="d-flex gap-2"><div class="seat seat-vip" *ngFor="let i of [].constructor(10)"></div></div>
-              <div class="d-flex gap-2"><div class="seat seat-vip" *ngFor="let i of [].constructor(11)"></div></div>
-              <div class="d-flex gap-2 mt-2"><div class="seat seat-standard" *ngFor="let i of [].constructor(13)"></div></div>
-              <div class="d-flex gap-2"><div class="seat seat-standard" *ngFor="let i of [].constructor(14)"></div></div>
-              <div class="d-flex gap-2 mt-2"><div class="seat seat-discounted" *ngFor="let i of [].constructor(16)"></div></div>
-              <div class="d-flex gap-2"><div class="seat seat-discounted" *ngFor="let i of [].constructor(16)"></div></div>
-            </div>
-            
-            <hr class="text-muted opacity-25" />
-            
-            <div class="legend d-flex justify-content-center gap-4 text-muted small fw-medium mt-4">
-              <span class="d-flex align-items-center gap-2"><div class="seat-sm seat-vip"></div> VIP</span>
-              <span class="d-flex align-items-center gap-2"><div class="seat-sm seat-standard"></div> Standard</span>
-              <span class="d-flex align-items-center gap-2"><div class="seat-sm seat-discounted"></div> Discount</span>
+      <div class="col-lg-7">
+        <div class="card border-0 shadow-lg mx-auto rounded-4 overflow-hidden" style="background-color: #0f172a;">
+          
+          <div #canvasContainer class="w-100" style="height: 450px; cursor: grab;"></div>
+          
+          <div class="card-footer bg-dark border-0 py-3">
+            <div class="d-flex justify-content-center gap-4 text-light small fw-medium">
+              <span class="d-flex align-items-center gap-2"><div class="seat-sm bg-indigo"></div> VIP</span>
+              <span class="d-flex align-items-center gap-2"><div class="seat-sm bg-emerald"></div> Standard</span>
+              <span class="d-flex align-items-center gap-2"><div class="seat-sm bg-amber"></div> Discounted</span>
             </div>
           </div>
         </div>
@@ -70,7 +62,7 @@
             </div>
             <ul class="list-unstyled text-muted fw-medium d-flex flex-column gap-3">
               <li><i class="bi bi-check-circle-fill text-success me-2"></i> Easy Event Setup</li>
-              <li><i class="bi bi-check-circle-fill text-success me-2"></i> Flexible Seating Maps</li>
+              <li><i class="bi bi-check-circle-fill text-success me-2"></i> Flexible 3D Seating Maps</li>
               <li><i class="bi bi-check-circle-fill text-success me-2"></i> Real-time Analytics</li>
             </ul>
           </div>
@@ -87,7 +79,7 @@
               <h4 class="fw-bold mb-0">FOR FANS</h4>
             </div>
             <ul class="list-unstyled text-muted fw-medium d-flex flex-column gap-3">
-              <li><i class="bi bi-check-circle-fill text-success me-2"></i> Interactive Seat Selection</li>
+              <li><i class="bi bi-check-circle-fill text-success me-2"></i> Immersive 3D Seat Selection</li>
               <li><i class="bi bi-check-circle-fill text-success me-2"></i> Secure Checkout</li>
               <li><i class="bi bi-check-circle-fill text-success me-2"></i> Mobile Tickets</li>
             </ul>

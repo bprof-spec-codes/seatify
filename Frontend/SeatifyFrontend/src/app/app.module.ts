@@ -5,14 +5,14 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { LandingPageComponent } from './pages/landing-page/landing-page.component';
 import { FooterComponent } from './pages/footer/footer.component';
-import { SeatMap3dComponent } from './helpers/seat-map3d/seat-map3d.component';
+import { SeatMapDisplayComponent } from './helpers/seat-map-display/seat-map-display.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     LandingPageComponent,
     FooterComponent,
-    SeatMap3dComponent
+    SeatMapDisplayComponent,
   ],
   imports: [
     BrowserModule,
