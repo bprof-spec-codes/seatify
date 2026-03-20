@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Entities.Models;
 
 namespace Entities.Dtos.Auditorium;
 

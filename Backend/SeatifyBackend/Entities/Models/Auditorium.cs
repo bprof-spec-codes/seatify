@@ -22,7 +22,5 @@ public class Auditorium : IIdEntity
 
     public DateTime UpdatedAtUtc { get; set; }
 
-    public Venue Venue { get; set; } = null!;
-
     public ICollection<LayoutMatrix> LayoutMatrices { get; set; } = new List<LayoutMatrix>();
 }
