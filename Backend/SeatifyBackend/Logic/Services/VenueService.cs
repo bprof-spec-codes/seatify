@@ -85,4 +85,7 @@ public class VenueService
         _venueRepository.Delete(existingVenue);
         return true;
     }
+    
+    // TODO: remove commented out sections if organizer is implemented
+    // TODO: GET /api/locations/organizers/{OrganizerId}
 }

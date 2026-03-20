@@ -111,4 +111,7 @@ public class VenueController : ControllerBase
             return BadRequest(new { message = ex.Message });
         }
     }
+    
+    // TODO: remove commented out sections if organizer is implemented
+    // TODO: public async Task<IActionResult> GetVenueByOrganizerId(string organizerId)
 }

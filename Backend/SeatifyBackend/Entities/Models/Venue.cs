@@ -16,9 +16,11 @@ namespace Entities.Models
         
         public string AddressLine { get; set; } = string.Empty;
         
-        // TODO: FK
+        // TODO: FK to Organizer entity
         public string OrganizerId { get; set; } = string.Empty;
         
         public ICollection<Auditorium> Auditoriums { get; set; } = new List<Auditorium>();
+        
+        // TODO: connect Venue to EventOccurence
     }
 }
