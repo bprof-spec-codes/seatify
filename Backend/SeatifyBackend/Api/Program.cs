@@ -25,9 +25,11 @@ namespace Api
                 .GetSection("AllowedOrigins")
                 .Get<string[]>();
 
+            // DI registrations
             builder.Services.AddTransient(typeof(Repository<>));
             builder.Services.AddScoped<DtoProvider>();
             builder.Services.AddScoped<VenueService>();
+            builder.Services.AddScoped<IAuditoriumService, AuditoriumService>();
 
             builder.Services.AddCors(options =>
             {

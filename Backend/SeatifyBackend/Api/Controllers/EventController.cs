@@ -6,17 +6,17 @@ namespace Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class EventsController : ControllerBase
+    public class EventController : ControllerBase
     {
         private readonly AppDbContext _dbContext;
 
-        public EventsController(AppDbContext dbContext)
+        public EventController(AppDbContext dbContext)
         {
             _dbContext = dbContext;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<EventsController>>> GetAll()
+        public async Task<ActionResult<IEnumerable<EventController>>> GetAll()
         {
             var events = await _dbContext.Events.ToListAsync();
             return Ok(events);

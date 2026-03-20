@@ -9,6 +9,7 @@ namespace Data
         public DbSet<Event> Events => Set<Event>();
         public DbSet<Venue> Venues => Set<Venue>();
         public DbSet<Auditorium> Auditoriums => Set<Auditorium>();
+        public DbSet<LayoutMatrix> LayoutMatrices => Set<LayoutMatrix>();
 
         public AppDbContext(DbContextOptions<AppDbContext> ctx) : base(ctx)
         {
@@ -23,6 +24,20 @@ namespace Data
                 .HasMany(v => v.Auditoriums)
                 .WithOne(a => a.Venue)
                 .HasForeignKey(a => a.VenueId);
+
+            modelBuilder.Entity<Auditorium>()
+                .HasMany(a => a.LayoutMatrices)
+                .WithOne(lm => lm.Auditorium)
+                .HasForeignKey(lm => lm.AuditoriumId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Auditorium>()
+                .HasOne(a => a.Venue)
+                .WithMany(v => v.Auditoriums)
+                .HasForeignKey(a => a.VenueId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            //todo: Event, Venue, LayoutMatrix konfigurációk
         }
     }
 }

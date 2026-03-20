@@ -12,7 +12,7 @@ namespace Data
                     {
                         new Event
                         {
-                            Id = Guid.NewGuid(),
+                            Id = "event-id-01",
                             Name = "Teszt esemény 1",
                             Description = "Első seed esemény",
                             StartsAt = DateTime.UtcNow.AddDays(7),
@@ -21,7 +21,7 @@ namespace Data
                         },
                         new Event
                         {
-                            Id = Guid.NewGuid(),
+                            Id = "event-id-02",
                             Name = "Teszt esemény 2",
                             Description = "Második seed esemény",
                             StartsAt = DateTime.UtcNow.AddDays(14),
@@ -40,7 +40,7 @@ namespace Data
                 {
                     new Venue
                     {
-                        Id = "ven1",
+                        Id = "ven-id-01",
                         Name = "Kulturális Fesztivál",
                         City = "Budapest",
                         PostalCode = "1011",
@@ -49,7 +49,7 @@ namespace Data
                     },
                     new Venue
                     {
-                        Id = "ven2",
+                        Id = "ven-id-02",
                         Name = "Zenei Koncert",
                         City = "Debrecen",
                         PostalCode = "4025",
@@ -58,7 +58,7 @@ namespace Data
                     },
                     new Venue
                     {
-                        Id = "ven3",
+                        Id = "ven-id-03",
                         Name = "Gasztro Expo",
                         City = "Szeged",
                         PostalCode = "6720",
@@ -73,31 +73,74 @@ namespace Data
             
             if (!ctx.Auditoriums.Any())
             {
+                var venueIds = ctx.Venues.Select(v => v.Id).ToList();
+
                 var auditoriums = new List<Auditorium>
                 {
                     new Auditorium
                     {
-                        Id = "aud1",
-                        VenueId = "ven1"
+                        Id = "aud-id-01",
+                        VenueId = "ven-id-01",
+                        Name = "Nagyterem",
+                        Description = "Fő koncertterem",
+                        CreatedAtUtc = DateTime.UtcNow,
+                        UpdatedAtUtc = DateTime.UtcNow
                     },
                     new Auditorium
                     {
-                        Id = "aud2",
-                        VenueId = "ven1"
+                        Id = "aud-id-02",
+                        VenueId = "ven-id-01",
+                        Name = "Kisterem",
+                        Description = "Kisebb rendezvényekhez",
+                        CreatedAtUtc = DateTime.UtcNow,
+                        UpdatedAtUtc = DateTime.UtcNow
                     },
                     new Auditorium
                     {
-                        Id = "aud3",
-                        VenueId = "ven3"
+                        Id = "aud-id-03",
+                        VenueId = "ven-id-03",
+                        Name = "Konferencia terem A",
+                        Description = "Konferenciákhoz",
+                        CreatedAtUtc = DateTime.UtcNow,
+                        UpdatedAtUtc = DateTime.UtcNow
                     },
                     new Auditorium
                     {
-                        Id = "aud4",
-                        VenueId = "ven3"
+                        Id = "aud-id-04",
+                        VenueId = "ven-id-03",
+                        Name = "Konferencia terem B",
+                        Description = "Konferenciákhoz",
+                        CreatedAtUtc = DateTime.UtcNow,
+                        UpdatedAtUtc = DateTime.UtcNow
                     }
                 };
                 
                 ctx.Auditoriums.AddRange(auditoriums);
+                ctx.SaveChanges();
+            }
+            
+            if (!ctx.LayoutMatrices.Any())
+            {
+                var layoutMatrices = new List<LayoutMatrix>
+                {
+                    new LayoutMatrix
+                    {
+                        Id = "matrix-id-01",
+                        AuditoriumId = "aud-id-01"
+                    },
+                    new LayoutMatrix
+                    {
+                        Id = "matrix-id-02",
+                        AuditoriumId = "aud-id-02"
+                    },
+                    new LayoutMatrix
+                    {
+                        Id = "matrix-id-03",
+                        AuditoriumId = "aud-id-03"
+                    }
+                };
+
+                ctx.LayoutMatrices.AddRange(layoutMatrices);
                 ctx.SaveChanges();
             }
         }
