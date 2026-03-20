@@ -148,6 +148,7 @@ namespace Logic.Services
             sector.Name = dto.Name.Trim();
             sector.Color = string.IsNullOrWhiteSpace(dto.Color) ? "#FFFFFF" : dto.Color.Trim();
             sector.BasePrice = dto.BasePrice;
+            sector.UpdatedAtUtc = DateTime.UtcNow;
 
             await _ctx.SaveChangesAsync(ct);
 
