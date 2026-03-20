@@ -3,22 +3,20 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Entities.Models
 {
-    public class Auditorium : IIdEntity
+    public class Sector : IIdEntity
     {
         [Key]
         public string Id { get; set; } = string.Empty;
-        public string VenueId { get; set; } = string.Empty;
+        public string AuditoriumId { get; set; } = string.Empty;
         [StringLength(50)]
         public string Name { get; set; } = string.Empty;
-        [StringLength(500)]
-        public string? Description { get; set; }
+        [StringLength(30)]
+        public string Color { get; set; } = "#FFFFFF";
+        public decimal BasePrice { get; set; }
         public DateTime CreatedAtUtc { get; set; }
         public DateTime UpdatedAtUtc { get; set; }
-        public Venue Venue { get; set; } = null!;
-        public ICollection<LayoutMatrix> LayoutMatrices { get; set; } = new List<LayoutMatrix>();
-        public ICollection<Sector> Sectors { get; set; } = new List<Sector>();
-
-        public Auditorium()
+        public Auditorium Auditorium { get; set; } = null!;
+        public Sector()
         {
             Id = Guid.NewGuid().ToString();
         }
