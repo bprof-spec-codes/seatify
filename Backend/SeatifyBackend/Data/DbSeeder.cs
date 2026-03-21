@@ -143,6 +143,66 @@ namespace Data
                 ctx.LayoutMatrices.AddRange(layoutMatrices);
                 ctx.SaveChanges();
             }
+
+            if (!ctx.Sectors.Any())
+            {
+                var sectors = new List<Sector>
+                {
+                    new Sector
+                    {
+                        Id = "sector-id-01",
+                        AuditoriumId = "aud-id-01",
+                        Name = "VIP",
+                        Color = "#FFD700",
+                        BasePrice = 12000
+                    },
+                    new Sector
+                    {
+                        Id = "sector-id-02",
+                        AuditoriumId = "aud-id-01",
+                        Name = "Standard",
+                        Color = "#00FF00",
+                        BasePrice = 6000
+                    },
+                    new Sector
+                    {
+                        Id = "sector-id-03",
+                        AuditoriumId = "aud-id-01",
+                        Name = "Balcony",
+                        Color = "#0000FF",
+                        BasePrice = 8000
+                    },
+
+                    new Sector
+                    {
+                        Id = "sector-id-04",
+                        AuditoriumId = "aud-id-02",
+                        Name = "Front",
+                        Color = "#FF0000",
+                        BasePrice = 7000
+                    },
+                    new Sector
+                    {
+                        Id = "sector-id-05",
+                        AuditoriumId = "aud-id-02",
+                        Name = "Back",
+                        Color = "#AAAAAA",
+                        BasePrice = 4000
+                    },
+
+                    new Sector
+                    {
+                        Id = "sector-id-06",
+                        AuditoriumId = "aud-id-03",
+                        Name = "Premium",
+                        Color = "#FFA500",
+                        BasePrice = 9000
+                    }
+                };
+
+                ctx.Sectors.AddRange(sectors);
+                ctx.SaveChanges();
+            }
         }
     }
 }

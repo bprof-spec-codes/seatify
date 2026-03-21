@@ -30,6 +30,7 @@ namespace Api
             builder.Services.AddScoped<DtoProvider>();
             builder.Services.AddScoped<VenueService>();
             builder.Services.AddScoped<IAuditoriumService, AuditoriumService>();
+            builder.Services.AddScoped<ISectorService, SectorService>();
 
             builder.Services.AddCors(options =>
             {
