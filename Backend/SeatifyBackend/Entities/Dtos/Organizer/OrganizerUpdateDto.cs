@@ -15,5 +15,7 @@ namespace Entities.Dtos.Organizer
 
         [StringLength(30)]
         public string? BrandColor { get; set; }
+        
+        public string Email { get; set; } = string.Empty;
     }
 }
