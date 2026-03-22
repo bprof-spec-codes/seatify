@@ -124,27 +124,11 @@ namespace Logic.Services
                 throw new ArgumentException("Organizer with the specified ID does not exist.");
             }
 
-            if (string.IsNullOrWhiteSpace(dto.Email))
-            {
-                throw new ArgumentException("Organizer email is required.");
-            }
-
             if (string.IsNullOrWhiteSpace(dto.Name))
             {
                 throw new ArgumentException("Organizer name is required.");
             }
 
-            var normalizedEmail = dto.Email.Trim().ToLower();
-
-            var duplicateExists = await _ctx.Organizers
-                .AnyAsync(o => o.Id != id && o.Email.ToLower() == normalizedEmail, ct);
-
-            if (duplicateExists)
-            {
-                throw new ArgumentException("Organizer with this email already exists.");
-            }
-
-            organizer.Email = dto.Email.Trim();
             organizer.Name = dto.Name.Trim();
             organizer.BrandColor = string.IsNullOrWhiteSpace(dto.BrandColor) ? "#FFFFFF" : dto.BrandColor.Trim();
             organizer.UpdatedAtUtc = DateTime.UtcNow;
