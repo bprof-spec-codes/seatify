@@ -31,6 +31,7 @@ namespace Api
             builder.Services.AddScoped<VenueService>();
             builder.Services.AddScoped<IAuditoriumService, AuditoriumService>();
             builder.Services.AddScoped<ISectorService, SectorService>();
+            builder.Services.AddScoped<ISeatService, SeatService>();
 
             builder.Services.AddCors(options =>
             {
