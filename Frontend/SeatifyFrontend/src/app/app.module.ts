@@ -6,6 +6,7 @@ import { AppComponent } from './app.component';
 import { LandingPageComponent } from './pages/landing-page/landing-page.component';
 import { FooterComponent } from './pages/footer/footer.component';
 import { SeatMapDisplayComponent } from './helpers/seat-map-display/seat-map-display.component';
+import { VenueDashboardComponent } from './pages/venue-dashboard/venue-dashboard.component';
 
 @NgModule({
   declarations: [
@@ -13,6 +14,7 @@ import { SeatMapDisplayComponent } from './helpers/seat-map-display/seat-map-dis
     LandingPageComponent,
     FooterComponent,
     SeatMapDisplayComponent,
+    VenueDashboardComponent,
   ],
   imports: [
     BrowserModule,
