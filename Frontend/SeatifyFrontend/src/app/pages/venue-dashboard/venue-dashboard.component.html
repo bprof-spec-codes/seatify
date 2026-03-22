@@ -1,1 +1,15 @@
-<p>venue-dashboard works!</p>
+@for (venue of venues$ | async; track $index) {
+    <div>
+        <h2>{{ venue.name }}</h2>
+        <p>{{ venue.city }}</p>
+        <p>{{ venue.postalCode }}</p>
+        <p>{{ venue.addressLine }}</p>
+        <ul>
+            @for (auditorium of venue.auditoriums; track $index) {
+                <li>
+                    <p>{{ auditorium.name }}</p>
+                </li>
+            }
+        </ul>
+    </div>
+}

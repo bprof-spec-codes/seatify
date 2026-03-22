@@ -7,6 +7,7 @@ import { LandingPageComponent } from './pages/landing-page/landing-page.componen
 import { FooterComponent } from './pages/footer/footer.component';
 import { SeatMapDisplayComponent } from './helpers/seat-map-display/seat-map-display.component';
 import { VenueDashboardComponent } from './pages/venue-dashboard/venue-dashboard.component';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -18,7 +19,8 @@ import { VenueDashboardComponent } from './pages/venue-dashboard/venue-dashboard
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
+    HttpClientModule
   ],
   providers: [],
   bootstrap: [AppComponent]
