@@ -65,7 +65,7 @@ namespace Data
                 .HasOne(s => s.Sector)
                 .WithMany(sec => sec.Seats)
                 .HasForeignKey(s => s.SectorId)
-                .OnDelete(DeleteBehavior.SetNull);
+                .OnDelete(DeleteBehavior.Restrict);
 
             // unique coordinate within matrix
             modelBuilder.Entity<Seat>()
