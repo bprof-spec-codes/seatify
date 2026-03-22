@@ -10,11 +10,6 @@ namespace Entities.Dtos.Organizer
     public class OrganizerUpdateDto
     {
         [Required]
-        [EmailAddress]
-        [StringLength(255)]
-        public string Email { get; set; } = string.Empty;
-
-        [Required]
         [StringLength(100)]
         public string Name { get; set; } = string.Empty;
 
