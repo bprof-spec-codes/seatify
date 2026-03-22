@@ -1,5 +1,4 @@
-﻿using Azure.Core;
-using Entities.Dtos.Organizer;
+﻿using Entities.Dtos.Organizer;
 using Logic.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,8 +17,24 @@ namespace Api.Controllers
             _organizerService = organizerService;
         }
 
+        [HttpPost]
+        public async Task<ActionResult<OrganizerCreateDto>> CreateOrganizer(
+            [FromBody] OrganizerCreateDto dto,
+            CancellationToken ct)
+        {
+            try
+            {
+                var result = await _organizerService.CreateAsync(dto, ct);
+                return CreatedAtAction(nameof(GetOrganiser), new { id = result.Id }, result);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         [HttpGet]
-        public async Task<ActionResult<OrganizerViewDto>> GetProfile(CancellationToken ct)
+        public async Task<ActionResult<OrganizerViewDto>> GetOrganisers(CancellationToken ct)
         {
             try
             {
@@ -39,7 +54,27 @@ namespace Api.Controllers
             }
         }
 
-        [HttpPut]
+        [HttpGet("{id}")]
+        public async Task<ActionResult<OrganizerViewDto>>GetOrganiser(CancellationToken ct)
+        {     try
+            {
+                var organizerId = GetOrganizerIdFromRequest();
+                var result = await _organizerService.GetByIdAsync(organizerId, ct);
+                if (result == null)
+                {
+                    return NotFound("Organizer profile not found.");
+                }
+                return Ok(result);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+
+        [HttpPut("{id}")]
         public async Task<ActionResult<OrganizerUpdateDto>> UpdateProfile(
             [FromBody] OrganizerUpdateDto dto,
             CancellationToken ct)

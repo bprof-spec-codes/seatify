@@ -7,52 +7,40 @@ namespace Api.Controllers
     [ApiController]
     public class SeatsController : ControllerBase
     {
-        private readonly ISeatService _seatService;
+        private readonly SeatService _logic;
 
-        public SeatsController(ISeatService seatService)
+        public SeatsController(SeatService logic)
         {
-            _seatService = seatService;
+            _logic = logic;
+        }
+
+        [HttpPost("api/seats/batch")]
+        public async Task<ActionResult<IEnumerable<SeatViewDto>>> CreateBatch([FromBody] List<SeatViewDto> dtos)
+        {
+            var results = new List<SeatViewDto>();
+            foreach (var dto in dtos)
+            {
+                results.Add(await _logic.CreateAsync(dto));
+            }
+            return Ok(results);
         }
 
         [HttpGet("api/layout-matrices/{matrixId}/seats")]
-        public async Task<ActionResult<List<SeatViewDto>>> GetByMatrix(string matrixId, CancellationToken ct)
+        public async Task<ActionResult<IEnumerable<SeatViewDto>>> GetByMatrix([FromRoute] string matrixId)
         {
-            try
-            {
-                var result = await _seatService.GetByMatrixAsync(matrixId, ct);
-                return Ok(result);
-            }
-            catch (ArgumentException ex)
-            {
-                return NotFound(ex.Message);
-            }
+            return Ok(await _logic.GetByMatrixAsync(matrixId));
         }
 
         [HttpGet("api/seats/{seatId}")]
-        public async Task<ActionResult<SeatViewDto>> GetById(string seatId, CancellationToken ct)
+        public async Task<ActionResult<SeatViewDto>> GetById([FromRoute] string seatId)
         {
-            var result = await _seatService.GetByIdAsync(seatId, ct);
-
-            if (result == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(result);
+            return Ok(await _logic.GetByIdAsync(seatId));
         }
 
         [HttpPut("api/seats/{seatId}")]
-        public async Task<ActionResult<SeatViewDto>> Update(string seatId, [FromBody] SeatUpdateDto dto, CancellationToken ct)
+        public async Task<ActionResult<SeatViewDto>> Update([FromRoute] string seatId, [FromBody] SeatUpdateDto dto)
         {
-            try
-            {
-                var result = await _seatService.UpdateAsync(seatId, dto, ct);
-                return Ok(result);
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            return Ok(await _logic.UpdateAsync(seatId, dto));
         }
     }
 }

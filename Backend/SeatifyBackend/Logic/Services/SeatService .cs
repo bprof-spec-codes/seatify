@@ -13,28 +13,63 @@ namespace Logic.Services
 
     public interface ISeatService
     {
-        Task<List<SeatViewDto>> GetByMatrixAsync(string matrixId, CancellationToken ct);
-        Task<SeatViewDto?> GetByIdAsync(string seatId, CancellationToken ct);
-        Task<SeatViewDto> UpdateAsync(string seatId, SeatUpdateDto dto, CancellationToken ct);
+        Task<List<SeatViewDto>> GetByMatrixAsync(string matrixId);
+        Task<SeatViewDto?> GetByIdAsync(string seatId);
+        Task<SeatViewDto> UpdateAsync(string seatId, SeatUpdateDto dto);
     }
     public class SeatService : ISeatService
     {
-        private readonly AppDbContext _ctx;
+        private readonly AppDbContext _dbContext;
 
-        public SeatService(AppDbContext ctx)
+        public SeatService(AppDbContext dbContext)
         {
-            _ctx = ctx;
+            _dbContext = dbContext;
         }
 
-        public async Task<List<SeatViewDto>> GetByMatrixAsync(string matrixId, CancellationToken ct)
+        public async Task<SeatViewDto> CreateAsync(SeatViewDto dto)
         {
-            var matrixExists = await _ctx.LayoutMatrices.AnyAsync(m => m.Id == matrixId, ct);
+            var seat = new Seat
+            {
+                Id = Guid.NewGuid().ToString(),
+                MatrixId = dto.MatrixId,
+                Row = dto.Row,
+                Column = dto.Column,
+                SeatLabel = dto.SeatLabel,
+                SectorId = dto.SectorId,
+                PriceOverride = dto.PriceOverride,
+                SeatType = Enum.TryParse<SeatType>(dto.SeatType, true, out var parsedSeatType) ? parsedSeatType : throw new ArgumentException("Invalid seat type."),
+                CreatedAtUtc = DateTime.UtcNow,
+                UpdatedAtUtc = DateTime.UtcNow
+            };
+
+            _dbContext.Seats.Add(seat);
+            await _dbContext.SaveChangesAsync();
+
+            return new SeatViewDto
+            {
+                Id = seat.Id,
+                MatrixId = seat.MatrixId,
+                Row = seat.Row,
+                Column = seat.Column,
+                SeatLabel = seat.SeatLabel,
+                SectorId = seat.SectorId,
+                PriceOverride = seat.PriceOverride,
+                SeatType = seat.SeatType.ToString(),
+                IsBookable = seat.SeatType != SeatType.Aisle,
+                CreatedAtUtc = seat.CreatedAtUtc,
+                UpdatedAtUtc = seat.UpdatedAtUtc
+            };
+        }
+
+        public async Task<List<SeatViewDto>> GetByMatrixAsync(string matrixId)
+        {
+            var matrixExists = await _dbContext.LayoutMatrices.AnyAsync(m => m.Id == matrixId);
             if (!matrixExists)
             {
-                throw new ArgumentException("LayoutMatrix with the specified ID does not exist.");
+                throw new ArgumentException("LayoutMatrix not found.");
             }
 
-            return await _ctx.Seats
+            return await _dbContext.Seats
                 .Where(s => s.MatrixId == matrixId)
                 .OrderBy(s => s.Row)
                 .ThenBy(s => s.Column)
@@ -52,12 +87,12 @@ namespace Logic.Services
                     CreatedAtUtc = s.CreatedAtUtc,
                     UpdatedAtUtc = s.UpdatedAtUtc
                 })
-                .ToListAsync(ct);
+                .ToListAsync();
         }
 
-        public async Task<SeatViewDto?> GetByIdAsync(string seatId, CancellationToken ct)
+        public async Task<SeatViewDto?> GetByIdAsync(string seatId)
         {
-            return await _ctx.Seats
+            return await _dbContext.Seats
                 .Where(s => s.Id == seatId)
                 .Select(s => new SeatViewDto
                 {
@@ -73,15 +108,15 @@ namespace Logic.Services
                     CreatedAtUtc = s.CreatedAtUtc,
                     UpdatedAtUtc = s.UpdatedAtUtc
                 })
-                .FirstOrDefaultAsync(ct);
+                .FirstOrDefaultAsync();
         }
 
-        public async Task<SeatViewDto> UpdateAsync(string seatId, SeatUpdateDto dto, CancellationToken ct)
+        public async Task<SeatViewDto> UpdateAsync(string seatId, SeatUpdateDto dto)
         {
-            var seat = await _ctx.Seats.FirstOrDefaultAsync(s => s.Id == seatId, ct);
+            var seat = await _dbContext.Seats.FirstOrDefaultAsync(s => s.Id == seatId);
             if (seat == null)
             {
-                throw new ArgumentException("Seat with the specified ID does not exist.");
+                throw new ArgumentException("Seat not found.");
             }
 
             if (!Enum.TryParse<SeatType>(dto.SeatType, true, out var parsedSeatType))
@@ -91,16 +126,11 @@ namespace Logic.Services
 
             if (!string.IsNullOrWhiteSpace(dto.SectorId))
             {
-                var sectorExists = await _ctx.Sectors.AnyAsync(s => s.Id == dto.SectorId, ct);
+                var sectorExists = await _dbContext.Sectors.AnyAsync(s => s.Id == dto.SectorId);
                 if (!sectorExists)
                 {
-                    throw new ArgumentException("Sector with the specified ID does not exist.");
+                    throw new ArgumentException("Sector not found.");
                 }
-            }
-
-            if (seat.Row < 0 || seat.Column < 0)
-            {
-                throw new ArgumentException("Seat coordinates must be zero or greater.");
             }
 
             seat.SeatLabel = string.IsNullOrWhiteSpace(dto.SeatLabel) ? null : dto.SeatLabel.Trim();
@@ -109,7 +139,7 @@ namespace Logic.Services
             seat.SeatType = parsedSeatType;
             seat.UpdatedAtUtc = DateTime.UtcNow;
 
-            await _ctx.SaveChangesAsync(ct);
+            await _dbContext.SaveChangesAsync();
 
             return new SeatViewDto
             {
