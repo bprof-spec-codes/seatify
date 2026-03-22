@@ -28,6 +28,7 @@ namespace Api
             //ide jöhetnek a DI regisztraciok
             builder.Services.AddScoped<IAuditoriumService, AuditoriumService>();
             builder.Services.AddScoped<ISectorService, SectorService>();
+            builder.Services.AddScoped<IOrganizerService, OrganizerService>();
 
             builder.Services.AddCors(options =>
             {
