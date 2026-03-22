@@ -12,6 +12,7 @@ namespace Data
         public DbSet<LayoutMatrix> LayoutMatrices => Set<LayoutMatrix>();
         public DbSet<Sector> Sectors => Set<Sector>();
         public DbSet<Seat> Seats => Set<Seat>();
+        public DbSet<Organizer> Organizers => Set<Organizer>();
 
 
         public AppDbContext(DbContextOptions<AppDbContext> ctx) : base(ctx)
@@ -77,6 +78,11 @@ namespace Data
 
             modelBuilder.Entity<Seat>()
                 .HasIndex(s => s.SectorId);
+
+            // organizer
+            modelBuilder.Entity<Organizer>()
+                .HasIndex(o => o.Email)
+                .IsUnique();
 
             //todo: Event, Venue, LayoutMatrix konfigurációk
         }
