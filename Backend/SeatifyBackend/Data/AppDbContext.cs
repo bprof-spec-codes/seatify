@@ -11,6 +11,8 @@ namespace Data
         public DbSet<Auditorium> Auditoriums => Set<Auditorium>();
         public DbSet<LayoutMatrix> LayoutMatrices => Set<LayoutMatrix>();
         public DbSet<Sector> Sectors => Set<Sector>();
+        public DbSet<Organizer> Organizers => Set<Organizer>();
+
 
         public AppDbContext(DbContextOptions<AppDbContext> ctx) : base(ctx)
         {
@@ -48,6 +50,11 @@ namespace Data
 
             modelBuilder.Entity<Sector>()
                 .HasIndex(s => new { s.AuditoriumId, s.Name })
+                .IsUnique();
+
+            // organizer
+            modelBuilder.Entity<Organizer>()
+                .HasIndex(o => o.Email)
                 .IsUnique();
 
             //todo: Event, Venue, LayoutMatrix konfigurációk
