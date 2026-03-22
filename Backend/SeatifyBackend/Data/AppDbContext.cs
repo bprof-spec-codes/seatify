@@ -14,12 +14,17 @@ namespace Data
 
         public AppDbContext(DbContextOptions<AppDbContext> ctx) : base(ctx)
         {
-
+            
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            
+            modelBuilder.Entity<Venue>()
+                .HasMany(v => v.Auditoriums)
+                .WithOne(a => a.Venue)
+                .HasForeignKey(a => a.VenueId);
 
             //auditorium
             modelBuilder.Entity<Auditorium>()
