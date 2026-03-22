@@ -36,7 +36,7 @@ namespace Api
 
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy("AngularDev", policy =>
+                options.AddPolicy("AllowOrigin", policy =>
                 {
                     policy
                     .WithOrigins(allowedOrigins!)
@@ -70,7 +70,7 @@ namespace Api
 
             app.MapControllers();
 
-            app.UseCors("DefaultCors");
+            app.UseCors("AllowOrigin");
 
             using (var scope = app.Services.CreateScope())
             {
