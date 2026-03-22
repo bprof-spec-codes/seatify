@@ -7,11 +7,11 @@ namespace Logic.Services
 {
     public interface IAuditoriumService
     {
-        Task<AuditoriumViewDto> CreateAsync(AuditoriumCreateDto dto, CancellationToken ct);
+        Task<AuditoriumViewDto> CreateAsync(string venueId, AuditoriumCreateDto dto, CancellationToken ct);
         Task<IReadOnlyList<AuditoriumViewDto>> GetByVenueIdAsync(string venueId, CancellationToken ct);
-        Task<AuditoriumViewDto?> GetByIdAsync(string id, CancellationToken ct);
-        Task<AuditoriumViewDto?> UpdateAsync(string id, AuditoriumCreateDto dto, CancellationToken ct);
-        Task<bool> DeleteAsync(string id, CancellationToken ct);
+        Task<AuditoriumViewDto?> GetByIdAsync(string auditoriumId, CancellationToken ct);
+        Task<AuditoriumViewDto?> UpdateAsync(string auditoriumId, AuditoriumCreateDto dto, CancellationToken ct);
+        Task<bool> DeleteAsync(string auditoriumId, CancellationToken ct);
         Task<IReadOnlyList<AuditoriumViewDto>> GetAllAsync(CancellationToken ct);
     }
 
@@ -24,21 +24,21 @@ namespace Logic.Services
             _ctx = ctx;
         }
 
-        public async Task<AuditoriumViewDto> CreateAsync(AuditoriumCreateDto dto, CancellationToken ct)
+        public async Task<AuditoriumViewDto> CreateAsync(string venueId, AuditoriumCreateDto dto, CancellationToken ct)
         {
             if (string.IsNullOrWhiteSpace(dto.Name))
             {
                 throw new ArgumentException("Auditorium name is required.");
             }
 
-            bool venueExists = await _ctx.Venues.AnyAsync(v => v.Id == dto.VenueId, ct);
+            bool venueExists = await _ctx.Venues.AnyAsync(v => v.Id == venueId, ct);
 
             if (!venueExists)
             {
                 throw new ArgumentException("Venue with the specified ID does not exist.");
             }
 
-            var duplicate = await _ctx.Auditoriums.AnyAsync(a => a.VenueId == dto.VenueId && a.Name.ToLower() == dto.Name.ToLower(), ct);
+            var duplicate = await _ctx.Auditoriums.AnyAsync(a => a.VenueId == venueId && a.Name.ToLower() == dto.Name.ToLower(), ct);
 
             if (duplicate)
             {
@@ -47,7 +47,7 @@ namespace Logic.Services
 
             var auditorium = new Auditorium
             {
-                VenueId = dto.VenueId,
+                VenueId = venueId,
                 Name = dto.Name.Trim(),
                 Description = dto.Description?.Trim(),
                 CreatedAtUtc = DateTime.UtcNow,
@@ -69,9 +69,9 @@ namespace Logic.Services
             };
         }
 
-        public async Task<bool> DeleteAsync(string id, CancellationToken ct)
+        public async Task<bool> DeleteAsync(string auditoriumId, CancellationToken ct)
         {
-            Auditorium? auditorium = await _ctx.Auditoriums.FirstOrDefaultAsync(a => a.Id == id);
+            Auditorium? auditorium = await _ctx.Auditoriums.FirstOrDefaultAsync(a => a.Id == auditoriumId, ct);
 
             if (auditorium == null)
             {
@@ -100,10 +100,10 @@ namespace Logic.Services
                 .ToListAsync(ct);
         }
 
-        public async Task<AuditoriumViewDto?> GetByIdAsync(string id, CancellationToken ct)
+        public async Task<AuditoriumViewDto?> GetByIdAsync(string auditoriumId, CancellationToken ct)
         {
             return await _ctx.Auditoriums
-                .Where(a => a.Id == id)
+                .Where(a => a.Id == auditoriumId)
                 .Include(a => a.LayoutMatrices)
                 .Select(a => new AuditoriumViewDto
                 {
@@ -138,9 +138,9 @@ namespace Logic.Services
                 .ToListAsync(ct);
         }
 
-        public async Task<AuditoriumViewDto?> UpdateAsync(string id, AuditoriumCreateDto dto, CancellationToken ct)
+        public async Task<AuditoriumViewDto?> UpdateAsync(string auditoriumId, AuditoriumCreateDto dto, CancellationToken ct)
         {
-            Auditorium? auditorium = await _ctx.Auditoriums.FirstOrDefaultAsync(a => a.Id == id, ct);
+            Auditorium? auditorium = await _ctx.Auditoriums.FirstOrDefaultAsync(a => a.Id == auditoriumId, ct);
 
             if (auditorium == null)
             {
@@ -154,7 +154,7 @@ namespace Logic.Services
 
             string normalizedName = dto.Name.Trim().ToLower();
 
-            var duplicate = await _ctx.Auditoriums.AnyAsync(a => a.VenueId == dto.VenueId && a.Name.ToLower() == normalizedName && a.Id != id, ct);
+            var duplicate = await _ctx.Auditoriums.AnyAsync(a => a.VenueId == auditorium.VenueId && a.Name.ToLower() == normalizedName && a.Id != auditoriumId, ct);
 
             if (duplicate)
             {

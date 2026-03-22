@@ -3,12 +3,16 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { WelcomePageComponent } from './Components/WelcomePage/welcome-page/welcome-page.component';
+import { LandingPageComponent } from './pages/landing-page/landing-page.component';
+import { FooterComponent } from './pages/footer/footer.component';
+import { SeatMapDisplayComponent } from './helpers/seat-map-display/seat-map-display.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    WelcomePageComponent
+    LandingPageComponent,
+    FooterComponent,
+    SeatMapDisplayComponent,
   ],
   imports: [
     BrowserModule,

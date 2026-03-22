@@ -1,11 +1,11 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { WelcomePageComponent } from './Components/WelcomePage/welcome-page/welcome-page.component';
+import { LandingPageComponent } from './pages/landing-page/landing-page.component';
 
-const routes: Routes = [
-  {path: '', redirectTo: 'welcome', pathMatch: 'full'},
-  {path: 'welcome', component: WelcomePageComponent},
-  {path: '**', redirectTo: 'welcome', pathMatch: 'full'}
+export const routes: Routes = [
+  { path: '', component: LandingPageComponent },
+  {path: 'landingpage', component: LandingPageComponent},
+  { path: '**', redirectTo: '' }
 ];
 
 @NgModule({
