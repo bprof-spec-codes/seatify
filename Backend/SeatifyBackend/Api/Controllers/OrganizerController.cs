@@ -17,15 +17,16 @@ namespace Api.Controllers
             _organizerService = organizerService;
         }
 
+        //javitsd ki a controlereket a logic szolgaltatasoknak megfeleloen, es a dto-kat is, hogy a logikaban levo dto-kat hasznaljuk, ne a webapi-sakat
+
         [HttpPost]
-        public async Task<ActionResult<OrganizerCreateDto>> CreateOrganizer(
-            [FromBody] OrganizerCreateDto dto,
-            CancellationToken ct)
+        public async Task<ActionResult<OrganizerViewDto>> CreateProfile(
+            [FromBody] OrganizerCreateDto dto)
         {
             try
             {
-                var result = await _organizerService.CreateAsync(dto, ct);
-                return CreatedAtAction(nameof(GetOrganiser), new { id = result.Id }, result);
+                var result = await _organizerService.CreateAsync(dto);
+                return Ok(result);
             }
             catch (ArgumentException ex)
             {
@@ -34,12 +35,12 @@ namespace Api.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<OrganizerViewDto>> GetOrganisers(CancellationToken ct)
+        public async Task<ActionResult<OrganizerViewDto>> GetOrganisers()
         {
             try
             {
                 var organizerId = GetOrganizerIdFromRequest();
-                var result = await _organizerService.GetByIdAsync(organizerId, ct);
+                var result = await _organizerService.GetAllAsync();
 
                 if (result == null)
                 {
@@ -55,11 +56,11 @@ namespace Api.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<OrganizerViewDto>>GetOrganiser(CancellationToken ct)
+        public async Task<ActionResult<OrganizerViewDto>>GetOrganiser()
         {     try
             {
                 var organizerId = GetOrganizerIdFromRequest();
-                var result = await _organizerService.GetByIdAsync(organizerId, ct);
+                var result = await _organizerService.GetByIdAsync(organizerId);
                 if (result == null)
                 {
                     return NotFound("Organizer profile not found.");
@@ -76,14 +77,32 @@ namespace Api.Controllers
 
         [HttpPut("{id}")]
         public async Task<ActionResult<OrganizerUpdateDto>> UpdateProfile(
-            [FromBody] OrganizerUpdateDto dto,
-            CancellationToken ct)
+            [FromBody] OrganizerUpdateDto dto)
         {
             try
             {
                 var organizerId = GetOrganizerIdFromRequest();
-                var result = await _organizerService.UpdateAsync(organizerId, dto, ct);
+                var result = await _organizerService.UpdateAsync(organizerId, dto);
                 return Ok(result);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeleteProfile()
+        {
+            try
+            {
+                var organizerId = GetOrganizerIdFromRequest();
+                var success = await _organizerService.DeleteAsync(organizerId);
+                if (!success)
+                {
+                    return NotFound("Organizer profile not found.");
+                }
+                return NoContent();
             }
             catch (ArgumentException ex)
             {
