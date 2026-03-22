@@ -16,6 +16,8 @@ namespace Entities.Models
         public DateTime CreatedAtUtc { get; set; }
         public DateTime UpdatedAtUtc { get; set; }
         public Auditorium Auditorium { get; set; } = null!;
+        public ICollection<Seat> Seats { get; set; } = new List<Seat>();
+
         public Sector()
         {
             Id = Guid.NewGuid().ToString();
