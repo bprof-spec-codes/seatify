@@ -8,12 +8,19 @@ import { environment } from '../../environments/environment.development';
   providedIn: 'root'
 })
 export class AuditoriumService {
+  private apiUrl = `${environment.baseApiUrl}/api/auditoriums`;
   private venuesApiUrl = `${environment.baseApiUrl}/api/venues`;
 
   constructor(private http: HttpClient) {}
 
   getAuditoriumsByVenueId(venueId: string): Observable<Auditorium[]> {
     return this.http.get<Auditorium[]>(`${this.venuesApiUrl}/${venueId}/auditoriums`).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  deleteAuditoriumById(auditoriumId: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${auditoriumId}`).pipe(
       catchError(this.handleError)
     );
   }

@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Auditorium } from '../../models/auditorium';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuditoriumService } from '../../services/auditorium.service';
-import { Observable } from 'rxjs';
+import { Observable, of, Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-auditorium-dashboard',
@@ -12,7 +12,11 @@ import { Observable } from 'rxjs';
 })
 export class AuditoriumDashboardComponent implements OnInit {
   venueId!: string;
-  auditoriums!: Observable<Auditorium[]>;
+  auditoriums$!: Observable<Auditorium[]>;
+  auditoriums!: Auditorium[];
+  showModal: boolean = false;
+  selectedAuditorium!: Auditorium;
+  private unsubscribe$ = new Subject<void>();
 
   constructor(
     private router: Router, 
@@ -23,8 +27,18 @@ export class AuditoriumDashboardComponent implements OnInit {
   ngOnInit(): void {
     this.activatedRoute.params.subscribe(params => {
       this.venueId = params['venueId'];
-      this.auditoriums = this.auditoriumService.getAuditoriumsByVenueId(this.venueId);
+      //this.auditoriums$ = this.auditoriumService.getAuditoriumsByVenueId(this.venueId);
     });
+
+    this.auditoriumService.getAuditoriumsByVenueId(this.venueId).pipe(takeUntil(this.unsubscribe$)).subscribe(auditoriums => {
+      this.auditoriums = auditoriums;
+      this.auditoriums$ = of(this.auditoriums);
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
   }
 
   back(): void {
@@ -44,6 +58,25 @@ export class AuditoriumDashboardComponent implements OnInit {
   }
 
   confirmDelete(auditorium: Auditorium): void {
-    console.log('Confirm delete: ', auditorium);
+    this.selectedAuditorium = auditorium;
+    this.showModal = true;
+  }
+
+  deleteAuditorium(auditorium: Auditorium): void {
+    this.auditoriumService.deleteAuditoriumById(auditorium.id).subscribe({
+      next: () => {
+        console.log('Auditorium successfully deleted!');
+        this.auditoriums = this.auditoriums.filter(a => a.id !== auditorium.id);
+        this.auditoriums$ = of(this.auditoriums);
+        //this.auditoriums$ = this.auditoriumService.getAuditoriumsByVenueId(this.venueId);
+      },
+      error: err => console.error('Error: ', err.message)
+    });
+
+    this.cancelDelete();
+  }
+  
+  cancelDelete(): void {
+    this.showModal = false;
   }
 }

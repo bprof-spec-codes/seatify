@@ -14,7 +14,7 @@
 
 <div class="container mt-4">
     <div class="row">
-        @for (auditorium of auditoriums | async; track $index)
+        @for (auditorium of auditoriums$ | async; track $index)
         {
             <div class="col-md-4 mb-4" [attr.data-index]="$index">
                 <div class="card">
@@ -40,3 +40,12 @@
         }
     </div>
 </div>
+
+@if (showModal)
+{
+    <app-confirm-message
+        [item]="selectedAuditorium"
+        (confirm)="deleteAuditorium(selectedAuditorium)"
+        (cancel)="cancelDelete()">
+    </app-confirm-message>
+}
