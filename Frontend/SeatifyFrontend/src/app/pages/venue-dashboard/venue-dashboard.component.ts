@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { VenueService } from '../../services/venue.service';
 import { Observable, of, Subject, takeUntil } from 'rxjs';
 import { Venue } from '../../models/venue';
-import { Auditorium } from '../../models/auditorium';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-venue-dashboard',
@@ -18,7 +18,7 @@ export class VenueDashboardComponent implements OnInit {
   organizerId: string = "org-id-01"; // mock data
   private unsubscribe$ = new Subject<void>();
 
-  constructor(private venueService: VenueService) {}
+  constructor(private venueService: VenueService, private router: Router) {}
 
   ngOnInit(): void {
     this.venueService.getVenuesByOrganizerId(this.organizerId).pipe(takeUntil(this.unsubscribe$)).subscribe(venues => {
@@ -32,8 +32,8 @@ export class VenueDashboardComponent implements OnInit {
     this.unsubscribe$.complete();
   }
 
-  showVenueAuditoriums(auditoriums: Auditorium[]): void {
-    console.log('Auditoriums: ', auditoriums);
+  showVenueAuditoriums(venue: Venue): void {
+    this.router.navigate(['/auditoriums', venue.id]);
   }
 
   createVenue(): void {

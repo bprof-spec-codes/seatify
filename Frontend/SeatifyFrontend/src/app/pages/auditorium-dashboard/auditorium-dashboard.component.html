@@ -1,0 +1,8 @@
+<button type="button" class="btn btn-primary" (click)="back()">Back</button>
+
+@for (auditorium of auditoriums | async; track $index)
+{
+    <div>
+        {{ auditorium.name }}
+    </div>
+}
