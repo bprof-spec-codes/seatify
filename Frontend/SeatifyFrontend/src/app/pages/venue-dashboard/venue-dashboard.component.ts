@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { VenueService } from '../../services/venue.service';
-import { Observable } from 'rxjs';
+import { Observable, of, Subject, takeUntil } from 'rxjs';
 import { Venue } from '../../models/venue';
 import { Auditorium } from '../../models/auditorium';
 
@@ -12,12 +12,24 @@ import { Auditorium } from '../../models/auditorium';
 })
 export class VenueDashboardComponent implements OnInit {
   venues$!: Observable<Venue[]>;
+  venues!: Venue[];
+  showModal: boolean = false;
+  selectedVenue!: Venue;
   organizerId: string = "org-id-01"; // mock data
+  private unsubscribe$ = new Subject<void>();
 
   constructor(private venueService: VenueService) {}
 
   ngOnInit(): void {
-    this.venues$ = this.venueService.getVenuesByOrganizerId(this.organizerId);
+    this.venueService.getVenuesByOrganizerId(this.organizerId).pipe(takeUntil(this.unsubscribe$)).subscribe(venues => {
+      this.venues = venues;
+      this.venues$ = of(this.venues);
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
   }
 
   showVenueAuditoriums(auditoriums: Auditorium[]): void {
@@ -32,7 +44,26 @@ export class VenueDashboardComponent implements OnInit {
     console.log('Editing venue: ', venue);
   }
 
+  confirmDelete(venue: any): void {
+    this.selectedVenue = venue;
+    this.showModal = true;
+  }
+
   deleteVenue(venue: Venue): void {
-    console.log('Deleting venue: ', venue);
+    this.venueService.deleteVenueById(venue.id).subscribe({
+      next: () => {
+        console.log('Venue successfully deleted!');
+        this.venues = this.venues.filter(v => v.id !== venue.id);
+        this.venues$ = of(this.venues);
+        //this.venues$ = this.venueService.getVenuesByOrganizerId(this.organizerId);
+      },
+      error: err => console.error('Error: ', err.message)
+    });
+
+    this.cancelDelete();
+  }
+
+  cancelDelete(): void {
+    this.showModal = false;
   }
 }

@@ -42,7 +42,7 @@ export class VenueService {
     );
   }
 
-  deleteVenue(venueId: string): Observable<void> {
+  deleteVenueById(venueId: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${venueId}`).pipe(
       catchError(this.handleError)
     );

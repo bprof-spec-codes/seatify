@@ -6,7 +6,7 @@ import { VenueDashboardComponent } from './pages/venue-dashboard/venue-dashboard
 export const routes: Routes = [
   { path: '', component: LandingPageComponent },
   { path: 'landingpage', component: LandingPageComponent },
-  { path: 'venue-dashboard', component: VenueDashboardComponent },
+  { path: 'venues', component: VenueDashboardComponent },
   { path: '**', redirectTo: '' }
 ];
 

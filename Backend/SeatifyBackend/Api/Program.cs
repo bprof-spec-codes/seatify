@@ -65,12 +65,12 @@ namespace Api
             }
 
             app.UseHttpsRedirection();
+            
+            app.UseCors("AllowOrigin");
 
             app.UseAuthorization();
 
             app.MapControllers();
-
-            app.UseCors("AllowOrigin");
 
             using (var scope = app.Services.CreateScope())
             {
