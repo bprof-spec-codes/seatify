@@ -12,6 +12,7 @@ namespace Logic.Services
         Task<List<SeatViewDto>> GetByMatrixAsync(string matrixId, CancellationToken ct);
         Task<SeatViewDto?> GetByIdAsync(string seatId, CancellationToken ct);
         Task<SeatViewDto?> UpdateAsync(string seatId, SeatUpdateDto dto, CancellationToken ct);
+        Task<bool> DeleteAsync(string seatId, CancellationToken ct);
     }
 
     public class SeatService : ISeatService
@@ -286,6 +287,27 @@ namespace Logic.Services
             await _dbContext.SaveChangesAsync(ct);
 
             return MapToViewDto(seat);
+        }
+
+        public async Task<bool> DeleteAsync(string seatId, CancellationToken ct)
+        {
+            if (string.IsNullOrWhiteSpace(seatId))
+            {
+                throw new ArgumentException("SeatId is required.");
+            }
+
+            seatId = seatId.Trim();
+
+            var seat = await _dbContext.Seats.FirstOrDefaultAsync(s => s.Id == seatId, ct);
+            if (seat == null)
+            {
+                return false;
+            }
+
+            _dbContext.Seats.Remove(seat);
+            await _dbContext.SaveChangesAsync(ct);
+
+            return true;
         }
 
         private static SeatType ParseSeatType(string seatType)

@@ -105,5 +105,27 @@ namespace Api.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+        [HttpDelete("seats/{seatId}")]
+        public async Task<ActionResult> Delete(
+            string seatId,
+            CancellationToken ct)
+        {
+            try
+            {
+                var deleted = await _seatService.DeleteAsync(seatId, ct);
+
+                if (!deleted)
+                {
+                    return NotFound(new { message = "Seat not found" });
+                }
+
+                return NoContent();
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
     }
 }
