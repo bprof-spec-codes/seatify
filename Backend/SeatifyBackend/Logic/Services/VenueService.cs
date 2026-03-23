@@ -39,6 +39,24 @@ public class VenueService
         return venueViewDto;
     }
     
+    public async Task<List<VenueViewDto>> GetVenuesByOrganizerIdAsync(string organizerId)
+    {
+        var venues = await _venueRepository.GetAll()
+            .Include(v => v.Auditoriums)
+            .Where(v => v.OrganizerId == organizerId)
+            .ToListAsync();
+
+        if (venues == null || !venues.Any())
+        {
+            throw new Exception("No venues found for the specified organizer!");
+        }
+
+        List<VenueViewDto> venueViewDtos = venues.Select(v => 
+            dtoProvider.Mapper.Map<VenueViewDto>(v)).ToList();
+
+        return venueViewDtos;
+    }
+    
     public async Task<List<VenueViewDto>> GetAllVenuesAsync()
     {
         var venues = await _venueRepository.GetAll()
@@ -87,5 +105,4 @@ public class VenueService
     }
     
     // TODO: remove commented out sections if organizer is implemented
-    // TODO: GET /api/locations/organizers/{OrganizerId}
 }

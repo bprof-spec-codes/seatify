@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Api.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api")]
 public class VenueController : ControllerBase
 {
     private readonly VenueService _venueService;
@@ -19,7 +19,7 @@ public class VenueController : ControllerBase
     }
 
     //[Authorize]
-    [HttpPost]
+    [HttpPost("venues")]
     public async Task<IActionResult> CreateVenue([FromBody] VenueCreateDto venueCreateDto)
     {
         var organizerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -43,7 +43,7 @@ public class VenueController : ControllerBase
         }
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("venues/{id}")]
     public async Task<IActionResult> GetVenueById(string id)
     {
         try
@@ -57,15 +57,29 @@ public class VenueController : ControllerBase
         }
     }
     
-    [HttpGet]
+    [HttpGet("venues")]
     public async Task<ActionResult<List<VenueViewDto>>> GetAllVenues()
     {
         var venue = await _venueService.GetAllVenuesAsync();
         return Ok(venue);
     }
     
+    [HttpGet("venues/organizers/{organizerId}")]
+    public async Task<IActionResult> GetVenuesByOrganizerId(string organizerId)
+    {
+        try
+        {
+            var venues = await _venueService.GetVenuesByOrganizerIdAsync(organizerId);
+            return Ok(venues);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+    
     //[Authorize]
-    [HttpPut("{id}")]
+    [HttpPut("venues/{id}")]
     public async Task<IActionResult> UpdateVenueById([FromBody] VenueUpdateDto venueUpdateDto, string id)
     {
         var organizerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -90,7 +104,7 @@ public class VenueController : ControllerBase
     }
 
     //[Authorize]
-    [HttpDelete("{id}")]
+    [HttpDelete("venues/{id}")]
     public async Task<IActionResult> DeleteVenueById(string id)
     {
         var organizerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -113,5 +127,4 @@ public class VenueController : ControllerBase
     }
     
     // TODO: remove commented out sections if organizer is implemented
-    // TODO: public async Task<IActionResult> GetVenueByOrganizerId(string organizerId)
 }
