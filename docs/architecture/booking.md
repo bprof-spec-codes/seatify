@@ -602,7 +602,6 @@ EventOccurrence "1" --> "0..*" Reservation : results in
 Reservation "1" --> "1..*" ReservationSeat : contains
 Seat "1" --> "0..*" ReservationSeat : reserved as
 
-EventOccurrence "1" --> "0..*" Ticket : issues for
 ReservationSeat "1" --> "1..*" Ticket : generates
 ```
 
