@@ -11,11 +11,11 @@ import { Venue } from '../../models/venue';
 })
 export class VenueDashboardComponent implements OnInit {
   venues$!: Observable<Venue[]>;
+  organizerId: string = "org-id-01"; // mock data
 
   constructor(private venueService: VenueService) {}
 
   ngOnInit(): void {
-    // TODO: replace it with the logged in organizer's Venues
-    this.venues$ = this.venueService.getVenues();
+    this.venues$ = this.venueService.getVenuesByOrganizerId(this.organizerId);
   }
 }

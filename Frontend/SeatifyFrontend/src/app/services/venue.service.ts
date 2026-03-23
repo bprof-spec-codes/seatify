@@ -1,4 +1,4 @@
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, Observable, throwError } from 'rxjs';
 import { Venue } from '../models/venue';
@@ -8,12 +8,18 @@ import { environment } from '../../environments/environment.development';
   providedIn: 'root'
 })
 export class VenueService {
-  private apiUrl = `${environment.baseApiUrl}/api/venue`;
+  private apiUrl = `${environment.baseApiUrl}/api/venues`;
 
   constructor(private http: HttpClient) {}
 
   getVenue(venueId: string): Observable<Venue> {
     return this.http.get<Venue>(`${this.apiUrl}/${venueId}`).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  getVenuesByOrganizerId(organizerId: string): Observable<Venue[]> {
+    return this.http.get<Venue[]>(`${this.apiUrl}/organizers/${organizerId}`).pipe(
       catchError(this.handleError)
     );
   }
