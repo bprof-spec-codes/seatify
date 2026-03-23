@@ -17,7 +17,8 @@ namespace Entities.Models
         public string AddressLine { get; set; } = string.Empty;
         
         // TODO: FK to Organizer entity
-        public string OrganizerId { get; set; } = string.Empty;
+        public string OrganizerId { get; set; } = null!;
+        public virtual Organizer Organizer { get; set; } = null!;
         
         public ICollection<Auditorium> Auditoriums { get; set; } = new List<Auditorium>();
         
