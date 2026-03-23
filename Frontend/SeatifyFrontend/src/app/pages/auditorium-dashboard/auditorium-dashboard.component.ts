@@ -30,4 +30,20 @@ export class AuditoriumDashboardComponent implements OnInit {
   back(): void {
     this.router.navigate(['/venues']);
   }
+
+  viewAuditorium(auditorium: Auditorium): void {
+    console.log('View auditorium! ', auditorium);
+  }
+
+  createAuditorium(): void {
+    console.log('Create auditorium!');
+  }
+
+  editAuditorium(auditorium: Auditorium): void {
+    console.log('Edit auditorium! ', auditorium);
+  }
+
+  confirmDelete(auditorium: Auditorium): void {
+    console.log('Confirm delete: ', auditorium);
+  }
 }
