@@ -7,7 +7,8 @@ import { LandingPageComponent } from './pages/landing-page/landing-page.componen
 import { FooterComponent } from './pages/footer/footer.component';
 import { SeatMapDisplayComponent } from './helpers/seat-map-display/seat-map-display.component';
 import { VenueDashboardComponent } from './pages/venue-dashboard/venue-dashboard.component';
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { ConfirmMessageComponent } from './helpers/confirm-message/confirm-message.component';
 
 @NgModule({
   declarations: [
@@ -16,13 +17,15 @@ import { HttpClientModule } from '@angular/common/http';
     FooterComponent,
     SeatMapDisplayComponent,
     VenueDashboardComponent,
+    ConfirmMessageComponent,
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule,
-    HttpClientModule
+    AppRoutingModule
   ],
-  providers: [],
+  providers: [
+    provideHttpClient(withInterceptors([]))
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
