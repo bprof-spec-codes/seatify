@@ -5,64 +5,77 @@ using Microsoft.AspNetCore.Mvc;
 namespace Api.Controllers
 {
     [ApiController]
+    [Route("api")]
     public class SeatsController : ControllerBase
     {
-        private readonly ISeatService _logic;
+        private readonly ISeatService _seatService;
 
-        public SeatsController(ISeatService logic)
+        public SeatsController(ISeatService seatService)
         {
-            _logic = logic;
+            _seatService = seatService;
         }
 
-        [HttpPost("api/seats/batch")]
-        public async Task<ActionResult<IEnumerable<SeatViewDto>>> CreateBatch([FromBody] List<SeatCreateDto> dtos)
+        [HttpPost("seats/batch")]
+        public async Task<ActionResult<List<SeatViewDto>>> CreateBatch(
+            [FromBody] List<SeatViewDto> dtos,
+            CancellationToken ct)
         {
             try
             {
-                var result = await _logic.CreateBatchAsync(dtos);
-                return Ok(result);
+                var created = await _seatService.CreateBatchAsync(dtos, ct);
+                return Ok(created);
             }
             catch (ArgumentException ex)
             {
                 return BadRequest(new { message = ex.Message });
             }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new { message = ex.Message });
-            }
         }
 
-        [HttpGet("api/layout-matrices/{matrixId}/seats")]
-        public async Task<ActionResult<IEnumerable<SeatViewDto>>> GetByMatrix([FromRoute] string matrixId)
+        [HttpGet("seats")]
+        public async Task<ActionResult<List<SeatViewDto>>> GetAll(CancellationToken ct)
         {
             try
             {
-                var result = await _logic.GetByMatrixAsync(matrixId);
-                return Ok(result);
+                var seats = await _seatService.GetAllAsync(ct);
+                return Ok(seats);
             }
             catch (ArgumentException ex)
             {
                 return BadRequest(new { message = ex.Message });
             }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new { message = ex.Message });
-            }
         }
 
-        [HttpGet("api/seats/{seatId}")]
-        public async Task<ActionResult<SeatViewDto>> GetById([FromRoute] string seatId)
+        [HttpGet("layout-matrices/{matrixId}/seats")]
+        public async Task<ActionResult<List<SeatViewDto>>> GetByMatrix(
+            string matrixId,
+            CancellationToken ct)
         {
             try
             {
-                var result = await _logic.GetByIdAsync(seatId);
+                var seats = await _seatService.GetByMatrixAsync(matrixId, ct);
+                return Ok(seats);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
 
-                if (result == null)
+        [HttpGet("seats/{seatId}")]
+        public async Task<ActionResult<SeatViewDto>> GetById(
+            string seatId,
+            CancellationToken ct)
+        {
+            try
+            {
+                var seat = await _seatService.GetByIdAsync(seatId, ct);
+
+                if (seat == null)
                 {
-                    return NotFound(new { message = "Seat not found." });
+                    return NotFound(new { message = "Seat not found" });
                 }
 
-                return Ok(result);
+                return Ok(seat);
             }
             catch (ArgumentException ex)
             {
@@ -70,21 +83,26 @@ namespace Api.Controllers
             }
         }
 
-        [HttpPut("api/seats/{seatId}")]
-        public async Task<ActionResult<SeatViewDto>> Update([FromRoute] string seatId, [FromBody] SeatUpdateDto dto)
+        [HttpPut("seats/{seatId}")]
+        public async Task<ActionResult<SeatViewDto>> Update(
+            string seatId,
+            [FromBody] SeatUpdateDto dto,
+            CancellationToken ct)
         {
             try
             {
-                var result = await _logic.UpdateAsync(seatId, dto);
-                return Ok(result);
+                var updated = await _seatService.UpdateAsync(seatId, dto, ct);
+
+                if (updated == null)
+                {
+                    return NotFound(new { message = "Seat not found" });
+                }
+
+                return Ok(updated);
             }
             catch (ArgumentException ex)
             {
                 return BadRequest(new { message = ex.Message });
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new { message = ex.Message });
             }
         }
     }

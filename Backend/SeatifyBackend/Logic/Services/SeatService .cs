@@ -7,10 +7,11 @@ namespace Logic.Services
 {
     public interface ISeatService
     {
-        Task<List<SeatViewDto>> CreateBatchAsync(List<SeatCreateDto> dtos);
-        Task<List<SeatViewDto>> GetByMatrixAsync(string matrixId);
-        Task<SeatViewDto?> GetByIdAsync(string seatId);
-        Task<SeatViewDto> UpdateAsync(string seatId, SeatUpdateDto dto);
+        Task<List<SeatViewDto>> CreateBatchAsync(List<SeatViewDto> dtos, CancellationToken ct);
+        Task<List<SeatViewDto>> GetAllAsync(CancellationToken ct);
+        Task<List<SeatViewDto>> GetByMatrixAsync(string matrixId, CancellationToken ct);
+        Task<SeatViewDto?> GetByIdAsync(string seatId, CancellationToken ct);
+        Task<SeatViewDto?> UpdateAsync(string seatId, SeatUpdateDto dto, CancellationToken ct);
     }
 
     public class SeatService : ISeatService
@@ -22,31 +23,107 @@ namespace Logic.Services
             _dbContext = dbContext;
         }
 
-        public async Task<List<SeatViewDto>> CreateBatchAsync(List<SeatCreateDto> dtos)
+        public async Task<List<SeatViewDto>> CreateBatchAsync(List<SeatViewDto> dtos, CancellationToken ct)
         {
             if (dtos == null || dtos.Count == 0)
             {
                 throw new ArgumentException("At least one seat must be provided.");
             }
 
+            foreach (var dto in dtos)
+            {
+                if (string.IsNullOrWhiteSpace(dto.MatrixId))
+                {
+                    throw new ArgumentException("MatrixId is required.");
+                }
+
+                if (string.IsNullOrWhiteSpace(dto.SeatType))
+                {
+                    throw new ArgumentException("SeatType is required.");
+                }
+            }
+
+            // 1) MatrixId-k ellenőrzése
+            var matrixIds = dtos
+                .Select(x => x.MatrixId.Trim())
+                .Distinct()
+                .ToList();
+
+            var existingMatrixIds = await _dbContext.LayoutMatrices
+                .Where(x => matrixIds.Contains(x.Id))
+                .Select(x => x.Id)
+                .ToListAsync(ct);
+
+            var missingMatrixId = matrixIds.FirstOrDefault(x => !existingMatrixIds.Contains(x));
+            if (missingMatrixId != null)
+            {
+                throw new ArgumentException($"LayoutMatrix not found: {missingMatrixId}");
+            }
+
+            // 2) SectorId-k ellenőrzése
+            var sectorIds = dtos
+                .Where(x => !string.IsNullOrWhiteSpace(x.SectorId))
+                .Select(x => x.SectorId!.Trim())
+                .Distinct()
+                .ToList();
+
+            if (sectorIds.Count > 0)
+            {
+                var existingSectorIds = await _dbContext.Sectors
+                    .Where(x => sectorIds.Contains(x.Id))
+                    .Select(x => x.Id)
+                    .ToListAsync(ct);
+
+                var missingSectorId = sectorIds.FirstOrDefault(x => !existingSectorIds.Contains(x));
+                if (missingSectorId != null)
+                {
+                    throw new ArgumentException($"Sector not found: {missingSectorId}");
+                }
+            }
+
+            // 3) Duplikált pozíciók a requesten belül
             var duplicateInRequest = dtos
-                .GroupBy(x => new { x.MatrixId, x.Row, x.Column })
+                .GroupBy(x => new
+                {
+                    MatrixId = x.MatrixId.Trim(),
+                    x.Row,
+                    x.Column
+                })
                 .FirstOrDefault(g => g.Count() > 1);
 
             if (duplicateInRequest != null)
             {
                 throw new ArgumentException(
-                    $"Duplicate seat position in request for MatrixId='{duplicateInRequest.Key.MatrixId}', Row={duplicateInRequest.Key.Row}, Column={duplicateInRequest.Key.Column}.");
+                    $"Duplicate seat in request at MatrixId='{duplicateInRequest.Key.MatrixId}', Row={duplicateInRequest.Key.Row}, Column={duplicateInRequest.Key.Column}.");
             }
 
-            using var transaction = await _dbContext.Database.BeginTransactionAsync();
-
-            var createdSeats = new List<Seat>();
+            // 4) Duplikált pozíciók adatbázisban
+            var existingSeats = await _dbContext.Seats
+                .Where(s => matrixIds.Contains(s.MatrixId))
+                .Select(s => new { s.MatrixId, s.Row, s.Column })
+                .ToListAsync(ct);
 
             foreach (var dto in dtos)
             {
-                await ValidateCreateDtoAsync(dto);
+                var normalizedMatrixId = dto.MatrixId.Trim();
 
+                bool alreadyExists = existingSeats.Any(s =>
+                    s.MatrixId == normalizedMatrixId &&
+                    s.Row == dto.Row &&
+                    s.Column == dto.Column);
+
+                if (alreadyExists)
+                {
+                    throw new ArgumentException(
+                        $"A seat already exists at MatrixId='{normalizedMatrixId}', Row={dto.Row}, Column={dto.Column}.");
+                }
+            }
+
+            // 5) Enum parse és entitások létrehozása
+            var seatsToCreate = new List<Seat>();
+
+            foreach (var dto in dtos)
+            {
                 var parsedSeatType = ParseSeatType(dto.SeatType);
 
                 var seat = new Seat
@@ -63,17 +140,41 @@ namespace Logic.Services
                     UpdatedAtUtc = DateTime.UtcNow
                 };
 
-                _dbContext.Seats.Add(seat);
-                createdSeats.Add(seat);
+                seatsToCreate.Add(seat);
             }
 
-            await _dbContext.SaveChangesAsync();
-            await transaction.CommitAsync();
+            _dbContext.Seats.AddRange(seatsToCreate);
+            await _dbContext.SaveChangesAsync(ct);
 
-            return createdSeats.Select(MapToViewDto).ToList();
+            return seatsToCreate
+                .Select(MapToViewDto)
+                .ToList();
         }
 
-        public async Task<List<SeatViewDto>> GetByMatrixAsync(string matrixId)
+        public async Task<List<SeatViewDto>> GetAllAsync(CancellationToken ct)
+        {
+            return await _dbContext.Seats
+                .OrderBy(s => s.MatrixId)
+                .ThenBy(s => s.Row)
+                .ThenBy(s => s.Column)
+                .Select(s => new SeatViewDto
+                {
+                    Id = s.Id,
+                    MatrixId = s.MatrixId,
+                    Row = s.Row,
+                    Column = s.Column,
+                    SeatLabel = s.SeatLabel,
+                    SectorId = s.SectorId,
+                    PriceOverride = s.PriceOverride,
+                    SeatType = s.SeatType.ToString(),
+                    IsBookable = s.SeatType != SeatType.Aisle,
+                    CreatedAtUtc = s.CreatedAtUtc,
+                    UpdatedAtUtc = s.UpdatedAtUtc
+                })
+                .ToListAsync(ct);
+        }
+
+        public async Task<List<SeatViewDto>> GetByMatrixAsync(string matrixId, CancellationToken ct)
         {
             if (string.IsNullOrWhiteSpace(matrixId))
             {
@@ -82,10 +183,11 @@ namespace Logic.Services
 
             matrixId = matrixId.Trim();
 
-            var matrixExists = await _dbContext.LayoutMatrices.AnyAsync(m => m.Id == matrixId);
+            bool matrixExists = await _dbContext.LayoutMatrices.AnyAsync(m => m.Id == matrixId, ct);
+
             if (!matrixExists)
             {
-                throw new KeyNotFoundException("LayoutMatrix not found.");
+                throw new ArgumentException("LayoutMatrix not found.");
             }
 
             return await _dbContext.Seats
@@ -106,10 +208,10 @@ namespace Logic.Services
                     CreatedAtUtc = s.CreatedAtUtc,
                     UpdatedAtUtc = s.UpdatedAtUtc
                 })
-                .ToListAsync();
+                .ToListAsync(ct);
         }
 
-        public async Task<SeatViewDto?> GetByIdAsync(string seatId)
+        public async Task<SeatViewDto?> GetByIdAsync(string seatId, CancellationToken ct)
         {
             if (string.IsNullOrWhiteSpace(seatId))
             {
@@ -134,10 +236,10 @@ namespace Logic.Services
                     CreatedAtUtc = s.CreatedAtUtc,
                     UpdatedAtUtc = s.UpdatedAtUtc
                 })
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(ct);
         }
 
-        public async Task<SeatViewDto> UpdateAsync(string seatId, SeatUpdateDto dto)
+        public async Task<SeatViewDto?> UpdateAsync(string seatId, SeatUpdateDto dto, CancellationToken ct)
         {
             if (string.IsNullOrWhiteSpace(seatId))
             {
@@ -151,10 +253,10 @@ namespace Logic.Services
 
             seatId = seatId.Trim();
 
-            var seat = await _dbContext.Seats.FirstOrDefaultAsync(s => s.Id == seatId);
+            var seat = await _dbContext.Seats.FirstOrDefaultAsync(s => s.Id == seatId, ct);
             if (seat == null)
             {
-                throw new KeyNotFoundException("Seat not found.");
+                return null;
             }
 
             var parsedSeatType = ParseSeatType(dto.SeatType);
@@ -163,10 +265,10 @@ namespace Logic.Services
             {
                 var sectorId = dto.SectorId.Trim();
 
-                var sectorExists = await _dbContext.Sectors.AnyAsync(s => s.Id == sectorId);
+                bool sectorExists = await _dbContext.Sectors.AnyAsync(s => s.Id == sectorId, ct);
                 if (!sectorExists)
                 {
-                    throw new KeyNotFoundException("Sector not found.");
+                    throw new ArgumentException("Sector not found.");
                 }
 
                 seat.SectorId = sectorId;
@@ -181,62 +283,14 @@ namespace Logic.Services
             seat.SeatType = parsedSeatType;
             seat.UpdatedAtUtc = DateTime.UtcNow;
 
-            await _dbContext.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync(ct);
 
             return MapToViewDto(seat);
         }
 
-        private async Task ValidateCreateDtoAsync(SeatCreateDto dto)
-        {
-            if (dto == null)
-            {
-                throw new ArgumentException("Seat payload is required.");
-            }
-
-            if (string.IsNullOrWhiteSpace(dto.MatrixId))
-            {
-                throw new ArgumentException("MatrixId is required.");
-            }
-
-            var matrixId = dto.MatrixId.Trim();
-
-            var matrixExists = await _dbContext.LayoutMatrices.AnyAsync(m => m.Id == matrixId);
-            if (!matrixExists)
-            {
-                throw new KeyNotFoundException("LayoutMatrix not found.");
-            }
-
-            if (!string.IsNullOrWhiteSpace(dto.SectorId))
-            {
-                var sectorId = dto.SectorId.Trim();
-
-                var sectorExists = await _dbContext.Sectors.AnyAsync(s => s.Id == sectorId);
-                if (!sectorExists)
-                {
-                    throw new KeyNotFoundException("Sector not found.");
-                }
-            }
-
-            var seatExists = await _dbContext.Seats.AnyAsync(s =>
-                s.MatrixId == matrixId &&
-                s.Row == dto.Row &&
-                s.Column == dto.Column);
-
-            if (seatExists)
-            {
-                throw new ArgumentException(
-                    $"A seat already exists at MatrixId='{matrixId}', Row={dto.Row}, Column={dto.Column}.");
-            }
-        }
-
         private static SeatType ParseSeatType(string seatType)
         {
-            if (string.IsNullOrWhiteSpace(seatType))
-            {
-                throw new ArgumentException("SeatType is required.");
-            }
-
-            if (!Enum.TryParse<SeatType>(seatType.Trim(), true, out var parsedSeatType))
+            if (!Enum.TryParse<SeatType>(seatType?.Trim(), true, out var parsedSeatType))
             {
                 var validTypes = string.Join(", ", Enum.GetNames(typeof(SeatType)));
                 throw new ArgumentException($"Invalid seat type. Valid types are: {validTypes}");
