@@ -138,9 +138,7 @@ erDiagram
 
     TICKET {
         Guid Id PK
-        Guid ReservationId FK
-        Guid EventOccurrenceId FK
-        Guid SeatId FK
+        Guid ReservationSeatId FK
         string TicketCode
         string QrPayload
         string Status
@@ -173,7 +171,6 @@ erDiagram
     RESERVATION ||--|{ RESERVATION_SEAT : contains
     SEAT ||--o{ RESERVATION_SEAT : reserved_as
 
-    EVENT_OCCURRENCE ||--o{ TICKET : issues
-    RESERVATION ||--|{ TICKET : generates
-    SEAT ||--o{ TICKET : ticketed_as
+    RESERVATION_SEAT ||--o| TICKET : generates
+
 ```
