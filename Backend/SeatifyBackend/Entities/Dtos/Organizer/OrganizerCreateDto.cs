@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Entities.Models;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -22,7 +23,5 @@ namespace Entities.Dtos.Organizer
         [StringLength(100)]
         public string Name { get; set; } = string.Empty;
 
-        [StringLength(30)]
-        public string? BrandColor { get; set; }
     }
 }

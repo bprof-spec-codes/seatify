@@ -203,6 +203,43 @@ namespace Data
                 ctx.Sectors.AddRange(sectors);
                 ctx.SaveChanges();
             }
+
+            if (!ctx.Organizers.Any())
+            {
+                var organizers = new List<Organizer>
+                {
+                    new Organizer
+                    {
+                        Id = "org123",
+                        Name = "Budapest Event Organizers",
+                        Email = "contact@budapest-events.hu",
+                        Password = "HashedPassword123!",
+                        CreatedAtUtc = DateTime.UtcNow,
+                        UpdatedAtUtc = DateTime.UtcNow
+                    },
+                    new Organizer
+                    {
+                        Id = "org456",
+                        Name = "Debrecen Music Festivals",
+                        Email = "info@debrecen-music.hu",
+                        Password = "HashedPassword456!",
+                        CreatedAtUtc = DateTime.UtcNow,
+                        UpdatedAtUtc = DateTime.UtcNow
+                    },
+                    new Organizer
+                    {
+                        Id = "org789",
+                        Name = "Szeged Expo Management",
+                        Email = "hello@szeged-expo.hu",
+                        Password = "HashedPassword789!",
+                        CreatedAtUtc = DateTime.UtcNow,
+                        UpdatedAtUtc = DateTime.UtcNow
+                    }
+                };
+
+                ctx.Organizers.AddRange(organizers);
+                ctx.SaveChanges();
+            }
         }
     }
 }

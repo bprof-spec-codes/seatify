@@ -37,7 +37,6 @@ namespace Logic.Services
                 Id = Guid.NewGuid().ToString(),
                 Email = dto.Email.Trim(),
                 Name = dto.Name.Trim(),
-                BrandColor = string.IsNullOrWhiteSpace(dto.BrandColor) ? "#FFFFFF" : dto.BrandColor.Trim(),
                 CreatedAtUtc = DateTime.UtcNow,
                 UpdatedAtUtc = DateTime.UtcNow
             };
@@ -50,7 +49,6 @@ namespace Logic.Services
                 Id = organizer.Id,
                 Email = organizer.Email,
                 Name = organizer.Name,
-                BrandColor = organizer.BrandColor,
                 CreatedAtUtc = organizer.CreatedAtUtc,
                 UpdatedAtUtc = organizer.UpdatedAtUtc
             };
@@ -64,7 +62,6 @@ namespace Logic.Services
                     Id = o.Id,
                     Email = o.Email,
                     Name = o.Name,
-                    BrandColor = o.BrandColor,
                     CreatedAtUtc = o.CreatedAtUtc,
                     UpdatedAtUtc = o.UpdatedAtUtc
                 })
@@ -82,7 +79,6 @@ namespace Logic.Services
                     Id = o.Id,
                     Email = o.Email,
                     Name = o.Name,
-                    BrandColor = o.BrandColor,
                     CreatedAtUtc = o.CreatedAtUtc,
                     UpdatedAtUtc = o.UpdatedAtUtc
                 })
@@ -98,9 +94,6 @@ namespace Logic.Services
             }
 
             organizer.Name = dto.Name.Trim();
-            organizer.BrandColor = string.IsNullOrWhiteSpace(dto.BrandColor)
-                ? "#FFFFFF"
-                : dto.BrandColor.Trim();
             organizer.UpdatedAtUtc = DateTime.UtcNow;
 
             await _dbContext.SaveChangesAsync();
@@ -110,7 +103,6 @@ namespace Logic.Services
                 Id = organizer.Id,
                 Email = organizer.Email,
                 Name = organizer.Name,
-                BrandColor = organizer.BrandColor,
                 CreatedAtUtc = organizer.CreatedAtUtc,
                 UpdatedAtUtc = organizer.UpdatedAtUtc
             };

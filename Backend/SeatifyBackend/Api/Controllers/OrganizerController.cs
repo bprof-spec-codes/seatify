@@ -7,7 +7,7 @@ namespace Api.Controllers
 {
     [ApiController]
     [Route("api/organizer")]
-    [Authorize]
+    //[Authorize]
     public class OrganizerController : ControllerBase
     {
         private readonly IOrganizerService _organizerService;
@@ -17,7 +17,6 @@ namespace Api.Controllers
             _organizerService = organizerService;
         }
 
-        //javitsd ki a controlereket a logic szolgaltatasoknak megfeleloen, es a dto-kat is, hogy a logikaban levo dto-kat hasznaljuk, ne a webapi-sakat
 
         [HttpPost]
         public async Task<ActionResult<OrganizerViewDto>> CreateProfile(
@@ -35,11 +34,10 @@ namespace Api.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<OrganizerViewDto>> GetOrganisers()
+        public async Task<ActionResult<IEnumerable<OrganizerViewDto>>> GetOrganisers()
         {
             try
             {
-                var organizerId = GetOrganizerIdFromRequest();
                 var result = await _organizerService.GetAllAsync();
 
                 if (result == null)
@@ -56,16 +54,16 @@ namespace Api.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<OrganizerViewDto>>GetOrganiser()
-        {     try
+        public async Task<ActionResult<OrganizerViewDto>> GetOrganiser([FromRoute] string id)
+        {
+            try
             {
-                var organizerId = GetOrganizerIdFromRequest();
-                var result = await _organizerService.GetByIdAsync(organizerId);
+                var result = await _organizerService.GetByIdAsync(id);
                 if (result == null)
                 {
                     return NotFound("Organizer profile not found.");
                 }
-                return Ok(result);
+                return Ok(result);      
             }
             catch (ArgumentException ex)
             {
@@ -76,13 +74,13 @@ namespace Api.Controllers
 
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<OrganizerUpdateDto>> UpdateProfile(
+        public async Task<ActionResult<OrganizerViewDto>> UpdateProfile(
+            [FromRoute] string id,
             [FromBody] OrganizerUpdateDto dto)
         {
             try
             {
-                var organizerId = GetOrganizerIdFromRequest();
-                var result = await _organizerService.UpdateAsync(organizerId, dto);
+                var result = await _organizerService.UpdateAsync(id, dto);
                 return Ok(result);
             }
             catch (ArgumentException ex)
@@ -92,12 +90,11 @@ namespace Api.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteProfile()
+        public async Task<ActionResult> DeleteProfile([FromRoute] string id)
         {
             try
             {
-                var organizerId = GetOrganizerIdFromRequest();
-                var success = await _organizerService.DeleteAsync(organizerId);
+                var success = await _organizerService.DeleteAsync(id);
                 if (!success)
                 {
                     return NotFound("Organizer profile not found.");
@@ -108,23 +105,6 @@ namespace Api.Controllers
             {
                 return BadRequest(ex.Message);
             }
-        }
-
-        private string GetOrganizerIdFromRequest()
-        {
-            if (!Request.Headers.TryGetValue("X-Organizer-Id", out var organizerId))
-            {
-                throw new ArgumentException("Missing X-Organizer-Id header.");
-            }
-
-            var value = organizerId.ToString();
-
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                throw new ArgumentException("Invalid organizer id.");
-            }
-
-            return value;
         }
     }
 }
