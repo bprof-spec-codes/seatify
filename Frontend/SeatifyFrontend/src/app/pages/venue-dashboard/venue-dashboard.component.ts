@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { VenueService } from '../../services/venue.service';
 import { Observable } from 'rxjs';
 import { Venue } from '../../models/venue';
+import { Auditorium } from '../../models/auditorium';
 
 @Component({
   selector: 'app-venue-dashboard',
@@ -17,5 +18,21 @@ export class VenueDashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.venues$ = this.venueService.getVenuesByOrganizerId(this.organizerId);
+  }
+
+  showVenueAuditoriums(auditoriums: Auditorium[]): void {
+    console.log('Auditoriums: ', auditoriums);
+  }
+
+  createVenue(): void {
+    console.log('Create venue!');
+  }
+
+  editVenue(venue: Venue): void {
+    console.log('Editing venue: ', venue);
+  }
+
+  deleteVenue(venue: Venue): void {
+    console.log('Deleting venue: ', venue);
   }
 }

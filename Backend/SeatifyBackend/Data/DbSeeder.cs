@@ -63,7 +63,16 @@ namespace Data
                         City = "Szeged",
                         PostalCode = "6720",
                         AddressLine = "Klauzál tér 3.",
-                        OrganizerId = "org-id-02"
+                        OrganizerId = "org-id-01"
+                    },
+                    new Venue
+                    {
+                        Id = "ven-id-05",
+                        Name = "Random Venue",
+                        City = "Szeged",
+                        PostalCode = "6720",
+                        AddressLine = "Klauzál tér 10.",
+                        OrganizerId = "org-id-01"
                     },
                     new Venue
                     {
@@ -72,8 +81,8 @@ namespace Data
                         City = "Szeged",
                         PostalCode = "6724",
                         AddressLine = "Klauzál tér 4.",
-                        OrganizerId = "org-id-01"
-                    },
+                        OrganizerId = "org-id-02"
+                    }
                 };
                 
                 ctx.Venues.AddRange(venues);
