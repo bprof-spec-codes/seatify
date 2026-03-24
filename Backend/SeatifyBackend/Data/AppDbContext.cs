@@ -13,6 +13,7 @@ namespace Data
         public DbSet<Sector> Sectors => Set<Sector>();
         public DbSet<Seat> Seats => Set<Seat>();
         public DbSet<Organizer> Organizers => Set<Organizer>();
+        public DbSet<Appearance> Appearances => Set<Appearance>();
 
 
         public AppDbContext(DbContextOptions<AppDbContext> ctx) : base(ctx)
@@ -91,6 +92,12 @@ namespace Data
 
             modelBuilder.Entity<LayoutMatrix>()
                 .HasIndex(lm => lm.AuditoriumId);
+            // appearance
+            modelBuilder.Entity<Appearance>()
+                .HasOne(a => a.Organizer)
+                .WithMany(o => o.Appearances)
+                .HasForeignKey(a => a.OrganizerId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             //todo: Event, Venue, LayoutMatrix konfigurációk
         }

@@ -13,167 +13,110 @@ namespace Logic.Services
 {
     public interface IOrganizerService
     {
-        Task<OrganizerViewDto> CreateAsync(OrganizerCreateDto dto, CancellationToken ct);
-        Task<List<OrganizerViewDto>> GetAllAsync(CancellationToken ct);
-        Task<OrganizerViewDto?> GetByIdAsync(string id, CancellationToken ct);
-        Task<OrganizerViewDto> UpdateAsync(string id, OrganizerUpdateDto dto, CancellationToken ct);
-        Task<bool> DeleteAsync(string id, CancellationToken ct);
+        Task<OrganizerViewDto> CreateAsync(OrganizerCreateDto dto);
+        Task<List<OrganizerViewDto>> GetAllAsync();
+        Task<OrganizerViewDto?> GetByIdAsync(string id);
+        Task<OrganizerViewDto> UpdateAsync(string id, OrganizerUpdateDto dto);
+        Task<bool> DeleteAsync(string id);
     }
 
     public class OrganizerService : IOrganizerService
     {
-        private readonly AppDbContext _ctx;
+        private readonly AppDbContext _dbContext;
         private readonly PasswordHasher<Organizer> _passwordHasher;
 
-        public OrganizerService(AppDbContext ctx)
+        public OrganizerService(AppDbContext dbContext)
         {
-            _ctx = ctx;
+            _dbContext = dbContext;
             _passwordHasher = new PasswordHasher<Organizer>();
         }
-
-        public async Task<OrganizerViewDto> CreateAsync(OrganizerCreateDto dto, CancellationToken ct)
+        public async Task<OrganizerViewDto> CreateAsync(OrganizerCreateDto dto)
         {
-            if (string.IsNullOrWhiteSpace(dto.Email))
-            {
-                throw new ArgumentException("Organizer email is required.");
-            }
-
-            if (string.IsNullOrWhiteSpace(dto.Password))
-            {
-                throw new ArgumentException("Password is required.");
-            }
-
-            if (string.IsNullOrWhiteSpace(dto.Name))
-            {
-                throw new ArgumentException("Organizer name is required.");
-            }
-
-            var normalizedEmail = dto.Email.Trim().ToLower();
-
-            var duplicateExists = await _ctx.Organizers
-                .AnyAsync(o => o.Email.ToLower() == normalizedEmail, ct);
-
-            if (duplicateExists)
-            {
-                throw new ArgumentException("Organizer with this email already exists.");
-            }
-
             var organizer = new Organizer
             {
+                Id = Guid.NewGuid().ToString(),
                 Email = dto.Email.Trim(),
                 Name = dto.Name.Trim(),
-                BrandColor = string.IsNullOrWhiteSpace(dto.BrandColor) ? "#FFFFFF" : dto.BrandColor.Trim(),
                 CreatedAtUtc = DateTime.UtcNow,
                 UpdatedAtUtc = DateTime.UtcNow
             };
 
-            organizer.PasswordHash = _passwordHasher.HashPassword(organizer, dto.Password);
-
-            _ctx.Organizers.Add(organizer);
-            await _ctx.SaveChangesAsync(ct);
+            _dbContext.Organizers.Add(organizer);
+            await _dbContext.SaveChangesAsync();
 
             return new OrganizerViewDto
             {
                 Id = organizer.Id,
                 Email = organizer.Email,
                 Name = organizer.Name,
-                BrandColor = organizer.BrandColor,
                 CreatedAtUtc = organizer.CreatedAtUtc,
                 UpdatedAtUtc = organizer.UpdatedAtUtc
             };
         }
 
-        public async Task<List<OrganizerViewDto>> GetAllAsync(CancellationToken ct)
+        public async Task<List<OrganizerViewDto>> GetAllAsync()
         {
-            return await _ctx.Organizers
-                .OrderBy(o => o.Name)
+            return await _dbContext.Organizers
                 .Select(o => new OrganizerViewDto
                 {
                     Id = o.Id,
                     Email = o.Email,
                     Name = o.Name,
-                    BrandColor = o.BrandColor,
                     CreatedAtUtc = o.CreatedAtUtc,
                     UpdatedAtUtc = o.UpdatedAtUtc
                 })
-                .ToListAsync(ct);
+                .ToListAsync();
         }
 
-        public async Task<OrganizerViewDto?> GetByIdAsync(string id, CancellationToken ct)
+
+
+        public async Task<OrganizerViewDto?> GetByIdAsync(string id)
         {
-            return await _ctx.Organizers
+            return await _dbContext.Organizers
                 .Where(o => o.Id == id)
                 .Select(o => new OrganizerViewDto
                 {
                     Id = o.Id,
                     Email = o.Email,
                     Name = o.Name,
-                    BrandColor = o.BrandColor,
                     CreatedAtUtc = o.CreatedAtUtc,
                     UpdatedAtUtc = o.UpdatedAtUtc
                 })
-                .FirstOrDefaultAsync(ct);
+                .FirstOrDefaultAsync();
         }
 
-        public async Task<OrganizerViewDto> UpdateAsync(string id, OrganizerUpdateDto dto, CancellationToken ct)
+        public async Task<OrganizerViewDto> UpdateAsync(string id, OrganizerUpdateDto dto)
         {
-            var organizer = await _ctx.Organizers.FirstOrDefaultAsync(o => o.Id == id, ct);
-
+            var organizer = await _dbContext.Organizers.FirstOrDefaultAsync(o => o.Id == id);
             if (organizer == null)
             {
-                throw new ArgumentException("Organizer with the specified ID does not exist.");
+                throw new ArgumentException("Organizer not found.");
             }
 
-            if (string.IsNullOrWhiteSpace(dto.Email))
-            {
-                throw new ArgumentException("Organizer email is required.");
-            }
-
-            if (string.IsNullOrWhiteSpace(dto.Name))
-            {
-                throw new ArgumentException("Organizer name is required.");
-            }
-
-            var normalizedEmail = dto.Email.Trim().ToLower();
-
-            var duplicateExists = await _ctx.Organizers
-                .AnyAsync(o => o.Id != id && o.Email.ToLower() == normalizedEmail, ct);
-
-            if (duplicateExists)
-            {
-                throw new ArgumentException("Organizer with this email already exists.");
-            }
-
-            organizer.Email = dto.Email.Trim();
             organizer.Name = dto.Name.Trim();
-            organizer.BrandColor = string.IsNullOrWhiteSpace(dto.BrandColor) ? "#FFFFFF" : dto.BrandColor.Trim();
             organizer.UpdatedAtUtc = DateTime.UtcNow;
 
-            await _ctx.SaveChangesAsync(ct);
+            await _dbContext.SaveChangesAsync();
 
             return new OrganizerViewDto
             {
                 Id = organizer.Id,
                 Email = organizer.Email,
                 Name = organizer.Name,
-                BrandColor = organizer.BrandColor,
                 CreatedAtUtc = organizer.CreatedAtUtc,
                 UpdatedAtUtc = organizer.UpdatedAtUtc
             };
         }
 
-        public async Task<bool> DeleteAsync(string id, CancellationToken ct)
+        public async Task<bool> DeleteAsync(string id)
         {
-            var organizer = await _ctx.Organizers.FirstOrDefaultAsync(o => o.Id == id, ct);
-
+            var organizer = await _dbContext.Organizers.FirstOrDefaultAsync(o => o.Id == id);
             if (organizer == null)
             {
-                throw new ArgumentException("Organizer with the specified ID does not exist.");
+                return false;
             }
-
-            _ctx.Organizers.Remove(organizer);
-            await _ctx.SaveChangesAsync(ct);
-
+            _dbContext.Organizers.Remove(organizer);
+            await _dbContext.SaveChangesAsync();
             return true;
         }
     }

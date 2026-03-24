@@ -14,19 +14,18 @@ namespace Entities.Models
         public string Id { get; set; } = string.Empty;
 
         [Required]
+        [StringLength(100)]
+        public string Name { get; set; } = string.Empty;
+
+        [Required]
         [StringLength(255)]
         [EmailAddress]
         public string Email { get; set; } = string.Empty;
 
         [Required]
-        public string PasswordHash { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
 
-        [Required]
-        [StringLength(100)]
-        public string Name { get; set; } = string.Empty;
-
-        [StringLength(30)]
-        public string BrandColor { get; set; } = "#FFFFFF";
+        public ICollection<Appearance> Appearances { get; set; } = new List<Appearance>();
 
         public DateTime CreatedAtUtc { get; set; }
         public DateTime UpdatedAtUtc { get; set; }
