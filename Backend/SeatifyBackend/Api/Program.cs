@@ -1,5 +1,7 @@
 
 using Data;
+using Entities.Models;
+using Logic.Interfaces;
 using Logic.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,9 +27,10 @@ namespace Api
                 .GetSection("AllowedOrigins")
                 .Get<string[]>();
 
-            //ide jöhetnek a DI regisztraciok
             builder.Services.AddScoped<IAuditoriumService, AuditoriumService>();
             builder.Services.AddScoped<ISectorService, SectorService>();
+            builder.Services.AddScoped<IEventOccurrenceService, EventOccurrenceService>();
+            builder.Services.AddScoped<IReservationService, ReservationService>();
 
             builder.Services.AddCors(options =>
             {
