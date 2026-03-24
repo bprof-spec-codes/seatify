@@ -46,9 +46,22 @@ namespace Logic.Services
             return _dtoProvider.Mapper.Map<LayoutMatrixViewDto>(entity);
         }
 
-        public Task<bool> DeleteAsync(string id, CancellationToken ct)
+        public async Task<bool> DeleteAsync(string id, CancellationToken ct)
         {
-            throw new NotImplementedException();
+            var entity = await _ctx.LayoutMatrices
+                .Include(lm => lm.Seats)
+                .FirstOrDefaultAsync(lm => lm.Id == id, ct);
+
+            if (entity == null)
+            {
+                return false;
+            }
+
+            _ctx.Seats.RemoveRange(entity.Seats);
+            _ctx.LayoutMatrices.Remove(entity);
+
+            await _ctx.SaveChangesAsync(ct);
+            return true;
         }
 
         public async Task<List<LayoutMatrixViewDto>> GetAllByAuditoriumIdAsync(string auditoriumId, CancellationToken ct)
@@ -76,9 +89,24 @@ namespace Logic.Services
             return _dtoProvider.Mapper.Map<LayoutMatrixViewDto>(entity);
         }
 
-        public Task<LayoutMatrixSeatMapDto?> GetSeatMapByIdAsync(string id, CancellationToken ct)
+        public async Task<LayoutMatrixSeatMapDto?> GetSeatMapByIdAsync(string id, CancellationToken ct)
         {
-            throw new NotImplementedException();
+            var entity = await _ctx.LayoutMatrices
+                .AsNoTracking()
+                .Include(lm => lm.Seats)
+                .FirstOrDefaultAsync(lm => lm.Id == id, ct);
+
+            if (entity == null)
+            {
+                return null;
+            }
+
+            entity.Seats = entity.Seats
+                .OrderBy(s => s.Row)
+                .ThenBy(s => s.Column)
+                .ToList();
+
+            return _dtoProvider.Mapper.Map<LayoutMatrixSeatMapDto>(entity);
         }
 
         public Task<LayoutMatrixViewDto?> UpdateAsync(string id, LayoutMatrixUpdateDto dto, CancellationToken ct)
