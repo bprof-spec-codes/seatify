@@ -12,21 +12,25 @@ namespace Data
                     {
                         new Event
                         {
-                            Id = "event-id-01",
-                            Name = "Teszt esemény 1",
-                            Description = "Első seed esemény",
-                            StartsAt = DateTime.UtcNow.AddDays(7),
-                            EndsAt = DateTime.UtcNow.AddDays(7).AddHours(2),
-                            BasePrice = 4990
+                            Id = "event-01",
+                            OrganizerId = "org-001",
+                            Slug = "teszt-esemeny-1",
+                            Name = "Teszt Esemény 1",
+                            Description = "Ez egy teszt esemény leírása.",
+                            Status = "Published",
+                            CreatedAtUtc = DateTime.UtcNow,
+                            UpdatedAtUtc = DateTime.UtcNow
                         },
                         new Event
                         {
-                            Id = "event-id-02",
-                            Name = "Teszt esemény 2",
-                            Description = "Második seed esemény",
-                            StartsAt = DateTime.UtcNow.AddDays(14),
-                            EndsAt = DateTime.UtcNow.AddDays(14).AddHours(3),
-                            BasePrice = 6990
+                            Id = "event-02",
+                            OrganizerId = "org-001",
+                            Slug = "teszt-esemeny-2",
+                            Name = "Teszt Esemény 2",
+                            Description = "Második teszt esemény.",
+                            Status = "Published",
+                            CreatedAtUtc = DateTime.UtcNow,
+                            UpdatedAtUtc = DateTime.UtcNow
                         }
                     };
 

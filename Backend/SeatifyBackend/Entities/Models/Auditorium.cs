@@ -17,6 +17,7 @@ namespace Entities.Models
         public Venue Venue { get; set; } = null!;
         public ICollection<LayoutMatrix> LayoutMatrices { get; set; } = new List<LayoutMatrix>();
 
+        public virtual List<EventOccurrence> EventOccurrences { get; set; } = new();
         public Auditorium()
         {
             Id = Guid.NewGuid().ToString();
