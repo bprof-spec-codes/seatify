@@ -3,6 +3,8 @@ import { Auditorium } from '../../models/auditorium';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuditoriumService } from '../../services/auditorium.service';
 import { Observable, of, Subject, takeUntil } from 'rxjs';
+import { Venue } from '../../models/venue';
+import { VenueService } from '../../services/venue.service';
 
 @Component({
   selector: 'app-auditorium-dashboard',
@@ -11,28 +13,47 @@ import { Observable, of, Subject, takeUntil } from 'rxjs';
   styleUrl: './auditorium-dashboard.component.sass'
 })
 export class AuditoriumDashboardComponent implements OnInit {
-  venueId!: string;
+  venue!: Venue;
   auditoriums$!: Observable<Auditorium[]>;
   auditoriums!: Auditorium[];
   showModal: boolean = false;
   selectedAuditorium!: Auditorium;
+  isEmpty: boolean = false;
   private unsubscribe$ = new Subject<void>();
 
   constructor(
     private router: Router, 
     private activatedRoute: ActivatedRoute, 
-    private auditoriumService: AuditoriumService
+    private auditoriumService: AuditoriumService,
+    private venueService: VenueService
   ) {}
 
   ngOnInit(): void {
     this.activatedRoute.params.subscribe(params => {
-      this.venueId = params['venueId'];
-      //this.auditoriums$ = this.auditoriumService.getAuditoriumsByVenueId(this.venueId);
-    });
+      const venueId = params['venueId'];
 
-    this.auditoriumService.getAuditoriumsByVenueId(this.venueId).pipe(takeUntil(this.unsubscribe$)).subscribe(auditoriums => {
-      this.auditoriums = auditoriums;
-      this.auditoriums$ = of(this.auditoriums);
+      this.venueService.venues$.pipe(takeUntil(this.unsubscribe$)).subscribe(venues => {
+        const foundVenue = venues.find(v => v.id === venueId);
+
+        if (foundVenue)
+        {
+          this.venue = foundVenue;
+          this.auditoriums$ = of(this.venue.auditoriums);
+          this.auditoriums = this.venue.auditoriums;
+
+          if (this.auditoriums.length === 0)
+          {
+            this.isEmpty = true;
+          }
+        }
+        else
+        {
+          this.auditoriumService.getAuditoriumsByVenueId(venueId).pipe(takeUntil(this.unsubscribe$)).subscribe(auditoriums => {
+            this.auditoriums = auditoriums;
+            this.auditoriums$ = of(this.auditoriums);
+          });
+        }
+      });
     });
   }
 
@@ -51,6 +72,7 @@ export class AuditoriumDashboardComponent implements OnInit {
 
   createAuditorium(): void {
     console.log('Create auditorium!');
+    //this.isEmpty = false;
   }
 
   editAuditorium(auditorium: Auditorium): void {
@@ -66,16 +88,18 @@ export class AuditoriumDashboardComponent implements OnInit {
     this.auditoriumService.deleteAuditoriumById(auditorium.id).subscribe({
       next: () => {
         console.log('Auditorium successfully deleted!');
+
         this.auditoriums = this.auditoriums.filter(a => a.id !== auditorium.id);
         this.auditoriums$ = of(this.auditoriums);
-        //this.auditoriums$ = this.auditoriumService.getAuditoriumsByVenueId(this.venueId);
+
+        this.venueService.removeAuditoriumFromVenue(this.venue.id, auditorium.id);
       },
       error: err => console.error('Error: ', err.message)
     });
 
     this.cancelDelete();
   }
-  
+
   cancelDelete(): void {
     this.showModal = false;
   }

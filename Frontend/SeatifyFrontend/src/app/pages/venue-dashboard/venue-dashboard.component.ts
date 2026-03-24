@@ -21,9 +21,19 @@ export class VenueDashboardComponent implements OnInit {
   constructor(private venueService: VenueService, private router: Router) {}
 
   ngOnInit(): void {
-    this.venueService.getVenuesByOrganizerId(this.organizerId).pipe(takeUntil(this.unsubscribe$)).subscribe(venues => {
-      this.venues = venues;
-      this.venues$ = of(this.venues);
+    this.venueService.venues$.pipe(takeUntil(this.unsubscribe$)).subscribe(venues => {
+      if (venues.length >= 1)
+      {
+        this.venues = venues;
+        this.venues$ = of(venues);
+      }
+      else
+      {
+        this.venueService.getVenuesByOrganizerId(this.organizerId).pipe(takeUntil(this.unsubscribe$)).subscribe(venues => {
+          this.venues = venues;
+          this.venues$ = of(venues);
+        });
+      }
     });
   }
 
