@@ -51,9 +51,15 @@ namespace Logic.Services
             throw new NotImplementedException();
         }
 
-        public Task<List<LayoutMatrixViewDto>> GetAllByAuditoriumIdAsync(string auditoriumId, CancellationToken ct)
+        public async Task<List<LayoutMatrixViewDto>> GetAllByAuditoriumIdAsync(string auditoriumId, CancellationToken ct)
         {
-            throw new NotImplementedException();
+            var entities = await _ctx.LayoutMatrices
+                .AsNoTracking()
+                .Where(lm => lm.AuditoriumId == auditoriumId)
+                .OrderBy(lm => lm.Name)
+                .ToListAsync(ct);
+
+            return entities.Select(e => _dtoProvider.Mapper.Map<LayoutMatrixViewDto>(e)).ToList();
         }
 
         public Task<LayoutMatrixViewDto?> GetByIdAsync(string id, CancellationToken ct)
