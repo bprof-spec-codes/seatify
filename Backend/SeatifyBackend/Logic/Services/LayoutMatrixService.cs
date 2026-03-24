@@ -38,7 +38,7 @@ namespace Logic.Services
             entity.AuditoriumId = auditoriumId;
             entity.CreatedAtUtc = DateTime.UtcNow;
             entity.UpdatedAtUtc = DateTime.UtcNow;
-            entity.Seats = new List<Seat>();
+            entity.Seats = GenerateSeats(entity.Id, entity.Rows, entity.Columns, entity.CreatedAtUtc);
 
             _ctx.LayoutMatrices.Add(entity);
             await _ctx.SaveChangesAsync(ct);
@@ -100,6 +100,44 @@ namespace Logic.Services
 
             if (nameExists)
                 throw new InvalidOperationException("A layout matrix with this name already exists in this auditorium.");
+        }
+
+        private List<Seat> GenerateSeats(string layoutMatrixId, int rows, int columns, DateTime now)
+        {
+            var seats = new List<Seat>();
+
+            for (int row = 1; row <= rows; row++)
+            {
+                for (int column = 1; column <= columns; column++)
+                {
+                    seats.Add(new Seat
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        MatrixId = layoutMatrixId,
+                        Row = row,
+                        Column = column,
+                        SeatLabel = $"{GetRowLabel(row)}{column}",
+                        CreatedAtUtc = now,
+                        UpdatedAtUtc = now
+                    });
+                }
+            }
+
+            return seats;
+        }
+
+        private static string GetRowLabel(int rowNumber)
+        {
+            var label = string.Empty;
+
+            while (rowNumber > 0)
+            {
+                rowNumber--;
+                label = (char)('A' + (rowNumber % 26)) + label;
+                rowNumber /= 26;
+            }
+
+            return label;
         }
     }
 }
