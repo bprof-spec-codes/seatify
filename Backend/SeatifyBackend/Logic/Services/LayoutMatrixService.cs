@@ -109,9 +109,37 @@ namespace Logic.Services
             return _dtoProvider.Mapper.Map<LayoutMatrixSeatMapDto>(entity);
         }
 
-        public Task<LayoutMatrixViewDto?> UpdateAsync(string id, LayoutMatrixUpdateDto dto, CancellationToken ct)
+        public async Task<LayoutMatrixViewDto?> UpdateAsync(string id, LayoutMatrixUpdateDto dto, CancellationToken ct)
         {
-            throw new NotImplementedException();
+            var entity = await _ctx.LayoutMatrices
+                .Include(lm => lm.Seats)
+                .FirstOrDefaultAsync(lm => lm.Id == id, ct);
+
+            if (entity == null)
+            {
+                return null;
+            }
+
+            await ValidateUpdateAsync(entity, dto, ct);
+
+            var oldRows = entity.Rows;
+            var oldColumns = entity.Columns;
+
+            _dtoProvider.Mapper.Map(dto, entity);
+            entity.UpdatedAtUtc = DateTime.UtcNow;
+
+            var dimensionsChanged = oldRows != dto.Rows || oldColumns != dto.Columns;
+
+            if (dimensionsChanged)
+            {
+                _ctx.Seats.RemoveRange(entity.Seats);
+
+                entity.Seats = GenerateSeats(entity.Id, entity.Rows, entity.Columns, entity.UpdatedAtUtc);
+            }
+
+            await _ctx.SaveChangesAsync(ct);
+
+            return _dtoProvider.Mapper.Map<LayoutMatrixViewDto>(entity);
         }
 
         private async Task ValidateCreateAsync(string auditoriumId, LayoutMatrixCreateDto dto, CancellationToken ct)
@@ -139,6 +167,29 @@ namespace Logic.Services
             var nameExists = await _ctx.LayoutMatrices
                 .AnyAsync(lm =>
                     lm.AuditoriumId == auditoriumId &&
+                    lm.Name.ToLower() == dto.Name.ToLower(), ct);
+
+            if (nameExists)
+                throw new InvalidOperationException("A layout matrix with this name already exists in this auditorium.");
+        }
+
+        private async Task ValidateUpdateAsync(LayoutMatrix entity, LayoutMatrixUpdateDto dto, CancellationToken ct)
+        {
+            if (string.IsNullOrWhiteSpace(dto.Name))
+                throw new ArgumentException("Name is required.");
+
+            dto.Name = dto.Name.Trim();
+
+            if (dto.Rows <= 0)
+                throw new ArgumentException("Rows must be greater than 0.");
+
+            if (dto.Columns <= 0)
+                throw new ArgumentException("Columns must be greater than 0.");
+
+            var nameExists = await _ctx.LayoutMatrices
+                .AnyAsync(lm =>
+                    lm.Id != entity.Id &&
+                    lm.AuditoriumId == entity.AuditoriumId &&
                     lm.Name.ToLower() == dto.Name.ToLower(), ct);
 
             if (nameExists)
