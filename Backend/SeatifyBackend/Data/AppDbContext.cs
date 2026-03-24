@@ -17,13 +17,13 @@ namespace Data
 
         public AppDbContext(DbContextOptions<AppDbContext> ctx) : base(ctx)
         {
-            
+
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            
+
             modelBuilder.Entity<Venue>()
                 .HasMany(v => v.Auditoriums)
                 .WithOne(a => a.Venue)
@@ -83,6 +83,14 @@ namespace Data
             modelBuilder.Entity<Organizer>()
                 .HasIndex(o => o.Email)
                 .IsUnique();
+
+            // layout matrix
+            modelBuilder.Entity<LayoutMatrix>()
+                .HasIndex(lm => new { lm.AuditoriumId, lm.Name })
+                .IsUnique();
+
+            modelBuilder.Entity<LayoutMatrix>()
+                .HasIndex(lm => lm.AuditoriumId);
 
             //todo: Event, Venue, LayoutMatrix konfigurációk
         }
