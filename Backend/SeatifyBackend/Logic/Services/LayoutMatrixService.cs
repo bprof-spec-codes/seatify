@@ -62,9 +62,18 @@ namespace Logic.Services
             return entities.Select(e => _dtoProvider.Mapper.Map<LayoutMatrixViewDto>(e)).ToList();
         }
 
-        public Task<LayoutMatrixViewDto?> GetByIdAsync(string id, CancellationToken ct)
+        public async Task<LayoutMatrixViewDto?> GetByIdAsync(string id, CancellationToken ct)
         {
-            throw new NotImplementedException();
+            var entity = await _ctx.LayoutMatrices
+                .AsNoTracking()
+                .FirstOrDefaultAsync(lm => lm.Id == id, ct);
+
+            if (entity == null)
+            {
+                return null;
+            }
+
+            return _dtoProvider.Mapper.Map<LayoutMatrixViewDto>(entity);
         }
 
         public Task<LayoutMatrixSeatMapDto?> GetSeatMapByIdAsync(string id, CancellationToken ct)
