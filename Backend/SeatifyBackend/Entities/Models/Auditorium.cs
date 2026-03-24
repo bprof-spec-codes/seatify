@@ -18,6 +18,7 @@ namespace Entities.Models
         public ICollection<LayoutMatrix> LayoutMatrices { get; set; } = new List<LayoutMatrix>();
         public ICollection<Sector> Sectors { get; set; } = new List<Sector>();
 
+        public virtual List<EventOccurrence> EventOccurrences { get; set; } = new();
         public Auditorium()
         {
             Id = Guid.NewGuid().ToString();
