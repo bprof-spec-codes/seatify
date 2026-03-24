@@ -1,4 +1,5 @@
-﻿using Logic.Services;
+﻿using Entities.Dtos.LayoutMatrix;
+using Logic.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers
@@ -15,7 +16,7 @@ namespace Api.Controllers
         }
 
         [HttpGet("auditoriums/{auditoriumId}/layout-matrices")]
-        public async Task<ActionResult<List<Entities.Dtos.LayoutMatrix.LayoutMatrixViewDto>>> GetByAuditorium(string auditoriumId, CancellationToken ct)
+        public async Task<ActionResult<List<LayoutMatrixViewDto>>> GetByAuditorium(string auditoriumId, CancellationToken ct)
         {
             try
             {
@@ -27,5 +28,18 @@ namespace Api.Controllers
                 return NotFound(ex.Message);
             }
         }
+
+        [HttpGet("layout-matrices/{matrixId}")]
+        public async Task<ActionResult<LayoutMatrixViewDto>> GetById(string matrixId, CancellationToken ct)
+        {
+            var result = await _layoutMatrixService.GetByIdAsync(matrixId, ct);
+            if (result == null)
+            {
+                return NotFound(new { message = "Layout matrix not found." });
+            }
+            return Ok(result);
+        }
+
+
     }
 }
