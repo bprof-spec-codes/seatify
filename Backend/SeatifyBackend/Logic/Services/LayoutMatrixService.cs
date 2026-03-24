@@ -12,7 +12,36 @@ namespace Logic.Services
         Task<bool> DeleteAsync(string id, CancellationToken ct);
     }
 
-    public class LayoutMatrixService
+    public class LayoutMatrixService : ILayoutMatrixService
     {
+        public Task<LayoutMatrixViewDto> CreateAsync(string auditoriumId, LayoutMatrixCreateDto dto, CancellationToken ct)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> DeleteAsync(string id, CancellationToken ct)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<List<LayoutMatrixViewDto>> GetAllByAuditoriumIdAsync(string auditoriumId, CancellationToken ct)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<LayoutMatrixViewDto?> GetByIdAsync(string id, CancellationToken ct)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<LayoutMatrixSeatMapDto?> GetSeatMapByIdAsync(string id, CancellationToken ct)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<LayoutMatrixViewDto?> UpdateAsync(string id, LayoutMatrixUpdateDto dto, CancellationToken ct)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
