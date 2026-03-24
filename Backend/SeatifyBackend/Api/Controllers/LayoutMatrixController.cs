@@ -73,5 +73,27 @@ namespace Api.Controllers
 
             }
         }
+
+        [HttpPut("layout-matrices/{matrixId}")]
+        public async Task<ActionResult<LayoutMatrixViewDto>> Update(string matrixId, [FromBody] LayoutMatrixUpdateDto dto, CancellationToken ct)
+        {
+            try
+            {
+                var result = await _layoutMatrixService.UpdateAsync(matrixId, dto, ct);
+                if (result == null)
+                {
+                    return NotFound(new { message = "Layout matrix not found." });
+                }
+                return Ok(result);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new { message = ex.Message });
+            }
+        }
     }
 }
