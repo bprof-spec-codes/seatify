@@ -10,7 +10,10 @@ namespace Data
         public DbSet<Venue> Venues => Set<Venue>();
         public DbSet<Auditorium> Auditoriums => Set<Auditorium>();
         public DbSet<LayoutMatrix> LayoutMatrices => Set<LayoutMatrix>();
+        public DbSet<EventOccurrence> EventOccurrences => Set<EventOccurrence>();
         public DbSet<Sector> Sectors => Set<Sector>();
+        public DbSet<Reservation> Reservations => Set<Reservation>();
+        public DbSet<ReservationSeat> ReservationSeats => Set<ReservationSeat>();
 
         public AppDbContext(DbContextOptions<AppDbContext> ctx) : base(ctx)
         {
@@ -34,6 +37,25 @@ namespace Data
                 .HasForeignKey(a => a.VenueId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            // EventOccurrence
+            modelBuilder.Entity<EventOccurrence>()
+                .HasOne(e => e.Event)
+                .WithMany(e => e.EventOccurrences) 
+                .HasForeignKey(e => e.EventId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<EventOccurrence>()
+                .HasOne(e => e.Auditorium)
+                .WithMany(a => a.EventOccurrences)
+                .HasForeignKey(e => e.AuditoriumId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<EventOccurrence>()
+                .HasOne(e => e.Venue)
+                .WithMany()
+                .HasForeignKey(e => e.VenueId)
+                .OnDelete(DeleteBehavior.NoAction);
+
             //sector
             modelBuilder.Entity<Sector>()
                 .HasOne(s => s.Auditorium)
@@ -46,6 +68,20 @@ namespace Data
                 .IsUnique();
 
             //todo: Event, Venue, LayoutMatrix konfigurációk
+
+            // Reservation
+            modelBuilder.Entity<Reservation>()
+                .HasOne(r => r.EventOccurrence)
+                .WithMany(e => e.Reservations)
+                .HasForeignKey(r => r.EventOccurrenceId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ReservationSeat>()
+                .HasOne(rs => rs.Reservation)
+                .WithMany(r => r.ReservationSeats)
+                .HasForeignKey(rs => rs.ReservationId)
+                .OnDelete(DeleteBehavior.Cascade);
+
         }
     }
 }
