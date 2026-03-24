@@ -40,6 +40,15 @@ namespace Api.Controllers
             return Ok(result);
         }
 
-
+        [HttpGet("layout-matrices/{matrixId}/seat-map")]
+        public async Task<ActionResult<LayoutMatrixSeatMapDto>> GetSeatMapById(string matrixId, CancellationToken ct)
+        {
+            var result = await _layoutMatrixService.GetSeatMapByIdAsync(matrixId, ct);
+            if (result == null)
+            {
+                return NotFound(new { message = "Layout matrix not found." });
+            }
+            return Ok(result);
+        }
     }
 }
