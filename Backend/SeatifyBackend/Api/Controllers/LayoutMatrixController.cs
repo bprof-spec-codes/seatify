@@ -50,5 +50,28 @@ namespace Api.Controllers
             }
             return Ok(result);
         }
+
+        [HttpPost("auditoriums/{auditoriumId}/layout-matrices")]
+        public async Task<ActionResult<LayoutMatrixViewDto>> Create(string auditoriumId, [FromBody] LayoutMatrixCreateDto dto, CancellationToken ct)
+        {
+            try
+            {
+                var result = await _layoutMatrixService.CreateAsync(auditoriumId, dto, ct);
+                return CreatedAtAction(nameof(GetById), new { matrixId = result.Id }, result);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new { message = ex.Message });
+
+            }
+        }
     }
 }
