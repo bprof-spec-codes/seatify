@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Auditorium } from '../models/auditorium';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { catchError, Observable, throwError } from 'rxjs';
+import { BehaviorSubject, catchError, Observable, tap, throwError } from 'rxjs';
 import { environment } from '../../environments/environment.development';
 
 @Injectable({
@@ -10,6 +10,8 @@ import { environment } from '../../environments/environment.development';
 export class AuditoriumService {
   private apiUrl = `${environment.baseApiUrl}/api/auditoriums`;
   private venuesApiUrl = `${environment.baseApiUrl}/api/venues`;
+  private auditoriumsSource$ = new BehaviorSubject<Auditorium[]>([]);
+  auditoriums$ = this.auditoriumsSource$.asObservable();
 
   constructor(private http: HttpClient) {}
 
@@ -21,6 +23,11 @@ export class AuditoriumService {
 
   deleteAuditoriumById(auditoriumId: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${auditoriumId}`).pipe(
+      tap(() => {
+        const currentAuditoriums = this.auditoriumsSource$.getValue();
+        const updatedAuditoriums = currentAuditoriums.filter(a => a.id !== auditoriumId);
+        this.auditoriumsSource$.next(updatedAuditoriums);
+      }),
       catchError(this.handleError)
     );
   }
