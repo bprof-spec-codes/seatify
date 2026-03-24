@@ -1,8 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Entities.Helpers;
+using System.ComponentModel.DataAnnotations;
 
 namespace Entities.Models
 {
-    public class LayoutMatrix
+    public class LayoutMatrix : IIdEntity
     {
         [Key]
         public string Id { get; set; } = string.Empty;
