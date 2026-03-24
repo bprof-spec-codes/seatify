@@ -95,5 +95,16 @@ namespace Api.Controllers
                 return Conflict(new { message = ex.Message });
             }
         }
+
+        [HttpDelete("layout-matrices/{matrixId}")]
+        public async Task<ActionResult> Delete(string matrixId, CancellationToken ct)
+        {
+            var success = await _layoutMatrixService.DeleteAsync(matrixId, ct);
+            if (!success)
+            {
+                return NotFound(new { message = "Layout matrix not found." });
+            }
+            return NoContent();
+        }
     }
 }
