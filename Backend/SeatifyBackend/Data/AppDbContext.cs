@@ -10,17 +10,28 @@ namespace Data
         public DbSet<Venue> Venues => Set<Venue>();
         public DbSet<Auditorium> Auditoriums => Set<Auditorium>();
         public DbSet<LayoutMatrix> LayoutMatrices => Set<LayoutMatrix>();
+        public DbSet<Sector> Sectors => Set<Sector>();
+        public DbSet<Seat> Seats => Set<Seat>();
+        public DbSet<Organizer> Organizers => Set<Organizer>();
+        public DbSet<Appearance> Appearances => Set<Appearance>();
         public DbSet<EventOccurrence> EventOccurrences => Set<EventOccurrence>();
+
 
         public AppDbContext(DbContextOptions<AppDbContext> ctx) : base(ctx)
         {
-
+            
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            
+            modelBuilder.Entity<Venue>()
+                .HasMany(v => v.Auditoriums)
+                .WithOne(a => a.Venue)
+                .HasForeignKey(a => a.VenueId);
 
+            //auditorium
             modelBuilder.Entity<Auditorium>()
                 .HasMany(a => a.LayoutMatrices)
                 .WithOne(lm => lm.Auditorium)
@@ -33,6 +44,7 @@ namespace Data
                 .HasForeignKey(a => a.VenueId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            //EventOccurrence
             modelBuilder.Entity<EventOccurrence>()
                 .HasOne(e => e.Event)
                 .WithMany(e => e.EventOccurrences) 
@@ -50,6 +62,57 @@ namespace Data
                 .WithMany()
                 .HasForeignKey(e => e.VenueId)
                 .OnDelete(DeleteBehavior.NoAction);
+
+            //sector
+            modelBuilder.Entity<Sector>()
+                .HasOne(s => s.Auditorium)
+                .WithMany(a => a.Sectors)
+                .HasForeignKey(s => s.AuditoriumId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Sector>()
+                .HasIndex(s => new { s.AuditoriumId, s.Name })
+                .IsUnique();
+
+            // seat -> layout matrix
+            modelBuilder.Entity<Seat>()
+                .HasOne(s => s.LayoutMatrix)
+                .WithMany(m => m.Seats)
+                .HasForeignKey(s => s.MatrixId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // seat -> sector
+            modelBuilder.Entity<Seat>()
+                .HasOne(s => s.Sector)
+                .WithMany(sec => sec.Seats)
+                .HasForeignKey(s => s.SectorId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // unique coordinate within matrix
+            modelBuilder.Entity<Seat>()
+                .HasIndex(s => new { s.MatrixId, s.Row, s.Column })
+                .IsUnique();
+
+            // optional useful indexes
+            modelBuilder.Entity<Seat>()
+                .HasIndex(s => s.MatrixId);
+
+            modelBuilder.Entity<Seat>()
+                .HasIndex(s => s.SectorId);
+
+            // organizer
+            modelBuilder.Entity<Organizer>()
+                .HasIndex(o => o.Email)
+                .IsUnique();
+
+            // appearance
+            modelBuilder.Entity<Appearance>()
+                .HasOne(a => a.Organizer)
+                .WithMany(o => o.Appearances)
+                .HasForeignKey(a => a.OrganizerId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            
 
             //todo: Event, Venue, LayoutMatrix konfigurációk
         }

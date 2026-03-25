@@ -1,4 +1,6 @@
-﻿using Entities.Models;
+﻿using Entities.Dtos.Auditorium;
+using Entities.Dtos.Venue;
+using Entities.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,10 +25,8 @@ namespace Entities.Dtos.EventOccurrence
         // TODO: change to EventDto
         public Event Event { get; set; } = null!;
 
-        // TODO: change to VenueDto
-        public Venue Venue { get; set; } = null!;
+        public VenueViewDto Venue { get; set; } = null!;
 
-        // TODO: change to AuditoriumDto
-        public Entities.Models.Auditorium Auditorium { get; set; } = null!;
+        public AuditoriumViewDto Auditorium { get; set; } = null!;
     }
 }

@@ -1,5 +1,5 @@
-
 using Data;
+using Logic.Helper;
 using Logic.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,8 +25,14 @@ namespace Api
                 .GetSection("AllowedOrigins")
                 .Get<string[]>();
 
-            //ide jöhetnek a DI regisztraciok
+            // DI registrations
+            builder.Services.AddTransient(typeof(Repository<>));
+            builder.Services.AddScoped<DtoProvider>();
+            builder.Services.AddScoped<VenueService>();
             builder.Services.AddScoped<IAuditoriumService, AuditoriumService>();
+            builder.Services.AddScoped<ISectorService, SectorService>();
+            builder.Services.AddScoped<ISeatService, SeatService>();
+            builder.Services.AddScoped<IOrganizerService, OrganizerService>();
 
             builder.Services.AddCors(options =>
             {

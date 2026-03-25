@@ -15,6 +15,14 @@ namespace Api.Controllers
             _service = service;
         }
 
+        // GET /api/event-occurrences/by-event/{eventId}
+        [HttpGet("by-event/{eventId}")]
+        public IActionResult GetByEventId(string eventId)
+        {
+            var occurrences = _service.GetByEventId(eventId);
+            return Ok(occurrences);
+        }
+
         // GET /api/event-occurrences/{id}
         [HttpGet("{id}")]
         public IActionResult GetById(string id)

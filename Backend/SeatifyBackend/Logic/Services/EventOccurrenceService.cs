@@ -1,5 +1,7 @@
 ﻿using Data;
 using Entities.Dtos.EventOccurrence;
+using Entities.Dtos.Venue;
+using Entities.Dtos.Auditorium;
 using Entities.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -38,6 +40,17 @@ namespace Logic.Services
             return saved > 0;
         }
 
+        public List<EventOccurrenceViewDto> GetByEventId(string eventId)
+        {
+            return _appDbContext.EventOccurrences
+                .Include(e => e.Event)
+                .Include(e => e.Venue)
+                .Include(e => e.Auditorium)
+                .Where(e => e.EventId == eventId)
+                .Select(e => MapToViewDto(e))
+                .ToList();
+        }
+
         public EventOccurrenceViewDto? GetById(string id)
         {
             var occurrence = _appDbContext.EventOccurrences
@@ -48,6 +61,11 @@ namespace Logic.Services
 
             if (occurrence == null) return null;
 
+            return MapToViewDto(occurrence);
+        }
+
+        private EventOccurrenceViewDto MapToViewDto(EventOccurrence occurrence)
+        {
             return new EventOccurrenceViewDto
             {
                 Id = occurrence.Id,
@@ -59,9 +77,21 @@ namespace Logic.Services
                 BookingOpenAtUtc = occurrence.BookingOpenAtUtc,
                 BookingCloseAtUtc = occurrence.BookingCloseAtUtc,
                 Status = occurrence.Status,
-                Event = occurrence.Event,
-                Venue = occurrence.Venue,
-                Auditorium = occurrence.Auditorium
+
+                // Itt oldjuk fel a CS0029 hibát: Modellekből DTO-kat gyártunk
+                Event = occurrence.Event, // Ez maradhatott Modell, mert nincs még EventDto
+
+                Venue = new VenueViewDto
+                {
+                    Id = occurrence.Venue.Id,
+                    Name = occurrence.Venue.Name
+                },
+
+                Auditorium = new AuditoriumViewDto
+                {
+                    Id = occurrence.Auditorium.Id,
+                    Name = occurrence.Auditorium.Name
+                }
             };
         }
 

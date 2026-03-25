@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api")]
     public class AuditoriumController : ControllerBase
     {
         private readonly IAuditoriumService _auditoriumService;
@@ -15,38 +15,47 @@ namespace Api.Controllers
             _auditoriumService = auditoriumService;
         }
 
-        [HttpGet]
+        [HttpGet("auditoriums")]
         public async Task<ActionResult<List<AuditoriumViewDto>>> GetAll(CancellationToken ct)
         {
             var auditoriums = await _auditoriumService.GetAllAsync(ct);
             return Ok(auditoriums);
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<AuditoriumViewDto>> GetById(string id, CancellationToken ct)
+        [HttpGet("auditoriums/{auditoriumId}")]
+        public async Task<ActionResult<AuditoriumViewDto>> GetById(string auditoriumId, CancellationToken ct)
         {
-            var auditorium = await _auditoriumService.GetByIdAsync(id, ct);
+            var auditorium = await _auditoriumService.GetByIdAsync(auditoriumId, ct);
+
             if (auditorium == null)
             {
                 return NotFound(new { message = "Auditorium not found" });
             }
+
             return Ok(auditorium);
         }
 
-        [HttpGet("venue/{venueId}")]
+        [HttpGet("venues/{venueId}/auditoriums")]
         public async Task<ActionResult<List<AuditoriumViewDto>>> GetByVenueId(string venueId, CancellationToken ct)
         {
             var auditoriums = await _auditoriumService.GetByVenueIdAsync(venueId, ct);
             return Ok(auditoriums);
         }
 
-        [HttpPost]
-        public async Task<ActionResult<AuditoriumViewDto>> Create([FromBody] AuditoriumCreateDto dto, CancellationToken ct)
+        [HttpPost("venues/{venueId}/auditoriums")]
+        public async Task<ActionResult<AuditoriumViewDto>> Create(
+            string venueId,
+            [FromBody] AuditoriumCreateDto dto,
+            CancellationToken ct)
         {
             try
             {
-                var created = await _auditoriumService.CreateAsync(dto, ct);
-                return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+                var created = await _auditoriumService.CreateAsync(venueId, dto, ct);
+
+                return CreatedAtAction(
+                    nameof(GetById),
+                    new { auditoriumId = created.Id },
+                    created);
             }
             catch (ArgumentException ex)
             {
@@ -54,16 +63,21 @@ namespace Api.Controllers
             }
         }
 
-        [HttpPut("{id}")]
-        public async Task<ActionResult<AuditoriumViewDto>> Update(string id, [FromBody] AuditoriumCreateDto dto, CancellationToken ct)
+        [HttpPut("auditoriums/{auditoriumId}")]
+        public async Task<ActionResult<AuditoriumViewDto>> Update(
+            string auditoriumId,
+            [FromBody] AuditoriumCreateDto dto,
+            CancellationToken ct)
         {
             try
             {
-                var updated = await _auditoriumService.UpdateAsync(id, dto, ct);
+                var updated = await _auditoriumService.UpdateAsync(auditoriumId, dto, ct);
+
                 if (updated == null)
                 {
                     return NotFound(new { message = "Auditorium not found" });
                 }
+
                 return Ok(updated);
             }
             catch (ArgumentException ex)
@@ -72,14 +86,16 @@ namespace Api.Controllers
             }
         }
 
-        [HttpDelete("{id}")]
-        public async Task<ActionResult> Delete(string id, CancellationToken ct)
+        [HttpDelete("auditoriums/{auditoriumId}")]
+        public async Task<ActionResult> Delete(string auditoriumId, CancellationToken ct)
         {
-            var deleted = await _auditoriumService.DeleteAsync(id, ct);
+            var deleted = await _auditoriumService.DeleteAsync(auditoriumId, ct);
+
             if (!deleted)
             {
                 return NotFound(new { message = "Auditorium not found" });
             }
+
             return NoContent();
         }
     }

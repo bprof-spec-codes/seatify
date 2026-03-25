@@ -508,8 +508,101 @@ Key rules:
 classDiagram
 direction LR
 
-Reservation "1" --> "1..*" ReservationSeat
-ReservationSeat "1" --> "1" Ticket
+class Event {
+  +Guid Id
+  +Guid OrganizerId
+  +string Slug
+  +string Name
+  +string Description
+  +string Status
+  +DateTime CreatedAtUtc
+  +DateTime UpdatedAtUtc
+}
+
+class EventOccurrence {
+  +Guid Id
+  +Guid EventId
+  +Guid VenueId
+  +Guid AuditoriumId
+  +DateTime StartsAtUtc
+  +DateTime EndsAtUtc
+  +string Status
+  +DateTime BookingOpenAtUtc
+  +DateTime BookingCloseAtUtc
+  +DateTime CreatedAtUtc
+  +DateTime UpdatedAtUtc
+}
+
+class BookingSession {
+  +Guid Id
+  +Guid EventOccurrenceId
+  +string Phase
+  +string Status
+  +DateTime CreatedAtUtc
+  +DateTime ExpiresAtUtc
+}
+
+class Seat {
+  +Guid Id
+  +Guid LayoutMatrixId
+  +Guid SectorId
+  +string RowLabel
+  +string SeatLabel
+  +int X
+  +int Y
+  +decimal BasePrice
+  +string SeatType
+}
+
+class SeatHold {
+  +Guid Id
+  +Guid BookingSessionId
+  +Guid EventOccurrenceId
+  +Guid SeatId
+  +string Phase
+  +string Status
+  +DateTime CreatedAtUtc
+}
+
+class Reservation {
+  +Guid Id
+  +Guid BookingSessionId
+  +Guid EventOccurrenceId
+  +string CustomerName
+  +string CustomerEmail
+  +string CustomerPhone
+  +string Status
+  +DateTime CreatedAtUtc
+}
+
+class ReservationSeat {
+  +Guid Id
+  +Guid ReservationId
+  +Guid SeatId
+  +decimal FinalPrice
+}
+
+class Ticket {
+  +Guid Id
+  +Guid ReservationSeatId
+  +string TicketCode
+  +string QrPayload
+  +string Status
+  +DateTime IssuedAtUtc
+}
+
+Event "1" --> "0..*" EventOccurrence : has
+EventOccurrence "1" --> "0..*" BookingSession : starts
+EventOccurrence "1" --> "0..*" SeatHold : contains
+BookingSession "1" --> "0..*" SeatHold : owns
+Seat "1" --> "0..*" SeatHold : temporarily held in
+
+BookingSession "1" --> "0..1" Reservation : finalizes into
+EventOccurrence "1" --> "0..*" Reservation : results in
+Reservation "1" --> "1..*" ReservationSeat : contains
+Seat "1" --> "0..*" ReservationSeat : reserved as
+
+ReservationSeat "1" --> "1..*" Ticket : generates
 ```
 
 ---
