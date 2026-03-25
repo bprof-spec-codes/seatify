@@ -14,6 +14,7 @@ import { VenueService } from '../../services/venue.service';
 })
 export class AuditoriumDashboardComponent implements OnInit {
   venue!: Venue;
+  venue$!: Observable<Venue>;
   auditoriums$!: Observable<Auditorium[]>;
   auditoriums!: Auditorium[];
   showModal: boolean = false;
@@ -35,23 +36,32 @@ export class AuditoriumDashboardComponent implements OnInit {
       this.venueService.venues$.pipe(takeUntil(this.unsubscribe$)).subscribe(venues => {
         const foundVenue = venues.find(v => v.id === venueId);
 
+        // If venues already stored don't call API again.
         if (foundVenue)
         {
           this.venue = foundVenue;
-          this.auditoriums$ = of(this.venue.auditoriums);
+          this.venue$ = of(this.venue);
           this.auditoriums = this.venue.auditoriums;
+          this.auditoriums$ = of(this.venue.auditoriums);
 
           if (this.auditoriums.length === 0)
           {
             this.isEmpty = true;
           }
         }
+        // If venues is empty call the API for the venue by venueId.
         else
         {
-          this.auditoriumService.getAuditoriumsByVenueId(venueId).pipe(takeUntil(this.unsubscribe$)).subscribe(auditoriums => {
-            this.auditoriums = auditoriums;
+          this.venueService.getVenue(venueId).pipe(takeUntil(this.unsubscribe$)).subscribe(venue => {
+            this.venue = venue;
+            this.venue$ = of(this.venue);
+            this.auditoriums = venue.auditoriums;
             this.auditoriums$ = of(this.auditoriums);
           });
+          /*this.auditoriumService.getAuditoriumsByVenueId(venueId).pipe(takeUntil(this.unsubscribe$)).subscribe(auditoriums => {
+            this.auditoriums = auditoriums;
+            this.auditoriums$ = of(this.auditoriums);
+          });*/
         }
       });
     });
@@ -92,6 +102,7 @@ export class AuditoriumDashboardComponent implements OnInit {
         this.auditoriums = this.auditoriums.filter(a => a.id !== auditorium.id);
         this.auditoriums$ = of(this.auditoriums);
 
+        // Update the local state to reflect the changes without unnecessary API calls.
         this.venueService.removeAuditoriumFromVenue(this.venue.id, auditorium.id);
       },
       error: err => console.error('Error: ', err.message)

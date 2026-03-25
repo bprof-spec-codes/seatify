@@ -21,12 +21,16 @@ export class VenueDashboardComponent implements OnInit {
   constructor(private venueService: VenueService, private router: Router) {}
 
   ngOnInit(): void {
+    // TODO: check if venues$ is empty
+
     this.venueService.venues$.pipe(takeUntil(this.unsubscribe$)).subscribe(venues => {
-      if (venues.length >= 1)
+      // If venues already stored don't call API again.
+      if (venues.length > 0)
       {
         this.venues = venues;
         this.venues$ = of(venues);
       }
+      // If venues is empty call the API for venues.
       else
       {
         this.venueService.getVenuesByOrganizerId(this.organizerId).pipe(takeUntil(this.unsubscribe$)).subscribe(venues => {
@@ -65,7 +69,6 @@ export class VenueDashboardComponent implements OnInit {
         console.log('Venue successfully deleted!');
         this.venues = this.venues.filter(v => v.id !== venue.id);
         this.venues$ = of(this.venues);
-        //this.venues$ = this.venueService.getVenuesByOrganizerId(this.organizerId);
       },
       error: err => console.error('Error: ', err.message)
     });

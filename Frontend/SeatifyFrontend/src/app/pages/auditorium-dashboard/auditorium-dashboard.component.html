@@ -1,10 +1,22 @@
 <div class="container mt-4">
     <div class="row align-items-center">
         <div class="col">
-            <h1>Auditoriums</h1>
+            <h1>Auditorium Dashboard</h1>
         </div>
         <div class="col-auto">
             <button type="button" class="btn btn-primary" (click)="back()">Back</button>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-4">
+    <div class="row align-items-center">
+        <div class="col">
+            <h3>{{ (venue$ | async)?.name }}</h3>
+            <p>
+                <i class="bi bi-geo-alt"></i>
+                {{ (venue$ | async)?.postalCode }} {{ (venue$ | async)?.city }}, {{ (venue$ | async)?.addressLine }}
+            </p>
         </div>
         <div class="col-auto">
             <button type="button" class="btn btn-primary" (click)="createAuditorium()">Add New Auditorium</button>

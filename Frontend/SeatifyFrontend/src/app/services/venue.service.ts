@@ -16,6 +16,14 @@ export class VenueService {
 
   getVenue(venueId: string): Observable<Venue> {
     return this.http.get<Venue>(`${this.apiUrl}/${venueId}`).pipe(
+      tap(venue => {
+        const currentVenues = this.venuesSource.getValue();
+        if (!currentVenues.find(v => v.id === venue.id))
+        {
+          currentVenues.push(venue);
+          this.venuesSource.next([...currentVenues]);
+        }
+      }),
       catchError(this.handleError)
     );
   }
@@ -42,7 +50,8 @@ export class VenueService {
       tap(updatedVenue => {
         const venues = this.venuesSource.getValue();
         const index = venues.findIndex(v => v.id === updatedVenue.id);
-        if (index !== -1) {
+        if (index !== -1)
+        {
           venues[index] = updatedVenue;
           this.venuesSource.next([...venues]);
         }
