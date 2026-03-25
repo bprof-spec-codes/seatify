@@ -18,7 +18,15 @@ public class DtoProvider
             cfg.CreateMap<VenueUpdateDto, Venue>();
             cfg.CreateMap<Venue, VenueViewDto>()
                 .ForMember(dest => dest.Auditoriums, opt => opt.MapFrom(
-                    src => src.Auditoriums.Select(a => new AuditoriumViewDto { Id = a.Id, VenueId = a.VenueId })));
+                    src => src.Auditoriums.Select(a => new AuditoriumViewDto
+                    {
+                        Id = a.Id,
+                        VenueId = a.VenueId,
+                        Name = a.Name,
+                        Description = a.Description,
+                        CreatedAtUtc =  a.CreatedAtUtc,
+                        UpdatedAtUtc =  a.UpdatedAtUtc
+                    })));
         }, new LoggerFactory());
         Mapper = new Mapper(config);
     }

@@ -1,0 +1,16 @@
+<div class="modal" [style.display]="isOpen ? 'block' : 'none'"  role="dialog" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Warning!</h4>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete {{ item.name || 'it' }}?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" (click)="onCancel()">Cancel</button>
+                <button class="btn btn-danger" (click)="onConfirm()">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>

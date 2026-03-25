@@ -25,6 +25,8 @@ namespace Entities.Models
 
         public DateTime CreatedAtUtc { get; set; }
         public DateTime UpdatedAtUtc { get; set; }
+        
+        public virtual ICollection<Venue> Venues { get; set; } = new List<Venue>();
 
         public Organizer()
         {
