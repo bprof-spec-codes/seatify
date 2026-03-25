@@ -1,10 +1,5 @@
 ﻿using Entities.Helpers;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Entities.Models
 {
@@ -26,9 +21,12 @@ namespace Entities.Models
         public string Password { get; set; } = string.Empty;
 
         public ICollection<Appearance> Appearances { get; set; } = new List<Appearance>();
+        public ICollection<Venue> Venues { get; set; } = new List<Venue>();
 
         public DateTime CreatedAtUtc { get; set; }
         public DateTime UpdatedAtUtc { get; set; }
+        
+        public virtual ICollection<Venue> Venues { get; set; } = new List<Venue>();
 
         public Organizer()
         {

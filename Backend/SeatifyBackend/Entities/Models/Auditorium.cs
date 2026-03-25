@@ -25,4 +25,6 @@ public class Auditorium : IIdEntity
     public ICollection<LayoutMatrix> LayoutMatrices { get; set; } = new List<LayoutMatrix>();
     
     public ICollection<Sector> Sectors { get; set; } = new List<Sector>();
+
+    public virtual ICollection<EventOccurrence> EventOccurrences { get; set; } = new List<EventOccurrence>();
 }

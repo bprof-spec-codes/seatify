@@ -14,6 +14,7 @@ namespace Data
         public DbSet<Seat> Seats => Set<Seat>();
         public DbSet<Organizer> Organizers => Set<Organizer>();
         public DbSet<Appearance> Appearances => Set<Appearance>();
+        public DbSet<EventOccurrence> EventOccurrences => Set<EventOccurrence>();
 
 
         public AppDbContext(DbContextOptions<AppDbContext> ctx) : base(ctx)
@@ -42,6 +43,25 @@ namespace Data
                 .WithMany(v => v.Auditoriums)
                 .HasForeignKey(a => a.VenueId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            //EventOccurrence
+            modelBuilder.Entity<EventOccurrence>()
+                .HasOne(e => e.Event)
+                .WithMany(e => e.EventOccurrences) 
+                .HasForeignKey(e => e.EventId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<EventOccurrence>()
+                .HasOne(e => e.Auditorium)
+                .WithMany(a => a.EventOccurrences)
+                .HasForeignKey(e => e.AuditoriumId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<EventOccurrence>()
+                .HasOne(e => e.Venue)
+                .WithMany()
+                .HasForeignKey(e => e.VenueId)
+                .OnDelete(DeleteBehavior.NoAction);
 
             //sector
             modelBuilder.Entity<Sector>()
@@ -98,6 +118,8 @@ namespace Data
                 .WithMany(o => o.Appearances)
                 .HasForeignKey(a => a.OrganizerId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            
 
             //todo: Event, Venue, LayoutMatrix konfigurációk
         }

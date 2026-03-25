@@ -6,6 +6,10 @@ import { AppComponent } from './app.component';
 import { LandingPageComponent } from './pages/landing-page/landing-page.component';
 import { FooterComponent } from './pages/footer/footer.component';
 import { SeatMapDisplayComponent } from './helpers/seat-map-display/seat-map-display.component';
+import { VenueDashboardComponent } from './pages/venue-dashboard/venue-dashboard.component';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { ConfirmMessageComponent } from './helpers/confirm-message/confirm-message.component';
+import { AuditoriumDashboardComponent } from './pages/auditorium-dashboard/auditorium-dashboard.component';
 
 @NgModule({
   declarations: [
@@ -13,12 +17,17 @@ import { SeatMapDisplayComponent } from './helpers/seat-map-display/seat-map-dis
     LandingPageComponent,
     FooterComponent,
     SeatMapDisplayComponent,
+    VenueDashboardComponent,
+    ConfirmMessageComponent,
+    AuditoriumDashboardComponent,
   ],
   imports: [
     BrowserModule,
     AppRoutingModule
   ],
-  providers: [],
+  providers: [
+    provideHttpClient(withInterceptors([]))
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

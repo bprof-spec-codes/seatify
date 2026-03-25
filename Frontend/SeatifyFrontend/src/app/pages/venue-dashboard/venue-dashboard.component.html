@@ -1,0 +1,47 @@
+<div class="container mt-4">
+    <div class="row align-items-center">
+        <div class="col">
+            <h1>Venue Dashboard</h1>
+        </div>
+        <div class="col-auto">
+            <button type="button" class="btn btn-primary" (click)="createVenue()">Add New Venue</button>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-4">
+    <div class="row">
+        @for (venue of venues$ | async; track $index)
+        {
+            <div class="col-md-4 mb-4" [attr.data-index]="$index">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">
+                            <i class="bi bi-building"></i>
+                            {{ venue.name }}
+                        </h5>
+                        <p class="card-text">
+                            <i class="bi bi-geo-alt"></i>
+                            {{ venue.postalCode }} {{ venue.city }}, {{ venue.addressLine }}
+                        </p>
+                        <button type="button" class="btn btn-primary me-3" (click)="showVenueAuditoriums(venue)">
+                            Auditoriums
+                            ({{ venue.auditoriums.length }})
+                        </button>
+                        <button type="button" class="btn btn-warning me-3" (click)="editVenue(venue)">Edit</button>
+                        <button type="button" class="btn btn-danger" (click)="confirmDelete(venue)">Delete</button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@if (showModal)
+{
+    <app-confirm-message
+        [item]="selectedVenue"
+        (confirm)="deleteVenue(selectedVenue)"
+        (cancel)="cancelDelete()">
+    </app-confirm-message>
+}

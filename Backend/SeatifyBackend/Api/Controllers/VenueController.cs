@@ -1,9 +1,8 @@
-using System.Security.Claims;
 using Entities.Dtos.Venue;
 using Entities.Models;
 using Logic.Services;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Api.Controllers;
 
@@ -19,11 +18,11 @@ public class VenueController : ControllerBase
     }
 
     //[Authorize]
-    [HttpPost]
+    [HttpPost("venues")]
     public async Task<IActionResult> CreateVenue([FromBody] VenueCreateDto venueCreateDto)
     {
         var organizerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        
+
         /* (organizerId == null)
         {
             return Unauthorized(new { message = "Unauthorized operation!" });
@@ -33,7 +32,7 @@ public class VenueController : ControllerBase
         {
             //venueCreateDto.OrganizerId = organizerId;
             venueCreateDto.OrganizerId = organizerId ?? "";
-        
+
             Venue newVenue = await _venueService.CreateVenueAsync(venueCreateDto);
             return Ok(newVenue);
         }
@@ -43,7 +42,7 @@ public class VenueController : ControllerBase
         }
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("venues/{id}")]
     public async Task<IActionResult> GetVenueById(string id)
     {
         try
@@ -56,25 +55,39 @@ public class VenueController : ControllerBase
             return BadRequest(new { message = ex.Message });
         }
     }
-    
+
     [HttpGet]
     public async Task<ActionResult<List<VenueViewDto>>> GetAllVenues()
     {
         var venue = await _venueService.GetAllVenuesAsync();
         return Ok(venue);
     }
+      
+    [HttpGet("venues/organizers/{organizerId}")]
+    public async Task<IActionResult> GetVenuesByOrganizerId(string organizerId)
+    {
+        try
+        {
+            var venues = await _venueService.GetVenuesByOrganizerIdAsync(organizerId);
+            return Ok(venues);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
     
     //[Authorize]
-    [HttpPut("{id}")]
+    [HttpPut("venues/{id}")]
     public async Task<IActionResult> UpdateVenueById([FromBody] VenueUpdateDto venueUpdateDto, string id)
     {
         var organizerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        
+
         /*if (organizerId == null)
         {
             return Unauthorized(new { message = "Unauthorized operation!" });
         }*/
-        
+
         try
         {
             //venueUpdateDto.OrganizerId = organizerId;
@@ -90,16 +103,16 @@ public class VenueController : ControllerBase
     }
 
     //[Authorize]
-    [HttpDelete("{id}")]
+    [HttpDelete("venues/{id}")]
     public async Task<IActionResult> DeleteVenueById(string id)
     {
         var organizerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        
+
         /*if (organizerId == null)
         {
             return Unauthorized(new { message = "Unauthorized operation!" });
         }*/
-        
+
         try
         {
             //await _venueService.DeleteVenueByIdAsync(organizerId, id);
@@ -111,7 +124,20 @@ public class VenueController : ControllerBase
             return BadRequest(new { message = ex.Message });
         }
     }
-    
+
+    [HttpGet("organizers/{organizerId}")]
+    public async Task<ActionResult<List<VenueViewDto>>> GetVenuesByOrganizerId(string organizerId)
+    {
+        try
+        {
+            var venues = await _venueService.GetVenuesByOrganizerIdAsync(organizerId);
+            return Ok(venues);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
     // TODO: remove commented out sections if organizer is implemented
-    // TODO: public async Task<IActionResult> GetVenueByOrganizerId(string organizerId)
 }

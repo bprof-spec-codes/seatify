@@ -6,27 +6,68 @@ namespace Data
     {
         public static void Seed(AppDbContext ctx)
         {
+            if (!ctx.Organizers.Any())
+            {
+                var organizers = new List<Organizer>
+                {
+                    new Organizer
+                    {
+                        Id = "org123",
+                        Name = "Budapest Event Organizers",
+                        Email = "contact@budapest-events.hu",
+                        Password = "HashedPassword123!",
+                        CreatedAtUtc = DateTime.UtcNow,
+                        UpdatedAtUtc = DateTime.UtcNow
+                    },
+                    new Organizer
+                    {
+                        Id = "org456",
+                        Name = "Debrecen Music Festivals",
+                        Email = "info@debrecen-music.hu",
+                        Password = "HashedPassword456!",
+                        CreatedAtUtc = DateTime.UtcNow,
+                        UpdatedAtUtc = DateTime.UtcNow
+                    },
+                    new Organizer
+                    {
+                        Id = "org789",
+                        Name = "Szeged Expo Management",
+                        Email = "hello@szeged-expo.hu",
+                        Password = "HashedPassword789!",
+                        CreatedAtUtc = DateTime.UtcNow,
+                        UpdatedAtUtc = DateTime.UtcNow
+                    }
+                };
+
+                ctx.Organizers.AddRange(organizers);
+                ctx.SaveChanges();
+            }
+
             if (!ctx.Events.Any())
             {
                 var events = new List<Event>
                     {
                         new Event
                         {
-                            Id = "event-id-01",
-                            Name = "Teszt esemény 1",
-                            Description = "Első seed esemény",
-                            StartsAt = DateTime.UtcNow.AddDays(7),
-                            EndsAt = DateTime.UtcNow.AddDays(7).AddHours(2),
-                            BasePrice = 4990
+                            Id = "event-01",
+                            OrganizerId = "org-001",
+                            Slug = "teszt-esemeny-1",
+                            Name = "Teszt Esemény 1",
+                            Description = "Ez egy teszt esemény leírása.",
+                            Status = "Published",
+                            CreatedAtUtc = DateTime.UtcNow,
+                            UpdatedAtUtc = DateTime.UtcNow
                         },
                         new Event
                         {
-                            Id = "event-id-02",
-                            Name = "Teszt esemény 2",
-                            Description = "Második seed esemény",
-                            StartsAt = DateTime.UtcNow.AddDays(14),
-                            EndsAt = DateTime.UtcNow.AddDays(14).AddHours(3),
-                            BasePrice = 6990
+                            Id = "event-02",
+                            OrganizerId = "org-001",
+                            Slug = "teszt-esemeny-2",
+                            Name = "Teszt Esemény 2",
+                            Description = "Második teszt esemény.",
+                            Status = "Published",
+                            CreatedAtUtc = DateTime.UtcNow,
+                            UpdatedAtUtc = DateTime.UtcNow
                         }
                     };
 
@@ -45,7 +86,7 @@ namespace Data
                         City = "Budapest",
                         PostalCode = "1011",
                         AddressLine = "Fő utca 1.",
-                        OrganizerId = "org123"
+                        OrganizerId = "org-id-01"
                     },
                     new Venue
                     {
@@ -54,7 +95,7 @@ namespace Data
                         City = "Debrecen",
                         PostalCode = "4025",
                         AddressLine = "Kossuth Lajos utca 2.",
-                        OrganizerId = "org456"
+                        OrganizerId = "org-id-01"
                     },
                     new Venue
                     {
@@ -63,8 +104,26 @@ namespace Data
                         City = "Szeged",
                         PostalCode = "6720",
                         AddressLine = "Klauzál tér 3.",
-                        OrganizerId = "org789"
+                        OrganizerId = "org-id-01"
                     },
+                    new Venue
+                    {
+                        Id = "ven-id-05",
+                        Name = "Random Venue",
+                        City = "Szeged",
+                        PostalCode = "6720",
+                        AddressLine = "Klauzál tér 10.",
+                        OrganizerId = "org-id-01"
+                    },
+                    new Venue
+                    {
+                        Id = "ven-id-04",
+                        Name = "Gasztro Expo 4",
+                        City = "Szeged",
+                        PostalCode = "6724",
+                        AddressLine = "Klauzál tér 4.",
+                        OrganizerId = "org-id-02"
+                    }
                 };
 
                 ctx.Venues.AddRange(venues);
@@ -98,7 +157,7 @@ namespace Data
                     new Auditorium
                     {
                         Id = "aud-id-03",
-                        VenueId = "ven-id-03",
+                        VenueId = "ven-id-04",
                         Name = "Konferencia terem A",
                         Description = "Konferenciákhoz",
                         CreatedAtUtc = DateTime.UtcNow,
@@ -291,7 +350,7 @@ namespace Data
                 {
                     new Organizer
                     {
-                        Id = "org123",
+                        Id = "org-id-01",
                         Name = "Budapest Event Organizers",
                         Email = "contact@budapest-events.hu",
                         Password = "HashedPassword123!",
@@ -300,7 +359,7 @@ namespace Data
                     },
                     new Organizer
                     {
-                        Id = "org456",
+                        Id = "org-id-02",
                         Name = "Debrecen Music Festivals",
                         Email = "info@debrecen-music.hu",
                         Password = "HashedPassword456!",
@@ -309,7 +368,7 @@ namespace Data
                     },
                     new Organizer
                     {
-                        Id = "org789",
+                        Id = "org-id-03",
                         Name = "Szeged Expo Management",
                         Email = "hello@szeged-expo.hu",
                         Password = "HashedPassword789!",
@@ -321,11 +380,11 @@ namespace Data
                 ctx.Organizers.AddRange(organizers);
                 ctx.SaveChanges();
             }
-
+            
             if (!ctx.Seats.Any())
             {
                 var seats = new List<Seat>();
-
+                
                 // VIP szekciós ülések (sector-id-01) - matriz-id-01
                 for (int row = 1; row <= 2; row++)
                 {
@@ -345,7 +404,7 @@ namespace Data
                         });
                     }
                 }
-
+                
                 // Standard szekciós ülések (sector-id-02) - matriz-id-01
                 for (int row = 3; row <= 5; row++)
                 {
@@ -365,7 +424,7 @@ namespace Data
                         });
                     }
                 }
-
+                
                 // Balcony szekciós ülések (sector-id-03) - matriz-id-01
                 for (int row = 6; row <= 7; row++)
                 {
@@ -385,7 +444,7 @@ namespace Data
                         });
                     }
                 }
-
+                
                 // Folyosó ülések (no sector) - matriz-id-01
                 for (int row = 3; row <= 5; row++)
                 {
@@ -405,7 +464,7 @@ namespace Data
                         });
                     }
                 }
-
+                
                 // Front szekciós ülések (sector-id-04) - matriz-id-02
                 for (int row = 1; row <= 3; row++)
                 {
@@ -425,7 +484,7 @@ namespace Data
                         });
                     }
                 }
-
+                
                 // Back szekciós ülések (sector-id-05) - matriz-id-02
                 for (int row = 4; row <= 6; row++)
                 {
@@ -445,7 +504,7 @@ namespace Data
                         });
                     }
                 }
-
+                
                 // Premium szekciós ülések (sector-id-06) - matriz-id-03
                 for (int row = 1; row <= 4; row++)
                 {
@@ -465,8 +524,33 @@ namespace Data
                         });
                     }
                 }
-
+                
                 ctx.Seats.AddRange(seats);
+                ctx.SaveChanges();
+            }
+
+            // 7. EventOccurrences
+            if (!ctx.EventOccurrences.Any())
+            {
+                var occurrences = new List<EventOccurrence>
+                {
+                    new EventOccurrence
+                    {
+                        Id = "occ-01",
+                        EventId = "event-01",
+                        VenueId = "ven-id-01",
+                        AuditoriumId = "aud-id-01",
+                        StartsAtUtc = DateTime.UtcNow.AddDays(7),
+                        EndsAtUtc = DateTime.UtcNow.AddDays(7).AddHours(2),
+                        BookingOpenAtUtc = DateTime.UtcNow,
+                        BookingCloseAtUtc = DateTime.UtcNow.AddDays(7),
+                        Status = "Published",
+                        CreatedAtUtc = DateTime.UtcNow,
+                        UpdatedAtUtc = DateTime.UtcNow
+                    }
+                };
+
+                ctx.EventOccurrences.AddRange(occurrences);
                 ctx.SaveChanges();
             }
         }
