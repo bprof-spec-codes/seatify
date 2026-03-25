@@ -16,7 +16,7 @@ public class VenueService
         _venueRepository = venueRepository;
         this.dtoProvider = dtoProvider;
     }
-    
+
     public async Task<Venue> CreateVenueAsync(VenueCreateDto createDto)
     {
         var newVenue = dtoProvider.Mapper.Map<Venue>(createDto);
@@ -34,27 +34,9 @@ public class VenueService
         {
             throw new Exception("Venue does not exist!");
         }
-        
+
         VenueViewDto venueViewDto = dtoProvider.Mapper.Map<VenueViewDto>(venue);
         return venueViewDto;
-    }
-    
-    public async Task<List<VenueViewDto>> GetVenuesByOrganizerIdAsync(string organizerId)
-    {
-        var venues = await _venueRepository.GetAll()
-            .Include(v => v.Auditoriums)
-            .Where(v => v.OrganizerId == organizerId)
-            .ToListAsync();
-
-        if (venues == null || !venues.Any())
-        {
-            throw new Exception("No venues found for the specified organizer!");
-        }
-
-        List<VenueViewDto> venueViewDtos = venues.Select(v => 
-            dtoProvider.Mapper.Map<VenueViewDto>(v)).ToList();
-
-        return venueViewDtos;
     }
     
     public async Task<List<VenueViewDto>> GetAllVenuesAsync()
@@ -62,7 +44,7 @@ public class VenueService
         var venues = await _venueRepository.GetAll()
             .Include(v => v.Auditoriums)
             .ToListAsync();
-        
+
         List<VenueViewDto> venueDtos = dtoProvider.Mapper.Map<List<VenueViewDto>>(venues);
         return venueDtos;
     }
@@ -75,11 +57,11 @@ public class VenueService
         {
             throw new Exception("Venue does not exist!");
         }
-        
-        /*if (existingVenue.OrganizerId != updateDto.OrganizerId)
+
+        if (existingVenue.OrganizerId != updateDto.OrganizerId)
         {
             throw new Exception("The venue does not belong to the logged-in user!");
-        }*/
+        }
 
         var updatedVenue = dtoProvider.Mapper.Map(updateDto, existingVenue);
         _venueRepository.Update(updatedVenue);
@@ -94,15 +76,24 @@ public class VenueService
         {
             throw new Exception("Venue does not exist!");
         }
-        
-        /*if (existingVenue.OrganizerId != organizerId)
+
+        if (existingVenue.OrganizerId != organizerId)
         {
             throw new Exception("The venue does not belong to the logged-in user!");
-        }*/
-        
+        }
+
         _venueRepository.Delete(existingVenue);
         return true;
     }
-    
-    // TODO: remove commented out sections if organizer is implemented
+
+    public async Task<List<VenueViewDto>> GetVenuesByOrganizerIdAsync(string organizerId)
+    {
+        var venues = await _venueRepository.GetAll()
+            .Where(v => v.OrganizerId == organizerId)
+            .Include(v => v.Auditoriums)
+            .ToListAsync();
+
+        return dtoProvider.Mapper.Map<List<VenueViewDto>>(venues);
+    }
+
 }

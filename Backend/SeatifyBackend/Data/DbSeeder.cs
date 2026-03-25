@@ -6,6 +6,43 @@ namespace Data
     {
         public static void Seed(AppDbContext ctx)
         {
+            if (!ctx.Organizers.Any())
+            {
+                var organizers = new List<Organizer>
+                {
+                    new Organizer
+                    {
+                        Id = "org123",
+                        Name = "Budapest Event Organizers",
+                        Email = "contact@budapest-events.hu",
+                        Password = "HashedPassword123!",
+                        CreatedAtUtc = DateTime.UtcNow,
+                        UpdatedAtUtc = DateTime.UtcNow
+                    },
+                    new Organizer
+                    {
+                        Id = "org456",
+                        Name = "Debrecen Music Festivals",
+                        Email = "info@debrecen-music.hu",
+                        Password = "HashedPassword456!",
+                        CreatedAtUtc = DateTime.UtcNow,
+                        UpdatedAtUtc = DateTime.UtcNow
+                    },
+                    new Organizer
+                    {
+                        Id = "org789",
+                        Name = "Szeged Expo Management",
+                        Email = "hello@szeged-expo.hu",
+                        Password = "HashedPassword789!",
+                        CreatedAtUtc = DateTime.UtcNow,
+                        UpdatedAtUtc = DateTime.UtcNow
+                    }
+                };
+
+                ctx.Organizers.AddRange(organizers);
+                ctx.SaveChanges();
+            }
+
             if (!ctx.Events.Any())
             {
                 var events = new List<Event>
@@ -33,7 +70,7 @@ namespace Data
                 ctx.Events.AddRange(events);
                 ctx.SaveChanges();
             }
-            
+
             if (!ctx.Venues.Any())
             {
                 var venues = new List<Venue>
@@ -84,11 +121,11 @@ namespace Data
                         OrganizerId = "org-id-02"
                     }
                 };
-                
+
                 ctx.Venues.AddRange(venues);
                 ctx.SaveChanges();
             }
-            
+
             if (!ctx.Auditoriums.Any())
             {
                 var venueIds = ctx.Venues.Select(v => v.Id).ToList();
@@ -132,11 +169,11 @@ namespace Data
                         UpdatedAtUtc = DateTime.UtcNow
                     }
                 };
-                
+
                 ctx.Auditoriums.AddRange(auditoriums);
                 ctx.SaveChanges();
             }
-            
+
             if (!ctx.LayoutMatrices.Any())
             {
                 var layoutMatrices = new List<LayoutMatrix>
