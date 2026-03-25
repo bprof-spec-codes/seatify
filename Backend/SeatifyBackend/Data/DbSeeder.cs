@@ -49,21 +49,25 @@ namespace Data
                     {
                         new Event
                         {
-                            Id = "event-id-01",
-                            Name = "Teszt esemény 1",
-                            Description = "Első seed esemény",
-                            StartsAt = DateTime.UtcNow.AddDays(7),
-                            EndsAt = DateTime.UtcNow.AddDays(7).AddHours(2),
-                            BasePrice = 4990
+                            Id = "event-01",
+                            OrganizerId = "org-001",
+                            Slug = "teszt-esemeny-1",
+                            Name = "Teszt Esemény 1",
+                            Description = "Ez egy teszt esemény leírása.",
+                            Status = "Published",
+                            CreatedAtUtc = DateTime.UtcNow,
+                            UpdatedAtUtc = DateTime.UtcNow
                         },
                         new Event
                         {
-                            Id = "event-id-02",
-                            Name = "Teszt esemény 2",
-                            Description = "Második seed esemény",
-                            StartsAt = DateTime.UtcNow.AddDays(14),
-                            EndsAt = DateTime.UtcNow.AddDays(14).AddHours(3),
-                            BasePrice = 6990
+                            Id = "event-02",
+                            OrganizerId = "org-001",
+                            Slug = "teszt-esemeny-2",
+                            Name = "Teszt Esemény 2",
+                            Description = "Második teszt esemény.",
+                            Status = "Published",
+                            CreatedAtUtc = DateTime.UtcNow,
+                            UpdatedAtUtc = DateTime.UtcNow
                         }
                     };
 
@@ -441,6 +445,31 @@ namespace Data
                 }
                 
                 ctx.Seats.AddRange(seats);
+                ctx.SaveChanges();
+            }
+
+            // 7. EventOccurrences
+            if (!ctx.EventOccurrences.Any())
+            {
+                var occurrences = new List<EventOccurrence>
+                {
+                    new EventOccurrence
+                    {
+                        Id = "occ-01",
+                        EventId = "event-01",
+                        VenueId = "ven-id-01",
+                        AuditoriumId = "aud-id-01",
+                        StartsAtUtc = DateTime.UtcNow.AddDays(7),
+                        EndsAtUtc = DateTime.UtcNow.AddDays(7).AddHours(2),
+                        BookingOpenAtUtc = DateTime.UtcNow,
+                        BookingCloseAtUtc = DateTime.UtcNow.AddDays(7),
+                        Status = "Published",
+                        CreatedAtUtc = DateTime.UtcNow,
+                        UpdatedAtUtc = DateTime.UtcNow
+                    }
+                };
+
+                ctx.EventOccurrences.AddRange(occurrences);
                 ctx.SaveChanges();
             }
         }
