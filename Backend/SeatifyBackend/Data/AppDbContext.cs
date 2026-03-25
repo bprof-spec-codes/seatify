@@ -1,4 +1,4 @@
-﻿using Entities.Models;
+using Entities.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,20 +20,19 @@ namespace Data
 
         public AppDbContext(DbContextOptions<AppDbContext> ctx) : base(ctx)
         {
-            
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            
-            //venue
+
+            // venue
             modelBuilder.Entity<Venue>()
                 .HasMany(v => v.Auditoriums)
                 .WithOne(a => a.Venue)
                 .HasForeignKey(a => a.VenueId);
 
-            //auditorium
+            // auditorium
             modelBuilder.Entity<Auditorium>()
                 .HasMany(a => a.LayoutMatrices)
                 .WithOne(lm => lm.Auditorium)
@@ -49,7 +48,7 @@ namespace Data
             // EventOccurrence
             modelBuilder.Entity<EventOccurrence>()
                 .HasOne(e => e.Event)
-                .WithMany(e => e.EventOccurrences) 
+                .WithMany(e => e.EventOccurrences)
                 .HasForeignKey(e => e.EventId)
                 .OnDelete(DeleteBehavior.Cascade);
 
@@ -65,7 +64,7 @@ namespace Data
                 .HasForeignKey(e => e.VenueId)
                 .OnDelete(DeleteBehavior.NoAction);
 
-            //sector
+            // sector
             modelBuilder.Entity<Sector>()
                 .HasOne(s => s.Auditorium)
                 .WithMany(a => a.Sectors)
@@ -95,7 +94,6 @@ namespace Data
                 .HasIndex(s => new { s.MatrixId, s.Row, s.Column })
                 .IsUnique();
 
-            // optional useful indexes
             modelBuilder.Entity<Seat>()
                 .HasIndex(s => s.MatrixId);
 
@@ -107,14 +105,20 @@ namespace Data
                 .HasIndex(o => o.Email)
                 .IsUnique();
 
+            // layout matrix
+            modelBuilder.Entity<LayoutMatrix>()
+                .HasIndex(lm => new { lm.AuditoriumId, lm.Name })
+                .IsUnique();
+
+            modelBuilder.Entity<LayoutMatrix>()
+                .HasIndex(lm => lm.AuditoriumId);
+
             // appearance
             modelBuilder.Entity<Appearance>()
                 .HasOne(a => a.Organizer)
                 .WithMany(o => o.Appearances)
                 .HasForeignKey(a => a.OrganizerId)
                 .OnDelete(DeleteBehavior.Cascade);
-
-            //todo: Event, Venue, LayoutMatrix konfigurációk
 
             // Reservation
             modelBuilder.Entity<Reservation>()
@@ -128,7 +132,6 @@ namespace Data
                 .WithMany(r => r.ReservationSeats)
                 .HasForeignKey(rs => rs.ReservationId)
                 .OnDelete(DeleteBehavior.Cascade);
-
         }
     }
 }

@@ -29,7 +29,7 @@ namespace Api
 
             // DI registrations
             builder.Services.AddTransient(typeof(Repository<>));
-            builder.Services.AddScoped<DtoProvider>();
+            builder.Services.AddSingleton<DtoProvider>();
             builder.Services.AddScoped<VenueService>();
             builder.Services.AddScoped<IAuditoriumService, AuditoriumService>();
             builder.Services.AddScoped<ISectorService, SectorService>();
@@ -37,10 +37,11 @@ namespace Api
             builder.Services.AddScoped<IOrganizerService, OrganizerService>();
             builder.Services.AddScoped<IEventOccurrenceService, EventOccurrenceService>();
             builder.Services.AddScoped<IReservationService, ReservationService>();
+            builder.Services.AddScoped<ILayoutMatrixService, LayoutMatrixService>();
 
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy("AngularDev", policy =>
+                options.AddPolicy("AllowOrigin", policy =>
                 {
                     policy
                     .WithOrigins(allowedOrigins!)
@@ -69,12 +70,12 @@ namespace Api
             }
 
             app.UseHttpsRedirection();
+            
+            app.UseCors("AllowOrigin");
 
             app.UseAuthorization();
 
             app.MapControllers();
-
-            app.UseCors("DefaultCors");
 
             using (var scope = app.Services.CreateScope())
             {

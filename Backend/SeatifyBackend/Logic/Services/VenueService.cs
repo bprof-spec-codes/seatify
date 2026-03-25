@@ -38,7 +38,7 @@ public class VenueService
         VenueViewDto venueViewDto = dtoProvider.Mapper.Map<VenueViewDto>(venue);
         return venueViewDto;
     }
-
+    
     public async Task<List<VenueViewDto>> GetAllVenuesAsync()
     {
         var venues = await _venueRepository.GetAll()

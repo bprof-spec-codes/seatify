@@ -1,4 +1,7 @@
 ﻿using Entities.Models;
+﻿using Entities.Dtos.Auditorium;
+using Entities.Dtos.Venue;
+using Entities.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;

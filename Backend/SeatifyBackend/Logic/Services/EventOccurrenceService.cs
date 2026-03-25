@@ -1,6 +1,8 @@
-﻿using Data;
+using Data;
 using Entities.Dtos.EventOccurrence;
 using Entities.Dtos.Reservation;
+using Entities.Dtos.Venue;
+using Entities.Dtos.Auditorium;
 using Entities.Models;
 using Logic.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -12,12 +14,13 @@ using System.Threading.Tasks;
 
 namespace Logic.Services
 {
-    public class EventOccurrenceService: IEventOccurrenceService
+    public class EventOccurrenceService : IEventOccurrenceService
     {
         private AppDbContext _appDbContext;
+
         public EventOccurrenceService(AppDbContext appDbContext)
         {
-                _appDbContext = appDbContext;
+            _appDbContext = appDbContext;
         }
 
         public bool Create(EventOccurrenceCreateDto createDto)
@@ -34,11 +37,21 @@ namespace Logic.Services
                 Status = createDto.Status
             };
 
-            // temp. solution
             _appDbContext.EventOccurrences.Add(eventOccurrence);
             var saved = _appDbContext.SaveChanges();
 
             return saved > 0;
+        }
+
+        public List<EventOccurrenceViewDto> GetByEventId(string eventId)
+        {
+            return _appDbContext.EventOccurrences
+                .Include(e => e.Event)
+                .Include(e => e.Venue)
+                .Include(e => e.Auditorium)
+                .Where(e => e.EventId == eventId)
+                .Select(e => MapToViewDto(e))
+                .ToList();
         }
 
         public EventOccurrenceViewDto? GetById(string id)
@@ -51,6 +64,11 @@ namespace Logic.Services
 
             if (occurrence == null) return null;
 
+            return MapToViewDto(occurrence);
+        }
+
+        private EventOccurrenceViewDto MapToViewDto(EventOccurrence occurrence)
+        {
             return new EventOccurrenceViewDto
             {
                 Id = occurrence.Id,
@@ -97,7 +115,7 @@ namespace Logic.Services
             occurrence.BookingOpenAtUtc = updateDto.BookingOpenAtUtc;
             occurrence.BookingCloseAtUtc = updateDto.BookingCloseAtUtc;
             occurrence.Status = updateDto.Status;
-            occurrence.UpdatedAtUtc = System.DateTime.UtcNow;
+            occurrence.UpdatedAtUtc = DateTime.UtcNow;
 
             return _appDbContext.SaveChanges() > 0;
         }
@@ -114,21 +132,22 @@ namespace Logic.Services
         public List<ReservationViewDto> GetReservations(string id)
         {
             return _appDbContext.Reservations
-                    .Include(r => r.ReservationSeats)
-                    .Where(r => r.EventOccurrenceId == id)
-                    .Select(res => new ReservationViewDto
+                .Include(r => r.ReservationSeats)
+                .Where(r => r.EventOccurrenceId == id)
+                .Select(res => new ReservationViewDto
+                {
+                    Id = res.Id,
+                    CustomerName = res.CustomerName,
+                    CustomerEmail = res.CustomerEmail,
+                    Status = res.Status,
+                    CreatedAtUtc = res.CreatedAtUtc,
+                    ReservedSeats = res.ReservationSeats.Select(rs => new ReservationSeatViewDto
                     {
-                        Id = res.Id,
-                        CustomerName = res.CustomerName,
-                        CustomerEmail = res.CustomerEmail,
-                        Status = res.Status,
-                        CreatedAtUtc = res.CreatedAtUtc,
-                        ReservedSeats = res.ReservationSeats.Select(rs => new ReservationSeatViewDto
-                        {
-                            SeatId = rs.SeatId,
-                            FinalPrice = rs.FinalPrice
-                        }).ToList()
-                    }).ToList();
+                        SeatId = rs.SeatId,
+                        FinalPrice = rs.FinalPrice
+                    }).ToList()
+                })
+                .ToList();
         }
     }
 }

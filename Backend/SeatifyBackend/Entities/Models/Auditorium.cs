@@ -26,13 +26,5 @@ public class Auditorium : IIdEntity
 
     public ICollection<Sector> Sectors { get; set; } = new List<Sector>();
 
-    public virtual List<EventOccurrence> EventOccurrences { get; set; } = new();
-
-    public Auditorium()
-    {
-        if (string.IsNullOrEmpty(Id))
-        {
-            Id = Guid.NewGuid().ToString();
-        }
-    }
+    public virtual ICollection<EventOccurrence> EventOccurrences { get; set; } = new List<EventOccurrence>();
 }

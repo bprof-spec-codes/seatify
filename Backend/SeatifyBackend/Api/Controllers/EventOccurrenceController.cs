@@ -1,6 +1,5 @@
-﻿using Entities.Dtos.EventOccurrence;
+using Entities.Dtos.EventOccurrence;
 using Logic.Interfaces;
-using Logic.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers
@@ -14,6 +13,14 @@ namespace Api.Controllers
         public EventOccurrenceController(IEventOccurrenceService service)
         {
             _service = service;
+        }
+
+        // GET /api/event-occurrences/by-event/{eventId}
+        [HttpGet("by-event/{eventId}")]
+        public IActionResult GetByEventId(string eventId)
+        {
+            var occurrences = _service.GetByEventId(eventId);
+            return Ok(occurrences);
         }
 
         // GET /api/event-occurrences/{id}
@@ -32,7 +39,6 @@ namespace Api.Controllers
         [HttpGet("{id}/reservations")]
         public IActionResult GetReservations(string id)
         {
-            // temporary solution
             var reservations = _service.GetReservations(id);
             return Ok(reservations);
         }
