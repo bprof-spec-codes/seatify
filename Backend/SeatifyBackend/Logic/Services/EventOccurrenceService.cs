@@ -1,8 +1,6 @@
 using Data;
 using Entities.Dtos.EventOccurrence;
 using Entities.Dtos.Reservation;
-using Entities.Dtos.Venue;
-using Entities.Dtos.Auditorium;
 using Entities.Models;
 using Logic.Interfaces;
 using Microsoft.EntityFrameworkCore;

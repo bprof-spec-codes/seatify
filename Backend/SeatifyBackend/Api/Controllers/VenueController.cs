@@ -63,20 +63,7 @@ public class VenueController : ControllerBase
         return Ok(venue);
     }
       
-    [HttpGet("venues/organizers/{organizerId}")]
-    public async Task<IActionResult> GetVenuesByOrganizerId(string organizerId)
-    {
-        try
-        {
-            var venues = await _venueService.GetVenuesByOrganizerIdAsync(organizerId);
-            return Ok(venues);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
-    }
-    
+
     //[Authorize]
     [HttpPut("venues/{id}")]
     public async Task<IActionResult> UpdateVenueById([FromBody] VenueUpdateDto venueUpdateDto, string id)
