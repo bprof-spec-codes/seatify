@@ -1,13 +1,9 @@
 ﻿using Data;
 using Entities.Dtos.Organizer;
+using Entities.Dtos.Venue;
 using Entities.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Logic.Services
 {
@@ -57,28 +53,44 @@ namespace Logic.Services
         public async Task<List<OrganizerViewDto>> GetAllAsync()
         {
             return await _dbContext.Organizers
+                .Include(o => o.Venues)
                 .Select(o => new OrganizerViewDto
                 {
                     Id = o.Id,
                     Email = o.Email,
                     Name = o.Name,
+                    Venues = o.Venues.Select(v => new VenueViewDto
+                    {
+                        Id = v.Id,
+                        Name = v.Name,
+                        City = v.City,
+                        PostalCode = v.PostalCode,
+                        AddressLine = v.AddressLine
+                    }).ToList(),
                     CreatedAtUtc = o.CreatedAtUtc,
                     UpdatedAtUtc = o.UpdatedAtUtc
                 })
                 .ToListAsync();
         }
 
-
-
         public async Task<OrganizerViewDto?> GetByIdAsync(string id)
         {
             return await _dbContext.Organizers
                 .Where(o => o.Id == id)
+                .Include(o => o.Venues)
                 .Select(o => new OrganizerViewDto
                 {
                     Id = o.Id,
                     Email = o.Email,
                     Name = o.Name,
+                    Venues = o.Venues.Select(v => new VenueViewDto //inkább mapper legyen, mert itt a venue is megjelenik, de a venue-nak nincs benne a listája az auditoriumoknak, így nem lesz teljes a venue view dto
+                    {
+                        Id = v.Id,
+                        Name = v.Name,
+                        City = v.City,
+                        PostalCode = v.PostalCode,
+                        AddressLine = v.AddressLine
+                    }).ToList(),
                     CreatedAtUtc = o.CreatedAtUtc,
                     UpdatedAtUtc = o.UpdatedAtUtc
                 })
