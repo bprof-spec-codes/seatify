@@ -180,22 +180,69 @@ namespace Data
 
             if (!ctx.LayoutMatrices.Any())
             {
+                var now = DateTime.UtcNow;
+
                 var layoutMatrices = new List<LayoutMatrix>
                 {
                     new LayoutMatrix
                     {
                         Id = "matrix-id-01",
-                        AuditoriumId = "aud-id-01"
+                        AuditoriumId = "aud-id-01",
+                        Name = "Main Floor",
+                        Rows = 10,
+                        Columns = 12,
+                        CreatedAtUtc = now,
+                        UpdatedAtUtc = now
                     },
                     new LayoutMatrix
                     {
                         Id = "matrix-id-02",
-                        AuditoriumId = "aud-id-02"
+                        AuditoriumId = "aud-id-01",
+                        Name = "Balcony",
+                        Rows = 5,
+                        Columns = 10,
+                        CreatedAtUtc = now,
+                        UpdatedAtUtc = now
                     },
                     new LayoutMatrix
                     {
                         Id = "matrix-id-03",
-                        AuditoriumId = "aud-id-03"
+                        AuditoriumId = "aud-id-02",
+                        Name = "Standard Layout",
+                        Rows = 8,
+                        Columns = 10,
+                        CreatedAtUtc = now,
+                        UpdatedAtUtc = now
+                    },
+                    new LayoutMatrix
+                    {
+                        Id = "matrix-id-04",
+                        AuditoriumId = "aud-id-03",
+                        Name = "Conference Left Block",
+                        Rows = 6,
+                        Columns = 8,
+                        CreatedAtUtc = now,
+                        UpdatedAtUtc = now
+                    },
+                    new LayoutMatrix
+                    {
+                        Id = "matrix-id-05",
+                        AuditoriumId = "aud-id-03",
+                        Name = "Conference Right Block",
+                        Rows = 6,
+                        Columns = 8,
+                        CreatedAtUtc = now,
+                        UpdatedAtUtc = now
+                    },
+                    new LayoutMatrix
+                    {
+                        Id = "matrix-id-06",
+                        AuditoriumId = "aud-id-04",
+                        Name = "Default Layout",
+                        Rows = 7,
+                        Columns = 9,
+                        CreatedAtUtc = now,
+                        UpdatedAtUtc = now
                     }
                 };
 
@@ -263,6 +310,40 @@ namespace Data
                 ctx.SaveChanges();
             }
 
+            if (!ctx.Seats.Any())
+            {
+                var now = DateTime.UtcNow;
+
+                var seats = new List<Seat>();
+
+                var matrices = ctx.LayoutMatrices.ToList();
+
+                foreach (var matrix in matrices)
+                {
+                    for (int row = 1; row <= matrix.Rows; row++)
+                    {
+                        for (int column = 1; column <= matrix.Columns; column++)
+                        {
+                            seats.Add(new Seat
+                            {
+                                Id = Guid.NewGuid().ToString(),
+                                MatrixId = matrix.Id,
+                                Row = row,
+                                Column = column,
+                                SeatLabel = $"{GetRowLabel(row)}{column}",
+                                SectorId = null, // később assignolható
+                                SeatType = SeatType.Seat,
+                                PriceOverride = null,
+                                CreatedAtUtc = now,
+                                UpdatedAtUtc = now
+                            });
+                        }
+                    }
+                }
+
+                ctx.Seats.AddRange(seats);
+                ctx.SaveChanges();
+            }
             if (!ctx.Organizers.Any())
             {
                 var organizers = new List<Organizer>
@@ -473,5 +554,18 @@ namespace Data
                 ctx.SaveChanges();
             }
         }
+      private static string GetRowLabel(int rowNumber)
+        {
+            var label = string.Empty;
+
+            while (rowNumber > 0)
+            {
+                rowNumber--;
+                label = (char)('A' + (rowNumber % 26)) + label;
+                rowNumber /= 26;
+            }
+
+            return label;
+      }
     }
 }

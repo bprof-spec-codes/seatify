@@ -27,12 +27,13 @@ namespace Api
 
             // DI registrations
             builder.Services.AddTransient(typeof(Repository<>));
-            builder.Services.AddScoped<DtoProvider>();
+            builder.Services.AddSingleton<DtoProvider>();
             builder.Services.AddScoped<VenueService>();
             builder.Services.AddScoped<IAuditoriumService, AuditoriumService>();
             builder.Services.AddScoped<ISectorService, SectorService>();
             builder.Services.AddScoped<ISeatService, SeatService>();
             builder.Services.AddScoped<IOrganizerService, OrganizerService>();
+            builder.Services.AddScoped<ILayoutMatrixService, LayoutMatrixService>();
 
             builder.Services.AddCors(options =>
             {
