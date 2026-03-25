@@ -29,14 +29,15 @@ namespace Logic.Services
                 CustomerEmail = dto.CustomerEmail,
                 CustomerPhone = dto.CustomerPhone,
                 Status = "Confirmed",
-                CreatedAtUtc = DateTime.UtcNow
+                CreatedAtUtc = DateTime.UtcNow,
+                ReservationSeats = new List<ReservationSeat>()
             };
 
-            foreach (var seatId in dto.SeatIds)
+            foreach (var seat in dto.Seats)
             {
                 reservation.ReservationSeats.Add(new ReservationSeat
                 {
-                    SeatId = seatId,
+                    SeatId = seat.SeatId,
                     FinalPrice = 5000 // mock data for testing
                 });
             }

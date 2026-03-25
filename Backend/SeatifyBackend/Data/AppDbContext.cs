@@ -12,17 +12,26 @@ namespace Data
         public DbSet<LayoutMatrix> LayoutMatrices => Set<LayoutMatrix>();
         public DbSet<EventOccurrence> EventOccurrences => Set<EventOccurrence>();
         public DbSet<Sector> Sectors => Set<Sector>();
+        public DbSet<Seat> Seats => Set<Seat>();
+        public DbSet<Organizer> Organizers => Set<Organizer>();
+        public DbSet<Appearance> Appearances => Set<Appearance>();
         public DbSet<Reservation> Reservations => Set<Reservation>();
         public DbSet<ReservationSeat> ReservationSeats => Set<ReservationSeat>();
 
         public AppDbContext(DbContextOptions<AppDbContext> ctx) : base(ctx)
         {
-
+            
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            
+            //venue
+            modelBuilder.Entity<Venue>()
+                .HasMany(v => v.Auditoriums)
+                .WithOne(a => a.Venue)
+                .HasForeignKey(a => a.VenueId);
 
             //auditorium
             modelBuilder.Entity<Auditorium>()
@@ -66,6 +75,44 @@ namespace Data
             modelBuilder.Entity<Sector>()
                 .HasIndex(s => new { s.AuditoriumId, s.Name })
                 .IsUnique();
+
+            // seat -> layout matrix
+            modelBuilder.Entity<Seat>()
+                .HasOne(s => s.LayoutMatrix)
+                .WithMany(m => m.Seats)
+                .HasForeignKey(s => s.MatrixId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // seat -> sector
+            modelBuilder.Entity<Seat>()
+                .HasOne(s => s.Sector)
+                .WithMany(sec => sec.Seats)
+                .HasForeignKey(s => s.SectorId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // unique coordinate within matrix
+            modelBuilder.Entity<Seat>()
+                .HasIndex(s => new { s.MatrixId, s.Row, s.Column })
+                .IsUnique();
+
+            // optional useful indexes
+            modelBuilder.Entity<Seat>()
+                .HasIndex(s => s.MatrixId);
+
+            modelBuilder.Entity<Seat>()
+                .HasIndex(s => s.SectorId);
+
+            // organizer
+            modelBuilder.Entity<Organizer>()
+                .HasIndex(o => o.Email)
+                .IsUnique();
+
+            // appearance
+            modelBuilder.Entity<Appearance>()
+                .HasOne(a => a.Organizer)
+                .WithMany(o => o.Appearances)
+                .HasForeignKey(a => a.OrganizerId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             //todo: Event, Venue, LayoutMatrix konfigurációk
 

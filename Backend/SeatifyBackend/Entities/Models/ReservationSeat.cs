@@ -17,7 +17,7 @@ namespace Entities.Models
         public decimal FinalPrice { get; set; }
         public virtual Reservation Reservation { get; set; } = null!;
 
-        // TODO: public virtual Seat Seat { get; set; } = null!; 
+        public virtual Seat Seat { get; set; } = null!;
     }
 }
 

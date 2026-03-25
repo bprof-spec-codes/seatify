@@ -95,6 +95,7 @@
   transform: rotateY(-15deg) rotateX(1deg)
   transform-style: preserve-3d
   transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.6s ease
+  border-radius: 1.5rem !important
 
   &:hover
     transform: rotateY(-8deg) rotateX(2deg) translateY(-10px)
@@ -102,10 +103,13 @@
 
 .colosseum-footer
   background: rgba(255,255,255,0.86)
+  border-radius: 0 0 1.5rem 1.5rem
 
 app-seat-map-display
   display: block
   width: 100%
+  & ::ng-deep .seat-preview
+    border-radius: 1.5rem 1.5rem 0 0 !important
 
 // FEATURE CARDS (Itt a teljes kód, nem fog összeomlani!)
 .feature-card

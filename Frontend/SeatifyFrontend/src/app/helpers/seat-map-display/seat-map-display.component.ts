@@ -26,6 +26,12 @@ export class SeatMapDisplayComponent implements AfterViewInit, OnDestroy {
   private seatGroups: THREE.Group[] = [];
   private stageGlow!: THREE.Mesh;
 
+  private raycaster = new THREE.Raycaster();
+  private mouse = new THREE.Vector2(-2, -2);
+  private interactableMeshes: THREE.Mesh[] = [];
+  private hoveredSeat: THREE.Group | null = null;
+  private allSeats: THREE.Group[] = [];
+
   ngAfterViewInit(): void {
     requestAnimationFrame(() => {
       this.initThree();
@@ -40,6 +46,12 @@ export class SeatMapDisplayComponent implements AfterViewInit, OnDestroy {
     }
 
     window.removeEventListener('resize', this.onResize);
+
+    const container = this.canvasContainer?.nativeElement;
+    if (container) {
+      container.removeEventListener('mousemove', this.onMouseMove);
+      container.removeEventListener('mouseleave', this.onMouseLeave);
+    }
 
     if (this.renderer) {
       this.renderer.dispose();
@@ -80,6 +92,8 @@ export class SeatMapDisplayComponent implements AfterViewInit, OnDestroy {
     container.appendChild(this.renderer.domElement);
 
     window.addEventListener('resize', this.onResize);
+    container.addEventListener('mousemove', this.onMouseMove);
+    container.addEventListener('mouseleave', this.onMouseLeave);
   }
 
   private buildScene(): void {
@@ -238,6 +252,9 @@ export class SeatMapDisplayComponent implements AfterViewInit, OnDestroy {
           seat.position.set(x, rowY, z);
           seat.lookAt(0, rowY + 0.2, 0);
 
+          seat.userData = { targetY: rowY, initialY: rowY };
+          this.allSeats.push(seat);
+
           rowGroup.add(seat);
         }
       }
@@ -302,6 +319,10 @@ export class SeatMapDisplayComponent implements AfterViewInit, OnDestroy {
       new THREE.BoxGeometry(2.1, 1.8, 0.3),
       material
     );
+    
+    seatBase.userData = { parentGroup: group };
+    seatBack.userData = { parentGroup: group };
+    this.interactableMeshes.push(seatBase, seatBack);
     seatBack.position.set(0, 1.72, -0.65);
     seatBack.rotation.x = -0.12;
     seatBack.castShadow = true;
@@ -347,6 +368,33 @@ export class SeatMapDisplayComponent implements AfterViewInit, OnDestroy {
       this.stageGlow.material.opacity = 0.42 + Math.sin(t * 2.1) * 0.08;
     }
 
+    this.raycaster.setFromCamera(this.mouse, this.camera);
+    const intersects = this.raycaster.intersectObjects(this.interactableMeshes, false);
+
+    if (intersects.length > 0) {
+      const obj = intersects[0].object;
+      const group = obj.userData['parentGroup'] as THREE.Group;
+      if (this.hoveredSeat !== group) {
+        if (this.hoveredSeat) {
+          this.hoveredSeat.userData['targetY'] = this.hoveredSeat.userData['initialY'];
+        }
+        this.hoveredSeat = group;
+        if (this.hoveredSeat) {
+          this.hoveredSeat.userData['targetY'] = this.hoveredSeat.userData['initialY'] + 0.8;
+        }
+      }
+    } else {
+      if (this.hoveredSeat) {
+        this.hoveredSeat.userData['targetY'] = this.hoveredSeat.userData['initialY'];
+        this.hoveredSeat = null;
+      }
+    }
+
+    for (let i = 0; i < this.allSeats.length; i++) {
+      const seat = this.allSeats[i];
+      seat.position.y += (seat.userData['targetY'] - seat.position.y) * 0.15;
+    }
+
     this.renderer.render(this.scene, this.camera);
     this.animationFrameId = requestAnimationFrame(this.animate);
   };
@@ -357,5 +405,22 @@ export class SeatMapDisplayComponent implements AfterViewInit, OnDestroy {
     this.camera.aspect = container.clientWidth / container.clientHeight;
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(container.clientWidth, container.clientHeight);
+  };
+
+  private onMouseMove = (event: MouseEvent): void => {
+    const container = this.canvasContainer.nativeElement;
+    const rect = container.getBoundingClientRect();
+    
+    this.mouse.x = ((event.clientX - rect.left) / container.clientWidth) * 2 - 1;
+    this.mouse.y = -((event.clientY - rect.top) / container.clientHeight) * 2 + 1;
+  };
+
+  private onMouseLeave = (): void => {
+    this.mouse.x = -2;
+    this.mouse.y = -2;
+    if (this.hoveredSeat) {
+      this.hoveredSeat.userData['targetY'] = this.hoveredSeat.userData['initialY'];
+      this.hoveredSeat = null;
+    }
   };
 }

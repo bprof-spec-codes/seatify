@@ -1,5 +1,6 @@
 ﻿using Data;
 using Entities.Dtos.EventOccurrence;
+using Entities.Dtos.Reservation;
 using Entities.Models;
 using Logic.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -62,23 +63,24 @@ namespace Logic.Services
                 BookingCloseAtUtc = occurrence.BookingCloseAtUtc,
                 Status = occurrence.Status,
 
-                // Manual mapping to DTOs to avoid CS0029
-                Event = new EventViewDto
+                Event = occurrence.Event != null ? new EventViewDto
                 {
                     Id = occurrence.Event.Id,
                     Name = occurrence.Event.Name,
                     Description = occurrence.Event.Description
-                },
-                Venue = new VenueViewDto
+                } : null!,
+
+                Venue = occurrence.Venue != null ? new VenueViewDto
                 {
                     Id = occurrence.Venue.Id,
                     Name = occurrence.Venue.Name
-                },
-                Auditorium = new AuditoriumViewDto
+                } : null!,
+
+                Auditorium = occurrence.Auditorium != null ? new AuditoriumViewDto
                 {
                     Id = occurrence.Auditorium.Id,
                     Name = occurrence.Auditorium.Name
-                }
+                } : null!
             };
         }
 
@@ -109,11 +111,24 @@ namespace Logic.Services
             return _appDbContext.SaveChanges() > 0;
         }
 
-        // tem. solution for reservation
-        public object GetReservations(string id)
+        public List<ReservationViewDto> GetReservations(string id)
         {
-            // TODO: return reservation list...
-            return new { Message = "Reservations feature is under construction." };
+            return _appDbContext.Reservations
+                    .Include(r => r.ReservationSeats)
+                    .Where(r => r.EventOccurrenceId == id)
+                    .Select(res => new ReservationViewDto
+                    {
+                        Id = res.Id,
+                        CustomerName = res.CustomerName,
+                        CustomerEmail = res.CustomerEmail,
+                        Status = res.Status,
+                        CreatedAtUtc = res.CreatedAtUtc,
+                        ReservedSeats = res.ReservationSeats.Select(rs => new ReservationSeatViewDto
+                        {
+                            SeatId = rs.SeatId,
+                            FinalPrice = rs.FinalPrice
+                        }).ToList()
+                    }).ToList();
         }
     }
 }

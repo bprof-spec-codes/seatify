@@ -11,10 +11,14 @@ namespace Entities.Dtos.Reservation
         public string CustomerName { get; set; } = string.Empty;
         public string CustomerEmail { get; set; } = string.Empty;
         public string CustomerPhone { get; set; } = string.Empty;
-        public string EventOccurenceId { get; set; } = string.Empty;
+        public string EventOccurrenceId { get; set; } = string.Empty;
 
-        public List<string> SeatIds { get; set; } = new();
+        public List<ReservationSeatDto> Seats { get; set; } = new();
 
         // TODO: later BookingSessionId
+    }
+    public class ReservationSeatDto
+    {
+        public string SeatId { get; set; } = string.Empty;
     }
 }

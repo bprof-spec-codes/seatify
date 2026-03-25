@@ -1,0 +1,131 @@
+﻿using Entities.Dtos.Seat;
+using Logic.Services;
+using Microsoft.AspNetCore.Mvc;
+
+namespace Api.Controllers
+{
+    [ApiController]
+    [Route("api")]
+    public class SeatsController : ControllerBase
+    {
+        private readonly ISeatService _seatService;
+
+        public SeatsController(ISeatService seatService)
+        {
+            _seatService = seatService;
+        }
+
+        [HttpPost("seats/batch")]
+        public async Task<ActionResult<List<SeatViewDto>>> CreateBatch(
+            [FromBody] List<SeatViewDto> dtos,
+            CancellationToken ct)
+        {
+            try
+            {
+                var created = await _seatService.CreateBatchAsync(dtos, ct);
+                return Ok(created);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("seats")]
+        public async Task<ActionResult<List<SeatViewDto>>> GetAll(CancellationToken ct)
+        {
+            try
+            {
+                var seats = await _seatService.GetAllAsync(ct);
+                return Ok(seats);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("layout-matrices/{matrixId}/seats")]
+        public async Task<ActionResult<List<SeatViewDto>>> GetByMatrix(
+            string matrixId,
+            CancellationToken ct)
+        {
+            try
+            {
+                var seats = await _seatService.GetByMatrixAsync(matrixId, ct);
+                return Ok(seats);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("seats/{seatId}")]
+        public async Task<ActionResult<SeatViewDto>> GetById(
+            string seatId,
+            CancellationToken ct)
+        {
+            try
+            {
+                var seat = await _seatService.GetByIdAsync(seatId, ct);
+
+                if (seat == null)
+                {
+                    return NotFound(new { message = "Seat not found" });
+                }
+
+                return Ok(seat);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPut("seats/{seatId}")]
+        public async Task<ActionResult<SeatViewDto>> Update(
+            string seatId,
+            [FromBody] SeatUpdateDto dto,
+            CancellationToken ct)
+        {
+            try
+            {
+                var updated = await _seatService.UpdateAsync(seatId, dto, ct);
+
+                if (updated == null)
+                {
+                    return NotFound(new { message = "Seat not found" });
+                }
+
+                return Ok(updated);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpDelete("seats/{seatId}")]
+        public async Task<ActionResult> Delete(
+            string seatId,
+            CancellationToken ct)
+        {
+            try
+            {
+                var deleted = await _seatService.DeleteAsync(seatId, ct);
+
+                if (!deleted)
+                {
+                    return NotFound(new { message = "Seat not found" });
+                }
+
+                return NoContent();
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+    }
+}

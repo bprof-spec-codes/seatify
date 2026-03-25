@@ -19,14 +19,8 @@ namespace Entities.Dtos.EventOccurrence
         public DateTime BookingOpenAtUtc { get; set; }
         public DateTime BookingCloseAtUtc { get; set; }
         public string Status { get; set; } = string.Empty;
-
-        // TODO: change to EventDto
         public EventViewDto Event { get; set; } = null!;
-
-        // TODO: change to VenueDto
         public VenueViewDto Venue { get; set; } = null!;
-
-        // TODO: change to AuditoriumDto
         public AuditoriumViewDto Auditorium { get; set; } = null!;
     }
 

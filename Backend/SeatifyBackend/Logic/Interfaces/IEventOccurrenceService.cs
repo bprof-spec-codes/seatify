@@ -1,4 +1,5 @@
 ﻿using Entities.Dtos.EventOccurrence;
+using Entities.Dtos.Reservation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,6 @@ namespace Logic.Interfaces
         public EventOccurrenceViewDto? GetById(string id);
         public bool Update(string id, EventOccurrenceCreateDto updateDto);
         public bool Delete(string id);
-        public object GetReservations(string id);
+        public List<ReservationViewDto> GetReservations(string id);
     }
 }

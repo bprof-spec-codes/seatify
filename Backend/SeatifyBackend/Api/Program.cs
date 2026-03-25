@@ -1,5 +1,5 @@
-
 using Data;
+using Logic.Helper;
 using Entities.Models;
 using Logic.Interfaces;
 using Logic.Services;
@@ -27,8 +27,14 @@ namespace Api
                 .GetSection("AllowedOrigins")
                 .Get<string[]>();
 
+            // DI registrations
+            builder.Services.AddTransient(typeof(Repository<>));
+            builder.Services.AddScoped<DtoProvider>();
+            builder.Services.AddScoped<VenueService>();
             builder.Services.AddScoped<IAuditoriumService, AuditoriumService>();
             builder.Services.AddScoped<ISectorService, SectorService>();
+            builder.Services.AddScoped<ISeatService, SeatService>();
+            builder.Services.AddScoped<IOrganizerService, OrganizerService>();
             builder.Services.AddScoped<IEventOccurrenceService, EventOccurrenceService>();
             builder.Services.AddScoped<IReservationService, ReservationService>();
 
