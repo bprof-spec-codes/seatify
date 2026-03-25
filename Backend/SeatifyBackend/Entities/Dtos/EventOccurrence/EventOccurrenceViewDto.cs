@@ -1,3 +1,4 @@
+﻿using Entities.Models;
 ﻿using Entities.Dtos.Auditorium;
 using Entities.Dtos.Venue;
 using Entities.Models;
@@ -21,12 +22,27 @@ namespace Entities.Dtos.EventOccurrence
         public DateTime BookingOpenAtUtc { get; set; }
         public DateTime BookingCloseAtUtc { get; set; }
         public string Status { get; set; } = string.Empty;
-
-        // TODO: change to EventDto
-        public Event Event { get; set; } = null!;
-
+        public EventViewDto Event { get; set; } = null!;
         public VenueViewDto Venue { get; set; } = null!;
-
         public AuditoriumViewDto Auditorium { get; set; } = null!;
+    }
+
+    public class EventViewDto
+    {
+        public string Id { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+    }
+
+    public class VenueViewDto
+    {
+        public string Id { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+    }
+
+    public class AuditoriumViewDto
+    {
+        public string Id { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
     }
 }

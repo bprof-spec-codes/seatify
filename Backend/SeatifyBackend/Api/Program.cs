@@ -1,5 +1,7 @@
 using Data;
 using Logic.Helper;
+using Entities.Models;
+using Logic.Interfaces;
 using Logic.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -33,6 +35,8 @@ namespace Api
             builder.Services.AddScoped<ISectorService, SectorService>();
             builder.Services.AddScoped<ISeatService, SeatService>();
             builder.Services.AddScoped<IOrganizerService, OrganizerService>();
+            builder.Services.AddScoped<IEventOccurrenceService, EventOccurrenceService>();
+            builder.Services.AddScoped<IReservationService, ReservationService>();
             builder.Services.AddScoped<ILayoutMatrixService, LayoutMatrixService>();
 
             builder.Services.AddCors(options =>

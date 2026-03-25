@@ -1,8 +1,10 @@
-﻿using Data;
+using Data;
 using Entities.Dtos.EventOccurrence;
+using Entities.Dtos.Reservation;
 using Entities.Dtos.Venue;
 using Entities.Dtos.Auditorium;
 using Entities.Models;
+using Logic.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -12,12 +14,13 @@ using System.Threading.Tasks;
 
 namespace Logic.Services
 {
-    public class EventOccurrenceService
+    public class EventOccurrenceService : IEventOccurrenceService
     {
         private AppDbContext _appDbContext;
+
         public EventOccurrenceService(AppDbContext appDbContext)
         {
-                _appDbContext = appDbContext;
+            _appDbContext = appDbContext;
         }
 
         public bool Create(EventOccurrenceCreateDto createDto)
@@ -78,20 +81,24 @@ namespace Logic.Services
                 BookingCloseAtUtc = occurrence.BookingCloseAtUtc,
                 Status = occurrence.Status,
 
-                // Itt oldjuk fel a CS0029 hibát: Modellekből DTO-kat gyártunk
-                Event = occurrence.Event, // Ez maradhatott Modell, mert nincs még EventDto
+                Event = occurrence.Event != null ? new EventViewDto
+                {
+                    Id = occurrence.Event.Id,
+                    Name = occurrence.Event.Name,
+                    Description = occurrence.Event.Description
+                } : null!,
 
-                Venue = new VenueViewDto
+                Venue = occurrence.Venue != null ? new VenueViewDto
                 {
                     Id = occurrence.Venue.Id,
                     Name = occurrence.Venue.Name
-                },
+                } : null!,
 
-                Auditorium = new AuditoriumViewDto
+                Auditorium = occurrence.Auditorium != null ? new AuditoriumViewDto
                 {
                     Id = occurrence.Auditorium.Id,
                     Name = occurrence.Auditorium.Name
-                }
+                } : null!
             };
         }
 
@@ -108,7 +115,7 @@ namespace Logic.Services
             occurrence.BookingOpenAtUtc = updateDto.BookingOpenAtUtc;
             occurrence.BookingCloseAtUtc = updateDto.BookingCloseAtUtc;
             occurrence.Status = updateDto.Status;
-            occurrence.UpdatedAtUtc = System.DateTime.UtcNow;
+            occurrence.UpdatedAtUtc = DateTime.UtcNow;
 
             return _appDbContext.SaveChanges() > 0;
         }
@@ -122,11 +129,25 @@ namespace Logic.Services
             return _appDbContext.SaveChanges() > 0;
         }
 
-        // temporary solution for Reservations
-        public object GetReservations(string id)
+        public List<ReservationViewDto> GetReservations(string id)
         {
-            // TODO: Return reservation...
-            return new { Message = "Reservations feature is under construction." };
+            return _appDbContext.Reservations
+                .Include(r => r.ReservationSeats)
+                .Where(r => r.EventOccurrenceId == id)
+                .Select(res => new ReservationViewDto
+                {
+                    Id = res.Id,
+                    CustomerName = res.CustomerName,
+                    CustomerEmail = res.CustomerEmail,
+                    Status = res.Status,
+                    CreatedAtUtc = res.CreatedAtUtc,
+                    ReservedSeats = res.ReservationSeats.Select(rs => new ReservationSeatViewDto
+                    {
+                        SeatId = rs.SeatId,
+                        FinalPrice = rs.FinalPrice
+                    }).ToList()
+                })
+                .ToList();
         }
     }
 }

@@ -1,5 +1,5 @@
-﻿using Entities.Dtos.EventOccurrence;
-using Logic.Services;
+using Entities.Dtos.EventOccurrence;
+using Logic.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers
@@ -8,9 +8,9 @@ namespace Api.Controllers
     [Route("api/event-occurrences")]
     public class EventOccurrenceController : ControllerBase
     {
-        private readonly EventOccurrenceService _service;
+        private readonly IEventOccurrenceService _service;
 
-        public EventOccurrenceController(EventOccurrenceService service)
+        public EventOccurrenceController(IEventOccurrenceService service)
         {
             _service = service;
         }

@@ -29,8 +29,9 @@ namespace Entities.Models
         public virtual Event Event { get; set; } = null!;
         public virtual Venue Venue { get; set; } = null!;
         public virtual Auditorium Auditorium { get; set; } = null!;
+        public virtual List<Reservation> Reservations { get; set; } = new();
 
-        // TODO: Reservation and BookingSession
+        // TODO: BookingSession
 
     }
 }
