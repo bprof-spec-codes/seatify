@@ -1,1 +1,39 @@
-<p>layout-matrix-editor works!</p>
+<div class="container my-5">
+
+  <div class="sidebar">
+    <h3>Mátrixok</h3>
+
+    <div
+      class="matrix-item"
+      *ngFor="let matrix of matrices$ | async"
+      (click)="selectMatrix(matrix)"
+    >
+      {{ matrix.name }} ({{ matrix.rows }} × {{ matrix.columns }})
+    </div>
+  </div>
+
+  <div class="editor">
+
+    <ng-container *ngIf="selectedMatrix as matrix">
+      
+      <h3>{{ matrix.name }}</h3>
+
+      <div
+        class="grid"
+        [style.gridTemplateColumns]="'repeat(' + matrix.columns + ', 32px)'"
+      >
+        <div
+          class="cell"
+          *ngFor="let _ of getGrid()"
+        ></div>
+      </div>
+
+    </ng-container>
+
+    <div *ngIf="!selectedMatrix">
+      Válassz egy mátrixot
+    </div>
+
+  </div>
+
+</div>
