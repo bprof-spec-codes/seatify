@@ -107,7 +107,6 @@ All merges must happen through an approved **Pull Request**.
 
 ---
 
-
 # Merge Checklist
 
 Before merging into develop:
