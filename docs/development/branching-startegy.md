@@ -27,6 +27,8 @@ Unacceptable merges:
 
 All work must be performed in branches created from `develop`.
 
+# Issue Based Development
+
 ## Branch Source
 
 Branches must be created from:
