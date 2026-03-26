@@ -21,6 +21,8 @@ Unacceptable merges:
 - incomplete experimental code
 - non-functional partial implementations
 
+# Issue Based Development
+
 ---
 
 All work must be performed in branches created from `develop`.
