@@ -10,6 +10,7 @@ import { VenueDashboardComponent } from './pages/venue-dashboard/venue-dashboard
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { ConfirmMessageComponent } from './helpers/confirm-message/confirm-message.component';
 import { AuditoriumDashboardComponent } from './pages/auditorium-dashboard/auditorium-dashboard.component';
+import { LayoutMatrixEditorComponent } from './pages/layout-matrix-editor/layout-matrix-editor.component';
 
 @NgModule({
   declarations: [
@@ -20,6 +21,7 @@ import { AuditoriumDashboardComponent } from './pages/auditorium-dashboard/audit
     VenueDashboardComponent,
     ConfirmMessageComponent,
     AuditoriumDashboardComponent,
+    LayoutMatrixEditorComponent,
   ],
   imports: [
     BrowserModule,
