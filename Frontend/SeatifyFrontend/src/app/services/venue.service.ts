@@ -59,7 +59,7 @@ export class VenueService {
         const index = venues.findIndex(v => v.id === updatedVenue.id);
         if (index !== -1)
         {
-          venues[index] = updatedVenue;
+          venues[index] = { ...venues[index], ...updatedVenue };
           this.venuesSource.next([...venues]);
         }
       }),

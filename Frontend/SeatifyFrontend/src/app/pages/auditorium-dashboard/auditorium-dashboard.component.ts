@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Auditorium } from '../../models/auditorium';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuditoriumService } from '../../services/auditorium.service';
@@ -12,7 +12,7 @@ import { VenueService } from '../../services/venue.service';
   templateUrl: './auditorium-dashboard.component.html',
   styleUrl: './auditorium-dashboard.component.sass'
 })
-export class AuditoriumDashboardComponent implements OnInit {
+export class AuditoriumDashboardComponent implements OnInit, OnDestroy {
   venue!: Venue;
   venue$!: Observable<Venue>;
   auditoriums$!: Observable<Auditorium[]>;
@@ -52,7 +52,7 @@ export class AuditoriumDashboardComponent implements OnInit {
         // If venues is empty call the API for the venue by venueId.
         else
         {
-          this.venueService.getVenue(venueId).pipe(takeUntil(this.unsubscribe$)).subscribe(venue => {
+          this.venueService.getVenueById(venueId).pipe(takeUntil(this.unsubscribe$)).subscribe(venue => {
             this.venue = venue;
             this.venue$ = of(this.venue);
             this.auditoriums = venue.auditoriums;
@@ -103,7 +103,7 @@ export class AuditoriumDashboardComponent implements OnInit {
         this.auditoriums$ = of(this.auditoriums);
 
         // Update the local state to reflect the changes without unnecessary API calls.
-        this.venueService.removeAuditoriumFromVenue(this.venue.id, auditorium.id);
+        this.venueService.removeAuditoriumFromVenue(this.venue.id!, auditorium.id);
       },
       error: err => console.error('Error: ', err.message)
     });

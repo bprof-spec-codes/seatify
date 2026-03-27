@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { VenueService } from '../../services/venue.service';
 import { Observable, of, Subject, takeUntil } from 'rxjs';
 import { Venue } from '../../models/venue';
@@ -10,7 +10,7 @@ import { Router } from '@angular/router';
   templateUrl: './venue-dashboard.component.html',
   styleUrl: './venue-dashboard.component.sass'
 })
-export class VenueDashboardComponent implements OnInit {
+export class VenueDashboardComponent implements OnInit, OnDestroy {
   venues$!: Observable<Venue[]>;
   venues!: Venue[];
   showModal: boolean = false;
@@ -51,11 +51,14 @@ export class VenueDashboardComponent implements OnInit {
   }
 
   createVenue(): void {
-    console.log('Create venue!');
+    this.venueService.setEditMode(false);
+    this.router.navigate(['/venues/form']);
   }
 
   editVenue(venue: Venue): void {
-    console.log('Editing venue: ', venue);
+    this.venueService.setEditVenue(venue);
+    this.venueService.setEditMode(true);
+    this.router.navigate(['/venues/form']);
   }
 
   confirmDelete(venue: any): void {
@@ -64,7 +67,7 @@ export class VenueDashboardComponent implements OnInit {
   }
 
   deleteVenue(venue: Venue): void {
-    this.venueService.deleteVenueById(venue.id).subscribe({
+    this.venueService.deleteVenueById(venue.id!).subscribe({
       next: () => {
         console.log('Venue successfully deleted!');
         this.venues = this.venues.filter(v => v.id !== venue.id);
