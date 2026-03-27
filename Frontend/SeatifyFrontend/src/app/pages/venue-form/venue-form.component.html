@@ -3,39 +3,48 @@
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header">
-                    @if (editMode$ | async)
-                    {
-                        <h2>Edit Venue</h2>
-                    }
-                    @else
-                    {
-                        <h2>Create Venue</h2>
-                    }
+                    <h2>{{ (editMode$ | async) ? 'Edit Venue' : 'Create Venue' }}</h2>
                 </div>
                 <div class="card-body">
                     <form [formGroup]="venueForm" (ngSubmit)="onSubmit()">
                         <div class="form-group mb-3">
                             <label for="venueName" class="mb-1">Name*:</label>
                             <input type="text" class="form-control" id="venueName" formControlName="venueName" placeholder="Venue Name">
+                            <div *ngIf="venueForm.get('venueName')?.invalid && (venueForm.get('venueName')?.touched || venueForm.get('venueName')?.dirty)" class="text-danger">
+                                <div *ngIf="venueForm.get('venueName')?.errors?.['required']">Name is required.</div>
+                                <div *ngIf="venueForm.get('venueName')?.errors?.['maxlength']">Name cannot exceed 100 characters.</div>
+                            </div>
                         </div>
                         <div class="form-group mb-3">
                             <label for="venueCity" class="mb-1">City*:</label>
                             <input type="text" class="form-control" id="venueCity" formControlName="venueCity" placeholder="Venue City">
+                            <div *ngIf="venueForm.get('venueCity')?.invalid && (venueForm.get('venueCity')?.touched || venueForm.get('venueCity')?.dirty)" class="text-danger">
+                                <div *ngIf="venueForm.get('venueCity')?.errors?.['required']">City is required.</div>
+                                <div *ngIf="venueForm.get('venueCity')?.errors?.['maxlength']">City cannot exceed 100 characters.</div>
+                            </div>
                         </div>
                         <div class="form-group mb-3">
                             <label for="venuePostalCode" class="mb-1">Postal Code*:</label>
                             <input type="text" class="form-control" id="venuePostalCode" formControlName="venuePostalCode" placeholder="Venue Postal Code">
+                            <div *ngIf="venueForm.get('venuePostalCode')?.invalid && (venueForm.get('venuePostalCode')?.touched || venueForm.get('venuePostalCode')?.dirty)" class="text-danger">
+                                <div *ngIf="venueForm.get('venuePostalCode')?.errors?.['required']">Postal Code is required.</div>
+                                <div *ngIf="venueForm.get('venuePostalCode')?.errors?.['maxlength']">Postal Code cannot exceed 100 characters.</div>
+                            </div>
                         </div>
                         <div class="form-group mb-3">
                             <label for="venueAddressLine" class="mb-1">Address Line*:</label>
                             <input type="text" class="form-control" id="venueAddressLine" formControlName="venueAddressLine" placeholder="Venue Address Line">
+                            <div *ngIf="venueForm.get('venueAddressLine')?.invalid && (venueForm.get('venueAddressLine')?.touched || venueForm.get('venueAddressLine')?.dirty)" class="text-danger">
+                                <div *ngIf="venueForm.get('venueAddressLine')?.errors?.['required']">Address Line is required.</div>
+                                <div *ngIf="venueForm.get('venueAddressLine')?.errors?.['maxlength']">Address Line cannot exceed 100 characters.</div>
+                            </div>
                         </div>
                         <div class="row">
                             <div class="col">
                                 <button type="button" class="btn btn-secondary btn-custom" (click)="back()">Back</button>
                             </div>
                             <div class="col-auto">
-                                <button type="submit" class="btn btn-success btn-custom">Save</button>
+                                <button type="submit" class="btn btn-success btn-custom" [disabled]="venueForm.invalid">Save</button>
                             </div>
                         </div>
                     </form>

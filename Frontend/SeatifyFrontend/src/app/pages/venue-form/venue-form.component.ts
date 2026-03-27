@@ -28,10 +28,10 @@ export class VenueFormComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.venueForm = this.fb.group({
-      venueName: ['', Validators.required],
-      venueCity: ['', Validators.required],
-      venuePostalCode: ['', Validators.required],
-      venueAddressLine: ['', Validators.required]
+      venueName: ['', [Validators.required, Validators.maxLength(100)]],
+      venueCity: ['', [Validators.required, Validators.maxLength(100)]],
+      venuePostalCode: ['', [Validators.required, Validators.maxLength(100)]],
+      venueAddressLine: ['', [Validators.required, Validators.maxLength(100)]]
     });
 
     this.venueService.venues$.pipe(takeUntil(this.unsubscribe$)).subscribe(venues => {
