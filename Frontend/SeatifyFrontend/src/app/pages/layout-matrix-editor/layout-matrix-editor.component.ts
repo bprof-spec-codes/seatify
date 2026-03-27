@@ -5,6 +5,7 @@ import { LayoutMatrix } from '../../models/layout-matrix';
 import { array } from 'three/src/nodes/core/ArrayNode.js';
 import { ActivatedRoute } from '@angular/router';
 import { MatrixCellVm } from '../../models/matrix-cell-vm';
+import { SeatService as SeatService } from '../../services/seat.service';
 
 @Component({
   selector: 'app-layout-matrix-editor',
@@ -22,7 +23,7 @@ export class LayoutMatrixEditorComponent implements OnInit {
 
   auditoriumId: string = ""
 
-  constructor(private matrixService: LayoutMatrixService, private route: ActivatedRoute) { }
+  constructor(private matrixService: LayoutMatrixService, private route: ActivatedRoute, private seatService: SeatService) { }
 
   ngOnInit(): void {
     this.auditoriumId = this.route.snapshot.paramMap.get('auditoriumId') ?? 'aud-id-01';
@@ -58,6 +59,7 @@ export class LayoutMatrixEditorComponent implements OnInit {
 
   selectMatrix(matrix: LayoutMatrix): void {
     this.setSelectedMatrix(matrix)
+    this.seatService.getSeatMapByAuditoriumId(matrix.id).subscribe()
   }
 
   isSelected(matrix: LayoutMatrix): boolean {
@@ -112,7 +114,7 @@ export class LayoutMatrixEditorComponent implements OnInit {
   }
 
   get selectedCell(): MatrixCellVm | null {
-  if (!this.selectedCellKey) return null;
-  return this.gridCells.find(c => c.key === this.selectedCellKey) ?? null;
-}
+    if (!this.selectedCellKey) return null;
+    return this.gridCells.find(c => c.key === this.selectedCellKey) ?? null;
+  }
 }
