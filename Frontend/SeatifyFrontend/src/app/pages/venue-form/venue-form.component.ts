@@ -33,6 +33,14 @@ export class VenueFormComponent implements OnInit, OnDestroy {
       venuePostalCode: ['', Validators.required],
       venueAddressLine: ['', Validators.required]
     });
+
+    this.venueService.venues$.pipe(takeUntil(this.unsubscribe$)).subscribe(venues => {
+      if (venues.length === 0)
+      {
+        this.venueService.loadVenuesByOrganizerId(this.organizerId);
+      }
+    });
+
     this.venueService.editMode$.pipe(takeUntil(this.unsubscribe$)).subscribe(editMode => {
       this.editMode = editMode;
       this.editMode$ = of(editMode);

@@ -35,6 +35,12 @@ export class VenueService {
     );
   }
 
+  loadVenuesByOrganizerId(organizerId: string): void {
+    this.http.get<Venue[]>(`${this.apiUrl}/organizers/${organizerId}`).subscribe(venues => {
+      this.venuesSource.next(venues);
+    });
+  }
+
   getVenuesByOrganizerId(organizerId: string): Observable<Venue[]> {
     return this.http.get<Venue[]>(`${this.apiUrl}/organizers/${organizerId}`).pipe(
       tap(venues => this.venuesSource.next(venues)),
