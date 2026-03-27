@@ -31,23 +31,35 @@
     </aside>
 
     <main class="center-panel panel">
-      <h2 class="panel-title">Editor</h2>
-      <div class="panel-placeholder panel-placeholder-large">
-        <ng-container *ngIf="selectedMatrix as matrix">
-          <div class="editor-header">
-            <h3>{{ matrix.name }}</h3>
-            <p>{{ matrix.rows }} sor × {{ matrix.columns }} oszlop</p>
+      <div class="editor-shell" *ngIf="selectedMatrix as matrix; else emptyEditor">
+        <div class="editor-shell__header">
+          <div>
+            <h2 class="panel-title">{{ selectedMatrixTitle }}</h2>
+            <p class="editor-shell__subtitle">{{ selectedMatrixSummary }}</p>
           </div>
+        </div>
 
-          <div class="grid" [style.gridTemplateColumns]="'repeat(' + matrix.columns + ', 32px)'">
-            <div class="cell" *ngFor="let _ of getGrid()"></div>
+        <div class="editor-shell__body">
+          <div class="editor-canvas">
+            <div class="grid-wrapper">
+              <div
+                class="grid"
+                [style.gridTemplateColumns]="'repeat(' + matrix.columns + ', 36px)'"
+              >
+                <div class="cell" *ngFor="let _ of getGrid()"></div>
+              </div>
+            </div>
           </div>
-        </ng-container>
-
-        <div *ngIf="!selectedMatrix">
-          Válassz egy mátrixot
         </div>
       </div>
+
+      <ng-template #emptyEditor>
+        <div class="editor-empty-state">
+          <div class="panel-placeholder panel-placeholder-large">
+            Válassz egy mátrixot a szerkesztéshez.
+          </div>
+        </div>
+      </ng-template>
     </main>
 
     <aside class="right-panel panel">

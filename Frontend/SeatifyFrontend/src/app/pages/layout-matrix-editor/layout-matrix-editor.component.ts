@@ -61,4 +61,13 @@ export class LayoutMatrixEditorComponent implements OnInit {
     if (!this.selectedMatrix) return [];
     return Array.from({ length: this.selectedMatrix.rows * this.selectedMatrix.columns })
   }
+
+  get selectedMatrixTitle(): string {
+    return this.selectedMatrix?.name ?? 'No matrix selected'
+  }
+
+  get selectedMatrixSummary(): string {
+    if (!this.selectedMatrix) return ''
+    return `${this.selectedMatrix.rows} rows × ${this.selectedMatrix.columns} columns`
+  }
 }
