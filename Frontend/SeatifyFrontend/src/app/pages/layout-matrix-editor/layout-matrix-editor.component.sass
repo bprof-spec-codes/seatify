@@ -51,6 +51,44 @@
 .panel-placeholder-large
     min-height: 300px
 
+.seat-panel
+    display: flex
+    flex-direction: column
+    gap: 0.75rem
+
+.seat-panel__title
+    margin: 0
+    font-size: 1.1rem
+
+.seat-panel__row
+    display: flex
+    justify-content: space-between
+    font-size: 0.9rem
+
+.seat-panel__section
+    margin-top: 0.75rem
+    display: flex
+    flex-direction: column
+    gap: 0.5rem
+
+.seat-type-buttons
+    display: flex
+    gap: 0.5rem
+
+    button
+        flex: 1
+        padding: 0.4rem
+        border-radius: 0.5rem
+        border: 1px solid #ced4da
+        background: #f8f9fa
+        cursor: pointer
+        font-size: 0.85rem
+
+        &.active
+            background: #0d6efd
+            color: white
+            border-color: #0d6efd
+
 .matrix-list
     display: flex
     flex-direction: column
@@ -164,7 +202,7 @@
     border-color: #9333ea
 
 .cell--aisle
-    background: #f8f9fa
+    background: #f1f3f5
     border: 1px dashed #adb5bd
 
 .editor-empty-state

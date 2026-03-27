@@ -62,14 +62,53 @@
 
     <aside class="right-panel panel">
       <h2 class="panel-title">Properties & Tools</h2>
-      <div class="panel-placeholder">
-        Matrix properties, seat tools and sector management will appear here.
-      </div>
-      <div *ngIf="selectedCell as cell; else noCellSelected">
-        <p><strong>Selected cell:</strong></p>
-        <p>Row: {{ cell.row }}</p>
-        <p>Column: {{ cell.column }}</p>
-      </div>
+
+      <ng-container *ngIf="selectedCell as cell; else noCellSelected">
+        <div class="seat-panel">
+          <h3 class="seat-panel__title">Seat</h3>
+
+          <div class="seat-panel__row">
+            <span>Row:</span>
+            <strong>{{ cell.row }}</strong>
+          </div>
+
+          <div class="seat-panel__row">
+            <span>Column:</span>
+            <strong>{{ cell.column }}</strong>
+          </div>
+
+          <div class="seat-panel__row">
+            <span>Label:</span>
+            <strong>{{ cell.seatLabel || '-' }}</strong>
+          </div>
+
+          <div class="seat-panel__row">
+            <span>Type:</span>
+            <strong>{{ getSeatTypeLabel(cell.seatType) }}</strong>
+          </div>
+
+          <div class="seat-panel__section">
+            <label>Change type</label>
+
+            <div class="seat-type-buttons">
+              <button type="button" [class.active]="cell.seatType === seatType.Seat"
+                (click)="setSelectedCellSeatType(seatType.Seat)">
+                Seat
+              </button>
+
+              <button type="button" [class.active]="cell.seatType === seatType.AccessibleSeat"
+                (click)="setSelectedCellSeatType(seatType.AccessibleSeat)">
+                Accessible
+              </button>
+
+              <button type="button" [class.active]="cell.seatType === seatType.Aisle"
+                (click)="setSelectedCellSeatType(seatType.Aisle)">
+                Aisle
+              </button>
+            </div>
+          </div>
+        </div>
+      </ng-container>
 
       <ng-template #noCellSelected>
         <div class="panel-placeholder">

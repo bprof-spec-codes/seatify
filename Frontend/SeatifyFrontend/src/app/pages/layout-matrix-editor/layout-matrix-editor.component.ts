@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { LayoutMatrixService } from '../../services/layout-matrix.service';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, catchError, Observable, of, switchMap, tap } from 'rxjs';
 import { LayoutMatrix } from '../../models/layout-matrix';
 import { ActivatedRoute } from '@angular/router';
 import { MatrixCellVm } from '../../models/matrix-cell-vm';
@@ -18,6 +18,10 @@ import { SeatMap } from '../../models/seat-map';
 export class LayoutMatrixEditorComponent implements OnInit {
   matrices$!: Observable<LayoutMatrix[]>
   selectedMatrix: LayoutMatrix | null = null
+
+  private selectedMatrixSubject = new BehaviorSubject<LayoutMatrix | null>(null);
+  selectedMatrix$ = this.selectedMatrixSubject.asObservable();
+  seatMap$!: Observable<SeatMap | null>;
 
   gridCells: MatrixCellVm[] = []
   selectedCellKey: string | null = null
@@ -39,6 +43,42 @@ export class LayoutMatrixEditorComponent implements OnInit {
     this.auditoriumId = this.route.snapshot.paramMap.get('auditoriumId') ?? 'aud-id-01';
     this.matrices$ = this.matrixService.LayoutMatrix$
 
+    this.seatMap$ = this.selectedMatrixSubject.pipe(
+      tap(() => {
+        this.gridCells = []
+        this.gridRows = 0
+        this.gridColumns = 0
+        this.selectedCellKey = null
+        this.cdr.markForCheck()
+      }),
+      switchMap(matrix => {
+        if (!matrix) {
+          return of(null)
+        }
+
+        return this.seatService.getSeatMapByMatrixId(matrix.id).pipe(
+          catchError(err => {
+            console.error('Failed to load seat map', err)
+            return of(null)
+          })
+        )
+      }),
+      tap(seatMap => {
+        if (!seatMap) {
+          this.gridCells = []
+          this.gridRows = 0
+          this.gridColumns = 0
+        } else {
+          this.gridRows = seatMap.rows
+          this.gridColumns = seatMap.columns
+          this.gridCells = this.buildGridCellsFromSeatMap(seatMap)
+        }
+
+        this.cdr.markForCheck()
+      })
+    )
+
+    this.seatMap$.subscribe()
     this.loadMatrices()
   }
 
@@ -101,7 +141,6 @@ export class LayoutMatrixEditorComponent implements OnInit {
 
   selectMatrix(matrix: LayoutMatrix): void {
     this.setSelectedMatrix(matrix)
-    this.loadSeatMap(matrix.id)
   }
 
   isSelected(matrix: LayoutMatrix): boolean {
@@ -110,6 +149,7 @@ export class LayoutMatrixEditorComponent implements OnInit {
 
   private setSelectedMatrix(matrix: LayoutMatrix | null): void {
     this.selectedMatrix = matrix
+    this.selectedMatrixSubject.next(matrix)
     this.selectedCellKey = null
     this.cdr.markForCheck()
   }
@@ -173,7 +213,29 @@ export class LayoutMatrixEditorComponent implements OnInit {
   }
 
   get selectedCell(): MatrixCellVm | null {
-    if (!this.selectedCellKey) return null;
-    return this.gridCells.find(c => c.key === this.selectedCellKey) ?? null;
+    if (!this.selectedCellKey) return null
+    return this.gridCells.find(c => c.key === this.selectedCellKey) ?? null
   }
+
+  setSelectedCellSeatType(type: SeatType): void {
+    if (!this.selectedCell) return
+
+    const key = this.selectedCell.key
+
+    this.gridCells = this.gridCells.map(c =>
+      c.key === key ? { ...c, seatType: type } : c
+    )
+
+    this.cdr.markForCheck()
+  }
+
+  getSeatTypeLabel(type: SeatType): string {
+    switch (type) {
+      case SeatType.Seat: return 'Standard';
+      case SeatType.AccessibleSeat: return 'Accessible';
+      case SeatType.Aisle: return 'Aisle';
+      default: return 'Unknown';
+    }
+  }
+
 }
