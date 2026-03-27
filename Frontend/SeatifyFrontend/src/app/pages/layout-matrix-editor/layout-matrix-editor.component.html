@@ -1,39 +1,49 @@
-<div class="container my-5">
-
-  <div class="sidebar">
-    <h3>Mátrixok</h3>
-
-    <div
-      class="matrix-item"
-      *ngFor="let matrix of matrices$ | async"
-      (click)="selectMatrix(matrix)"
-    >
-      {{ matrix.name }} ({{ matrix.rows }} × {{ matrix.columns }})
+<div class="layout-editor-page">
+  <header class="page-header">
+    <div>
+      <h1>Layout Matrix Editor</h1>
+      <p class="page-subtitle">
+        Auditorium ID: {{ auditoriumId || 'N/A' }}
+      </p>
     </div>
-  </div>
+  </header>
 
-  <div class="editor">
-
-    <ng-container *ngIf="selectedMatrix as matrix">
-      
-      <h3>{{ matrix.name }}</h3>
-
-      <div
-        class="grid"
-        [style.gridTemplateColumns]="'repeat(' + matrix.columns + ', 32px)'"
-      >
-        <div
-          class="cell"
-          *ngFor="let _ of getGrid()"
-        ></div>
+  <div class="editor-layout">
+    <aside class="left-panel panel">
+      <h2 class="panel-title">Layout Matrices</h2>
+      <div class="panel-placeholder">
+        <div class="matrix-item" *ngFor="let matrix of matrices$ | async" (click)="selectMatrix(matrix)">
+          {{ matrix.name }} ({{ matrix.rows }} × {{ matrix.columns }})
+        </div>
       </div>
+    </aside>
 
-    </ng-container>
+    <main class="center-panel panel">
+      <h2 class="panel-title">Editor</h2>
+      <div class="panel-placeholder panel-placeholder-large">
 
-    <div *ngIf="!selectedMatrix">
-      Válassz egy mátrixot
-    </div>
+        <ng-container *ngIf="selectedMatrix as matrix">
 
+          <h3>{{ matrix.name }}</h3>
+
+          <div class="grid" [style.gridTemplateColumns]="'repeat(' + matrix.columns + ', 32px)'">
+            <div class="cell" *ngFor="let _ of getGrid()"></div>
+          </div>
+
+        </ng-container>
+
+        <div *ngIf="!selectedMatrix">
+          Válassz egy mátrixot
+        </div>
+
+      </div>
+    </main>
+
+    <aside class="right-panel panel">
+      <h2 class="panel-title">Properties & Tools</h2>
+      <div class="panel-placeholder">
+        Matrix properties, seat tools and sector management will appear here.
+      </div>
+    </aside>
   </div>
-
 </div>
