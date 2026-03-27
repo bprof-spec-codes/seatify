@@ -37,11 +37,14 @@
         <div class="editor-shell__body">
           <div class="editor-canvas">
             <div class="grid-wrapper">
-              <div class="grid" [style.gridTemplateColumns]="'repeat(' + matrix.columns + ', 36px)'">
+              <div class="grid" [style.gridTemplateColumns]="'repeat(' + gridColumns + ', 36px)'">
+
                 <div class="cell" *ngFor="let cell of gridCells; trackBy: trackByCellKey"
-                  [class.cell--selected]="isCellSelected(cell)" [attr.data-row]="cell.row"
-                  [attr.data-column]="cell.column" (click)="selectCell(cell)"
-                  [title]="'Row ' + cell.row + ', Column ' + cell.column"></div>
+                  [class.cell--selected]="isCellSelected(cell)"
+                  [class.cell--accessible]="cell.seatType === seatType.AccessibleSeat"
+                  [class.cell--aisle]="cell.seatType === seatType.Aisle" (click)="selectCell(cell)"
+                  [title]="cell.seatLabel || ('Row ' + cell.row + ', Column ' + cell.column)"></div>
+
               </div>
             </div>
           </div>

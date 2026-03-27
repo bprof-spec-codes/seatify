@@ -16,7 +16,7 @@ export class SeatService {
 
   constructor(private http: HttpClient) { }
 
-  getSeatMapByAuditoriumId(matrixId: string): Observable<SeatMap> {
+  getSeatMapByMatrixId(matrixId: string): Observable<SeatMap> {
     return this.http.get<SeatMap>(`${this.apiUrl}/layout-matrices/${matrixId}/seat-map`).pipe(
       map(seatMap => this.mapSeatMapDates(seatMap)),
       tap(seatMap => this.seatMapSource.next(seatMap)),

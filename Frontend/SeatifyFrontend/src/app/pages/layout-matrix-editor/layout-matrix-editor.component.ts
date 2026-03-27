@@ -1,11 +1,12 @@
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { LayoutMatrixService } from '../../services/layout-matrix.service';
 import { Observable } from 'rxjs';
 import { LayoutMatrix } from '../../models/layout-matrix';
-import { array } from 'three/src/nodes/core/ArrayNode.js';
 import { ActivatedRoute } from '@angular/router';
 import { MatrixCellVm } from '../../models/matrix-cell-vm';
-import { SeatService as SeatService } from '../../services/seat.service';
+import { SeatService } from '../../services/seat.service';
+import { SeatType } from '../../models/seat';
+import { SeatMap } from '../../models/seat-map';
 
 @Component({
   selector: 'app-layout-matrix-editor',
@@ -22,8 +23,17 @@ export class LayoutMatrixEditorComponent implements OnInit {
   selectedCellKey: string | null = null
 
   auditoriumId: string = ""
+  seatType = SeatType
 
-  constructor(private matrixService: LayoutMatrixService, private route: ActivatedRoute, private seatService: SeatService) { }
+  gridRows = 0;
+  gridColumns = 0;
+
+  constructor(
+    private matrixService: LayoutMatrixService,
+    private route: ActivatedRoute,
+    private seatService: SeatService,
+    private cdr: ChangeDetectorRef
+  ) { }
 
   ngOnInit(): void {
     this.auditoriumId = this.route.snapshot.paramMap.get('auditoriumId') ?? 'aud-id-01';
@@ -38,28 +48,60 @@ export class LayoutMatrixEditorComponent implements OnInit {
         if (matrices.length === 0) {
           this.setSelectedMatrix(null)
           this.gridCells = []
+          this.seatService.clearSeatMap()
           return
         }
 
         if (this.selectedMatrix) {
           const stillExists = matrices.find(m => m.id === this.selectedMatrix?.id)
-          this.setSelectedMatrix(stillExists ?? matrices[0])
+          this.selectMatrix(stillExists ?? matrices[0])
           return
         }
 
-        this.setSelectedMatrix(matrices[0])
+        this.selectMatrix(matrices[0])
       },
       error: err => {
         console.error('Failed to load layout matrices', err)
         this.setSelectedMatrix(null)
         this.gridCells = []
+        this.seatService.clearSeatMap()
       }
     })
   }
 
+  private loadSeatMap(matrixId: string): void {
+    this.gridCells = []
+    this.gridRows = 0
+    this.gridColumns = 0
+    this.cdr.markForCheck()
+
+    this.seatService.getSeatMapByMatrixId(matrixId).subscribe({
+      next: seatMap => {
+        if (this.selectedMatrix?.id !== matrixId) {
+          return
+        }
+
+        this.gridRows = seatMap.rows
+        this.gridColumns = seatMap.columns
+        this.gridCells = this.buildGridCellsFromSeatMap(seatMap);
+        this.cdr.markForCheck();
+      },
+      error: err => {
+        console.error('Failed to load seat map', err)
+
+        if (this.selectedMatrix?.id === matrixId) {
+          this.gridCells = []
+          this.gridRows = 0
+          this.gridColumns = 0
+          this.cdr.markForCheck()
+        }
+      }
+    });
+  }
+
   selectMatrix(matrix: LayoutMatrix): void {
     this.setSelectedMatrix(matrix)
-    this.seatService.getSeatMapByAuditoriumId(matrix.id).subscribe()
+    this.loadSeatMap(matrix.id)
   }
 
   isSelected(matrix: LayoutMatrix): boolean {
@@ -68,22 +110,39 @@ export class LayoutMatrixEditorComponent implements OnInit {
 
   private setSelectedMatrix(matrix: LayoutMatrix | null): void {
     this.selectedMatrix = matrix
-    this.gridCells = matrix ? this.buildGridCells(matrix) : []
     this.selectedCellKey = null
+    this.cdr.markForCheck()
   }
 
-  private buildGridCells(matrix: LayoutMatrix): MatrixCellVm[] {
-    const cells: MatrixCellVm[] = []
+  private buildGridCellsFromSeatMap(seatMap: SeatMap): MatrixCellVm[] {
+    const cells: MatrixCellVm[] = [];
+    const seatLookup = new Map<string, typeof seatMap.seats[number]>();
 
-    for (let row = 1; row <= matrix.rows; row++) {
-      for (let column = 1; column <= matrix.columns; column++) {
+    for (const seat of seatMap.seats) {
+      seatLookup.set(`${seat.row}-${seat.column}`, seat);
+    }
+
+    for (let row = 1; row <= seatMap.rows; row++) {
+      for (let column = 1; column <= seatMap.columns; column++) {
+        const key = `${row}-${column}`;
+        const seat = seatLookup.get(key);
+
         cells.push({
-          key: `${row}-${column}`,
+          key,
           row,
-          column
-        })
+          column,
+          seatId: seat?.id ?? null,
+          seatLabel: seat?.seatLabel ?? null,
+          seatType: seat?.seatType ?? SeatType.Seat,
+          sectorId: seat?.sectorId ?? null,
+          priceOverride: seat?.priceOverride ?? null
+        });
       }
     }
+
+    console.log('selectedMatrix', this.selectedMatrix);
+    console.log('seatMap dims', seatMap.rows, seatMap.columns);
+    console.log('gridCells length', cells.length);
 
     return cells;
   }
