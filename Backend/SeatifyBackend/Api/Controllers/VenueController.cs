@@ -81,7 +81,7 @@ public class VenueController : ControllerBase
             venueUpdateDto.OrganizerId = organizerId ?? "org-id-01";
 
             await _venueService.UpdateVenueByIdAsync(venueUpdateDto, id);
-            return Ok();
+            return Ok(venueUpdateDto);
         }
         catch (Exception ex)
         {
