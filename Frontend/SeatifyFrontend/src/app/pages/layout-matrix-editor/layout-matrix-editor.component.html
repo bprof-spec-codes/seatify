@@ -17,13 +17,8 @@
           Nincs még layout matrix ehhez az auditoriumhoz.
         </div>
 
-        <button
-          type="button"
-          class="matrix-item"
-          *ngFor="let matrix of matrices"
-          [class.matrix-item--active]="isSelected(matrix)"
-          (click)="selectMatrix(matrix)"
-        >
+        <button type="button" class="matrix-item" *ngFor="let matrix of matrices; trackBy: trackByMatrixId"
+          [class.matrix-item--active]="isSelected(matrix)" (click)="selectMatrix(matrix)">
           <span class="matrix-item__name">{{ matrix.name }}</span>
           <span class="matrix-item__meta">{{ matrix.rows }} × {{ matrix.columns }}</span>
         </button>
@@ -42,11 +37,11 @@
         <div class="editor-shell__body">
           <div class="editor-canvas">
             <div class="grid-wrapper">
-              <div
-                class="grid"
-                [style.gridTemplateColumns]="'repeat(' + matrix.columns + ', 36px)'"
-              >
-                <div class="cell" *ngFor="let _ of getGrid()"></div>
+              <div class="grid" [style.gridTemplateColumns]="'repeat(' + matrix.columns + ', 36px)'">
+                <div class="cell" *ngFor="let cell of gridCells; trackBy: trackByCellKey"
+                  [class.cell--selected]="isCellSelected(cell)" [attr.data-row]="cell.row"
+                  [attr.data-column]="cell.column" (click)="selectCell(cell)"
+                  [title]="'Row ' + cell.row + ', Column ' + cell.column"></div>
               </div>
             </div>
           </div>
@@ -67,6 +62,17 @@
       <div class="panel-placeholder">
         Matrix properties, seat tools and sector management will appear here.
       </div>
+      <div *ngIf="selectedCell as cell; else noCellSelected">
+        <p><strong>Selected cell:</strong></p>
+        <p>Row: {{ cell.row }}</p>
+        <p>Column: {{ cell.column }}</p>
+      </div>
+
+      <ng-template #noCellSelected>
+        <div class="panel-placeholder">
+          No cell selected.
+        </div>
+      </ng-template>
     </aside>
   </div>
 </div>

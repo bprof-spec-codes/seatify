@@ -120,29 +120,45 @@
     justify-content: center
     min-height: 0
     padding: 1rem
-    background: #f8f9fa
-    border: 1px solid #e9ecef
+    background: #eef3f8
+    border: 1px solid #d9e2ec
     border-radius: 0.75rem
 
 .grid-wrapper
     max-width: 100%
     max-height: 100%
     overflow: auto
-    padding: 0.5rem
+    padding: 0.75rem
+    background: #ffffff
+    border: 1px solid #e5e7eb
+    border-radius: 0.75rem
 
 .grid
     display: grid
-    gap: 0.4rem
+    gap: 0.45rem
     width: max-content
 
 .cell
     width: 36px
     height: 36px
     border-radius: 0.65rem
-    border: 1px solid #b6d4fe
-    background: linear-gradient(180deg, #dbeafe 0%, #b6d4fe 100%)
+    border: 1px solid #5b9cff
+    background: #7db5ff
     box-sizing: border-box
     flex-shrink: 0
+    cursor: pointer
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease, border-color 0.15s ease
+
+    &:hover
+        background: #5b9cff
+        border-color: #2563eb
+        transform: translateY(-1px)
+        box-shadow: 0 0.25rem 0.5rem rgba(37, 99, 235, 0.25)
+
+.cell--selected
+    background: #2563eb
+    border-color: #1d4ed8
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.22)
 
 .editor-empty-state
     display: flex
