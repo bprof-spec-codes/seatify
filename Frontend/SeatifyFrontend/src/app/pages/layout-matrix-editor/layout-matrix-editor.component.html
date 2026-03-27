@@ -11,31 +11,42 @@
   <div class="editor-layout">
     <aside class="left-panel panel">
       <h2 class="panel-title">Layout Matrices</h2>
-      <div class="panel-placeholder">
-        <div class="matrix-item" *ngFor="let matrix of matrices$ | async" (click)="selectMatrix(matrix)">
-          {{ matrix.name }} ({{ matrix.rows }} × {{ matrix.columns }})
+
+      <div class="matrix-list" *ngIf="matrices$ | async as matrices">
+        <div *ngIf="matrices.length === 0" class="panel-placeholder">
+          Nincs még layout matrix ehhez az auditoriumhoz.
         </div>
+
+        <button
+          type="button"
+          class="matrix-item"
+          *ngFor="let matrix of matrices"
+          [class.matrix-item--active]="isSelected(matrix)"
+          (click)="selectMatrix(matrix)"
+        >
+          <span class="matrix-item__name">{{ matrix.name }}</span>
+          <span class="matrix-item__meta">{{ matrix.rows }} × {{ matrix.columns }}</span>
+        </button>
       </div>
     </aside>
 
     <main class="center-panel panel">
       <h2 class="panel-title">Editor</h2>
       <div class="panel-placeholder panel-placeholder-large">
-
         <ng-container *ngIf="selectedMatrix as matrix">
-
-          <h3>{{ matrix.name }}</h3>
+          <div class="editor-header">
+            <h3>{{ matrix.name }}</h3>
+            <p>{{ matrix.rows }} sor × {{ matrix.columns }} oszlop</p>
+          </div>
 
           <div class="grid" [style.gridTemplateColumns]="'repeat(' + matrix.columns + ', 32px)'">
             <div class="cell" *ngFor="let _ of getGrid()"></div>
           </div>
-
         </ng-container>
 
         <div *ngIf="!selectedMatrix">
           Válassz egy mátrixot
         </div>
-
       </div>
     </main>
 
