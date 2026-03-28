@@ -18,8 +18,20 @@
                 <input id="seatLabel" type="text" formControlName="seatLabel" />
 
                 <div class="field-error" *ngIf="seatLabelControl?.touched && seatLabelControl?.invalid">
-                    <span *ngIf="seatLabelControl?.errors?.['maxlength']">Label is too long.</span>
+                    <span *ngIf="seatLabelControl?.errors?.['maxlength']">
+                        Label is too long.
+                    </span>
                 </div>
+            </div>
+
+            <div class="seat-panel__section">
+                <label for="seatSector">Sector</label>
+                <select id="seatSector" formControlName="sectorId">
+                    <option [ngValue]="null">No sector</option>
+                    <option *ngFor="let sector of sectors; trackBy: trackBySectorId" [ngValue]="sector.id">
+                        {{ sector.name }} ({{ sector.basePrice }})
+                    </option>
+                </select>
             </div>
 
             <div class="seat-panel__section">
@@ -27,8 +39,12 @@
                 <input id="priceOverride" type="number" min="0" formControlName="priceOverride" />
 
                 <div class="field-error" *ngIf="priceOverrideControl?.touched && priceOverrideControl?.invalid">
-                    <span *ngIf="priceOverrideControl?.errors?.['min']">Price must be at least 0.</span>
-                    <span *ngIf="priceOverrideControl?.errors?.['max']">Price is too high.</span>
+                    <span *ngIf="priceOverrideControl?.errors?.['min']">
+                        Price must be at least 0.
+                    </span>
+                    <span *ngIf="priceOverrideControl?.errors?.['max']">
+                        Price is too high.
+                    </span>
                 </div>
             </div>
 
@@ -36,18 +52,18 @@
                 <label>Change type</label>
 
                 <div class="seat-type-buttons">
-                    <button type="button" [class.active]="form.get('seatType')?.value === seatType.Seat"
-                        (click)="form.get('seatType')?.setValue(seatType.Seat)">
+                    <button type="button" [class.active]="seatTypeControl?.value === seatType.Seat"
+                        (click)="setSeatType(seatType.Seat)">
                         Seat
                     </button>
 
-                    <button type="button" [class.active]="form.get('seatType')?.value === seatType.AccessibleSeat"
-                        (click)="form.get('seatType')?.setValue(seatType.AccessibleSeat)">
+                    <button type="button" [class.active]="seatTypeControl?.value === seatType.AccessibleSeat"
+                        (click)="setSeatType(seatType.AccessibleSeat)">
                         Accessible
                     </button>
 
-                    <button type="button" [class.active]="form.get('seatType')?.value === seatType.Aisle"
-                        (click)="form.get('seatType')?.setValue(seatType.Aisle)">
+                    <button type="button" [class.active]="seatTypeControl?.value === seatType.Aisle"
+                        (click)="setSeatType(seatType.Aisle)">
                         Aisle
                     </button>
                 </div>

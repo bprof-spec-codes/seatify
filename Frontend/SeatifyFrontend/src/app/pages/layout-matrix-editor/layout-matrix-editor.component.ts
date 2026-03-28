@@ -7,6 +7,8 @@ import { MatrixCellVm } from '../../models/matrix-cell-vm';
 import { SeatService } from '../../services/seat.service';
 import { SeatType, UpdateSeatDto } from '../../models/seat';
 import { SeatMap } from '../../models/seat-map';
+import { Sector } from '../../models/sector';
+import { SectorService } from '../../services/sector.service';
 
 @Component({
   selector: 'app-layout-matrix-editor',
@@ -43,17 +45,23 @@ export class LayoutMatrixEditorComponent implements OnInit {
   seatEditModel: UpdateSeatDto | null = null
   isSavingSeat = false
 
+   sectors$!: Observable<Sector[]>;
+
   constructor(
     private matrixService: LayoutMatrixService,
     private route: ActivatedRoute,
     private seatService: SeatService,
     private cdr: ChangeDetectorRef,
-    private elementRef: ElementRef
+    private elementRef: ElementRef,
+    private sectorService: SectorService
   ) { }
 
   ngOnInit(): void {
     this.auditoriumId = this.route.snapshot.paramMap.get('auditoriumId') ?? 'aud-id-01';
     this.matrices$ = this.matrixService.LayoutMatrix$
+    this.sectors$ = this.sectorService.Sector$;
+
+    this.sectorService.getSectorsByAuditoriumId(this.auditoriumId).subscribe()
 
     this.seatMap$ = this.selectedMatrixSubject.pipe(
       tap(() => {
@@ -218,7 +226,7 @@ export class LayoutMatrixEditorComponent implements OnInit {
   getSeatTypeLabel(type: SeatType): string {
     switch (type) {
       case SeatType.Seat: return 'Standard'
-      case SeatType.AccessibleSeat: return 'Accessible'
+      case SeatType.AccessibleSeat: return 'AccessibleSeat'
       case SeatType.Aisle: return 'Aisle'
       default: return 'Unknown'
     }

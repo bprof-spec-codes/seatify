@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange
 import { MatrixCellVm } from '../../models/matrix-cell-vm';
 import { SeatType, UpdateSeatDto } from '../../models/seat';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Sector } from '../../models/sector';
 
 @Component({
   selector: 'app-seat-editor',
@@ -12,7 +13,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 export class SeatEditorComponent implements OnInit, OnChanges {
   @Input() cell: MatrixCellVm | null = null
   @Input() isSaving = false
-  @Input() sectors: string[] = ["sector-id-01", "sector-id-02"]
+  @Input() sectors: Sector[] = []
 
   @Output() save = new EventEmitter<UpdateSeatDto>()
 
@@ -79,12 +80,24 @@ export class SeatEditorComponent implements OnInit, OnChanges {
       seatType: raw.seatType
     })
   }
+  
+  setSeatType(type: SeatType): void {
+    this.form.get('seatType')?.setValue(type);
+  }
+
+  trackBySectorId(index: number, sector: Sector): string {
+    return sector.id;
+  }
 
   get seatLabelControl() {
-    return this.form.get('seatLabel')
+    return this.form.get('seatLabel');
   }
 
   get priceOverrideControl() {
-    return this.form.get('priceOverride')
+    return this.form.get('priceOverride');
+  }
+
+  get seatTypeControl() {
+    return this.form.get('seatType');
   }
 }
