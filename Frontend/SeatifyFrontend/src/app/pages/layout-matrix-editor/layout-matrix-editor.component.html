@@ -26,20 +26,36 @@
                 <span class="matrix-item__meta">{{ matrix.rows }} × {{ matrix.columns }}</span>
               </button>
 
-              <button type="button" class="matrix-item-edit-button" (click)="openEditForm(matrix)">
-                Edit
-              </button>
+              <div class="matrix-item-menu">
+                <button type="button" class="matrix-item-menu__trigger" (click)="toggleMatrixMenu(matrix.id)"
+                  [attr.aria-expanded]="isMatrixMenuOpen(matrix)">
+                  ...
+                </button>
+
+                <div class="matrix-item-menu__dropdown" *ngIf="isMatrixMenuOpen(matrix)">
+                  <button type="button" class="matrix-item-menu__action" (click)="startEditMatrix(matrix)">
+                    Edit
+                  </button>
+
+                  <button type="button" class="matrix-item-menu__action matrix-item-menu__action--danger"
+                    (click)="startDeleteMatrix(matrix)" [disabled]="isDeletingMatrix || isSavingMatrix">
+                    Delete
+                  </button>
+                </div>
+              </div>
             </div>
           </ng-container>
 
           <ng-template #editFormBlock>
-            <app-layout-matrix-form [mode]="'edit'" [initialValue]="{
-          name: matrix.name,
-          rows: matrix.rows,
-          columns: matrix.columns
-        }" [submitLabel]="'Save'" [isSubmitting]="isSavingMatrix" (submitted)="updateMatrix(matrix.id, $event)"
-              (cancelled)="closeEditForm()">
-            </app-layout-matrix-form>
+            <div class="matrix-edit-block">
+              <app-layout-matrix-form [initialValue]="{
+        name: matrix.name,
+        rows: matrix.rows,
+        columns: matrix.columns
+      }" [submitLabel]="'Save'" [isSubmitting]="isSavingMatrix" (submitted)="updateMatrix(matrix.id, $event)"
+                (cancelled)="closeEditForm()">
+              </app-layout-matrix-form>
+            </div>
           </ng-template>
         </ng-container>
 
@@ -50,7 +66,7 @@
         </ng-container>
 
         <ng-template #createFormBlock>
-          <app-layout-matrix-form [mode]="'create'" [submitLabel]="'Create'" [isSubmitting]="isCreatingMatrix"
+          <app-layout-matrix-form [submitLabel]="'Create'" [isSubmitting]="isCreatingMatrix"
             (submitted)="createMatrix($event)" (cancelled)="closeCreateForm()">
           </app-layout-matrix-form>
         </ng-template>

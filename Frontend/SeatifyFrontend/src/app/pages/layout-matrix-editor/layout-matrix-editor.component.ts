@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, HostListener, OnInit } from '@angular/core';
 import { LayoutMatrixService } from '../../services/layout-matrix.service';
 import { BehaviorSubject, catchError, Observable, of, switchMap, tap } from 'rxjs';
 import { CreateLayoutMatrixDto, LayoutMatrix } from '../../models/layout-matrix';
@@ -36,12 +36,16 @@ export class LayoutMatrixEditorComponent implements OnInit {
   isCreatingMatrix = false
   editingMatrixId: string | null = null
   isSavingMatrix = false
+  isDeletingMatrix = false
+
+  openMatrixMenuId: string | null = null
 
   constructor(
     private matrixService: LayoutMatrixService,
     private route: ActivatedRoute,
     private seatService: SeatService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private elementRef: ElementRef
   ) { }
 
   ngOnInit(): void {
@@ -155,10 +159,6 @@ export class LayoutMatrixEditorComponent implements OnInit {
       }
     }
 
-    console.log('selectedMatrix', this.selectedMatrix);
-    console.log('seatMap dims', seatMap.rows, seatMap.columns);
-    console.log('gridCells length', cells.length);
-
     return cells;
   }
 
@@ -216,8 +216,9 @@ export class LayoutMatrixEditorComponent implements OnInit {
   //creeate matrix
 
   openCreateForm(): void {
+    this.openMatrixMenuId = null
+    this.editingMatrixId = null
     this.isCreateFormOpen = true
-    this.selectedCellKey = null
     this.cdr.markForCheck()
   }
 
@@ -250,6 +251,7 @@ export class LayoutMatrixEditorComponent implements OnInit {
   //edit matrix
 
   openEditForm(matrix: LayoutMatrix): void {
+    this.openMatrixMenuId = null
     this.isCreateFormOpen = false
     this.editingMatrixId = matrix.id
     this.cdr.markForCheck()
@@ -257,6 +259,7 @@ export class LayoutMatrixEditorComponent implements OnInit {
 
   closeEditForm(): void {
     this.editingMatrixId = null
+    this.openMatrixMenuId = null
     this.cdr.markForCheck()
   }
 
@@ -288,6 +291,82 @@ export class LayoutMatrixEditorComponent implements OnInit {
         this.cdr.markForCheck()
       }
     })
+  }
+
+  //delete matrix
+
+  deleteMatrix(matrix: LayoutMatrix): void {
+    if (this.isDeletingMatrix) return
+
+    const confirmed = window.confirm(`Biztosan törölni szeretnéd ezt a layout matrixot: ${matrix.name}?`)
+    if (!confirmed) return
+
+    this.isDeletingMatrix = true
+
+    this.matrixService.deleteLayoutMatrix(matrix.id).subscribe({
+      next: () => {
+        this.isDeletingMatrix = false
+        this.editingMatrixId = null
+
+        const deletedSelected = this.selectedMatrix?.id === matrix.id
+
+        this.loadMatrices()
+
+        if (deletedSelected) {
+          this.selectedCellKey = null
+          this.gridCells = []
+          this.gridRows = 0
+          this.gridColumns = 0
+          this.seatService.clearSeatMap()
+        }
+
+        this.cdr.markForCheck()
+      },
+      error: err => {
+        this.isDeletingMatrix = false
+        console.error('Failed to delete layout matrix', err)
+        this.cdr.markForCheck()
+      }
+    })
+  }
+
+  toggleMatrixMenu(matrixId: string): void {
+    this.openMatrixMenuId = this.openMatrixMenuId === matrixId ? null : matrixId
+    this.cdr.markForCheck()
+  }
+
+  closeMatrixMenu(): void {
+    this.openMatrixMenuId = null
+    this.cdr.markForCheck()
+  }
+
+  isMatrixMenuOpen(matrix: LayoutMatrix): boolean {
+    return this.openMatrixMenuId === matrix.id
+  }
+
+  startEditMatrix(matrix: LayoutMatrix): void {
+    this.openMatrixMenuId = null
+    this.openEditForm(matrix)
+  }
+
+  startDeleteMatrix(matrix: LayoutMatrix): void {
+    this.openMatrixMenuId = null
+    this.deleteMatrix(matrix)
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    if (!this.openMatrixMenuId) return
+
+    const target = event.target as HTMLElement | null
+    if (!target) return
+
+    const clickedInsideMenu = !!target.closest('.matrix-item-menu')
+
+    if (!clickedInsideMenu) {
+      this.openMatrixMenuId = null
+      this.cdr.markForCheck()
+    }
   }
 
 }

@@ -210,12 +210,67 @@
     flex: 1
 
 .matrix-item-wrapper
+    position: relative
     display: flex
     gap: 0.5rem
     align-items: stretch
 
     .matrix-item
         flex: 1
+
+.matrix-item-menu
+    position: relative
+    display: flex
+    align-items: stretch
+
+.matrix-item-menu__trigger
+    min-width: 44px
+    padding: 0.75rem 0.9rem
+    border: 1px solid #dee2e6
+    border-radius: 0.75rem
+    background: #fff
+    cursor: pointer
+    font-size: 1rem
+    line-height: 1
+
+    &:hover
+        background: #f8f9fa
+
+.matrix-item-menu__dropdown
+    position: absolute
+    top: calc(100% + 0.35rem)
+    right: 0
+    min-width: 130px
+    display: flex
+    flex-direction: column
+    padding: 0.35rem
+    background: #fff
+    border: 1px solid #dee2e6
+    border-radius: 0.75rem
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08)
+    z-index: 20
+
+.matrix-item-menu__action
+    padding: 0.65rem 0.75rem
+    border: none
+    border-radius: 0.5rem
+    background: transparent
+    text-align: left
+    cursor: pointer
+    font-size: 0.9rem
+
+    &:hover
+        background: #f8f9fa
+
+    &:disabled
+        opacity: 0.6
+        cursor: not-allowed
+
+.matrix-item-menu__action--danger
+    color: #dc3545
+
+    &:hover
+        background: #fff5f5
 
 .matrix-item-edit-button
     padding: 0.75rem 0.9rem
