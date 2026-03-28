@@ -9,12 +9,19 @@ import { environment } from '../../environments/environment.development';
 })
 export class VenueService {
   private apiUrl = `${environment.baseApiUrl}/api/venues`;
+
   private venuesSource = new BehaviorSubject<Venue[]>([]);
   venues$ = this.venuesSource.asObservable();
 
+  private editModeSource = new BehaviorSubject<boolean>(false);
+  editMode$ = this.editModeSource.asObservable();
+
+  private editVenueSource = new BehaviorSubject<Venue>(new Venue());
+  editVenue$ = this.editVenueSource.asObservable();
+
   constructor(private http: HttpClient) {}
 
-  getVenue(venueId: string): Observable<Venue> {
+  getVenueById(venueId: string): Observable<Venue> {
     return this.http.get<Venue>(`${this.apiUrl}/${venueId}`).pipe(
       tap(venue => {
         const currentVenues = this.venuesSource.getValue();
@@ -28,6 +35,12 @@ export class VenueService {
     );
   }
 
+  loadVenuesByOrganizerId(organizerId: string): void {
+    this.http.get<Venue[]>(`${this.apiUrl}/organizers/${organizerId}`).subscribe(venues => {
+      this.venuesSource.next(venues);
+    });
+  }
+
   getVenuesByOrganizerId(organizerId: string): Observable<Venue[]> {
     return this.http.get<Venue[]>(`${this.apiUrl}/organizers/${organizerId}`).pipe(
       tap(venues => this.venuesSource.next(venues)),
@@ -35,7 +48,7 @@ export class VenueService {
     );
   }
 
-  postVenue(venue: Venue): Observable<Venue> {
+  createVenue(venue: Venue): Observable<Venue> {
     return this.http.post<Venue>(this.apiUrl, venue).pipe(
       tap(newVenue => {
         const updatedVenues = [...this.venuesSource.getValue(), newVenue];
@@ -52,7 +65,7 @@ export class VenueService {
         const index = venues.findIndex(v => v.id === updatedVenue.id);
         if (index !== -1)
         {
-          venues[index] = updatedVenue;
+          venues[index] = { ...venues[index], ...updatedVenue };
           this.venuesSource.next([...venues]);
         }
       }),
@@ -87,5 +100,21 @@ export class VenueService {
   private handleError(error: HttpErrorResponse): Observable<never> {
     console.error('An error occurred: ', error.message);
     return throwError(() => new Error('Something went wrong; please try again later.'));
+  }
+
+  getEditMode(): Observable<boolean> {
+    return this.editMode$;
+  }
+
+  setEditMode(editMode: boolean): void {
+    this.editModeSource.next(editMode);
+  }
+
+  getEditVenue(): Observable<Venue> {
+    return this.editVenue$;
+  }
+
+  setEditVenue(editVenue: Venue): void {
+    this.editVenueSource.next(editVenue);
   }
 }

@@ -7,7 +7,7 @@ using System.Security.Claims;
 namespace Api.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api")]
 public class VenueController : ControllerBase
 {
     private readonly VenueService _venueService;
@@ -31,7 +31,7 @@ public class VenueController : ControllerBase
         try
         {
             //venueCreateDto.OrganizerId = organizerId;
-            venueCreateDto.OrganizerId = organizerId ?? "";
+            venueCreateDto.OrganizerId = organizerId ?? "org-id-01";
 
             Venue newVenue = await _venueService.CreateVenueAsync(venueCreateDto);
             return Ok(newVenue);
@@ -56,7 +56,7 @@ public class VenueController : ControllerBase
         }
     }
 
-    [HttpGet]
+    [HttpGet("venues")]
     public async Task<ActionResult<List<VenueViewDto>>> GetAllVenues()
     {
         var venue = await _venueService.GetAllVenuesAsync();
@@ -78,10 +78,10 @@ public class VenueController : ControllerBase
         try
         {
             //venueUpdateDto.OrganizerId = organizerId;
-            venueUpdateDto.OrganizerId = organizerId ?? "";
+            venueUpdateDto.OrganizerId = organizerId ?? "org-id-01";
 
             await _venueService.UpdateVenueByIdAsync(venueUpdateDto, id);
-            return Ok();
+            return Ok(venueUpdateDto);
         }
         catch (Exception ex)
         {
@@ -103,7 +103,7 @@ public class VenueController : ControllerBase
         try
         {
             //await _venueService.DeleteVenueByIdAsync(organizerId, id);
-            await _venueService.DeleteVenueByIdAsync(organizerId ?? "", id);
+            await _venueService.DeleteVenueByIdAsync(organizerId ?? "org-id-01", id);
             return Ok();
         }
         catch (Exception ex)
@@ -112,7 +112,7 @@ public class VenueController : ControllerBase
         }
     }
 
-    [HttpGet("organizers/{organizerId}")]
+    [HttpGet("venues/organizers/{organizerId}")]
     public async Task<ActionResult<List<VenueViewDto>>> GetVenuesByOrganizerId(string organizerId)
     {
         try
@@ -126,5 +126,5 @@ public class VenueController : ControllerBase
         }
     }
 
-    // TODO: remove commented out sections if organizer is implemented
+    // TODO: remove commented out sections if authentication is implemented
 }
