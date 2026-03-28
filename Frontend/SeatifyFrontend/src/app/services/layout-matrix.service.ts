@@ -29,6 +29,13 @@ export class LayoutMatrixService {
     )
   }
 
+  updateLayoutMatrix(matrixId: string, dto: CreateLayoutMatrixDto): Observable<LayoutMatrix> {
+    return this.http.put<LayoutMatrix>(`${this.apiUrl}/layout-matrices/${matrixId}`, dto).pipe(
+      map(updatedMatrix => this.mapLayoutMatrixDates(updatedMatrix)),
+      catchError(this.handleError)
+    )
+  }
+
   setMatrices(matrices: LayoutMatrix[]): void {
     this.LayoutMatrixSource.next(matrices)
   }

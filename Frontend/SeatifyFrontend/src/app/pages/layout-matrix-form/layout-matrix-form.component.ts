@@ -12,7 +12,6 @@ export class LayoutMatrixFormComponent implements OnInit, OnChanges {
   @Input() initialValue: CreateLayoutMatrixDto | null = null
   @Input() submitLabel = 'Save'
   @Input() isSubmitting = false
-  @Input() mode: 'create' | 'edit' = 'create'
 
   @Output() submitted = new EventEmitter<CreateLayoutMatrixDto>()
   @Output() cancelled = new EventEmitter<void>()
@@ -29,6 +28,8 @@ export class LayoutMatrixFormComponent implements OnInit, OnChanges {
       rows: [1, [Validators.required, Validators.min(1), Validators.max(100)]],
       columns: [1, [Validators.required, Validators.min(1), Validators.max(100)]],
     })
+
+    this.applyInitialValue()
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -36,10 +37,6 @@ export class LayoutMatrixFormComponent implements OnInit, OnChanges {
 
     if (changes['initialValue']) {
       this.applyInitialValue()
-    }
-
-    if (changes['mode']) {
-      this.applyMode()
     }
   }
 
@@ -55,16 +52,6 @@ export class LayoutMatrixFormComponent implements OnInit, OnChanges {
       rows: value.rows,
       columns: value.columns
     })
-  }
-
-  private applyMode(): void {
-    if (this.mode === 'edit') {
-      this.form.get('rows')?.disable({ emitEvent: false })
-      this.form.get('columns')?.disable({ emitEvent: false })
-    } else {
-      this.form.get('rows')?.enable({ emitEvent: false })
-      this.form.get('columns')?.enable({ emitEvent: false })
-    }
   }
 
   submit(): void {

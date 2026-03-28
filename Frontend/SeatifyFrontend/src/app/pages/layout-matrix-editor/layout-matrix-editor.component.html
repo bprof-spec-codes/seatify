@@ -17,11 +17,31 @@
           No layout matrices found for this auditorium. Create one to get started.
         </div>
 
-        <button type="button" class="matrix-item" *ngFor="let matrix of matrices; trackBy: trackByMatrixId"
-          [class.matrix-item--active]="isSelected(matrix)" (click)="selectMatrix(matrix)">
-          <span class="matrix-item__name">{{ matrix.name }}</span>
-          <span class="matrix-item__meta">{{ matrix.rows }} × {{ matrix.columns }}</span>
-        </button>
+        <ng-container *ngFor="let matrix of matrices; trackBy: trackByMatrixId">
+          <ng-container *ngIf="!isEditing(matrix); else editFormBlock">
+            <div class="matrix-item-wrapper">
+              <button type="button" class="matrix-item" [class.matrix-item--active]="isSelected(matrix)"
+                (click)="selectMatrix(matrix)">
+                <span class="matrix-item__name">{{ matrix.name }}</span>
+                <span class="matrix-item__meta">{{ matrix.rows }} × {{ matrix.columns }}</span>
+              </button>
+
+              <button type="button" class="matrix-item-edit-button" (click)="openEditForm(matrix)">
+                Edit
+              </button>
+            </div>
+          </ng-container>
+
+          <ng-template #editFormBlock>
+            <app-layout-matrix-form [mode]="'edit'" [initialValue]="{
+          name: matrix.name,
+          rows: matrix.rows,
+          columns: matrix.columns
+        }" [submitLabel]="'Save'" [isSubmitting]="isSavingMatrix" (submitted)="updateMatrix(matrix.id, $event)"
+              (cancelled)="closeEditForm()">
+            </app-layout-matrix-form>
+          </ng-template>
+        </ng-container>
 
         <ng-container *ngIf="!isCreateFormOpen; else createFormBlock">
           <button type="button" class="matrix-add-button" (click)="openCreateForm()">
@@ -30,7 +50,7 @@
         </ng-container>
 
         <ng-template #createFormBlock>
-          <app-layout-matrix-form [submitLabel]="'Create'" [isSubmitting]="isCreatingMatrix"
+          <app-layout-matrix-form [mode]="'create'" [submitLabel]="'Create'" [isSubmitting]="isCreatingMatrix"
             (submitted)="createMatrix($event)" (cancelled)="closeCreateForm()">
           </app-layout-matrix-form>
         </ng-template>

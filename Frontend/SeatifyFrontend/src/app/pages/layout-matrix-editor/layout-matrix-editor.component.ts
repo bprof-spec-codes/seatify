@@ -34,6 +34,8 @@ export class LayoutMatrixEditorComponent implements OnInit {
 
   isCreateFormOpen = false
   isCreatingMatrix = false
+  editingMatrixId: string | null = null
+  isSavingMatrix = false
 
   constructor(
     private matrixService: LayoutMatrixService,
@@ -211,6 +213,8 @@ export class LayoutMatrixEditorComponent implements OnInit {
     }
   }
 
+  //creeate matrix
+
   openCreateForm(): void {
     this.isCreateFormOpen = true
     this.selectedCellKey = null
@@ -241,6 +245,49 @@ export class LayoutMatrixEditorComponent implements OnInit {
         this.cdr.markForCheck()
       }
     });
+  }
+
+  //edit matrix
+
+  openEditForm(matrix: LayoutMatrix): void {
+    this.isCreateFormOpen = false
+    this.editingMatrixId = matrix.id
+    this.cdr.markForCheck()
+  }
+
+  closeEditForm(): void {
+    this.editingMatrixId = null
+    this.cdr.markForCheck()
+  }
+
+  isEditing(matrix: LayoutMatrix): boolean {
+    return this.editingMatrixId === matrix.id
+  }
+
+  updateMatrix(matrixId: string, formValue: CreateLayoutMatrixDto): void {
+    if (this.isSavingMatrix) return
+
+    this.isSavingMatrix = true
+
+    this.matrixService.updateLayoutMatrix(matrixId, {
+      name: formValue.name,
+      rows: formValue.rows,
+      columns: formValue.columns
+    }).subscribe({
+      next: updatedMatrix => {
+        this.isSavingMatrix = false
+        this.editingMatrixId = null
+
+        this.loadMatrices()
+        this.selectMatrix(updatedMatrix)
+        this.cdr.markForCheck()
+      },
+      error: err => {
+        this.isSavingMatrix = false
+        console.error('Failed to update layout matrix', err)
+        this.cdr.markForCheck()
+      }
+    })
   }
 
 }
