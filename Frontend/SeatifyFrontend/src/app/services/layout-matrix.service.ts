@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment.development';
 import { BehaviorSubject, catchError, map, Observable, tap, throwError } from 'rxjs';
-import { LayoutMatrix } from '../models/layout-matrix';
+import { CreateLayoutMatrixDto, LayoutMatrix } from '../models/layout-matrix';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 
 @Injectable({
@@ -20,6 +20,13 @@ export class LayoutMatrixService {
       tap(matrices => this.LayoutMatrixSource.next(matrices)),
       catchError(this.handleError)
     );
+  }
+
+  createLayoutMatrix(dto: CreateLayoutMatrixDto, auditoriumId: string): Observable<LayoutMatrix> {
+    return this.http.post<LayoutMatrix>(`${this.apiUrl}/auditoriums/${auditoriumId}/layout-matrices`, dto).pipe(
+      map(createdMatrix => this.mapLayoutMatrixDates(createdMatrix)),
+      catchError(this.handleError)
+    )
   }
 
   setMatrices(matrices: LayoutMatrix[]): void {

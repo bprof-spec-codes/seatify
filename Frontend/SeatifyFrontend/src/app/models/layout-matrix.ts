@@ -7,3 +7,9 @@ export class LayoutMatrix {
     createdAtUtc: Date = new Date()
     updatedAtUtc: Date = new Date()
 }
+
+export interface CreateLayoutMatrixDto {
+    name: string
+    rows: number
+    columns: number
+}

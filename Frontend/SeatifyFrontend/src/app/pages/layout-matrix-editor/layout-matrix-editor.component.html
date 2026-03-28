@@ -14,7 +14,7 @@
 
       <div class="matrix-list" *ngIf="matrices$ | async as matrices">
         <div *ngIf="matrices.length === 0" class="panel-placeholder">
-          Nincs még layout matrix ehhez az auditoriumhoz.
+          No layout matrices found for this auditorium. Create one to get started.
         </div>
 
         <button type="button" class="matrix-item" *ngFor="let matrix of matrices; trackBy: trackByMatrixId"
@@ -22,6 +22,19 @@
           <span class="matrix-item__name">{{ matrix.name }}</span>
           <span class="matrix-item__meta">{{ matrix.rows }} × {{ matrix.columns }}</span>
         </button>
+
+        <ng-container *ngIf="!isCreateFormOpen; else createFormBlock">
+          <button type="button" class="matrix-add-button" (click)="openCreateForm()">
+            + New matrix
+          </button>
+        </ng-container>
+
+        <ng-template #createFormBlock>
+          <app-layout-matrix-form [submitLabel]="'Create'" [isSubmitting]="isCreatingMatrix"
+            (submitted)="createMatrix($event)" (cancelled)="closeCreateForm()">
+          </app-layout-matrix-form>
+        </ng-template>
+
       </div>
     </aside>
 
@@ -54,7 +67,7 @@
       <ng-template #emptyEditor>
         <div class="editor-empty-state">
           <div class="panel-placeholder panel-placeholder-large">
-            Válassz egy mátrixot a szerkesztéshez.
+            Choose a layout matrix from the left to start editing.
           </div>
         </div>
       </ng-template>

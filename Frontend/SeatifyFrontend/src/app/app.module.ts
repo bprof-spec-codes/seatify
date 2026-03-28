@@ -12,6 +12,8 @@ import { ConfirmMessageComponent } from './helpers/confirm-message/confirm-messa
 import { AuditoriumDashboardComponent } from './pages/auditorium-dashboard/auditorium-dashboard.component';
 import { LayoutMatrixEditorComponent } from './pages/layout-matrix-editor/layout-matrix-editor.component';
 import { CommonModule } from '@angular/common';
+import { LayoutMatrixFormComponent } from './pages/layout-matrix-form/layout-matrix-form.component';
+import { ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -23,11 +25,13 @@ import { CommonModule } from '@angular/common';
     ConfirmMessageComponent,
     AuditoriumDashboardComponent,
     LayoutMatrixEditorComponent,
+    LayoutMatrixFormComponent,
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
-    CommonModule
+    CommonModule,
+    ReactiveFormsModule
   ],
   providers: [
     provideHttpClient(withInterceptors([]))

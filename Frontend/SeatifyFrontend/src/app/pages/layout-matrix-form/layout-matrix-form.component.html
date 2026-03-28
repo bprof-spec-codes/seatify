@@ -1,0 +1,41 @@
+<form class="matrix-form-card" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <div class="matrix-form-field">
+        <label for="matrix-name">Name</label>
+        <input id="matrix-name" type="text" formControlName="name" />
+
+        <div class="field-error" *ngIf="nameControl?.touched && nameControl?.invalid">
+            <span *ngIf="nameControl?.errors?.['required']">Name is required.</span>
+            <span *ngIf="nameControl?.errors?.['maxlength']">Name is too long.</span>
+        </div>
+    </div>
+
+    <div class="matrix-form-field">
+        <label for="matrix-rows">Rows</label>
+        <input id="matrix-rows" type="number" min="1" formControlName="rows" />
+
+        <div class="field-error" *ngIf="rowsControl?.touched && rowsControl?.invalid">
+            <span *ngIf="rowsControl?.errors?.['required']">Rows is required.</span>
+            <span *ngIf="rowsControl?.errors?.['min']">Rows must be at least 1.</span>
+        </div>
+    </div>
+
+    <div class="matrix-form-field">
+        <label for="matrix-columns">Columns</label>
+        <input id="matrix-columns" type="number" min="1" formControlName="columns" />
+
+        <div class="field-error" *ngIf="columnsControl?.touched && columnsControl?.invalid">
+            <span *ngIf="columnsControl?.errors?.['required']">Columns is required.</span>
+            <span *ngIf="columnsControl?.errors?.['min']">Columns must be at least 1.</span>
+        </div>
+    </div>
+
+    <div class="matrix-form-actions">
+        <button type="submit" [disabled]="form.invalid || isSubmitting">
+            {{ submitLabel }}
+        </button>
+
+        <button type="button" (click)="cancel()" [disabled]="isSubmitting">
+            Cancel
+        </button>
+    </div>
+</form>

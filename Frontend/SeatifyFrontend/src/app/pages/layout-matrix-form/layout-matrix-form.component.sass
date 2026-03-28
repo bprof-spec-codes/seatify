@@ -1,0 +1,54 @@
+.matrix-form-card
+    display: flex
+    flex-direction: column
+    gap: 0.75rem
+    padding: 0.875rem
+    border: 1px solid #dee2e6
+    border-radius: 0.75rem
+    background: #f8f9fa
+
+.matrix-form-field
+    display: flex
+    flex-direction: column
+    gap: 0.35rem
+
+    label
+        font-size: 0.85rem
+        font-weight: 600
+        color: #495057
+
+    input
+        padding: 0.55rem 0.7rem
+        border: 1px solid #ced4da
+        border-radius: 0.5rem
+        font-size: 0.9rem
+        background: #fff
+
+        &:disabled
+            background: #e9ecef
+            cursor: not-allowed
+
+.field-error
+    font-size: 0.8rem
+    color: #dc3545
+
+.matrix-form-actions
+    display: flex
+    gap: 0.5rem
+
+    button
+        flex: 1
+        padding: 0.55rem 0.7rem
+        border-radius: 0.5rem
+        border: 1px solid #ced4da
+        background: #fff
+        cursor: pointer
+
+        &:first-child
+            border-color: #0d6efd
+            background: #0d6efd
+            color: #fff
+
+        &:disabled
+            opacity: 0.65
+            cursor: not-allowed

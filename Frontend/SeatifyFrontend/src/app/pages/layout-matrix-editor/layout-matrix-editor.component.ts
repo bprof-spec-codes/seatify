@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { LayoutMatrixService } from '../../services/layout-matrix.service';
 import { BehaviorSubject, catchError, Observable, of, switchMap, tap } from 'rxjs';
-import { LayoutMatrix } from '../../models/layout-matrix';
+import { CreateLayoutMatrixDto, LayoutMatrix } from '../../models/layout-matrix';
 import { ActivatedRoute } from '@angular/router';
 import { MatrixCellVm } from '../../models/matrix-cell-vm';
 import { SeatService } from '../../services/seat.service';
@@ -29,8 +29,11 @@ export class LayoutMatrixEditorComponent implements OnInit {
   auditoriumId: string = ""
   seatType = SeatType
 
-  gridRows = 0;
-  gridColumns = 0;
+  gridRows = 0
+  gridColumns = 0
+
+  isCreateFormOpen = false
+  isCreatingMatrix = false
 
   constructor(
     private matrixService: LayoutMatrixService,
@@ -107,36 +110,6 @@ export class LayoutMatrixEditorComponent implements OnInit {
         this.seatService.clearSeatMap()
       }
     })
-  }
-
-  private loadSeatMap(matrixId: string): void {
-    this.gridCells = []
-    this.gridRows = 0
-    this.gridColumns = 0
-    this.cdr.markForCheck()
-
-    this.seatService.getSeatMapByMatrixId(matrixId).subscribe({
-      next: seatMap => {
-        if (this.selectedMatrix?.id !== matrixId) {
-          return
-        }
-
-        this.gridRows = seatMap.rows
-        this.gridColumns = seatMap.columns
-        this.gridCells = this.buildGridCellsFromSeatMap(seatMap);
-        this.cdr.markForCheck();
-      },
-      error: err => {
-        console.error('Failed to load seat map', err)
-
-        if (this.selectedMatrix?.id === matrixId) {
-          this.gridCells = []
-          this.gridRows = 0
-          this.gridColumns = 0
-          this.cdr.markForCheck()
-        }
-      }
-    });
   }
 
   selectMatrix(matrix: LayoutMatrix): void {
@@ -231,11 +204,43 @@ export class LayoutMatrixEditorComponent implements OnInit {
 
   getSeatTypeLabel(type: SeatType): string {
     switch (type) {
-      case SeatType.Seat: return 'Standard';
-      case SeatType.AccessibleSeat: return 'Accessible';
-      case SeatType.Aisle: return 'Aisle';
-      default: return 'Unknown';
+      case SeatType.Seat: return 'Standard'
+      case SeatType.AccessibleSeat: return 'Accessible'
+      case SeatType.Aisle: return 'Aisle'
+      default: return 'Unknown'
     }
+  }
+
+  openCreateForm(): void {
+    this.isCreateFormOpen = true
+    this.selectedCellKey = null
+    this.cdr.markForCheck()
+  }
+
+  closeCreateForm(): void {
+    this.isCreateFormOpen = false
+    this.cdr.markForCheck()
+  }
+
+  createMatrix(formValue: CreateLayoutMatrixDto): void {
+    if (this.isCreatingMatrix) return
+
+    this.isCreatingMatrix = true
+
+    this.matrixService.createLayoutMatrix(formValue, this.auditoriumId).subscribe({
+      next: createdMatrix => {
+        this.isCreatingMatrix = false
+        this.isCreateFormOpen = false
+
+        this.loadMatrices()
+        this.cdr.markForCheck()
+      },
+      error: err => {
+        this.isCreatingMatrix = false
+        console.error('Failed to create layout matrix', err)
+        this.cdr.markForCheck()
+      }
+    });
   }
 
 }
