@@ -1,0 +1,70 @@
+<ng-container *ngIf="cell as selectedCell; else noCellSelected">
+    <div class="seat-panel">
+        <h3 class="seat-panel__title">Seat</h3>
+
+        <div class="seat-panel__row">
+            <span>Row:</span>
+            <strong>{{ selectedCell.row }}</strong>
+        </div>
+
+        <div class="seat-panel__row">
+            <span>Column:</span>
+            <strong>{{ selectedCell.column }}</strong>
+        </div>
+
+        <form class="seat-form" [formGroup]="form" (ngSubmit)="submit()">
+            <div class="seat-panel__section">
+                <label for="seatLabel">Label</label>
+                <input id="seatLabel" type="text" formControlName="seatLabel" />
+
+                <div class="field-error" *ngIf="seatLabelControl?.touched && seatLabelControl?.invalid">
+                    <span *ngIf="seatLabelControl?.errors?.['maxlength']">Label is too long.</span>
+                </div>
+            </div>
+
+            <div class="seat-panel__section">
+                <label for="priceOverride">Price override</label>
+                <input id="priceOverride" type="number" min="0" formControlName="priceOverride" />
+
+                <div class="field-error" *ngIf="priceOverrideControl?.touched && priceOverrideControl?.invalid">
+                    <span *ngIf="priceOverrideControl?.errors?.['min']">Price must be at least 0.</span>
+                    <span *ngIf="priceOverrideControl?.errors?.['max']">Price is too high.</span>
+                </div>
+            </div>
+
+            <div class="seat-panel__section">
+                <label>Change type</label>
+
+                <div class="seat-type-buttons">
+                    <button type="button" [class.active]="form.get('seatType')?.value === seatType.Seat"
+                        (click)="form.get('seatType')?.setValue(seatType.Seat)">
+                        Seat
+                    </button>
+
+                    <button type="button" [class.active]="form.get('seatType')?.value === seatType.AccessibleSeat"
+                        (click)="form.get('seatType')?.setValue(seatType.AccessibleSeat)">
+                        Accessible
+                    </button>
+
+                    <button type="button" [class.active]="form.get('seatType')?.value === seatType.Aisle"
+                        (click)="form.get('seatType')?.setValue(seatType.Aisle)">
+                        Aisle
+                    </button>
+                </div>
+            </div>
+
+            <div class="seat-panel__section">
+                <button type="submit" class="seat-save-button"
+                    [disabled]="!selectedCell.seatId || form.invalid || isSaving">
+                    Save seat
+                </button>
+            </div>
+        </form>
+    </div>
+</ng-container>
+
+<ng-template #noCellSelected>
+    <div class="panel-placeholder">
+        No cell selected.
+    </div>
+</ng-template>

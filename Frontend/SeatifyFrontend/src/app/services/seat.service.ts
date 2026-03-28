@@ -3,7 +3,7 @@ import { BehaviorSubject, catchError, map, Observable, tap, throwError } from 'r
 import { SeatMap } from '../models/seat-map';
 import { environment } from '../../environments/environment.development';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Seat } from '../models/seat';
+import { Seat, UpdateSeatDto } from '../models/seat';
 
 @Injectable({
   providedIn: 'root'
@@ -12,6 +12,9 @@ export class SeatService {
   private apiUrl = `${environment.baseApiUrl}/api`
   private seatMapSource = new BehaviorSubject<SeatMap | null>(null)
   seatMap$ = this.seatMapSource.asObservable()
+
+  private seatSource = new BehaviorSubject<Seat | null>(null)
+  seat$ = this.seatSource.asObservable()
 
 
   constructor(private http: HttpClient) { }
@@ -23,6 +26,20 @@ export class SeatService {
       catchError(this.handleError)
     )
   }
+
+  updateSeat(seatId: string, dto: UpdateSeatDto): Observable<Seat> {
+    return this.http.put<Seat>(`${this.apiUrl}/seats/${seatId}`, dto).pipe(
+      map(updatedSeat => this.mapSeatDates(updatedSeat)),
+      tap(updatedSeat =>{
+        const currentSeat = this.seatSource.getValue();
+        if (currentSeat && currentSeat.id === seatId) {
+          this.seatSource.next(updatedSeat);
+        }
+      }),
+      catchError(this.handleError)
+    )
+  }
+
 
   clearSeatMap(): void {
     this.seatMapSource.next(null);

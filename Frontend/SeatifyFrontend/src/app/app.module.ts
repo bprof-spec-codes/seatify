@@ -14,6 +14,7 @@ import { LayoutMatrixEditorComponent } from './pages/layout-matrix-editor/layout
 import { CommonModule } from '@angular/common';
 import { LayoutMatrixFormComponent } from './pages/layout-matrix-form/layout-matrix-form.component';
 import { ReactiveFormsModule } from '@angular/forms';
+import { SeatEditorComponent } from './pages/seat-editor/seat-editor.component';
 
 @NgModule({
   declarations: [
@@ -26,6 +27,7 @@ import { ReactiveFormsModule } from '@angular/forms';
     AuditoriumDashboardComponent,
     LayoutMatrixEditorComponent,
     LayoutMatrixFormComponent,
+    SeatEditorComponent,
   ],
   imports: [
     BrowserModule,

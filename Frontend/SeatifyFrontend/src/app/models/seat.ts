@@ -12,7 +12,14 @@ export class Seat {
 }
 
 export enum SeatType {
-    Seat = 0,
-    AccessibleSeat = 1,
-    Aisle = 2
+    Seat = 'Seat',
+    AccessibleSeat = 'AccessibleSeat',
+    Aisle = 'Aisle'
+}
+
+export interface UpdateSeatDto {
+    seatLabel: string | null
+    sectorId: string | null
+    priceOverride: number | null
+    seatType: SeatType
 }

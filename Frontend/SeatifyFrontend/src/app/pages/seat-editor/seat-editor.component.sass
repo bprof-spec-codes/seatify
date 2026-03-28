@@ -1,0 +1,62 @@
+.seat-panel
+    display: flex
+    flex-direction: column
+    gap: 0.75rem
+
+.seat-panel__title
+    margin: 0
+    font-size: 1.1rem
+
+.seat-panel__row
+    display: flex
+    justify-content: space-between
+    font-size: 0.9rem
+
+.seat-panel__section
+    margin-top: 0.75rem
+    display: flex
+    flex-direction: column
+    gap: 0.5rem
+
+    input
+        padding: 0.55rem 0.7rem
+        border: 1px solid #ced4da
+        border-radius: 0.5rem
+        font-size: 0.9rem
+        background: #fff
+
+.field-error
+    font-size: 0.8rem
+    color: #dc3545
+
+.seat-type-buttons
+    display: flex
+    gap: 0.5rem
+
+    button
+        flex: 1
+        padding: 0.4rem
+        border-radius: 0.5rem
+        border: 1px solid #ced4da
+        background: #f8f9fa
+        cursor: pointer
+        font-size: 0.85rem
+
+        &.active
+            background: #0d6efd
+            color: white
+            border-color: #0d6efd
+
+.seat-save-button
+    width: 100%
+    padding: 0.55rem 0.8rem
+    border-radius: 0.5rem
+    border: 1px solid #0d6efd
+    background: #0d6efd
+    color: #fff
+    cursor: pointer
+    font-size: 0.9rem
+
+    &:disabled
+        opacity: 0.65
+        cursor: not-allowed

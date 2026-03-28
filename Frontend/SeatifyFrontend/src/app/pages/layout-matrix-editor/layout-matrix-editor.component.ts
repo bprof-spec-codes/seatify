@@ -5,7 +5,7 @@ import { CreateLayoutMatrixDto, LayoutMatrix } from '../../models/layout-matrix'
 import { ActivatedRoute } from '@angular/router';
 import { MatrixCellVm } from '../../models/matrix-cell-vm';
 import { SeatService } from '../../services/seat.service';
-import { SeatType } from '../../models/seat';
+import { SeatType, UpdateSeatDto } from '../../models/seat';
 import { SeatMap } from '../../models/seat-map';
 
 @Component({
@@ -39,6 +39,9 @@ export class LayoutMatrixEditorComponent implements OnInit {
   isDeletingMatrix = false
 
   openMatrixMenuId: string | null = null
+
+  seatEditModel: UpdateSeatDto | null = null
+  isSavingSeat = false
 
   constructor(
     private matrixService: LayoutMatrixService,
@@ -181,6 +184,15 @@ export class LayoutMatrixEditorComponent implements OnInit {
 
   selectCell(cell: MatrixCellVm): void {
     this.selectedCellKey = cell.key
+
+    this.seatEditModel = {
+      seatLabel: cell.seatLabel ?? '',
+      sectorId: cell.sectorId ?? null,
+      priceOverride: cell.priceOverride ?? null,
+      seatType: cell.seatType
+    }
+
+    this.cdr.markForCheck()
   }
 
   isCellSelected(cell: MatrixCellVm): boolean {
@@ -193,13 +205,12 @@ export class LayoutMatrixEditorComponent implements OnInit {
   }
 
   setSelectedCellSeatType(type: SeatType): void {
-    if (!this.selectedCell) return
+    if (!this.seatEditModel) return
 
-    const key = this.selectedCell.key
-
-    this.gridCells = this.gridCells.map(c =>
-      c.key === key ? { ...c, seatType: type } : c
-    )
+    this.seatEditModel = {
+      ...this.seatEditModel,
+      seatType: type
+    }
 
     this.cdr.markForCheck()
   }
@@ -355,6 +366,7 @@ export class LayoutMatrixEditorComponent implements OnInit {
   }
 
   @HostListener('document:click', ['$event'])
+
   onDocumentClick(event: MouseEvent): void {
     if (!this.openMatrixMenuId) return
 
@@ -367,6 +379,45 @@ export class LayoutMatrixEditorComponent implements OnInit {
       this.openMatrixMenuId = null
       this.cdr.markForCheck()
     }
+  }
+
+  saveSeat(formValue: UpdateSeatDto): void {
+    const cell = this.selectedCell
+    if (!cell?.seatId || this.isSavingSeat) return
+
+    const dto: UpdateSeatDto = {
+      seatLabel: formValue.seatLabel,
+      sectorId: formValue.sectorId,
+      priceOverride: formValue.priceOverride,
+      seatType: formValue.seatType
+    }
+
+    this.isSavingSeat = true
+
+    this.seatService.updateSeat(cell.seatId, dto).subscribe({
+      next: updatedSeat => {
+        this.isSavingSeat = false
+
+        this.gridCells = this.gridCells.map(c =>
+          c.seatId === updatedSeat.id
+            ? {
+              ...c,
+              seatLabel: updatedSeat.seatLabel ?? null,
+              seatType: updatedSeat.seatType,
+              sectorId: updatedSeat.sectorId ?? null,
+              priceOverride: updatedSeat.priceOverride ?? null
+            }
+            : c
+        )
+
+        this.cdr.markForCheck()
+      },
+      error: err => {
+        this.isSavingSeat = false
+        console.error('Failed to update seat', err)
+        this.cdr.markForCheck()
+      }
+    })
   }
 
 }
