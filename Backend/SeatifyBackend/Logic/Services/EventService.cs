@@ -1,5 +1,6 @@
 ﻿using Data;
 using Entities.Dtos.Event;
+using Entities.Dtos.EventOccurrence;
 using Entities.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,11 +8,15 @@ namespace Logic.Services
 {
     public interface IEventService
     {
-        Task<EventViewDto> CreateAsync(EventCreateDto dto, CancellationToken ct);
-        Task<List<EventViewDto>> GetAllAsync(CancellationToken ct);
-        Task<EventViewDto?> GetByIdAsync(string eventId, CancellationToken ct);
-        Task<EventViewDto?> UpdateAsync(string eventId, EventUpdateDto dto, CancellationToken ct);
+        Task<Entities.Dtos.Event.EventViewDto> CreateAsync(EventCreateDto dto, CancellationToken ct);
+        Task<List<Entities.Dtos.Event.EventViewDto>> GetAllAsync(CancellationToken ct);
+        Task<Entities.Dtos.Event.EventViewDto?> GetByIdAsync(string eventId, CancellationToken ct);
+        Task<Entities.Dtos.Event.EventViewDto?> UpdateAsync(string eventId, EventUpdateDto dto, CancellationToken ct);
         Task<bool> DeleteAsync(string eventId, CancellationToken ct);
+
+        Task<List<Entities.Dtos.Event.EventViewDto>> GetPublicAsync(CancellationToken ct);
+        Task<List<Entities.Dtos.Event.EventViewDto>> GetByUserIdAsync(string userId, CancellationToken ct);
+        Task<List<Entities.Dtos.EventOccurrence.EventOccurrenceViewDto>> GetOccurrencesByEventIdAsync(string eventId, CancellationToken ct);
     }
 
     public class EventService : IEventService
@@ -23,7 +28,7 @@ namespace Logic.Services
             _dbContext = dbContext;
         }
 
-        public async Task<EventViewDto> CreateAsync(EventCreateDto dto, CancellationToken ct)
+        public async Task<Entities.Dtos.Event.EventViewDto> CreateAsync(EventCreateDto dto, CancellationToken ct)
         {
             if (dto == null)
             {
@@ -81,11 +86,11 @@ namespace Logic.Services
             return MapToViewDto(entity);
         }
 
-        public async Task<List<EventViewDto>> GetAllAsync(CancellationToken ct)
+        public async Task<List<Entities.Dtos.Event.EventViewDto>> GetAllAsync(CancellationToken ct)
         {
             return await _dbContext.Events
                 .OrderBy(e => e.Name)
-                .Select(e => new EventViewDto
+                .Select(e => new Entities.Dtos.Event.EventViewDto
                 {
                     Id = e.Id,
                     OrganizerId = e.OrganizerId,
@@ -99,7 +104,7 @@ namespace Logic.Services
                 .ToListAsync(ct);
         }
 
-        public async Task<EventViewDto?> GetByIdAsync(string eventId, CancellationToken ct)
+        public async Task<Entities.Dtos.Event.EventViewDto?> GetByIdAsync(string eventId, CancellationToken ct)
         {
             if (string.IsNullOrWhiteSpace(eventId))
             {
@@ -110,7 +115,7 @@ namespace Logic.Services
 
             return await _dbContext.Events
                 .Where(e => e.Id == eventId)
-                .Select(e => new EventViewDto
+                .Select(e => new Entities.Dtos.Event.EventViewDto
                 {
                     Id = e.Id,
                     OrganizerId = e.OrganizerId,
@@ -124,7 +129,7 @@ namespace Logic.Services
                 .FirstOrDefaultAsync(ct);
         }
 
-        public async Task<EventViewDto?> UpdateAsync(string eventId, EventUpdateDto dto, CancellationToken ct)
+        public async Task<Entities.Dtos.Event.EventViewDto?> UpdateAsync(string eventId, EventUpdateDto dto, CancellationToken ct)
         {
             if (string.IsNullOrWhiteSpace(eventId))
             {
@@ -202,9 +207,84 @@ namespace Logic.Services
             return true;
         }
 
-        private static EventViewDto MapToViewDto(Event e)
+        public async Task<List<Entities.Dtos.Event.EventViewDto>> GetPublicAsync(CancellationToken ct)
         {
-            return new EventViewDto
+            return await _dbContext.Events
+                .Where(e => e.Status == "Published")
+                .OrderBy(e => e.Name)
+                .Select(e => new Entities.Dtos.Event.EventViewDto
+                {
+                    Id = e.Id,
+                    OrganizerId = e.OrganizerId,
+                    Slug = e.Slug,
+                    Name = e.Name,
+                    Description = e.Description,
+                    Status = e.Status,
+                    CreatedAtUtc = e.CreatedAtUtc,
+                    UpdatedAtUtc = e.UpdatedAtUtc
+                })
+                .ToListAsync(ct);
+        }
+
+        public async Task<List<Entities.Dtos.Event.EventViewDto>> GetByUserIdAsync(string userId, CancellationToken ct)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                throw new ArgumentException("UserId is required.");
+            }
+
+            userId = userId.Trim();
+
+            return await _dbContext.Events
+                .Where(e => e.OrganizerId == userId)
+                .OrderBy(e => e.Name)
+                .Select(e => new Entities.Dtos.Event.EventViewDto
+                {
+                    Id = e.Id,
+                    OrganizerId = e.OrganizerId,
+                    Slug = e.Slug,
+                    Name = e.Name,
+                    Description = e.Description,
+                    Status = e.Status,
+                    CreatedAtUtc = e.CreatedAtUtc,
+                    UpdatedAtUtc = e.UpdatedAtUtc
+                })
+                .ToListAsync(ct);
+        }
+
+        public async Task<List<Entities.Dtos.EventOccurrence.EventOccurrenceViewDto>> GetOccurrencesByEventIdAsync(string eventId, CancellationToken ct)
+        {
+            if (string.IsNullOrWhiteSpace(eventId))
+            {
+                throw new ArgumentException("EventId is required.");
+            }
+
+            eventId = eventId.Trim();
+
+            return await _dbContext.EventOccurrences
+                .Where(eo => eo.EventId == eventId)
+                .Include(eo => eo.Event)
+                .Include(eo => eo.Venue)
+                .Include(eo => eo.Auditorium)
+                .OrderBy(eo => eo.StartsAtUtc)
+                .Select(eo => new Entities.Dtos.EventOccurrence.EventOccurrenceViewDto
+                {
+                    Id = eo.Id,
+                    EventId = eo.EventId,
+                    VenueId = eo.VenueId,
+                    AuditoriumId = eo.AuditoriumId,
+                    StartsAtUtc = eo.StartsAtUtc,
+                    EndsAtUtc = eo.EndsAtUtc,
+                    BookingOpenAtUtc = eo.BookingOpenAtUtc,
+                    BookingCloseAtUtc = eo.BookingCloseAtUtc,
+                    Status = eo.Status
+                })
+                .ToListAsync(ct);
+        }
+
+        private static Entities.Dtos.Event.EventViewDto MapToViewDto(Event e)
+        {
+            return new Entities.Dtos.Event.EventViewDto
             {
                 Id = e.Id,
                 OrganizerId = e.OrganizerId,
