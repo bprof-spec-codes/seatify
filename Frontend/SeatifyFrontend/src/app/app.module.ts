@@ -12,6 +12,7 @@ import { ConfirmMessageComponent } from './helpers/confirm-message/confirm-messa
 import { AuditoriumDashboardComponent } from './pages/auditorium-dashboard/auditorium-dashboard.component';
 import { VenueFormComponent } from './pages/venue-form/venue-form.component';
 import { ReactiveFormsModule } from '@angular/forms';
+import { CheckoutComponent } from './pages/checkout/checkout.component';
 
 @NgModule({
   declarations: [
@@ -23,6 +24,7 @@ import { ReactiveFormsModule } from '@angular/forms';
     ConfirmMessageComponent,
     AuditoriumDashboardComponent,
     VenueFormComponent,
+    CheckoutComponent,
   ],
   imports: [
     BrowserModule,

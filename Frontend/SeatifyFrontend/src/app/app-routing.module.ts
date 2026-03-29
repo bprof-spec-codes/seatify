@@ -4,6 +4,7 @@ import { LandingPageComponent } from './pages/landing-page/landing-page.componen
 import { VenueDashboardComponent } from './pages/venue-dashboard/venue-dashboard.component';
 import { AuditoriumDashboardComponent } from './pages/auditorium-dashboard/auditorium-dashboard.component';
 import { VenueFormComponent } from './pages/venue-form/venue-form.component';
+import { CheckoutComponent } from './pages/checkout/checkout.component';
 
 export const routes: Routes = [
   { path: '', component: LandingPageComponent },
@@ -11,6 +12,7 @@ export const routes: Routes = [
   { path: 'venues', component: VenueDashboardComponent },
   { path: 'venues/form', component: VenueFormComponent },
   { path: 'auditoriums/:venueId', component: AuditoriumDashboardComponent },
+  { path: 'checkout', component: CheckoutComponent },
   { path: '**', redirectTo: '' }
 ];
 
