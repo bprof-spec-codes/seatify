@@ -12,7 +12,7 @@ export class EventService {
   constructor(private http: HttpClient) { }
 
   createEvent(eventrequest: EventRequest): Observable<EventResponse>{
-    return this.http.post<EventResponse>("http://localhost:4200/create-event", eventrequest);
+    return this.http.post<EventResponse>("http://localhost:4200/api/event-occurrences", eventrequest);
   }
 
   updateEvent(eventrequest: EventRequest, id: number): Observable<EventResponse>{
