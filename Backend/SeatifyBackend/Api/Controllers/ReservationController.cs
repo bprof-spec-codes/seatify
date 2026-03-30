@@ -24,16 +24,16 @@ namespace Api.Controllers
             return Ok(res);
         }
 
-        // GET /api/event-occurrences/{eventOccurrenceId}/reservations
-        [HttpGet("api/event-occurrences/{eventOccurrenceId}/reservations")]
+        // GET /api/by-event-occurrences/{eventOccurrenceId}/reservations
+        [HttpGet("api/by-event-occurrences/{eventOccurrenceId}/reservations")]
         public IActionResult GetByOccurrence(string eventOccurrenceId)
         {
             var reservations = _service.GetByOccurrenceId(eventOccurrenceId);
             return Ok(reservations);
         }
 
-        // POST /api/event-occurrences/{eventOccurrenceId}/reservations
-        [HttpPost("api/event-occurrences/{eventOccurrenceId}/reservations")]
+        // POST /api/by-event-occurrences/{eventOccurrenceId}/reservations
+        [HttpPost("api/by-event-occurrences/{eventOccurrenceId}/reservations")]
         public IActionResult Create(string eventOccurrenceId, [FromBody] ReservationCreateDto dto)
         {
             var success = _service.CreateReservation(eventOccurrenceId, dto);
@@ -41,8 +41,8 @@ namespace Api.Controllers
             return Ok(new { message = "Reservation created successfully." });
         }
 
-        // PUT /api/event-occurrences/{eventOccurrenceId}/reservations/{reservationId}
-        [HttpPut("api/event-occurrences/reservations/{reservationId}")]
+        // PUT /api/by-event-occurrences/{eventOccurrenceId}/reservations/{reservationId}
+        [HttpPut("api/by-event-occurrences/reservations/{reservationId}")]
         public IActionResult Update(string reservationId, [FromBody] ReservationUpdateDto dto)
         {
             var success = _service.UpdateReservation(reservationId, dto);
@@ -50,8 +50,8 @@ namespace Api.Controllers
             return Ok(new { message = "Reservation updated successfully." });
         }
 
-        // DELETE /api/event-occurrences/{eventOccurrenceId}/reservations/{reservationId}
-        [HttpDelete("api/event-occurrences/reservations/{reservationId}")]
+        // DELETE /api/by-event-occurrences/{eventOccurrenceId}/reservations/{reservationId}
+        [HttpDelete("api/by-event-occurrences/reservations/{reservationId}")]
         public IActionResult Delete(string reservationId)
         {
             var success = _service.DeleteReservation(reservationId);
