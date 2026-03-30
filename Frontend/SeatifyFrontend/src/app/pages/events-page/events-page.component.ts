@@ -2,13 +2,7 @@ import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 import { EventCard, EventCardOccurrence } from '../../models/event-card';
 import { EventService } from '../../services/event.service';
-
-interface CreateEventForm {
-  name: string;
-  slug: string;
-  description: string;
-  status: string;
-}
+import { CreateEventForm } from '../../models/event';
 
 @Component({
   selector: 'app-events-page',
@@ -29,8 +23,7 @@ export class EventsPageComponent implements OnInit, OnDestroy {
   createEventForm: CreateEventForm = {
     name: '',
     slug: '',
-    description: '',
-    status: 'Published'
+    description: ''
   };
 
   private readonly destroy$ = new Subject<void>();
@@ -144,7 +137,6 @@ export class EventsPageComponent implements OnInit, OnDestroy {
       name: this.createEventForm.name.trim(),
       slug: this.createEventForm.slug.trim(),
       description: this.createEventForm.description.trim(),
-      status: this.createEventForm.status
     });
 
     this.isSubmittingCreateEvent = false;
@@ -156,7 +148,6 @@ export class EventsPageComponent implements OnInit, OnDestroy {
       name: '',
       slug: '',
       description: '',
-      status: 'Published'
     };
   }
 

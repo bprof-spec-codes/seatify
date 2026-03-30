@@ -8,3 +8,9 @@ export interface SeatifyEvent {
   createdAtUtc: string;
   updatedAtUtc: string;
 }
+
+export interface CreateEventForm {
+  name: string;
+  slug: string;
+  description: string;
+}

@@ -114,3 +114,89 @@
     </div>
   </div>
 </section>
+
+<div
+  class="modal-overlay"
+  *ngIf="isCreateEventModalOpen"
+  (click)="onModalBackdropClick($event)"
+>
+  <div class="create-event-modal">
+    <div class="modal-header">
+      <div>
+        <h2 class="modal-title">Add New Event</h2>
+        <p class="modal-subtitle">Create a new event in the catalog</p>
+      </div>
+
+      <button
+        type="button"
+        class="modal-close-button"
+        (click)="closeCreateEventModal()"
+        [disabled]="isSubmittingCreateEvent"
+        aria-label="Close modal"
+      >
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <form class="modal-form" (ngSubmit)="submitCreateEvent()">
+      <div class="form-field">
+        <label for="eventName">Event name</label>
+        <input
+          id="eventName"
+          name="eventName"
+          type="text"
+          [(ngModel)]="createEventForm.name"
+          placeholder="Enter event name"
+          required
+        />
+      </div>
+
+      <div class="form-field">
+        <label for="eventSlug">Slug</label>
+        <input
+          id="eventSlug"
+          name="eventSlug"
+          type="text"
+          [(ngModel)]="createEventForm.slug"
+          placeholder="example-event-name"
+          required
+        />
+      </div>
+
+
+      <div class="form-field">
+        <label for="eventDescription">Description</label>
+        <textarea
+          id="eventDescription"
+          name="eventDescription"
+          rows="5"
+          [(ngModel)]="createEventForm.description"
+          placeholder="Write a short event description"
+        ></textarea>
+      </div>
+
+      <div class="modal-actions">
+        <button
+          type="button"
+          class="btn btn-outline-secondary modal-action-button"
+          (click)="closeCreateEventModal()"
+          [disabled]="isSubmittingCreateEvent"
+        >
+          Cancel
+        </button>
+
+        <button
+          type="submit"
+          class="btn btn-primary modal-action-button"
+          [disabled]="
+            isSubmittingCreateEvent ||
+            !createEventForm.name.trim() ||
+            !createEventForm.slug.trim()
+          "
+        >
+          Create Event
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
