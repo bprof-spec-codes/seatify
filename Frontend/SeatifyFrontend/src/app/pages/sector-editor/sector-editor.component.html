@@ -1,5 +1,8 @@
 <div class="sector-editor">
-    <h3 class="seat-panel__title">Sector</h3>
+    <div class="tool-section-header">
+        <h3 class="tool-section-title">Sector</h3>
+        <p class="tool-section-subtitle">Assign a sector to the selected seat.</p>
+    </div>
 
     <div class="sector-list">
         <button type="button" class="sector-item" [class.sector-item--selected]="pendingSectorId === null"
@@ -18,8 +21,7 @@
                     <button type="button" class="sector-item"
                         [class.sector-item--selected]="pendingSectorId === sector.id" [disabled]="disabled"
                         (click)="selectSector(sector.id)">
-                        <span class="sector-item__icon" [style.backgroundColor]="sector.color">
-                        </span>
+                        <span class="sector-item__icon" [style.backgroundColor]="sector.color"></span>
 
                         <span class="sector-item__content">
                             <span class="sector-item__name">{{ sector.name }}</span>
@@ -27,20 +29,23 @@
                         </span>
                     </button>
 
-                    <button type="button" class="sector-item-edit-button" [disabled]="disabled || isCreateFormOpen"
-                        (click)="openEditForm(sector.id)">
-                        Edit
-                    </button>
-                    <button type="button" class="sector-item-delete-button"
-                        [disabled]="disabled || isCreateFormOpen || !!editingSectorId || isDeletingSector || isUpdatingSector || isCreatingSector"
-                        (click)="requestDelete(sector.id)">
-                        Delete
-                    </button>
+                    <div class="sector-item__actions">
+                        <button type="button" class="icon-action" [disabled]="disabled || isCreateFormOpen"
+                            (click)="openEditForm(sector.id)">
+                            Edit
+                        </button>
+
+                        <button type="button" class="icon-action icon-action--danger"
+                            [disabled]="disabled || isCreateFormOpen || !!editingSectorId || isDeletingSector || isUpdatingSector || isCreatingSector"
+                            (click)="requestDelete(sector.id)">
+                            Delete
+                        </button>
+                    </div>
                 </div>
             </ng-container>
 
             <ng-template #editSectorBlock>
-                <div class="sector-item sector-item--form">
+                <div class="sector-form-block">
                     <app-sector-form [initialValue]="editingSectorInitialValue" [submitLabel]="'Save'"
                         [isSubmitting]="isUpdatingSector" (submitted)="submitEdit($event)" (cancelled)="cancelEdit()">
                     </app-sector-form>
@@ -49,14 +54,14 @@
         </ng-container>
 
         <ng-container *ngIf="!isCreateFormOpen; else createFormBlock">
-            <button type="button" class="sector-item sector-item--add" [disabled]="disabled || !!editingSectorId"
+            <button type="button" class="sector-add-button" [disabled]="disabled || !!editingSectorId"
                 (click)="openCreateForm()">
-                <span class="sector-item__plus">+</span>
+                + New sector
             </button>
         </ng-container>
 
         <ng-template #createFormBlock>
-            <div class="sector-item sector-item--form">
+            <div class="sector-form-block">
                 <app-sector-form [submitLabel]="'Create'" [isSubmitting]="isCreatingSector"
                     (submitted)="submitCreate($event)" (cancelled)="cancelCreate()">
                 </app-sector-form>
@@ -64,7 +69,7 @@
         </ng-template>
     </div>
 
-    <button type="button" class="sector-apply-button" [disabled]="disabled" (click)="applyToSelected()">
+    <button type="button" class="btn btn--primary" [disabled]="disabled" (click)="applyToSelected()">
         Apply to selected
     </button>
 </div>

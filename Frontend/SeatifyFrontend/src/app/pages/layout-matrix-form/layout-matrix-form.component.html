@@ -1,7 +1,7 @@
-<form class="matrix-form-card" [formGroup]="form" (ngSubmit)="submit()" novalidate>
-    <div class="matrix-form-field">
+<form class="ui-form-card" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <div class="ui-form__field">
         <label for="matrix-name">Name</label>
-        <input id="matrix-name" type="text" formControlName="name" placeholder="eg.: 'Balcony'" />
+        <input id="matrix-name" type="text" formControlName="name" placeholder="eg.: Balcony" />
 
         <div class="field-error" *ngIf="nameControl?.touched && nameControl?.invalid">
             <span *ngIf="nameControl?.errors?.['required']">Name is required.</span>
@@ -9,7 +9,7 @@
         </div>
     </div>
 
-    <div class="matrix-form-field">
+    <div class="ui-form__field">
         <label for="matrix-rows">Rows</label>
         <input id="matrix-rows" type="number" min="1" formControlName="rows" />
 
@@ -19,7 +19,7 @@
         </div>
     </div>
 
-    <div class="matrix-form-field">
+    <div class="ui-form__field">
         <label for="matrix-columns">Columns</label>
         <input id="matrix-columns" type="number" min="1" formControlName="columns" />
 
@@ -29,12 +29,12 @@
         </div>
     </div>
 
-    <div class="matrix-form-actions">
-        <button type="submit" [disabled]="form.invalid || isSubmitting">
+    <div class="ui-form__actions">
+        <button type="submit" class="btn btn--primary" [disabled]="form.invalid || isSubmitting">
             {{ submitLabel }}
         </button>
 
-        <button type="button" (click)="cancel()" [disabled]="isSubmitting">
+        <button type="button" class="btn btn--secondary" (click)="cancel()" [disabled]="isSubmitting">
             Cancel
         </button>
     </div>

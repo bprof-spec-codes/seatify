@@ -1,51 +1,80 @@
-.sector-form
-    display: flex
-    flex-direction: column
-    gap: 0.75rem
-    width: 100%
+@use '../../../_variables' as *
 
-.sector-form__field
+:host
+    display: block
+
+.ui-form
     display: flex
     flex-direction: column
-    gap: 0.35rem
+    gap: 14px
+
+.ui-form__field
+    display: flex
+    flex-direction: column
+    gap: 8px
 
     label
-        font-size: 0.85rem
+        font-size: 12px
+        line-height: 16px
         font-weight: 600
-        color: #495057
+        color: $color-dark-700
 
     input
-        padding: 0.55rem 0.7rem
-        border: 1px solid #ced4da
-        border-radius: 0.5rem
-        font-size: 0.9rem
-        background: #fff
+        width: 100%
+        min-height: 42px
+        border-radius: 12px
+        border: 1px solid $color-light-300
+        background: $color-light-50
+        padding: 0 14px
+        font-size: 14px
+        color: $color-dark-950
+        outline: none
+        transition: .18s ease
 
-    input[type="color"]
-        padding: 0.2rem
-        height: 42px
+        &:focus
+            border-color: $color-primary-500
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12)
+
+.color-input
+    padding: 4px
+    min-height: 44px
+
+.ui-form__actions
+    display: grid
+    grid-template-columns: 1fr 1fr
+    gap: 10px
+    padding-top: 4px
+
+.btn
+    min-height: 42px
+    border-radius: 12px
+    border: 1px solid transparent
+    padding: 0 16px
+    font-size: 14px
+    font-weight: 600
+    cursor: pointer
+    transition: .18s ease
+
+    &:disabled
+        opacity: .6
+        cursor: not-allowed
+
+.btn--primary
+    background: $color-primary-500
+    color: $color-light-50
+
+    &:hover:not(:disabled)
+        background: $color-primary-600
+
+.btn--secondary
+    background: $color-light-50
+    color: $color-dark-950
+    border-color: $color-light-300
+
+    &:hover:not(:disabled)
+        background: $color-light-100
 
 .field-error
-    font-size: 0.8rem
-    color: #dc3545
-
-.sector-form__actions
-    display: flex
-    gap: 0.5rem
-
-    button
-        flex: 1
-        padding: 0.55rem 0.7rem
-        border-radius: 0.5rem
-        border: 1px solid #ced4da
-        background: #fff
-        cursor: pointer
-
-        &:first-child
-            border-color: #0d6efd
-            background: #0d6efd
-            color: #fff
-
-        &:disabled
-            opacity: 0.65
-            cursor: not-allowed
+    font-size: 12px
+    line-height: 16px
+    color: $color-danger-500

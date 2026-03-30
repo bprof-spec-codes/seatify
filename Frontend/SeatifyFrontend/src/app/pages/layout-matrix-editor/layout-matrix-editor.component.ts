@@ -62,7 +62,6 @@ export class LayoutMatrixEditorComponent implements OnInit {
     private route: ActivatedRoute,
     private seatService: SeatService,
     private cdr: ChangeDetectorRef,
-    private elementRef: ElementRef,
     private sectorService: SectorService,
   ) { }
 

@@ -1,63 +1,139 @@
+@use '../../../_variables' as *
+
+:host
+    display: block
+
 .seat-panel
     display: flex
     flex-direction: column
-    gap: 0.75rem
+    gap: 18px
 
-.seat-panel__title
-    margin: 0
-    font-size: 1.1rem
-
-.seat-panel__row
-    display: flex
-    justify-content: space-between
-    font-size: 0.9rem
-
-.seat-type-buttons
-    display: flex
-    gap: 0.5rem
-
-    button
-        flex: 1
-        padding: 0.4rem
-        border-radius: 0.5rem
-        border: 1px solid #ced4da
-        background: #f8f9fa
-        cursor: pointer
-        font-size: 0.85rem
-
-        &.active
-            background: #0d6efd
-            color: white
-            border-color: #0d6efd
-
-.seat-panel__section
-    margin-top: 0.75rem
+.tool-section-header
     display: flex
     flex-direction: column
-    gap: 0.5rem
+    gap: 4px
 
-    input,
-    select
-        padding: 0.55rem 0.7rem
-        border: 1px solid #ced4da
-        border-radius: 0.5rem
-        font-size: 0.9rem
-        background: #fff
+.tool-section-title
+    margin: 0
+    font-size: 16px
+    line-height: 24px
+    font-weight: 700
+    color: $color-dark-950
 
-.field-error
-    font-size: 0.8rem
-    color: #dc3545
+.tool-section-subtitle
+    margin: 0
+    font-size: 13px
+    line-height: 18px
+    color: $color-dark-600
 
-.seat-save-button
-    width: 100%
-    padding: 0.55rem 0.8rem
-    border-radius: 0.5rem
-    border: 1px solid #0d6efd
-    background: #0d6efd
-    color: #fff
+.seat-meta
+    display: grid
+    grid-template-columns: repeat(2, 1fr)
+    gap: 10px
+
+.seat-meta__item
+    padding: 12px 14px
+    border-radius: 14px
+    border: 1px solid $color-light-200
+    background: $color-light-100
+    display: flex
+    flex-direction: column
+    gap: 2px
+
+    span
+        font-size: 12px
+        color: $color-dark-600
+
+    strong
+        font-size: 14px
+        color: $color-dark-950
+
+.seat-form
+    display: flex
+    flex-direction: column
+    gap: 16px
+
+.form-section
+    display: flex
+    flex-direction: column
+    gap: 8px
+
+    label
+        font-size: 12px
+        line-height: 16px
+        font-weight: 600
+        color: $color-dark-700
+
+    input
+        width: 100%
+        min-height: 42px
+        border-radius: 12px
+        border: 1px solid $color-light-300
+        background: $color-light-50
+        padding: 0 14px
+        font-size: 14px
+        color: $color-dark-950
+        outline: none
+        transition: .18s ease
+
+        &:focus
+            border-color: $color-primary-500
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12)
+
+.segmented-control
+    display: grid
+    grid-template-columns: repeat(3, 1fr)
+    gap: 8px
+    padding: 6px
+    border-radius: 14px
+    background: $color-light-100
+    border: 1px solid $color-light-200
+
+    button
+        min-height: 38px
+        border: 0
+        border-radius: 10px
+        background: transparent
+        font-size: 13px
+        font-weight: 600
+        color: $color-dark-700
+        cursor: pointer
+        transition: .18s ease
+
+        &:hover
+            background: rgba(255, 255, 255, 0.7)
+
+        &.active
+            background: $color-primary-500
+            color: $color-light-50
+            box-shadow: 0 4px 10px rgba(59, 130, 246, 0.2)
+
+.form-actions
+    padding-top: 4px
+
+.btn
+    min-height: 44px
+    border-radius: 12px
+    border: 1px solid transparent
+    padding: 0 16px
+    font-size: 14px
+    font-weight: 600
     cursor: pointer
-    font-size: 0.9rem
+    transition: .18s ease
 
     &:disabled
-        opacity: 0.65
+        opacity: .6
         cursor: not-allowed
+
+.btn--primary
+    width: 100%
+    background: $color-primary-500
+    color: $color-light-50
+
+    &:hover:not(:disabled)
+        background: $color-primary-600
+
+.field-error
+    font-size: 12px
+    line-height: 16px
+    color: $color-danger-500

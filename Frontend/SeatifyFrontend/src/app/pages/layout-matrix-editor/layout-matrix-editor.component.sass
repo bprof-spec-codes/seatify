@@ -1,300 +1,302 @@
-.layout-editor-page
-    padding: 1.5rem
-    display: flex
-    flex-direction: column
-    gap: 1rem
+@use '../../../_variables' as *
+
+:host
+    display: block
     min-height: 100%
-    background-color: #f8f9fa
+    background: $color-light-100
+
+.layout-editor-page
+    min-height: 100vh
+    background: $color-light-100
+    padding: 24px
 
 .page-header
-    display: flex
-    justify-content: space-between
-    align-items: center
+    margin-bottom: 24px
 
-    h1
-        margin: 0
-        font-size: 1.75rem
+.page-header__content
+    max-width: 1600px
+    margin: 0 auto
+
+h1
+    margin: 0
+    font-size: 24px
+    line-height: 32px
+    font-weight: 700
+    color: $color-dark-950
 
 .page-subtitle
-    margin: 0.25rem 0 0
-    color: #6c757d
+    margin: 6px 0 0
+    font-size: 14px
+    line-height: 20px
+    color: $color-dark-600
 
 .editor-layout
+    max-width: 1600px
+    margin: 0 auto
     display: grid
-    grid-template-columns: 280px 1fr 320px
-    gap: 1rem
-    min-height: 70vh
+    grid-template-columns: 300px minmax(0, 1fr) 340px
+    gap: 24px
+    align-items: start
 
 .panel
-    background: #ffffff
-    border: 1px solid #dee2e6
-    border-radius: 0.75rem
-    padding: 1rem
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.04)
+    background: $color-light-50
+    border: 1px solid $color-light-200
+    border-radius: 20px
+    box-shadow: 0 6px 18px rgba(17, 24, 39, 0.04)
+
+.left-panel,
+.center-panel,
+.right-panel
+    padding: 20px
+
+.panel-header
+    margin-bottom: 16px
 
 .panel-title
-    margin: 0 0 1rem
-    font-size: 1.1rem
+    margin: 0
+    font-size: 16px
+    line-height: 24px
+    font-weight: 700
+    color: $color-dark-950
 
 .panel-placeholder
+    padding: 20px
+    border: 1px dashed $color-light-300
+    border-radius: 16px
+    background: $color-light-100
+    color: $color-dark-600
+    font-size: 14px
+    line-height: 20px
+    text-align: center
+
+.panel-placeholder-large
+    min-height: 320px
     display: flex
     align-items: center
     justify-content: center
-    min-height: 120px
-    padding: 1rem
-    border: 2px dashed #ced4da
-    border-radius: 0.5rem
-    color: #6c757d
-    text-align: center
-    background-color: #fdfdfd
-
-.panel-placeholder-large
-    min-height: 300px
-
-.seat-panel
-    display: flex
-    flex-direction: column
-    gap: 0.75rem
-
-.seat-panel__title
-    margin: 0
-    font-size: 1.1rem
-
-.seat-panel__row
-    display: flex
-    justify-content: space-between
-    font-size: 0.9rem
-
-.seat-panel__section
-    margin-top: 0.75rem
-    display: flex
-    flex-direction: column
-    gap: 0.5rem
-
-.seat-type-buttons
-    display: flex
-    gap: 0.5rem
-
-    button
-        flex: 1
-        padding: 0.4rem
-        border-radius: 0.5rem
-        border: 1px solid #ced4da
-        background: #f8f9fa
-        cursor: pointer
-        font-size: 0.85rem
-
-        &.active
-            background: #0d6efd
-            color: white
-            border-color: #0d6efd
 
 .matrix-list
     display: flex
     flex-direction: column
-    gap: 0.75rem
+    gap: 12px
+
+.matrix-item-wrapper
+    display: grid
+    grid-template-columns: minmax(0, 1fr) auto
+    gap: 8px
+    align-items: start
 
 .matrix-item
+    width: 100%
+    border: 1px solid $color-light-200
+    background: $color-light-50
+    border-radius: 14px
+    padding: 14px 16px
+    text-align: left
+    cursor: pointer
+    transition: .18s ease
     display: flex
     flex-direction: column
-    align-items: flex-start
-    gap: 0.25rem
-    width: 100%
-    padding: 0.875rem 1rem
-    border: 1px solid #dee2e6
-    border-radius: 0.75rem
-    background: #fff
-    cursor: pointer
-    text-align: left
-    transition: border-color 0.2s ease, background-color 0.2s ease
+    gap: 4px
 
     &:hover
-        background: #f8f9fa
-        border-color: #adb5bd
+        background: $color-light-100
+        border-color: $color-light-300
 
 .matrix-item--active
-    border-color: #0d6efd
-    background: #e7f1ff
+    background: #eff6ff
+    border-color: $color-primary-200
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.08)
 
 .matrix-item__name
+    font-size: 14px
+    line-height: 20px
     font-weight: 600
-    color: #212529
+    color: $color-dark-950
 
 .matrix-item__meta
-    font-size: 0.9rem
-    color: #6c757d
+    font-size: 12px
+    line-height: 18px
+    color: $color-dark-600
 
-.center-panel
-    display: flex
-    flex-direction: column
+.matrix-item-menu
+    position: relative
+
+.matrix-item-menu__trigger
+    width: 36px
+    height: 36px
+    border-radius: 10px
+    border: 1px solid $color-light-200
+    background: $color-light-50
+    color: $color-dark-700
+    cursor: pointer
+    transition: .18s ease
+
+    &:hover
+        background: $color-light-100
+
+.matrix-item-menu__dropdown
+    position: absolute
+    top: calc(100% + 8px)
+    right: 0
+    min-width: 140px
+    z-index: 20
+    background: $color-light-50
+    border: 1px solid $color-light-200
+    border-radius: 14px
+    box-shadow: 0 12px 32px rgba(17, 24, 39, 0.12)
+    padding: 8px
+
+.matrix-item-menu__action
+    width: 100%
+    border: 0
+    background: transparent
+    text-align: left
+    padding: 10px 12px
+    border-radius: 10px
+    cursor: pointer
+    font-size: 14px
+    color: $color-dark-900
+
+    &:hover
+        background: $color-light-100
+
+.matrix-item-menu__action--danger
+    color: $color-danger-500
+
+.matrix-edit-block
+    padding: 4px 0
+
+.matrix-add-button
+    width: 100%
+    min-height: 44px
+    border-radius: 12px
+    border: 1px solid $color-light-300
+    background: $color-light-50
+    color: $color-dark-900
+    font-size: 14px
+    font-weight: 600
+    cursor: pointer
+    transition: .18s ease
+
+    &:hover
+        background: $color-light-100
+        border-color: $color-primary-200
 
 .editor-shell
     display: flex
     flex-direction: column
-    gap: 1rem
-    min-height: 100%
+    gap: 16px
 
 .editor-shell__header
     display: flex
+    align-items: center
     justify-content: space-between
-    align-items: flex-start
-    gap: 1rem
-    padding-bottom: 0.5rem
-    border-bottom: 1px solid #e9ecef
 
 .editor-shell__subtitle
-    margin: 0.25rem 0 0
-    color: #6c757d
+    margin: 4px 0 0
+    font-size: 14px
+    line-height: 20px
+    color: $color-dark-600
 
 .editor-shell__body
-    flex: 1
-    display: flex
-    min-height: 0
+    min-height: 640px
 
 .editor-canvas
-    flex: 1
+    min-height: 100%
+    border: 1px solid $color-light-200
+    border-radius: 18px
+    background: linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%)
+    padding: 28px
     display: flex
-    align-items: flex-start
+    flex-direction: column
+    align-items: center
+    gap: 20px
+
+.editor-stage-badge
+    display: inline-flex
+    align-items: center
     justify-content: center
-    min-height: 0
-    padding: 1rem
-    background: #eef3f8
-    border: 1px solid #d9e2ec
-    border-radius: 0.75rem
+    height: 30px
+    padding: 0 16px
+    border-radius: 999px
+    background: $color-light-100
+    border: 1px solid $color-light-200
+    font-size: 12px
+    font-weight: 700
+    letter-spacing: .04em
+    color: $color-dark-700
 
 .grid-wrapper
-    max-width: 100%
-    max-height: 100%
+    width: 100%
     overflow: auto
-    padding: 0.75rem
-    background: #ffffff
-    border: 1px solid #e5e7eb
-    border-radius: 0.75rem
+    background: $color-light-100
+    border: 1px solid #eef2f7
+    border-radius: 18px
+    padding: 28px
+    display: flex
+    justify-content: center
 
 .grid
     display: grid
-    gap: 0.45rem
-    width: max-content
+    gap: 8px
 
 .cell
     width: 36px
     height: 36px
-    border-radius: 0.65rem
-    border: 1px solid #5b9cff
-    background: #7db5ff
-    box-sizing: border-box
+    border-radius: 10px
+    background: $color-primary-500
+    border: 2px solid transparent
     cursor: pointer
-    transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease, border-color 0.15s ease
+    transition: transform .14s ease, box-shadow .14s ease, border-color .14s ease, opacity .14s ease
 
     &:hover
-        background: #5b9cff
-        border-color: #2563eb
         transform: translateY(-1px)
-        box-shadow: 0 0.25rem 0.5rem rgba(37, 99, 235, 0.25)
+        box-shadow: 0 4px 10px rgba(59, 130, 246, 0.18)
 
 .cell--selected
-    background: #2563eb
-    border-color: #1d4ed8
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.22)
+    border-color: $color-secondary-500
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.18)
 
 .cell--accessible
-    background: #d8b4fe
-    border-color: #9333ea
+    background: $color-success-500
 
 .cell--aisle
-    background: #f1f3f5
-    border: 1px dashed #adb5bd
+    background: #dbeafe
+    opacity: .75
 
 .editor-empty-state
+    min-height: 640px
     display: flex
-    flex: 1
+    align-items: center
+    justify-content: center
 
-.matrix-item-wrapper
-    position: relative
-    display: flex
-    gap: 0.5rem
-    align-items: stretch
-
-    .matrix-item
-        flex: 1
-
-.matrix-item-menu
-    position: relative
-    display: flex
-    align-items: stretch
-
-.matrix-item-menu__trigger
-    min-width: 44px
-    padding: 0.75rem 0.9rem
-    border: 1px solid #dee2e6
-    border-radius: 0.75rem
-    background: #fff
-    cursor: pointer
-    font-size: 1rem
-    line-height: 1
-
-    &:hover
-        background: #f8f9fa
-
-.matrix-item-menu__dropdown
-    position: absolute
-    top: calc(100% + 0.35rem)
-    right: 0
-    min-width: 130px
+.tool-stack
     display: flex
     flex-direction: column
-    padding: 0.35rem
-    background: #fff
-    border: 1px solid #dee2e6
-    border-radius: 0.75rem
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08)
-    z-index: 20
+    gap: 16px
 
-.matrix-item-menu__action
-    padding: 0.65rem 0.75rem
-    border: none
-    border-radius: 0.5rem
-    background: transparent
-    text-align: left
-    cursor: pointer
-    font-size: 0.9rem
+.tool-card
+    border: 1px solid $color-light-200
+    border-radius: 18px
+    background: $color-light-50
+    padding: 18px
 
-    &:hover
-        background: #f8f9fa
-
-    &:disabled
-        opacity: 0.6
-        cursor: not-allowed
-
-.matrix-item-menu__action--danger
-    color: #dc3545
-
-    &:hover
-        background: #fff5f5
-
-.matrix-item-edit-button
-    padding: 0.75rem 0.9rem
-    border: 1px solid #dee2e6
-    border-radius: 0.75rem
-    background: #fff
-    cursor: pointer
-
-    &:hover
-        background: #f8f9fa
-
-@media (max-width: 1200px)
+@media (max-width: 1280px)
     .editor-layout
-        grid-template-columns: 240px 1fr
+        grid-template-columns: 280px minmax(0, 1fr)
 
     .right-panel
         grid-column: 1 / -1
 
-@media (max-width: 768px)
+@media (max-width: 960px)
     .layout-editor-page
-        padding: 1rem
+        padding: 16px
 
     .editor-layout
         grid-template-columns: 1fr
 
-    .panel-placeholder-large
-        min-height: 220px
+    .left-panel,
+    .center-panel,
+    .right-panel
+        padding: 16px

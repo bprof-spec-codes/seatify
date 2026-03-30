@@ -1,19 +1,24 @@
 <ng-container *ngIf="cell as selectedCell; else noCellSelected">
     <div class="seat-panel">
-        <h3 class="seat-panel__title">Seat</h3>
-
-        <div class="seat-panel__row">
-            <span>Row:</span>
-            <strong>{{ selectedCell.row }}</strong>
+        <div class="tool-section-header">
+            <h3 class="tool-section-title">Seat</h3>
+            <p class="tool-section-subtitle">Edit the selected seat properties.</p>
         </div>
 
-        <div class="seat-panel__row">
-            <span>Column:</span>
-            <strong>{{ selectedCell.column }}</strong>
+        <div class="seat-meta">
+            <div class="seat-meta__item">
+                <span>Row</span>
+                <strong>{{ selectedCell.row }}</strong>
+            </div>
+
+            <div class="seat-meta__item">
+                <span>Column</span>
+                <strong>{{ selectedCell.column }}</strong>
+            </div>
         </div>
 
         <form class="seat-form" [formGroup]="form" (ngSubmit)="submit()">
-            <div class="seat-panel__section">
+            <div class="form-section">
                 <label for="seatLabel">Label</label>
                 <input id="seatLabel" type="text" formControlName="seatLabel" />
 
@@ -24,7 +29,7 @@
                 </div>
             </div>
 
-            <div class="seat-panel__section">
+            <div class="form-section">
                 <label for="priceOverride">Price override</label>
                 <input id="priceOverride" type="number" min="0" formControlName="priceOverride" />
 
@@ -38,10 +43,10 @@
                 </div>
             </div>
 
-            <div class="seat-panel__section">
-                <label>Change type</label>
+            <div class="form-section">
+                <label>Seat type</label>
 
-                <div class="seat-type-buttons">
+                <div class="segmented-control">
                     <button type="button" [class.active]="seatTypeControl?.value === seatType.Seat"
                         (click)="setSeatType(seatType.Seat)">
                         Seat
@@ -59,8 +64,8 @@
                 </div>
             </div>
 
-            <div class="seat-panel__section">
-                <button type="submit" class="seat-save-button"
+            <div class="form-actions">
+                <button type="submit" class="btn btn--primary"
                     [disabled]="!selectedCell.seatId || form.invalid || isSaving">
                     Save seat
                 </button>

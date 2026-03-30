@@ -1,140 +1,164 @@
+@use '../../../_variables' as *
+
 :host
     display: block
 
-.sector-field
+.sector-editor
     display: flex
     flex-direction: column
-    gap: 0.75rem
+    gap: 16px
+
+.tool-section-header
+    display: flex
+    flex-direction: column
+    gap: 4px
+
+.tool-section-title
+    margin: 0
+    font-size: 16px
+    line-height: 24px
+    font-weight: 700
+    color: $color-dark-950
+
+.tool-section-subtitle
+    margin: 0
+    font-size: 13px
+    line-height: 18px
+    color: $color-dark-600
 
 .sector-list
     display: flex
     flex-direction: column
-    gap: 0.5rem
+    gap: 10px
+
+.sector-item-wrapper
+    display: flex
+    flex-direction: column
+    gap: 8px
 
 .sector-item
+    width: 100%
+    border: 1px solid $color-light-200
+    border-radius: 14px
+    background: $color-light-50
+    padding: 12px 14px
     display: flex
     align-items: center
-    gap: 0.75rem
-    width: 100%
-    padding: 0.75rem
-    border: 1px solid #dee2e6
-    border-radius: 0.75rem
-    background: #fff
-    cursor: pointer
+    gap: 12px
     text-align: left
-    transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease
+    cursor: pointer
+    transition: .18s ease
 
     &:hover:not(:disabled)
-        background: #f8f9fa
-        border-color: #adb5bd
+        background: $color-light-100
+        border-color: $color-light-300
 
     &:disabled
-        opacity: 0.65
+        opacity: .65
         cursor: not-allowed
 
 .sector-item--selected
-    border-color: #0d6efd
-    box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.15)
-    background: #eef6ff
+    background: #eff6ff
+    border-color: $color-primary-200
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.08)
 
 .sector-item__icon
-    width: 14px
-    height: 14px
+    width: 16px
+    height: 16px
     border-radius: 999px
-    flex-shrink: 0
-    border: 1px solid rgba(0, 0, 0, 0.12)
+    border: 2px solid rgba(255, 255, 255, 0.9)
+    box-shadow: 0 0 0 1px $color-light-300
+    flex: 0 0 auto
 
 .sector-item__icon--empty
-    background: #ffffff
-    border: 1px dashed #adb5bd
+    background: $color-light-200
 
 .sector-item__content
     display: flex
     flex-direction: column
-    gap: 0.1rem
+    min-width: 0
 
 .sector-item__name
-    font-size: 0.92rem
+    font-size: 14px
+    line-height: 20px
     font-weight: 600
-    color: #212529
+    color: $color-dark-950
 
 .sector-item__price
-    font-size: 0.82rem
-    color: #6c757d
+    font-size: 12px
+    line-height: 18px
+    color: $color-dark-600
 
-.sector-apply-button
-    width: 100%
-    padding: 0.6rem 0.8rem
-    border-radius: 0.5rem
-    border: 1px solid #0d6efd
-    background: #0d6efd
-    color: #fff
+.sector-item__actions
+    display: flex
+    gap: 8px
+
+.icon-action
+    flex: 1
+    min-height: 36px
+    border-radius: 10px
+    border: 1px solid $color-light-300
+    background: $color-light-50
+    font-size: 13px
+    font-weight: 600
+    color: $color-dark-700
     cursor: pointer
-    font-size: 0.9rem
+    transition: .18s ease
+
+    &:hover:not(:disabled)
+        background: $color-light-100
 
     &:disabled
-        opacity: 0.65
+        opacity: .6
         cursor: not-allowed
 
-.sector-form__field
-    display: flex
-    flex-direction: column
-    gap: 0.35rem
+.icon-action--danger
+    color: $color-danger-500
+
+.sector-form-block
+    border: 1px solid $color-light-200
+    border-radius: 16px
+    background: $color-light-100
+    padding: 14px
+
+.sector-add-button
     width: 100%
+    min-height: 42px
+    border-radius: 12px
+    border: 1px solid $color-light-300
+    background: $color-light-50
+    color: $color-dark-900
+    font-size: 14px
+    font-weight: 600
+    cursor: pointer
+    transition: .18s ease
 
-    label
-        font-size: 0.85rem
-        font-weight: 600
-        color: #495057
+    &:hover:not(:disabled)
+        background: $color-light-100
+        border-color: $color-primary-200
 
-    input
-        padding: 0.55rem 0.7rem
-        border: 1px solid #ced4da
-        border-radius: 0.5rem
-        font-size: 0.9rem
-        background: #fff
+    &:disabled
+        opacity: .6
+        cursor: not-allowed
 
-    input[type="color"]
-        padding: 0.2rem
-        height: 42px
+.btn
+    min-height: 44px
+    border-radius: 12px
+    border: 1px solid transparent
+    padding: 0 16px
+    font-size: 14px
+    font-weight: 600
+    cursor: pointer
+    transition: .18s ease
 
-.field-error
-    font-size: 0.8rem
-    color: #dc3545
+    &:disabled
+        opacity: .6
+        cursor: not-allowed
 
-.sector-form__actions
-    display: flex
-    gap: 0.5rem
+.btn--primary
     width: 100%
+    background: $color-primary-500
+    color: $color-light-50
 
-    button
-        flex: 1
-        padding: 0.55rem 0.7rem
-        border-radius: 0.5rem
-        border: 1px solid #ced4da
-        background: #fff
-        cursor: pointer
-
-        &:first-child
-            border-color: #0d6efd
-            background: #0d6efd
-            color: #fff
-
-        &:disabled
-            opacity: 0.65
-            cursor: not-allowed
-
-.sector-item--add
-    justify-content: center
-    align-items: center
-
-.sector-item__plus
-    font-size: 1.6rem
-    line-height: 1
-    color: #6c757d
-
-.sector-item--form
-    display: flex
-    flex-direction: column
-    align-items: stretch
-    gap: 0.75rem
+    &:hover:not(:disabled)
+        background: $color-primary-600

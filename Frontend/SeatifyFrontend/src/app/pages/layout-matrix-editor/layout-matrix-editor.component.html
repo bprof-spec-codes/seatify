@@ -1,16 +1,20 @@
 <div class="layout-editor-page">
   <header class="page-header">
-    <div>
-      <h1>Layout Matrix Editor</h1>
-      <p class="page-subtitle">
-        Auditorium ID: {{ auditoriumId || 'N/A' }}
-      </p>
+    <div class="page-header__content">
+      <div>
+        <h1>Layout Matrix Editor</h1>
+        <p class="page-subtitle">
+          Auditorium ID: {{ auditoriumId || 'N/A' }}
+        </p>
+      </div>
     </div>
   </header>
 
   <div class="editor-layout">
     <aside class="left-panel panel">
-      <h2 class="panel-title">Layout Matrices</h2>
+      <div class="panel-header">
+        <h2 class="panel-title">Layout Matrices</h2>
+      </div>
 
       <div class="matrix-list" *ngIf="matrices$ | async as matrices">
         <div *ngIf="matrices.length === 0" class="panel-placeholder">
@@ -29,7 +33,7 @@
               <div class="matrix-item-menu">
                 <button type="button" class="matrix-item-menu__trigger" (click)="toggleMatrixMenu(matrix.id)"
                   [attr.aria-expanded]="isMatrixMenuOpen(matrix)">
-                  ...
+                  ⋯
                 </button>
 
                 <div class="matrix-item-menu__dropdown" *ngIf="isMatrixMenuOpen(matrix)">
@@ -49,10 +53,10 @@
           <ng-template #editFormBlock>
             <div class="matrix-edit-block">
               <app-layout-matrix-form [initialValue]="{
-        name: matrix.name,
-        rows: matrix.rows,
-        columns: matrix.columns
-      }" [submitLabel]="'Save'" [isSubmitting]="isSavingMatrix" (submitted)="updateMatrix(matrix.id, $event)"
+                  name: matrix.name,
+                  rows: matrix.rows,
+                  columns: matrix.columns
+                }" [submitLabel]="'Save'" [isSubmitting]="isSavingMatrix" (submitted)="updateMatrix(matrix.id, $event)"
                 (cancelled)="closeEditForm()">
               </app-layout-matrix-form>
             </div>
@@ -70,7 +74,6 @@
             (submitted)="createMatrix($event)" (cancelled)="closeCreateForm()">
           </app-layout-matrix-form>
         </ng-template>
-
       </div>
     </aside>
 
@@ -85,15 +88,15 @@
 
         <div class="editor-shell__body">
           <div class="editor-canvas">
+            <div class="editor-stage-badge">STAGE</div>
+
             <div class="grid-wrapper">
               <div class="grid" [style.gridTemplateColumns]="'repeat(' + gridColumns + ', 36px)'">
-
                 <div class="cell" *ngFor="let cell of gridCells; trackBy: trackByCellKey"
                   [class.cell--selected]="isCellSelected(cell)"
                   [class.cell--accessible]="cell.seatType === seatType.AccessibleSeat"
                   [class.cell--aisle]="cell.seatType === seatType.Aisle" (click)="selectCell(cell)"
                   [title]="cell.seatLabel || ('Row ' + cell.row + ', Column ' + cell.column)"></div>
-
               </div>
             </div>
           </div>
@@ -110,21 +113,29 @@
     </main>
 
     <aside class="right-panel panel">
-      <h2 class="panel-title">Properties & Tools</h2>
+      <div class="panel-header">
+        <h2 class="panel-title">Properties & Tools</h2>
+      </div>
 
       <ng-container *ngIf="selectedCell as cell; else noCellSelected">
-        <app-seat-editor [cell]="selectedCell" [isSaving]="isSavingSeat" (save)="saveSeat($event)">
-        </app-seat-editor>
+        <div class="tool-stack">
+          <div class="tool-card">
+            <app-seat-editor [cell]="selectedCell" [isSaving]="isSavingSeat" (save)="saveSeat($event)">
+            </app-seat-editor>
+          </div>
 
-        <app-sector-editor [sectors]="(sectors$ | async) ?? []" [selectedSectorId]="selectedCell?.sectorId ?? null"
-          [disabled]="isSavingSeat" [isCreateFormOpen]="isCreateSectorFormOpen" [isCreatingSector]="isCreatingSector"
-          [editingSectorId]="editingSectorId" [isUpdatingSector]="isUpdatingSector"
-          [isDeletingSector]="isDeletingSector" (applySector)="applySectorToSelectedSeat($event)"
-          (createClicked)="openCreateSectorForm()" (createCancelled)="closeCreateSectorForm()"
-          (createSubmitted)="createSector($event)" (editClicked)="openEditSectorForm($event)"
-          (editCancelled)="closeEditSectorForm()" (editSubmitted)="updateSector($event)"
-          (deleteClicked)="deleteSector($event)">
-        </app-sector-editor>
+          <div class="tool-card">
+            <app-sector-editor [sectors]="(sectors$ | async) ?? []" [selectedSectorId]="selectedCell?.sectorId ?? null"
+              [disabled]="isSavingSeat" [isCreateFormOpen]="isCreateSectorFormOpen"
+              [isCreatingSector]="isCreatingSector" [editingSectorId]="editingSectorId"
+              [isUpdatingSector]="isUpdatingSector" [isDeletingSector]="isDeletingSector"
+              (applySector)="applySectorToSelectedSeat($event)" (createClicked)="openCreateSectorForm()"
+              (createCancelled)="closeCreateSectorForm()" (createSubmitted)="createSector($event)"
+              (editClicked)="openEditSectorForm($event)" (editCancelled)="closeEditSectorForm()"
+              (editSubmitted)="updateSector($event)" (deleteClicked)="deleteSector($event)">
+            </app-sector-editor>
+          </div>
+        </div>
       </ng-container>
 
       <ng-template #noCellSelected>
