@@ -1,0 +1,18 @@
+<form [formGroup]="eventform" (ngSubmit)="submit()">
+    
+    <input type="hidden" formControlName="id">
+
+    <input type="text" formControlName="name" placeholder="név">
+
+    <input formControlName="description" placeholder="Leírás">
+
+    <input type="datetime-local" formControlName="startsAt" placeholder="Kezdés">
+
+    <input type="datetime-local" formControlName="endsAt" placeholder="Befejezés">
+
+    <input type="number" formControlName="basePrice" placeholder="Alap ár">
+      
+      <button type="submit" [disabled]="eventform.invalid">
+        {{ buttonText }}
+      </button>
+    </form>
