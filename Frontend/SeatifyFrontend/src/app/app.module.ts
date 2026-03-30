@@ -13,8 +13,10 @@ import { AuditoriumDashboardComponent } from './pages/auditorium-dashboard/audit
 import { LayoutMatrixEditorComponent } from './pages/layout-matrix-editor/layout-matrix-editor.component';
 import { CommonModule } from '@angular/common';
 import { LayoutMatrixFormComponent } from './pages/layout-matrix-form/layout-matrix-form.component';
-import { ReactiveFormsModule } from '@angular/forms';
 import { SeatEditorComponent } from './pages/seat-editor/seat-editor.component';
+import { VenueFormComponent } from './pages/venue-form/venue-form.component';
+import { ReactiveFormsModule } from '@angular/forms';
+import { CheckoutComponent } from './pages/checkout/checkout.component';
 
 @NgModule({
   declarations: [
@@ -25,6 +27,8 @@ import { SeatEditorComponent } from './pages/seat-editor/seat-editor.component';
     VenueDashboardComponent,
     ConfirmMessageComponent,
     AuditoriumDashboardComponent,
+    VenueFormComponent,
+    CheckoutComponent,
     LayoutMatrixEditorComponent,
     LayoutMatrixFormComponent,
     SeatEditorComponent,
@@ -32,8 +36,8 @@ import { SeatEditorComponent } from './pages/seat-editor/seat-editor.component';
   imports: [
     BrowserModule,
     AppRoutingModule,
+    ReactiveFormsModule,
     CommonModule,
-    ReactiveFormsModule
   ],
   providers: [
     provideHttpClient(withInterceptors([]))
