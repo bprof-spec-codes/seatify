@@ -30,6 +30,10 @@ export class SectorEditorComponent {
   @Output() editCancelled = new EventEmitter<void>()
   @Output() editSubmitted = new EventEmitter<{ id: string; dto: CreateUpdateSectorDto }>()
 
+  @Input() isDeletingSector = false
+
+  @Output() deleteClicked = new EventEmitter<string>()
+
   pendingSectorId: string | null = null
   editingSectorInitialValue: CreateUpdateSectorDto | null = null
 
@@ -41,6 +45,11 @@ export class SectorEditorComponent {
     if (changes['editingSectorId'] || changes['sectors']) {
       this.syncEditingSectorInitialValue()
     }
+  }
+
+  requestDelete(sectorId: string): void {
+    if (this.disabled || this.isDeletingSector || this.isCreatingSector || this.isUpdatingSector) return
+    this.deleteClicked.emit(sectorId)
   }
 
   private syncEditingSectorInitialValue(): void {

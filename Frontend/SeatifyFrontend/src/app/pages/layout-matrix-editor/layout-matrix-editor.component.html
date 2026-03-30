@@ -119,10 +119,11 @@
         <app-sector-editor [sectors]="(sectors$ | async) ?? []" [selectedSectorId]="selectedCell?.sectorId ?? null"
           [disabled]="isSavingSeat" [isCreateFormOpen]="isCreateSectorFormOpen" [isCreatingSector]="isCreatingSector"
           [editingSectorId]="editingSectorId" [isUpdatingSector]="isUpdatingSector"
-          (applySector)="applySectorToSelectedSeat($event)" (createClicked)="openCreateSectorForm()"
-          (createCancelled)="closeCreateSectorForm()" (createSubmitted)="createSector($event)"
-          (editClicked)="openEditSectorForm($event)" (editCancelled)="closeEditSectorForm()"
-          (editSubmitted)="updateSector($event)">
+          [isDeletingSector]="isDeletingSector" (applySector)="applySectorToSelectedSeat($event)"
+          (createClicked)="openCreateSectorForm()" (createCancelled)="closeCreateSectorForm()"
+          (createSubmitted)="createSector($event)" (editClicked)="openEditSectorForm($event)"
+          (editCancelled)="closeEditSectorForm()" (editSubmitted)="updateSector($event)"
+          (deleteClicked)="deleteSector($event)">
         </app-sector-editor>
       </ng-container>
 

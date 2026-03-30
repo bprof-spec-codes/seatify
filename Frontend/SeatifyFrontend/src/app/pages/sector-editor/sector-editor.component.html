@@ -31,6 +31,11 @@
                         (click)="openEditForm(sector.id)">
                         Edit
                     </button>
+                    <button type="button" class="sector-item-delete-button"
+                        [disabled]="disabled || isCreateFormOpen || !!editingSectorId || isDeletingSector || isUpdatingSector || isCreatingSector"
+                        (click)="requestDelete(sector.id)">
+                        Delete
+                    </button>
                 </div>
             </ng-container>
 

@@ -52,6 +52,10 @@ export class LayoutMatrixEditorComponent implements OnInit {
   editingSectorId: string | null = null
   isUpdatingSector = false
 
+  isDeletingSector = false
+  sectorErrorMessage: string | null = null
+
+  private latestSectors: Sector[] = []
 
   constructor(
     private matrixService: LayoutMatrixService,
@@ -101,6 +105,12 @@ export class LayoutMatrixEditorComponent implements OnInit {
         }
 
         this.cdr.markForCheck()
+      })
+    )
+
+    this.sectors$ = this.sectorService.sector$.pipe(
+      tap(sectors => {
+        this.latestSectors = sectors
       })
     )
 
@@ -530,6 +540,58 @@ export class LayoutMatrixEditorComponent implements OnInit {
         this.cdr.markForCheck()
       }
     })
+  }
+
+  deleteSector(sectorId: string): void {
+    if (this.isDeletingSector) return
+
+    const sector = this.findSectorById(sectorId)
+    const sectorName = sector?.name ?? 'this sector'
+
+    const confirmed = window.confirm(`Biztosan törölni szeretnéd ezt a szektort: ${sectorName}?`)
+    if (!confirmed) return
+
+    this.isDeletingSector = true
+    this.sectorErrorMessage = null
+
+    this.sectorService.deleteSector(sectorId).subscribe({
+      next: () => {
+        this.isDeletingSector = false
+
+        if (this.selectedCell?.sectorId === sectorId) {
+          this.selectedCellKey = this.selectedCell?.key ?? null
+        }
+
+        if (this.editingSectorId === sectorId) {
+          this.editingSectorId = null
+        }
+
+        this.cdr.markForCheck()
+      },
+      error: err => {
+        this.isDeletingSector = false
+
+        const backendMessage =
+          err?.error?.message ||
+          err?.error?.title ||
+          err?.error ||
+          null
+
+        console.error('Failed to delete sector', err)
+
+        if (typeof backendMessage === 'string' && backendMessage.trim()) {
+          alert(backendMessage)
+        } else {
+          alert('You cannot delete this sector because there are seats assigned to it. Please reassign or delete those seats before deleting the sector.')
+        }
+
+        this.cdr.markForCheck()
+      }
+    })
+  }
+
+  private findSectorById(sectorId: string): Sector | undefined {
+    return this.latestSectors.find(s => s.id === sectorId)
   }
 
 }
