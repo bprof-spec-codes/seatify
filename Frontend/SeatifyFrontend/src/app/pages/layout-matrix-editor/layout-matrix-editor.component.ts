@@ -7,7 +7,7 @@ import { MatrixCellVm } from '../../models/matrix-cell-vm';
 import { SeatService } from '../../services/seat.service';
 import { SeatType, UpdateSeatDto } from '../../models/seat';
 import { SeatMap } from '../../models/seat-map';
-import { Sector } from '../../models/sector';
+import { CreateUpdateSectorDto, Sector } from '../../models/sector';
 import { SectorService } from '../../services/sector.service';
 
 @Component({
@@ -46,6 +46,9 @@ export class LayoutMatrixEditorComponent implements OnInit {
   isSavingSeat = false
 
   sectors$!: Observable<Sector[]>;
+  isCreateSectorFormOpen = false
+  isCreatingSector = false
+
 
   constructor(
     private matrixService: LayoutMatrixService,
@@ -53,7 +56,7 @@ export class LayoutMatrixEditorComponent implements OnInit {
     private seatService: SeatService,
     private cdr: ChangeDetectorRef,
     private elementRef: ElementRef,
-    private sectorService: SectorService
+    private sectorService: SectorService,
   ) { }
 
   ngOnInit(): void {
@@ -467,4 +470,33 @@ export class LayoutMatrixEditorComponent implements OnInit {
     })
   }
 
+  openCreateSectorForm(): void {
+    this.isCreateSectorFormOpen = true
+    this.cdr.markForCheck()
+  }
+
+  closeCreateSectorForm(): void {
+    this.isCreateSectorFormOpen = false
+    this.cdr.markForCheck()
+  }
+
+  createSector(dto: CreateUpdateSectorDto): void {
+    if (!this.auditoriumId || this.isCreatingSector) return
+
+    this.isCreatingSector = true
+
+    this.sectorService.createSector(this.auditoriumId, dto).subscribe({
+      next: () => {
+        this.isCreatingSector = false
+        this.isCreateSectorFormOpen = false
+        this.cdr.markForCheck()
+      },
+      error: err => {
+        this.isCreatingSector = false
+        console.error('Failed to create sector', err)
+        this.cdr.markForCheck()
+      }
+    })
+  }
+  
 }

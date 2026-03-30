@@ -1,4 +1,4 @@
-<div class="sector-field">
+<div class="sector-editor">
     <h3 class="seat-panel__title">Sector</h3>
 
     <div class="sector-list">
@@ -23,6 +23,52 @@
                 <span class="sector-item__price">{{ sector.basePrice | number:'1.0-0' }} Ft</span>
             </span>
         </button>
+
+        <ng-container *ngIf="!isCreateFormOpen; else createFormBlock">
+            <button type="button" class="sector-item sector-item--add" [disabled]="disabled" (click)="openCreateForm()">
+                <span class="sector-item__plus">+</span>
+            </button>
+        </ng-container>
+
+        <ng-template #createFormBlock>
+            <form class="sector-item sector-item--form" [formGroup]="createForm" (ngSubmit)="submitCreate()">
+
+                <div class="sector-form__field">
+                    <label for="sectorName">Name</label>
+                    <input id="sectorName" type="text" formControlName="name" />
+
+                    <div class="field-error" *ngIf="nameControl?.touched && nameControl?.invalid">
+                        <span *ngIf="nameControl?.errors?.['required']">Name is required.</span>
+                        <span *ngIf="nameControl?.errors?.['maxlength']">Name is too long.</span>
+                    </div>
+                </div>
+
+                <div class="sector-form__field">
+                    <label for="sectorColor">Color</label>
+                    <input id="sectorColor" type="color" formControlName="color" />
+                </div>
+
+                <div class="sector-form__field">
+                    <label for="sectorBasePrice">Base price</label>
+                    <input id="sectorBasePrice" type="number" min="0" formControlName="basePrice" />
+
+                    <div class="field-error" *ngIf="basePriceControl?.touched && basePriceControl?.invalid">
+                        <span *ngIf="basePriceControl?.errors?.['required']">Base price is required.</span>
+                        <span *ngIf="basePriceControl?.errors?.['min']">Base price must be at least 0.</span>
+                    </div>
+                </div>
+
+                <div class="sector-form__actions">
+                    <button type="submit" [disabled]="createForm.invalid || isCreatingSector">
+                        Create
+                    </button>
+
+                    <button type="button" (click)="cancelCreate()" [disabled]="isCreatingSector">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </ng-template>
     </div>
 
     <button type="button" class="sector-apply-button" [disabled]="disabled" (click)="applyToSelected()">

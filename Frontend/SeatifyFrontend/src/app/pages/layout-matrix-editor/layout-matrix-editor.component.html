@@ -116,9 +116,17 @@
         <app-seat-editor [cell]="selectedCell" [isSaving]="isSavingSeat"
           (save)="saveSeat($event)">
         </app-seat-editor>
-        <app-sector-editor *ngIf="selectedCell" [sectors]="(sectors$ | async) ?? []"
-          [selectedSectorId]="selectedCell.sectorId ?? null" [disabled]="isSavingSeat"
-          (applySector)="applySectorToSelectedSeat($event)">
+
+        <app-sector-editor
+          [sectors]="(sectors$ | async) ?? []"
+          [selectedSectorId]="selectedCell?.sectorId ?? null"
+          [disabled]="isSavingSeat"
+          [isCreateFormOpen]="isCreateSectorFormOpen"
+          [isCreatingSector]="isCreatingSector"
+          (applySector)="applySectorToSelectedSeat($event)"
+          (createClicked)="openCreateSectorForm()"
+          (createCancelled)="closeCreateSectorForm()"
+          (createSubmitted)="createSector($event)">
         </app-sector-editor>
       </ng-container>
 
