@@ -20,7 +20,7 @@ namespace Api.Controllers
         public IActionResult GetById(string id)
         {
             var res = _service.GetById(id);
-            if (res == null) return NotFound();
+            if (res == null) return NotFound(new { message = "Reservation not found" });
             return Ok(res);
         }
 
@@ -46,7 +46,7 @@ namespace Api.Controllers
         public IActionResult Update(string reservationId, [FromBody] ReservationUpdateDto dto)
         {
             var success = _service.UpdateReservation(reservationId, dto);
-            if (!success) return NotFound();
+            if (!success) return NotFound(new { message = "Reservation not found" });
             return Ok(new { message = "Reservation updated successfully." });
         }
 
@@ -55,7 +55,7 @@ namespace Api.Controllers
         public IActionResult Delete(string reservationId)
         {
             var success = _service.DeleteReservation(reservationId);
-            if (!success) return NotFound();
+            if (!success) return NotFound(new { message = "Reservation not found" });
             return Ok(new { message = "Reservation deleted successfully." });
         }
     }
