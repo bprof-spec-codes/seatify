@@ -13,6 +13,7 @@ import { AuditoriumDashboardComponent } from './pages/auditorium-dashboard/audit
 import { VenueFormComponent } from './pages/venue-form/venue-form.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CheckoutComponent } from './pages/checkout/checkout.component';
+import { EventsPageComponent } from './pages/events-page/events-page.component';
 
 @NgModule({
   declarations: [
@@ -25,6 +26,7 @@ import { CheckoutComponent } from './pages/checkout/checkout.component';
     AuditoriumDashboardComponent,
     VenueFormComponent,
     CheckoutComponent,
+    EventsPageComponent,
   ],
   imports: [
     BrowserModule,
