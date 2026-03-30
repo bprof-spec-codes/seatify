@@ -46,18 +46,6 @@
                   {{ event.venueName }}
                 </ng-template>
               </span>
-
-              <span class="meta-item">
-                <i class="bi bi-people"></i>
-
-                <ng-container *ngIf="event.totalTickets > 0; else soldOnly">
-                  {{ event.soldTickets }} / {{ event.totalTickets }} tickets sold
-                </ng-container>
-
-                <ng-template #soldOnly>
-                  {{ event.soldTickets }} tickets sold
-                </ng-template>
-              </span>
             </div>
 
             <div class="occurrence-section">
@@ -68,41 +56,58 @@
               </p>
 
               <div class="occurrence-list" *ngIf="event.occurrences.length > 0">
-                <span
+                <button
+                  type="button"
                   class="occurrence-badge"
+                  [class.occurrence-badge-selected]="isOccurrenceSelected(event, occurrence)"
                   *ngFor="let occurrence of event.occurrences; trackBy: trackByOccurrenceId"
+                  (click)="selectOccurrence(event, occurrence)"
                 >
                   <i class="bi bi-calendar-event"></i>
                   {{ occurrence.startsAtUtc | date:'MMMM d, HH:mm' }}
-                </span>
+                </button>
               </div>
             </div>
-          </div>
 
-          <div class="event-actions">
-            <button
-              type="button"
-              class="btn btn-primary action-button"
-              (click)="editSeatMap(event)"
+            <div
+              class="occurrence-actions-panel"
+              *ngIf="getSelectedOccurrence(event) as selectedOccurrence"
             >
-              Edit Seat Map
-            </button>
+              <div class="occurrence-actions-header">
+                <div>
+                  <p class="occurrence-actions-label mb-1">Selected occurrence</p>
+                  <strong>
+                    {{ selectedOccurrence.startsAtUtc | date:'MMMM d, y, HH:mm' }}
+                  </strong>
+                </div>
+              </div>
 
-            <button
-              type="button"
-              class="btn btn-outline-secondary action-button"
-              (click)="editDetails(event)"
-            >
-              Edit Details
-            </button>
+              <div class="occurrence-actions">
+                <button
+                  type="button"
+                  class="btn btn-primary action-button"
+                  (click)="editSeatMap(event, selectedOccurrence)"
+                >
+                  Edit Seat Map
+                </button>
 
-            <button
-              type="button"
-              class="btn btn-outline-secondary action-button"
-              (click)="viewPublicPage(event)"
-            >
-              View Public Page
-            </button>
+                <button
+                  type="button"
+                  class="btn btn-outline-secondary action-button"
+                  (click)="editDetails(event, selectedOccurrence)"
+                >
+                  Edit Details
+                </button>
+
+                <button
+                  type="button"
+                  class="btn btn-outline-secondary action-button"
+                  (click)="viewPublicPage(event, selectedOccurrence)"
+                >
+                  View Public Page
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </article>

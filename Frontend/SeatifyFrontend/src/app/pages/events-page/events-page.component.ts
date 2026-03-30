@@ -1,19 +1,37 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 import { EventCard, EventCardOccurrence } from '../../models/event-card';
 import { EventService } from '../../services/event.service';
+
+interface CreateEventForm {
+  name: string;
+  slug: string;
+  description: string;
+  status: string;
+}
 
 @Component({
   selector: 'app-events-page',
   standalone: false,
   templateUrl: './events-page.component.html',
-  styleUrls: ['./events-page.component.sass'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  styleUrls: ['./events-page.component.sass']
 })
 export class EventsPageComponent implements OnInit, OnDestroy {
   events: EventCard[] = [];
   isLoading = false;
   errorMessage = '';
+
+  selectedOccurrenceIds: Record<string, string> = {};
+
+  isCreateEventModalOpen = false;
+  isSubmittingCreateEvent = false;
+
+  createEventForm: CreateEventForm = {
+    name: '',
+    slug: '',
+    description: '',
+    status: 'Published'
+  };
 
   private readonly destroy$ = new Subject<void>();
 
@@ -28,6 +46,13 @@ export class EventsPageComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  @HostListener('document:keydown.escape')
+  onEscapePressed(): void {
+    if (this.isCreateEventModalOpen && !this.isSubmittingCreateEvent) {
+      this.closeCreateEventModal();
+    }
+  }
+
   loadEvents(): void {
     this.isLoading = true;
     this.errorMessage = '';
@@ -38,6 +63,7 @@ export class EventsPageComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (events) => {
           this.events = events;
+          this.initializeSelections(events);
           this.isLoading = false;
         },
         error: (error: Error) => {
@@ -45,6 +71,41 @@ export class EventsPageComponent implements OnInit, OnDestroy {
           this.isLoading = false;
         }
       });
+  }
+
+  private initializeSelections(events: EventCard[]): void {
+    const nextSelections: Record<string, string> = {};
+
+    for (const event of events) {
+      const currentSelectedId = this.selectedOccurrenceIds[event.id];
+      const existsInList = event.occurrences.some(o => o.id === currentSelectedId);
+
+      if (existsInList && currentSelectedId) {
+        nextSelections[event.id] = currentSelectedId;
+      } else if (event.occurrences.length > 0) {
+        nextSelections[event.id] = event.occurrences[0].id;
+      }
+    }
+
+    this.selectedOccurrenceIds = nextSelections;
+  }
+
+  selectOccurrence(event: EventCard, occurrence: EventCardOccurrence): void {
+    this.selectedOccurrenceIds[event.id] = occurrence.id;
+  }
+
+  isOccurrenceSelected(event: EventCard, occurrence: EventCardOccurrence): boolean {
+    return this.selectedOccurrenceIds[event.id] === occurrence.id;
+  }
+
+  getSelectedOccurrence(event: EventCard): EventCardOccurrence | null {
+    const selectedOccurrenceId = this.selectedOccurrenceIds[event.id];
+
+    if (!selectedOccurrenceId) {
+      return null;
+    }
+
+    return event.occurrences.find(o => o.id === selectedOccurrenceId) ?? null;
   }
 
   trackByEventId(index: number, event: EventCard): string {
@@ -56,18 +117,67 @@ export class EventsPageComponent implements OnInit, OnDestroy {
   }
 
   addEvent(): void {
-    console.log('TODO: open create event page or modal');
+    this.resetCreateEventForm();
+    this.isCreateEventModalOpen = true;
   }
 
-  editSeatMap(event: EventCard): void {
-    console.log('TODO: navigate to seat map editor', event.id);
+  closeCreateEventModal(): void {
+    this.isCreateEventModalOpen = false;
   }
 
-  editDetails(event: EventCard): void {
-    console.log('TODO: navigate to event details editor', event.id);
+  onModalBackdropClick(event: MouseEvent): void {
+    if (event.target === event.currentTarget && !this.isSubmittingCreateEvent) {
+      this.closeCreateEventModal();
+    }
   }
 
-  viewPublicPage(event: EventCard): void {
-    console.log('TODO: navigate to public event page', event.slug);
+  submitCreateEvent(): void {
+    if (!this.createEventForm.name.trim() || !this.createEventForm.slug.trim()) {
+      return;
+    }
+
+    this.isSubmittingCreateEvent = true;
+
+    // TODO: ha lesz backend POST /api/event endpoint,
+    // ide kell bekötni a service hívást.
+    console.log('Create event payload:', {
+      name: this.createEventForm.name.trim(),
+      slug: this.createEventForm.slug.trim(),
+      description: this.createEventForm.description.trim(),
+      status: this.createEventForm.status
+    });
+
+    this.isSubmittingCreateEvent = false;
+    this.closeCreateEventModal();
+  }
+
+  private resetCreateEventForm(): void {
+    this.createEventForm = {
+      name: '',
+      slug: '',
+      description: '',
+      status: 'Published'
+    };
+  }
+
+  editSeatMap(event: EventCard, occurrence: EventCardOccurrence): void {
+    console.log('TODO: navigate to seat map editor', {
+      eventId: event.id,
+      occurrenceId: occurrence.id
+    });
+  }
+
+  editDetails(event: EventCard, occurrence: EventCardOccurrence): void {
+    console.log('TODO: navigate to occurrence details editor', {
+      eventId: event.id,
+      occurrenceId: occurrence.id
+    });
+  }
+
+  viewPublicPage(event: EventCard, occurrence: EventCardOccurrence): void {
+    console.log('TODO: navigate to public occurrence page', {
+      slug: event.slug,
+      occurrenceId: occurrence.id
+    });
   }
 }

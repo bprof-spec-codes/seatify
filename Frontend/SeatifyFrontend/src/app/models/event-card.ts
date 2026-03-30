@@ -13,7 +13,5 @@ export interface EventCard {
   status: string;
   venueName: string;
   auditoriumName: string;
-  soldTickets: number;
-  totalTickets: number;
   occurrences: EventCardOccurrence[];
 }
