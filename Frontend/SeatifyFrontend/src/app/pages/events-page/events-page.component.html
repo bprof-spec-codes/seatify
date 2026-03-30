@@ -1,102 +1,111 @@
 <section class="events-page">
-    <div class="container py-4 py-lg-5">
-        <div class="page-header">
-            <div>
-                <h1 class="page-title">Events</h1>
-                <p class="page-subtitle mb-0">Manage your event catalog and schedules</p>
-            </div>
+  <div class="container py-4 py-lg-5">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Events</h1>
+        <p class="page-subtitle">Manage your event catalog and schedules</p>
+      </div>
 
-            <button type="button" class="btn btn-primary add-button" (click)="addEvent()">
-                <i class="bi bi-plus-lg"></i>
-                Add New Event
-            </button>
-        </div>
-
-        @if (isLoading)
-        {
-            <div class="status-card">
-                Loading events from backend...
-            </div>
-        }
-        @else if (errorMessage)
-        {
-            <div class="status-card status-card-error">
-                {{ errorMessage }}
-            </div>
-        }
-        @else if (events.length === 0)
-        {
-            <div class="status-card">
-                No events found.
-            </div>
-        }
-        @else
-        {
-            <div class="events-list">
-                @for (event of events; track event.id)
-                {
-                    <article class="event-card">
-                        <div class="event-content">
-                            <div class="event-main">
-                                <h2 class="event-title">{{ event.title }}</h2>
-                                <p class="event-description">{{ event.description }}</p>
-
-                                <div class="event-meta">
-                                    <span class="meta-item">
-                                        <i class="bi bi-geo-alt"></i>
-                                        @if (event.auditoriumName)
-                                        {
-                                            {{ event.venueName }} - {{ event.auditoriumName }}
-                                        }
-                                        @else
-                                        {
-                                            {{ event.venueName }}
-                                        }
-                                    </span>
-
-                                    <span class="meta-item">
-                                        <i class="bi bi-people"></i>
-                                        {{ event.soldTickets }} / {{ event.totalTickets }} tickets sold
-                                    </span>
-                                </div>
-
-                                <div class="occurrence-section">
-                                    <h3 class="occurrence-title">Occurrences:</h3>
-
-                                    @if (event.occurrences.length === 0)
-                                    {
-                                        <p class="empty-occurrences mb-0">No occurrences available yet.</p>
-                                    }
-                                    @else
-                                    {
-                                        <div class="occurrence-list">
-                                            @for (occurrence of event.occurrences; track occurrence.id)
-                                            {
-                                                <span class="occurrence-badge">
-                                                    <i class="bi bi-calendar-event"></i>
-                                                    {{ occurrence.startsAtUtc | date:'MMMM d, HH:mm' }}
-                                                </span>
-                                            }
-                                        </div>
-                                    }
-                                </div>
-                            </div>
-
-                            <div class="event-actions">
-                                <button type="button" class="btn btn-primary action-button" (click)="editSeatMap(event)">
-                                    Edit Seat Map
-                                </button>
-                                <button type="button" class="btn btn-outline-secondary action-button" (click)="editDetails(event)">
-                                    Edit Details
-                                </button>
-                                <button type="button" class="btn btn-outline-secondary action-button" (click)="viewPublicPage(event)">
-                                    View Public Page
-                                </button>
-                            </div>
-                        </div>
-                    </article>
-                }
-            </div>
-        }
+      <button type="button" class="btn btn-primary add-button" (click)="addEvent()">
+        <i class="bi bi-plus-lg"></i>
+        <span>Add New Event</span>
+      </button>
     </div>
+
+    <div class="status-card" *ngIf="isLoading">
+      Loading events from backend...
+    </div>
+
+    <div class="status-card status-card-error" *ngIf="!isLoading && errorMessage">
+      {{ errorMessage }}
+    </div>
+
+    <div class="status-card" *ngIf="!isLoading && !errorMessage && events.length === 0">
+      No events found.
+    </div>
+
+    <div class="events-list" *ngIf="!isLoading && !errorMessage && events.length > 0">
+      <article class="event-card" *ngFor="let event of events; trackBy: trackByEventId">
+        <div class="event-content">
+          <div class="event-main">
+            <h2 class="event-title">{{ event.title }}</h2>
+
+            <p class="event-description">
+              {{ event.description || 'No description available.' }}
+            </p>
+
+            <div class="event-meta">
+              <span class="meta-item">
+                <i class="bi bi-geo-alt"></i>
+
+                <ng-container *ngIf="event.auditoriumName; else venueOnly">
+                  {{ event.venueName }} - {{ event.auditoriumName }}
+                </ng-container>
+
+                <ng-template #venueOnly>
+                  {{ event.venueName }}
+                </ng-template>
+              </span>
+
+              <span class="meta-item">
+                <i class="bi bi-people"></i>
+
+                <ng-container *ngIf="event.totalTickets > 0; else soldOnly">
+                  {{ event.soldTickets }} / {{ event.totalTickets }} tickets sold
+                </ng-container>
+
+                <ng-template #soldOnly>
+                  {{ event.soldTickets }} tickets sold
+                </ng-template>
+              </span>
+            </div>
+
+            <div class="occurrence-section">
+              <h3 class="occurrence-title">Occurrences:</h3>
+
+              <p class="empty-occurrences" *ngIf="event.occurrences.length === 0">
+                No occurrences available yet.
+              </p>
+
+              <div class="occurrence-list" *ngIf="event.occurrences.length > 0">
+                <span
+                  class="occurrence-badge"
+                  *ngFor="let occurrence of event.occurrences; trackBy: trackByOccurrenceId"
+                >
+                  <i class="bi bi-calendar-event"></i>
+                  {{ occurrence.startsAtUtc | date:'MMMM d, HH:mm' }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="event-actions">
+            <button
+              type="button"
+              class="btn btn-primary action-button"
+              (click)="editSeatMap(event)"
+            >
+              Edit Seat Map
+            </button>
+
+            <button
+              type="button"
+              class="btn btn-outline-secondary action-button"
+              (click)="editDetails(event)"
+            >
+              Edit Details
+            </button>
+
+            <button
+              type="button"
+              class="btn btn-outline-secondary action-button"
+              (click)="viewPublicPage(event)"
+            >
+              View Public Page
+            </button>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
 </section>
