@@ -23,6 +23,8 @@ export class SectorService {
     )
   }
 
+  
+
   setSectors(sectors: Sector[]): void {
     this.SectorSource.next(sectors)
   }

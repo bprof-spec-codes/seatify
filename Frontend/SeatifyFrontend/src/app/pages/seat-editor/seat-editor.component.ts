@@ -11,82 +11,74 @@ import { Sector } from '../../models/sector';
   styleUrl: './seat-editor.component.sass'
 })
 export class SeatEditorComponent implements OnInit, OnChanges {
-  @Input() cell: MatrixCellVm | null = null
-  @Input() isSaving = false
-  @Input() sectors: Sector[] = []
+  @Input() cell: MatrixCellVm | null = null;
+  @Input() isSaving = false;
 
-  @Output() save = new EventEmitter<UpdateSeatDto>()
+  @Output() save = new EventEmitter<UpdateSeatDto>();
 
-  form!: FormGroup
-  seatType = SeatType
+  form!: FormGroup;
+  seatType = SeatType;
 
   constructor(private fb: FormBuilder) { }
 
   ngOnInit(): void {
     this.form = this.fb.group({
       seatLabel: ['', [Validators.maxLength(20)]],
-      sectorId: [null],
       priceOverride: [null, [Validators.min(0), Validators.max(999999)]],
       seatType: [this.seatType.Seat, [Validators.required]]
-    })
+    });
 
-    this.applyCell()
+    this.applyCell();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (!this.form) return
+    if (!this.form) return;
 
     if (changes['cell']) {
-      this.applyCell()
+      this.applyCell();
     }
   }
 
   private applyCell(): void {
-    const cell = this.cell
+    const cell = this.cell;
 
     if (!cell) {
       this.form.reset({
         seatLabel: '',
-        sectorId: null,
         priceOverride: null,
         seatType: SeatType.Seat
-      }, { emitEvent: false })
+      }, { emitEvent: false });
 
-      return
+      return;
     }
 
     this.form.patchValue({
       seatLabel: cell.seatLabel ?? '',
-      sectorId: cell.sectorId ?? null,
       priceOverride: cell.priceOverride ?? null,
       seatType: cell.seatType
-    }, { emitEvent: false })
+    }, { emitEvent: false });
   }
 
   submit(): void {
-    if (!this.cell?.seatId) return
+    if (!this.cell?.seatId) return;
 
     if (this.form.invalid) {
-      this.form.markAllAsTouched()
-      return
+      this.form.markAllAsTouched();
+      return;
     }
 
-    const raw = this.form.getRawValue()
+    const raw = this.form.getRawValue();
 
     this.save.emit({
       seatLabel: raw.seatLabel?.trim() || null,
-      sectorId: raw.sectorId || null,
+      sectorId: this.cell?.sectorId ?? null,
       priceOverride: raw.priceOverride === '' || raw.priceOverride === null ? null : Number(raw.priceOverride),
       seatType: raw.seatType
-    })
-  }
-  
-  setSeatType(type: SeatType): void {
-    this.form.get('seatType')?.setValue(type);
+    });
   }
 
-  trackBySectorId(index: number, sector: Sector): string {
-    return sector.id;
+  setSeatType(type: SeatType): void {
+    this.form.get('seatType')?.setValue(type);
   }
 
   get seatLabelControl() {

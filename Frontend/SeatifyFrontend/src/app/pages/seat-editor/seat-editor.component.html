@@ -25,16 +25,6 @@
             </div>
 
             <div class="seat-panel__section">
-                <label for="seatSector">Sector</label>
-                <select id="seatSector" formControlName="sectorId">
-                    <option [ngValue]="null">No sector</option>
-                    <option *ngFor="let sector of sectors; trackBy: trackBySectorId" [ngValue]="sector.id">
-                        {{ sector.name }} ({{ sector.basePrice }})
-                    </option>
-                </select>
-            </div>
-
-            <div class="seat-panel__section">
                 <label for="priceOverride">Price override</label>
                 <input id="priceOverride" type="number" min="0" formControlName="priceOverride" />
 

@@ -113,8 +113,13 @@
       <h2 class="panel-title">Properties & Tools</h2>
 
       <ng-container *ngIf="selectedCell as cell; else noCellSelected">
-        <app-seat-editor [cell]="selectedCell" [sectors]="(sectors$ | async) ?? []" [isSaving]="isSavingSeat" (save)="saveSeat($event)">
+        <app-seat-editor [cell]="selectedCell" [isSaving]="isSavingSeat"
+          (save)="saveSeat($event)">
         </app-seat-editor>
+        <app-sector-editor *ngIf="selectedCell" [sectors]="(sectors$ | async) ?? []"
+          [selectedSectorId]="selectedCell.sectorId ?? null" [disabled]="isSavingSeat"
+          (applySector)="applySectorToSelectedSeat($event)">
+        </app-sector-editor>
       </ng-container>
 
       <ng-template #noCellSelected>

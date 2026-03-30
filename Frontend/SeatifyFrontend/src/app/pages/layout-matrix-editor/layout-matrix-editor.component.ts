@@ -45,7 +45,7 @@ export class LayoutMatrixEditorComponent implements OnInit {
   seatEditModel: UpdateSeatDto | null = null
   isSavingSeat = false
 
-   sectors$!: Observable<Sector[]>;
+  sectors$!: Observable<Sector[]>;
 
   constructor(
     private matrixService: LayoutMatrixService,
@@ -423,6 +423,45 @@ export class LayoutMatrixEditorComponent implements OnInit {
       error: err => {
         this.isSavingSeat = false
         console.error('Failed to update seat', err)
+        this.cdr.markForCheck()
+      }
+    })
+  }
+
+  applySectorToSelectedSeat(sectorId: string | null): void {
+    const cell = this.selectedCell
+    if (!cell?.seatId || this.isSavingSeat) return
+
+    this.isSavingSeat = true
+
+    const dto: UpdateSeatDto = {
+      seatLabel: cell.seatLabel ?? null,
+      sectorId,
+      priceOverride: cell.priceOverride ?? null,
+      seatType: cell.seatType
+    }
+
+    this.seatService.updateSeat(cell.seatId, dto).subscribe({
+      next: updatedSeat => {
+        this.isSavingSeat = false
+
+        this.gridCells = this.gridCells.map(c =>
+          c.seatId === updatedSeat.id
+            ? {
+              ...c,
+              seatLabel: updatedSeat.seatLabel ?? null,
+              seatType: updatedSeat.seatType,
+              sectorId: updatedSeat.sectorId ?? null,
+              priceOverride: updatedSeat.priceOverride ?? null
+            }
+            : c
+        )
+
+        this.cdr.markForCheck()
+      },
+      error: err => {
+        this.isSavingSeat = false
+        console.error('Failed to update seat sector', err)
         this.cdr.markForCheck()
       }
     })

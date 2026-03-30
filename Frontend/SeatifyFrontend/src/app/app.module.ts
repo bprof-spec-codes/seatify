@@ -11,12 +11,13 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { ConfirmMessageComponent } from './helpers/confirm-message/confirm-message.component';
 import { AuditoriumDashboardComponent } from './pages/auditorium-dashboard/auditorium-dashboard.component';
 import { LayoutMatrixEditorComponent } from './pages/layout-matrix-editor/layout-matrix-editor.component';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DecimalPipe } from '@angular/common';
 import { LayoutMatrixFormComponent } from './pages/layout-matrix-form/layout-matrix-form.component';
 import { SeatEditorComponent } from './pages/seat-editor/seat-editor.component';
 import { VenueFormComponent } from './pages/venue-form/venue-form.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CheckoutComponent } from './pages/checkout/checkout.component';
+import { SectorEditorComponent } from './pages/sector-editor/sector-editor.component';
 
 @NgModule({
   declarations: [
@@ -32,12 +33,14 @@ import { CheckoutComponent } from './pages/checkout/checkout.component';
     LayoutMatrixEditorComponent,
     LayoutMatrixFormComponent,
     SeatEditorComponent,
+    SectorEditorComponent,
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     ReactiveFormsModule,
     CommonModule,
+    DecimalPipe,
   ],
   providers: [
     provideHttpClient(withInterceptors([]))

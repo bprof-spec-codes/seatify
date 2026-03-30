@@ -1,0 +1,77 @@
+:host
+    display: block
+
+.sector-field
+    display: flex
+    flex-direction: column
+    gap: 0.75rem
+
+.sector-list
+    display: flex
+    flex-direction: column
+    gap: 0.5rem
+
+.sector-item
+    display: flex
+    align-items: center
+    gap: 0.75rem
+    width: 100%
+    padding: 0.75rem
+    border: 1px solid #dee2e6
+    border-radius: 0.75rem
+    background: #fff
+    cursor: pointer
+    text-align: left
+    transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease
+
+    &:hover:not(:disabled)
+        background: #f8f9fa
+        border-color: #adb5bd
+
+    &:disabled
+        opacity: 0.65
+        cursor: not-allowed
+
+.sector-item--selected
+    border-color: #0d6efd
+    box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.15)
+    background: #eef6ff
+
+.sector-item__icon
+    width: 14px
+    height: 14px
+    border-radius: 999px
+    flex-shrink: 0
+    border: 1px solid rgba(0, 0, 0, 0.12)
+
+.sector-item__icon--empty
+    background: #ffffff
+    border: 1px dashed #adb5bd
+
+.sector-item__content
+    display: flex
+    flex-direction: column
+    gap: 0.1rem
+
+.sector-item__name
+    font-size: 0.92rem
+    font-weight: 600
+    color: #212529
+
+.sector-item__price
+    font-size: 0.82rem
+    color: #6c757d
+
+.sector-apply-button
+    width: 100%
+    padding: 0.6rem 0.8rem
+    border-radius: 0.5rem
+    border: 1px solid #0d6efd
+    background: #0d6efd
+    color: #fff
+    cursor: pointer
+    font-size: 0.9rem
+
+    &:disabled
+        opacity: 0.65
+        cursor: not-allowed

@@ -1,0 +1,31 @@
+<div class="sector-field">
+    <h3 class="seat-panel__title">Sector</h3>
+
+    <div class="sector-list">
+        <button type="button" class="sector-item" [class.sector-item--selected]="pendingSectorId === null"
+            [disabled]="disabled" (click)="selectSector(null)">
+            <span class="sector-item__icon sector-item__icon--empty"></span>
+
+            <span class="sector-item__content">
+                <span class="sector-item__name">No sector</span>
+                <span class="sector-item__price">No assigned base price</span>
+            </span>
+        </button>
+
+        <button type="button" class="sector-item" *ngFor="let sector of sectors; trackBy: trackBySectorId"
+            [class.sector-item--selected]="pendingSectorId === sector.id" [disabled]="disabled"
+            (click)="selectSector(sector.id)">
+            <span class="sector-item__icon" [style.backgroundColor]="sector.color">
+            </span>
+
+            <span class="sector-item__content">
+                <span class="sector-item__name">{{ sector.name }}</span>
+                <span class="sector-item__price">{{ sector.basePrice | number:'1.0-0' }} Ft</span>
+            </span>
+        </button>
+    </div>
+
+    <button type="button" class="sector-apply-button" [disabled]="disabled" (click)="applyToSelected()">
+        Apply to selected
+    </button>
+</div>
