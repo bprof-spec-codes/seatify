@@ -20,6 +20,6 @@ export interface SectorViewDto {
     name: string
     color: string
     basePrice: number
-    createdAtUtc: Date
-    updatedAtUtc: Date
+    createdAtUtc: string
+    updatedAtUtc: string
 }

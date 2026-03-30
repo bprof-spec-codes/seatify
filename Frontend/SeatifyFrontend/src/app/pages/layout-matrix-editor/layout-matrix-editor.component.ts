@@ -59,7 +59,7 @@ export class LayoutMatrixEditorComponent implements OnInit {
   ngOnInit(): void {
     this.auditoriumId = this.route.snapshot.paramMap.get('auditoriumId') ?? 'aud-id-01';
     this.matrices$ = this.matrixService.LayoutMatrix$
-    this.sectors$ = this.sectorService.Sector$;
+    this.sectors$ = this.sectorService.sector$;
 
     this.sectorService.getSectorsByAuditoriumId(this.auditoriumId).subscribe()
 
