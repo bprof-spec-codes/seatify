@@ -1,0 +1,36 @@
+<form class="sector-form" [formGroup]="form" (ngSubmit)="submit()">
+  <div class="sector-form__field">
+    <label for="sectorName">Name</label>
+    <input id="sectorName" type="text" formControlName="name" />
+
+    <div class="field-error" *ngIf="nameControl?.touched && nameControl?.invalid">
+      <span *ngIf="nameControl?.errors?.['required']">Name is required.</span>
+      <span *ngIf="nameControl?.errors?.['maxlength']">Name is too long.</span>
+    </div>
+  </div>
+
+  <div class="sector-form__field">
+    <label for="sectorColor">Color</label>
+    <input id="sectorColor" type="color" formControlName="color" />
+  </div>
+
+  <div class="sector-form__field">
+    <label for="sectorBasePrice">Base price</label>
+    <input id="sectorBasePrice" type="number" min="0" formControlName="basePrice" />
+
+    <div class="field-error" *ngIf="basePriceControl?.touched && basePriceControl?.invalid">
+      <span *ngIf="basePriceControl?.errors?.['required']">Base price is required.</span>
+      <span *ngIf="basePriceControl?.errors?.['min']">Base price must be at least 0.</span>
+    </div>
+  </div>
+
+  <div class="sector-form__actions">
+    <button type="submit" [disabled]="form.invalid || isSubmitting">
+      {{ submitLabel }}
+    </button>
+
+    <button type="button" (click)="cancel()" [disabled]="isSubmitting">
+      Cancel
+    </button>
+  </div>
+</form>

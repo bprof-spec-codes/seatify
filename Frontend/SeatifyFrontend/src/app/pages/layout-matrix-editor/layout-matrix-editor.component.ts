@@ -49,6 +49,9 @@ export class LayoutMatrixEditorComponent implements OnInit {
   isCreateSectorFormOpen = false
   isCreatingSector = false
 
+  editingSectorId: string | null = null
+  isUpdatingSector = false
+
 
   constructor(
     private matrixService: LayoutMatrixService,
@@ -498,5 +501,35 @@ export class LayoutMatrixEditorComponent implements OnInit {
       }
     })
   }
-  
+
+  openEditSectorForm(sectorId: string): void {
+    this.isCreateSectorFormOpen = false
+    this.editingSectorId = sectorId
+    this.cdr.markForCheck()
+  }
+
+  closeEditSectorForm(): void {
+    this.editingSectorId = null
+    this.cdr.markForCheck()
+  }
+
+  updateSector(event: { id: string; dto: CreateUpdateSectorDto }): void {
+    if (this.isUpdatingSector) return
+
+    this.isUpdatingSector = true
+
+    this.sectorService.updateSector(event.id, event.dto).subscribe({
+      next: () => {
+        this.isUpdatingSector = false
+        this.editingSectorId = null
+        this.cdr.markForCheck()
+      },
+      error: err => {
+        this.isUpdatingSector = false
+        console.error('Failed to update sector', err)
+        this.cdr.markForCheck()
+      }
+    })
+  }
+
 }

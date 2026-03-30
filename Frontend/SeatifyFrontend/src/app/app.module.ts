@@ -18,6 +18,7 @@ import { VenueFormComponent } from './pages/venue-form/venue-form.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CheckoutComponent } from './pages/checkout/checkout.component';
 import { SectorEditorComponent } from './pages/sector-editor/sector-editor.component';
+import { SectorFormComponent } from './pages/sector-form/sector-form.component';
 
 @NgModule({
   declarations: [
@@ -34,6 +35,7 @@ import { SectorEditorComponent } from './pages/sector-editor/sector-editor.compo
     LayoutMatrixFormComponent,
     SeatEditorComponent,
     SectorEditorComponent,
+    SectorFormComponent,
   ],
   imports: [
     BrowserModule,

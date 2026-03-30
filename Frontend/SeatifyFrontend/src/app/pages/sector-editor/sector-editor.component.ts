@@ -13,37 +13,51 @@ export class SectorEditorComponent {
   @Input() sectors: Sector[] = []
   @Input() selectedSectorId: string | null = null
   @Input() disabled = false
+
   @Input() isCreateFormOpen = false
   @Input() isCreatingSector = false
 
+  @Input() editingSectorId: string | null = null
+  @Input() isUpdatingSector = false
+
   @Output() applySector = new EventEmitter<string | null>()
+
   @Output() createClicked = new EventEmitter<void>()
   @Output() createCancelled = new EventEmitter<void>()
   @Output() createSubmitted = new EventEmitter<CreateUpdateSectorDto>()
 
+  @Output() editClicked = new EventEmitter<string>()
+  @Output() editCancelled = new EventEmitter<void>()
+  @Output() editSubmitted = new EventEmitter<{ id: string; dto: CreateUpdateSectorDto }>()
+
   pendingSectorId: string | null = null
-  createForm!: FormGroup
-
-  constructor(private fb: FormBuilder) { }
-
-  ngOnInit(): void {
-    this.createForm = this.fb.group({
-      name: ['', [Validators.required, Validators.maxLength(50)]],
-      color: ['#FFFFFF', [Validators.required]],
-      basePrice: [0, [Validators.required, Validators.min(0)]]
-    })
-  }
+  editingSectorInitialValue: CreateUpdateSectorDto | null = null
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['selectedSectorId']) {
       this.pendingSectorId = this.selectedSectorId ?? null
     }
 
-    if (changes['isCreateFormOpen'] && this.createForm) {
-      if (this.isCreateFormOpen) {
-        this.resetCreateForm()
-      }
+    if (changes['editingSectorId'] || changes['sectors']) {
+      this.syncEditingSectorInitialValue()
     }
+  }
+
+  private syncEditingSectorInitialValue(): void {
+    if (!this.editingSectorId) {
+      this.editingSectorInitialValue = null
+      return
+    }
+
+    const sector = this.sectors.find(s => s.id === this.editingSectorId)
+
+    this.editingSectorInitialValue = sector
+      ? {
+        name: sector.name,
+        color: sector.color,
+        basePrice: sector.basePrice
+      }
+      : null
   }
 
   selectSector(sectorId: string | null): void {
@@ -65,41 +79,33 @@ export class SectorEditorComponent {
     this.createCancelled.emit()
   }
 
-  submitCreate(): void {
-    if (this.createForm.invalid) {
-      this.createForm.markAllAsTouched()
-      return
-    }
+  submitCreate(dto: CreateUpdateSectorDto): void {
+    this.createSubmitted.emit(dto)
+  }
 
-    const raw = this.createForm.getRawValue();
+  openEditForm(sectorId: string): void {
+    if (this.disabled) return
+    this.editClicked.emit(sectorId)
+  }
 
-    this.createSubmitted.emit({
-      name: raw.name.trim(),
-      color: raw.color,
-      basePrice: Number(raw.basePrice)
+  cancelEdit(): void {
+    this.editCancelled.emit()
+  }
+
+  submitEdit(dto: CreateUpdateSectorDto): void {
+    if (!this.editingSectorId) return
+
+    this.editSubmitted.emit({
+      id: this.editingSectorId,
+      dto
     })
   }
 
-  private resetCreateForm(): void {
-    this.createForm.reset(
-      {
-        name: '',
-        color: '#FFFFFF',
-        basePrice: 0
-      },
-      { emitEvent: false }
-    )
+  isEditing(sector: Sector): boolean {
+    return this.editingSectorId === sector.id
   }
 
   trackBySectorId(index: number, sector: Sector): string {
     return sector.id
-  }
-
-  get nameControl() {
-    return this.createForm.get('name')
-  }
-
-  get basePriceControl() {
-    return this.createForm.get('basePrice')
   }
 }

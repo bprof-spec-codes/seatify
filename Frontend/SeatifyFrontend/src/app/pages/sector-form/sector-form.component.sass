@@ -1,0 +1,51 @@
+.sector-form
+    display: flex
+    flex-direction: column
+    gap: 0.75rem
+    width: 100%
+
+.sector-form__field
+    display: flex
+    flex-direction: column
+    gap: 0.35rem
+
+    label
+        font-size: 0.85rem
+        font-weight: 600
+        color: #495057
+
+    input
+        padding: 0.55rem 0.7rem
+        border: 1px solid #ced4da
+        border-radius: 0.5rem
+        font-size: 0.9rem
+        background: #fff
+
+    input[type="color"]
+        padding: 0.2rem
+        height: 42px
+
+.field-error
+    font-size: 0.8rem
+    color: #dc3545
+
+.sector-form__actions
+    display: flex
+    gap: 0.5rem
+
+    button
+        flex: 1
+        padding: 0.55rem 0.7rem
+        border-radius: 0.5rem
+        border: 1px solid #ced4da
+        background: #fff
+        cursor: pointer
+
+        &:first-child
+            border-color: #0d6efd
+            background: #0d6efd
+            color: #fff
+
+        &:disabled
+            opacity: 0.65
+            cursor: not-allowed
