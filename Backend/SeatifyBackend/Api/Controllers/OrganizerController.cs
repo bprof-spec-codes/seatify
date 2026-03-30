@@ -29,7 +29,7 @@ namespace Api.Controllers
             }
             catch (ArgumentException ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new { message = ex.Message });
             }
         }
 
@@ -42,14 +42,14 @@ namespace Api.Controllers
 
                 if (result == null)
                 {
-                    return NotFound("Organizer profile not found.");
+                    return NotFound(new { message = "Organizer profile not found." });
                 }
 
                 return Ok(result);
             }
             catch (ArgumentException ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new { message = ex.Message });
             }
         }
 
@@ -61,13 +61,13 @@ namespace Api.Controllers
                 var result = await _organizerService.GetByIdAsync(id);
                 if (result == null)
                 {
-                    return NotFound("Organizer profile not found.");
+                    return NotFound(new { message = "Organizer profile not found." });
                 }
                 return Ok(result);      
             }
             catch (ArgumentException ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new { message = ex.Message });
             }
         }
 
@@ -85,7 +85,7 @@ namespace Api.Controllers
             }
             catch (ArgumentException ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new { message = ex.Message });
             }
         }
 
@@ -97,13 +97,13 @@ namespace Api.Controllers
                 var success = await _organizerService.DeleteAsync(id);
                 if (!success)
                 {
-                    return NotFound("Organizer profile not found.");
+                    return NotFound(new { message = "Organizer profile not found." });
                 }
                 return NoContent();
             }
             catch (ArgumentException ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new { message = ex.Message });
             }
         }
     }

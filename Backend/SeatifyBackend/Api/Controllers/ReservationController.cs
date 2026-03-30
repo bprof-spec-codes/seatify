@@ -37,8 +37,8 @@ namespace Api.Controllers
         public IActionResult Create(string eventOccurrenceId, [FromBody] ReservationCreateDto dto)
         {
             var success = _service.CreateReservation(eventOccurrenceId, dto);
-            if (!success) return BadRequest("Failed to create reservation.");
-            return Ok("Reservation created successfully.");
+            if (!success) return BadRequest(new { message = "Failed to create reservation." });
+            return Ok(new { message = "Reservation created successfully." });
         }
 
         // PUT /api/event-occurrences/{eventOccurrenceId}/reservations/{reservationId}
@@ -47,7 +47,7 @@ namespace Api.Controllers
         {
             var success = _service.UpdateReservation(reservationId, dto);
             if (!success) return NotFound();
-            return Ok("Reservation updated successfully.");
+            return Ok(new { message = "Reservation updated successfully." });
         }
 
         // DELETE /api/event-occurrences/{eventOccurrenceId}/reservations/{reservationId}
@@ -56,7 +56,7 @@ namespace Api.Controllers
         {
             var success = _service.DeleteReservation(reservationId);
             if (!success) return NotFound();
-            return Ok("Reservation deleted successfully.");
+            return Ok(new { message = "Reservation deleted successfully." });
         }
     }
 }

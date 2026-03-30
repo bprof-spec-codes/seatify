@@ -30,7 +30,7 @@ namespace Api.Controllers
             var occurrence = _service.GetById(id);
             if (occurrence == null)
             {
-                return NotFound($"EventOccurrence with ID {id} not found.");
+                return NotFound(new { message = $"EventOccurrence with ID {id} not found." });
             }
             return Ok(occurrence);
         }
@@ -49,16 +49,16 @@ namespace Api.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                return BadRequest(new { message = ModelState });
             }
 
             var isCreated = _service.Create(createDto);
             if (!isCreated)
             {
-                return BadRequest("Failed to create EventOccurrence.");
+                return BadRequest(new { message = "Failed to create EventOccurrence." });
             }
 
-            return Ok("EventOccurrence created successfully.");
+            return Ok(new { message = "EventOccurrence created successfully." });
         }
 
         // PUT /api/event-occurrences/{id}
@@ -67,16 +67,16 @@ namespace Api.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                return BadRequest(new { message = ModelState });
             }
 
             var isUpdated = _service.Update(id, updateDto);
             if (!isUpdated)
             {
-                return NotFound($"EventOccurrence with ID {id} not found or could not be updated.");
+                return NotFound(new { message = $"EventOccurrence with ID {id} not found or could not be updated." });
             }
 
-            return Ok("EventOccurrence updated successfully.");
+            return Ok(new { message = "EventOccurrence updated successfully." });
         }
 
         // DELETE /api/event-occurrences/{id}
@@ -86,10 +86,10 @@ namespace Api.Controllers
             var isDeleted = _service.Delete(id);
             if (!isDeleted)
             {
-                return NotFound($"EventOccurrence with ID {id} not found.");
+                return NotFound(new { message = $"EventOccurrence with ID {id} not found." });
             }
 
-            return Ok("EventOccurrence deleted successfully.");
+            return Ok(new { message = "EventOccurrence deleted successfully." });
         }
     }
 }
