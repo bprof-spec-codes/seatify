@@ -16,6 +16,6 @@ export class EventService {
   }
 
   updateEvent(eventrequest: EventRequest, id: number): Observable<EventResponse>{
-    return this.http.put<EventResponse>("http://localhost:4200/update-event/" + id, eventrequest);
+    return this.http.put<EventResponse>("http://localhost:4200/api/event-occurrences/" + id, eventrequest);
   }
 }
