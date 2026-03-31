@@ -16,6 +16,7 @@ import { CheckoutComponent } from './pages/checkout/checkout.component';
 import { EventsPageComponent } from './pages/events-page/events-page.component';
 import { OrganizerLayoutComponent } from './pages/organizer-layout/organizer-layout.component';
 import { OrganizerDashboardComponent } from './pages/organizer-dashboard/organizer-dashboard.component';
+import { AuditoriumFormComponent } from './pages/auditorium-form/auditorium-form.component';
 
 @NgModule({
   declarations: [
@@ -31,6 +32,7 @@ import { OrganizerDashboardComponent } from './pages/organizer-dashboard/organiz
     EventsPageComponent,
     OrganizerLayoutComponent,
     OrganizerDashboardComponent,
+    AuditoriumFormComponent,
   ],
   imports: [
     BrowserModule,
