@@ -4,4 +4,11 @@ export default interface EventRequest{
   startsAt: Date;
   endsAt: Date;
   basePrice: number;
+  //new fields bellow:
+  logoImageUrl?: string;
+  bannerImageUrl?: string;
+  themePreset?: string;
+  venueId?: string;
+  auditoriumId?: string;
+
 }

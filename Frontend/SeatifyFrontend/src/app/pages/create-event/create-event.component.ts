@@ -17,14 +17,23 @@ export class CreateEventComponent {
   constructor(private eventService: EventService){}
 
  onCreate(data: any){
-  //console.log("working", data)
   const eventRequest: EventRequest = {
-    name: data.name,
-  description: data.description,
-  startsAt: data.startsAt,
-  endsAt: data.endsAt,
-  basePrice: data.basePrice,
-  }
-  this.eventService.createEvent(eventRequest).subscribe(resp => alert("succesful save"))
+      name: data.name,
+      description: data.description,
+      startsAt: data.startsAt,
+      endsAt: data.endsAt,
+      basePrice: data.basePrice,
+      // Új adatok bekötése
+      logoImageUrl: data.logoImageUrl,
+      bannerImageUrl: data.bannerImageUrl,
+      themePreset: data.themePreset,
+      venueId: data.venueId,
+      auditoriumId: data.auditoriumId
+    };
+
+    this.eventService.createEvent(eventRequest).subscribe({
+      next: (resp) => alert("Event created successfully!"),
+      error: (err) => alert("Failed to create event. Please try again.")
+    });
  }
 }

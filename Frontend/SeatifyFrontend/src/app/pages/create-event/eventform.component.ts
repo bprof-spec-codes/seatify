@@ -13,7 +13,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 })
 export class EventFormComponent {
   @Input() initialData: any = null; // Update esetén ide jön az adat
-  @Input() buttonText = 'Mentés';
+  @Input() buttonText = 'Save';
   @Output() formSubmit = new EventEmitter<any>();
 
   eventform: FormGroup;
@@ -23,6 +23,11 @@ export class EventFormComponent {
       id: [0, Validators.required],
       name: ['', Validators.required],
       description: [''],
+      logoImageUrl: [''],
+      bannerImageUrl: [''],
+      themePreset: ['Default (Blue)'],
+      venueId: ['', Validators.required],
+      auditoriumId: ['', Validators.required],
       startsAt: ['', Validators.required],
       endsAt: ['', Validators.required],
       basePrice: [0, [Validators.required, Validators.min(0)]]
@@ -38,6 +43,10 @@ export class EventFormComponent {
   submit() {
     if (this.eventform.valid) {
       this.formSubmit.emit(this.eventform.value);
+    } 
+    else {
+      // validation
+      this.eventform.markAllAsTouched();
     }
   }
 

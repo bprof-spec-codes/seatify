@@ -19,14 +19,23 @@ export class UpdateEventComponent {
 
  onUpdate(data: any){
     const eventId: number = parseInt(this.route.snapshot.paramMap.get('id') || '0');
-  //console.log("working", data)
-  const eventRequest: EventRequest = {
-    name: data.name,
-  description: data.description,
-  startsAt: data.startsAt,
-  endsAt: data.endsAt,
-  basePrice: data.basePrice,
-  }
-  this.eventService.updateEvent(eventRequest, eventId).subscribe(resp => alert("succesful save"))
+    
+    const eventRequest: EventRequest = {
+      name: data.name,
+      description: data.description,
+      startsAt: data.startsAt,
+      endsAt: data.endsAt,
+      basePrice: data.basePrice,
+      logoImageUrl: data.logoImageUrl,
+      bannerImageUrl: data.bannerImageUrl,
+      themePreset: data.themePreset,
+      venueId: data.venueId,
+      auditoriumId: data.auditoriumId
+    };
+
+    this.eventService.updateEvent(eventRequest, eventId).subscribe({
+      next: (resp) => alert("Event updated successfully!"),
+      error: (err) => alert("Failed to update event. Please try again.")
+    });
  }
 }
