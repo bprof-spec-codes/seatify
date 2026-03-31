@@ -1,0 +1,103 @@
+<form [formGroup]="eventform" (ngSubmit)="submit()" class="container mt-4" style="max-width: 800px;">
+  
+  <div class="card mb-4 shadow-sm">
+    <div class="card-body">
+      <h5 class="card-title fw-bold mb-3">Event Details</h5>
+      
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Event Name *</label>
+        <input type="text" class="form-control" formControlName="name" placeholder="e.g., Dune Part II">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Description</label>
+        <textarea class="form-control" formControlName="description" rows="4" placeholder="Brief description of your event"></textarea>
+      </div>
+      
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Base Price (HUF)</label>
+        <input type="number" class="form-control" formControlName="basePrice" placeholder="0">
+      </div>
+    </div>
+  </div>
+
+  <div class="card mb-4 shadow-sm">
+    <div class="card-body">
+      <h5 class="card-title fw-bold mb-3">Visual Branding</h5>
+      
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">Event Logo</label>
+          <div class="p-4 border rounded text-center text-muted" style="border-style: dashed !important; background: #fafafa;">
+            <i class="bi bi-upload fs-4"></i><br>
+            <small>Click to upload<br>PNG, JPG (max. 2MB)</small>
+            <input type="file" class="d-none"> 
+          </div>
+        </div>
+        <div class="col-md-6 mt-3 mt-md-0">
+          <label class="form-label fw-semibold">Cover image</label>
+          <div class="p-4 border rounded text-center text-muted" style="border-style: dashed !important; background: #fafafa;">
+            <i class="bi bi-upload fs-4"></i><br>
+            <small>Click to upload<br>PNG, JPG (max. 5MB)</small>
+            <input type="file" class="d-none">
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Visual Theme</label>
+        <select class="form-select" formControlName="themePreset">
+          <option value="Default (Blue)">Default (Blue)</option>
+          <option value="Dark Mode">Dark Mode</option>
+          <option value="Vibrant Red">Vibrant Red</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mb-4 shadow-sm">
+    <div class="card-body">
+      <h5 class="card-title fw-bold mb-3">Location & Scheduling</h5>
+      
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">Venue *</label>
+          <select class="form-select" formControlName="venueId">
+            <option value="" disabled selected>Select a venue</option>
+            <option value="venue-id-01">Budapest Aréna</option> </select>
+        </div>
+        <div class="col-md-6 mt-3 mt-md-0">
+          <label class="form-label fw-semibold">Auditorium *</label>
+          <select class="form-select" formControlName="auditoriumId">
+            <option value="" disabled selected>First select a venue</option>
+            <option value="aud-id-01">Nagyterem</option> </select>
+        </div>
+      </div>
+
+      <h6 class="fw-bold mt-4">Event Occurrences</h6>
+      <p class="text-muted small">Add time slots for this event. (For now, just start and end times)</p>
+      
+      <div class="row align-items-end mb-3">
+        <div class="col-md-4">
+          <label class="form-label">Starts At</label>
+          <input type="datetime-local" class="form-control" formControlName="startsAt">
+        </div>
+        <div class="col-md-4 mt-3 mt-md-0">
+          <label class="form-label">Ends At</label>
+          <input type="datetime-local" class="form-control" formControlName="endsAt">
+        </div>
+        <div class="col-md-4 mt-3 mt-md-0">
+          <button type="button" class="btn btn-outline-secondary w-100">+ Add Time Slot</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="d-flex justify-content-end gap-3 mb-5">
+    <button type="button" class="btn btn-light border px-4">Cancel</button>
+    <button type="submit" class="btn btn-warning text-dark fw-bold px-4" [disabled]="eventform.invalid">
+      {{ buttonText }}
+    </button>
+  </div>
+
+</form>

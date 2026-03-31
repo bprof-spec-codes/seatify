@@ -6,6 +6,8 @@ import { AppComponent } from './app.component';
 import { LandingPageComponent } from './pages/landing-page/landing-page.component';
 import { FooterComponent } from './pages/footer/footer.component';
 import { SeatMapDisplayComponent } from './helpers/seat-map-display/seat-map-display.component';
+import { CreateEventComponent } from './pages/create-event/create-event.component';
+import { EventFormComponent } from './pages/create-event/eventform.component';
 import { VenueDashboardComponent } from './pages/venue-dashboard/venue-dashboard.component';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { ConfirmMessageComponent } from './helpers/confirm-message/confirm-message.component';
@@ -29,6 +31,8 @@ import { OrganizerDashboardComponent } from './pages/organizer-dashboard/organiz
     LandingPageComponent,
     FooterComponent,
     SeatMapDisplayComponent,
+    //CreateEventComponent,
+    //EventFormComponent,
     VenueDashboardComponent,
     ConfirmMessageComponent,
     AuditoriumDashboardComponent,
