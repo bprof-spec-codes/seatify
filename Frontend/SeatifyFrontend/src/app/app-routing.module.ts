@@ -6,13 +6,26 @@ import { AuditoriumDashboardComponent } from './pages/auditorium-dashboard/audit
 import { VenueFormComponent } from './pages/venue-form/venue-form.component';
 import { CheckoutComponent } from './pages/checkout/checkout.component';
 import { LayoutMatrixEditorComponent } from './pages/layout-matrix-editor/layout-matrix-editor.component';
+import { EventsPageComponent } from './pages/events-page/events-page.component';
+import { OrganizerDashboardComponent } from './pages/organizer-dashboard/organizer-dashboard.component';
+import { OrganizerLayoutComponent } from './pages/organizer-layout/organizer-layout.component';
 
 export const routes: Routes = [
   { path: '', component: LandingPageComponent },
   { path: 'landingpage', component: LandingPageComponent },
-  { path: 'venues', component: VenueDashboardComponent },
-  { path: 'venues/form', component: VenueFormComponent },
-  { path: 'auditoriums/:venueId', component: AuditoriumDashboardComponent },
+
+  {
+    path: 'dashboard',
+    component: OrganizerLayoutComponent,
+    children: [
+      { path: '', component: OrganizerDashboardComponent },
+      { path: 'venues', component: VenueDashboardComponent },
+      { path: 'venues/form', component: VenueFormComponent },
+      { path: 'auditoriums/:venueId', component: AuditoriumDashboardComponent },
+      { path: 'events', component: EventsPageComponent }
+    ]
+  },
+
   { path: 'checkout', component: CheckoutComponent },
   { path: 'layout-matrix/:auditoriumId/editor', component: LayoutMatrixEditorComponent },
   { path: '**', redirectTo: '' }

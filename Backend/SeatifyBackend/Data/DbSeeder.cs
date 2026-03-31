@@ -547,6 +547,34 @@ namespace Data
                         Status = "Published",
                         CreatedAtUtc = DateTime.UtcNow,
                         UpdatedAtUtc = DateTime.UtcNow
+                    },
+                    new EventOccurrence
+                    {
+                        Id = "occ-02",
+                        EventId = "event-01",
+                        VenueId = "ven-id-01",
+                        AuditoriumId = "aud-id-01",
+                        StartsAtUtc = DateTime.UtcNow.AddDays(6),
+                        EndsAtUtc = DateTime.UtcNow.AddDays(6).AddHours(1),
+                        BookingOpenAtUtc = DateTime.UtcNow,
+                        BookingCloseAtUtc = DateTime.UtcNow.AddDays(9),
+                        Status = "Published",
+                        CreatedAtUtc = DateTime.UtcNow,
+                        UpdatedAtUtc = DateTime.UtcNow
+                    },
+                    new EventOccurrence
+                    {
+                        Id = "occ-03",
+                        EventId = "event-02",
+                        VenueId = "ven-id-04",
+                        AuditoriumId = "aud-id-03",
+                        StartsAtUtc = DateTime.UtcNow.AddDays(10),
+                        EndsAtUtc = DateTime.UtcNow.AddDays(10).AddHours(3),
+                        BookingOpenAtUtc = DateTime.UtcNow,
+                        BookingCloseAtUtc = DateTime.UtcNow.AddDays(10),
+                        Status = "Published",
+                        CreatedAtUtc = DateTime.UtcNow,
+                        UpdatedAtUtc = DateTime.UtcNow
                     }
                 };
 

@@ -73,7 +73,7 @@ export class AuditoriumDashboardComponent implements OnInit, OnDestroy {
   }
 
   back(): void {
-    this.router.navigate(['/venues']);
+    this.router.navigate(['dashboard/venues']);
   }
 
   viewAuditorium(auditorium: Auditorium): void {

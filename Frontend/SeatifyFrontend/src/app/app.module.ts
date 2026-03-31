@@ -15,10 +15,13 @@ import { CommonModule, DecimalPipe } from '@angular/common';
 import { LayoutMatrixFormComponent } from './pages/layout-matrix-form/layout-matrix-form.component';
 import { SeatEditorComponent } from './pages/seat-editor/seat-editor.component';
 import { VenueFormComponent } from './pages/venue-form/venue-form.component';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CheckoutComponent } from './pages/checkout/checkout.component';
 import { SectorEditorComponent } from './pages/sector-editor/sector-editor.component';
 import { SectorFormComponent } from './pages/sector-form/sector-form.component';
+import { EventsPageComponent } from './pages/events-page/events-page.component';
+import { OrganizerLayoutComponent } from './pages/organizer-layout/organizer-layout.component';
+import { OrganizerDashboardComponent } from './pages/organizer-dashboard/organizer-dashboard.component';
 
 @NgModule({
   declarations: [
@@ -36,6 +39,9 @@ import { SectorFormComponent } from './pages/sector-form/sector-form.component';
     SeatEditorComponent,
     SectorEditorComponent,
     SectorFormComponent,
+    EventsPageComponent,
+    OrganizerLayoutComponent,
+    OrganizerDashboardComponent,
   ],
   imports: [
     BrowserModule,
@@ -43,6 +49,7 @@ import { SectorFormComponent } from './pages/sector-form/sector-form.component';
     ReactiveFormsModule,
     CommonModule,
     DecimalPipe,
+    FormsModule,
   ],
   providers: [
     provideHttpClient(withInterceptors([]))
