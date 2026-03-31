@@ -1,5 +1,6 @@
 ﻿using Data;
 using Entities.Dtos.Auditorium;
+using Entities.Dtos.LayoutMatrix;
 using Entities.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -111,10 +112,15 @@ namespace Logic.Services
                     VenueId = a.VenueId,
                     Name = a.Name,
                     Description = a.Description,
-                    LayoutMatrices = a.LayoutMatrices.Select(lm => new LayoutMatrix //Ezt is lekell cserélni dto-ra, de nincs még megírva
+                    LayoutMatrices = a.LayoutMatrices.Select(lm => new LayoutMatrixViewDto
                     {
                         Id = lm.Id,
-                        AuditoriumId = lm.AuditoriumId
+                        AuditoriumId = lm.AuditoriumId,
+                        Name = lm.Name,
+                        Rows = lm.Rows,
+                        Columns = lm.Columns,
+                        CreatedAtUtc = lm.CreatedAtUtc,
+                        UpdatedAtUtc = lm.UpdatedAtUtc
                     }).ToList(),
                     CreatedAtUtc = a.CreatedAtUtc,
                     UpdatedAtUtc = a.UpdatedAtUtc

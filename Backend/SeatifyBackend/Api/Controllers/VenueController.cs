@@ -7,7 +7,7 @@ using System.Security.Claims;
 namespace Api.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api")]
 public class VenueController : ControllerBase
 {
     private readonly VenueService _venueService;
@@ -18,7 +18,7 @@ public class VenueController : ControllerBase
     }
 
     //[Authorize]
-    [HttpPost]
+    [HttpPost("venues")]
     public async Task<IActionResult> CreateVenue([FromBody] VenueCreateDto venueCreateDto)
     {
         var organizerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -31,7 +31,7 @@ public class VenueController : ControllerBase
         try
         {
             //venueCreateDto.OrganizerId = organizerId;
-            venueCreateDto.OrganizerId = organizerId ?? "";
+            venueCreateDto.OrganizerId = organizerId ?? "org-id-01";
 
             Venue newVenue = await _venueService.CreateVenueAsync(venueCreateDto);
             return Ok(newVenue);
@@ -42,7 +42,7 @@ public class VenueController : ControllerBase
         }
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("venues/{id}")]
     public async Task<IActionResult> GetVenueById(string id)
     {
         try
@@ -56,15 +56,16 @@ public class VenueController : ControllerBase
         }
     }
 
-    [HttpGet]
+    [HttpGet("venues")]
     public async Task<ActionResult<List<VenueViewDto>>> GetAllVenues()
     {
         var venue = await _venueService.GetAllVenuesAsync();
         return Ok(venue);
     }
+      
 
     //[Authorize]
-    [HttpPut("{id}")]
+    [HttpPut("venues/{id}")]
     public async Task<IActionResult> UpdateVenueById([FromBody] VenueUpdateDto venueUpdateDto, string id)
     {
         var organizerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -77,10 +78,10 @@ public class VenueController : ControllerBase
         try
         {
             //venueUpdateDto.OrganizerId = organizerId;
-            venueUpdateDto.OrganizerId = organizerId ?? "";
+            venueUpdateDto.OrganizerId = organizerId ?? "org-id-01";
 
             await _venueService.UpdateVenueByIdAsync(venueUpdateDto, id);
-            return Ok();
+            return Ok(venueUpdateDto);
         }
         catch (Exception ex)
         {
@@ -89,7 +90,7 @@ public class VenueController : ControllerBase
     }
 
     //[Authorize]
-    [HttpDelete("{id}")]
+    [HttpDelete("venues/{id}")]
     public async Task<IActionResult> DeleteVenueById(string id)
     {
         var organizerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -102,7 +103,7 @@ public class VenueController : ControllerBase
         try
         {
             //await _venueService.DeleteVenueByIdAsync(organizerId, id);
-            await _venueService.DeleteVenueByIdAsync(organizerId ?? "", id);
+            await _venueService.DeleteVenueByIdAsync(organizerId ?? "org-id-01", id);
             return Ok();
         }
         catch (Exception ex)
@@ -111,7 +112,7 @@ public class VenueController : ControllerBase
         }
     }
 
-    [HttpGet("organizers/{organizerId}")]
+    [HttpGet("venues/organizers/{organizerId}")]
     public async Task<ActionResult<List<VenueViewDto>>> GetVenuesByOrganizerId(string organizerId)
     {
         try
@@ -125,6 +126,5 @@ public class VenueController : ControllerBase
         }
     }
 
-    // TODO: remove commented out sections if organizer is implemented
-    // TODO: public async Task<IActionResult> GetVenueByOrganizerId(string organizerId)
+    // TODO: remove commented out sections if authentication is implemented
 }

@@ -1,0 +1,338 @@
+@use '../../../_variables.sass' as *
+
+:host
+    display: block
+    min-height: 100%
+    background: $color-light-100
+
+.layout-editor-page
+    min-height: 100vh
+    background: $color-light-100
+    padding: 24px
+
+.page-header
+    margin-bottom: 24px
+
+.page-header__content
+    max-width: 1600px
+    margin: 0 auto
+
+h1
+    margin: 0
+    font-size: 24px
+    line-height: 32px
+    font-weight: 700
+    color: $color-dark-950
+
+.page-subtitle
+    margin: 6px 0 0
+    font-size: 14px
+    line-height: 20px
+    color: $color-dark-600
+
+.editor-layout
+    max-width: 1600px
+    margin: 0 auto
+    display: grid
+    grid-template-columns: 300px minmax(0, 1fr) 340px
+    gap: 24px
+    align-items: start
+
+.panel
+    background: $color-light-50
+    border: 1px solid $color-light-200
+    border-radius: 20px
+    box-shadow: 0 6px 18px rgba(17, 24, 39, 0.04)
+
+.left-panel,
+.center-panel,
+.right-panel
+    padding: 20px
+
+.panel-header
+    margin-bottom: 16px
+
+.panel-title
+    margin: 0
+    font-size: 16px
+    line-height: 24px
+    font-weight: 700
+    color: $color-dark-950
+
+.panel-placeholder
+    padding: 20px
+    border: 1px dashed $color-light-300
+    border-radius: 16px
+    background: $color-light-100
+    color: $color-dark-600
+    font-size: 14px
+    line-height: 20px
+    text-align: center
+
+.panel-placeholder-large
+    min-height: 320px
+    display: flex
+    align-items: center
+    justify-content: center
+
+.matrix-list
+    display: flex
+    flex-direction: column
+    gap: 12px
+
+.matrix-item-wrapper
+    display: grid
+    grid-template-columns: minmax(0, 1fr) auto
+    gap: 8px
+    align-items: start
+
+.matrix-item
+    width: 100%
+    border: 1px solid $color-light-200
+    background: $color-light-50
+    border-radius: 14px
+    padding: 14px 16px
+    text-align: left
+    cursor: pointer
+    transition: .18s ease
+    display: flex
+    flex-direction: column
+    gap: 4px
+
+    &:hover
+        background: $color-light-100
+        border-color: $color-light-300
+
+.matrix-item--active
+    background: #eff6ff
+    border-color: $color-primary-200
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.08)
+
+.matrix-item__name
+    font-size: 14px
+    line-height: 20px
+    font-weight: 600
+    color: $color-dark-950
+
+.matrix-item__meta
+    font-size: 12px
+    line-height: 18px
+    color: $color-dark-600
+
+.matrix-item-menu
+    position: relative
+
+.matrix-item-menu__trigger
+    width: 36px
+    height: 36px
+    border-radius: 10px
+    border: 1px solid $color-light-200
+    background: $color-light-50
+    color: $color-dark-700
+    cursor: pointer
+    transition: .18s ease
+
+    &:hover
+        background: $color-light-100
+
+.matrix-item-menu__dropdown
+    position: absolute
+    top: calc(100% + 8px)
+    right: 0
+    min-width: 140px
+    z-index: 20
+    background: $color-light-50
+    border: 1px solid $color-light-200
+    border-radius: 14px
+    box-shadow: 0 12px 32px rgba(17, 24, 39, 0.12)
+    padding: 8px
+
+.matrix-item-menu__action
+    width: 100%
+    border: 0
+    background: transparent
+    text-align: left
+    padding: 10px 12px
+    border-radius: 10px
+    cursor: pointer
+    font-size: 14px
+    color: $color-dark-900
+
+    &:hover
+        background: $color-light-100
+
+.matrix-item-menu__action--danger
+    color: $color-danger-500
+
+.matrix-edit-block
+    padding: 4px 0
+
+.matrix-add-button
+    width: 100%
+    min-height: 44px
+    border-radius: 12px
+    border: 1px solid $color-light-300
+    background: $color-light-50
+    color: $color-dark-900
+    font-size: 14px
+    font-weight: 600
+    cursor: pointer
+    transition: .18s ease
+
+    &:hover
+        background: $color-light-100
+        border-color: $color-primary-200
+
+.editor-shell
+    display: flex
+    flex-direction: column
+    gap: 16px
+
+.editor-shell__header
+    display: flex
+    align-items: center
+    justify-content: space-between
+
+.editor-shell__subtitle
+    margin: 4px 0 0
+    font-size: 14px
+    line-height: 20px
+    color: $color-dark-600
+
+.editor-shell__body
+    min-height: 640px
+
+.editor-canvas
+    min-height: 100%
+    border: 1px solid $color-light-200
+    border-radius: 18px
+    background: linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%)
+    padding: 28px
+    display: flex
+    flex-direction: column
+    align-items: center
+    gap: 20px
+
+.editor-stage-badge
+    display: inline-flex
+    align-items: center
+    justify-content: center
+    height: 30px
+    padding: 0 16px
+    border-radius: 999px
+    background: $color-light-100
+    border: 1px solid $color-light-200
+    font-size: 12px
+    font-weight: 700
+    letter-spacing: .04em
+    color: $color-dark-700
+
+.grid-wrapper
+    width: 100%
+    overflow: auto
+    background: $color-light-100
+    border: 1px solid #eef2f7
+    border-radius: 18px
+    padding: 28px
+    display: flex
+    justify-content: center
+
+.grid
+    display: grid
+    gap: 8px
+
+.cell
+    width: 36px
+    height: 36px
+    border: 1px solid orange
+    border-radius: 8px
+    cursor: pointer
+    background-color: #f8fafc
+    transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease
+
+    &--selected
+        border-color: #1d4ed8
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.22)
+        transform: scale(1.04)
+        background-color: orange
+        outline: 2px solid rgba(255, 255, 255, 0.9)
+        outline-offset: -3px
+
+    &:hover
+        transform: translateY(-1px)
+        box-shadow: 0 4px 10px rgba(59, 130, 246, 0.18)
+
+.cell--selected
+    border-color: $color-secondary-500
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.18)
+
+.cell--accessible
+    background: $color-success-500
+
+.cell--aisle
+    background: #dbeafe
+    opacity: .75
+
+.editor-empty-state
+    min-height: 640px
+    display: flex
+    align-items: center
+    justify-content: center
+
+.tool-stack
+    display: flex
+    flex-direction: column
+    gap: 16px
+
+.tool-card
+    border: 1px solid $color-light-200
+    border-radius: 18px
+    background: $color-light-50
+    padding: 18px
+
+@media (max-width: 1280px)
+    .editor-layout
+        grid-template-columns: 280px minmax(0, 1fr)
+
+    .right-panel
+        grid-column: 1 / -1
+
+@media (max-width: 960px)
+    .layout-editor-page
+        padding: 16px
+
+    .editor-layout
+        grid-template-columns: 1fr
+
+    .left-panel,
+    .center-panel,
+    .right-panel
+        padding: 16px
+
+.page-header__content
+    display: flex
+    align-items: center
+    gap: 16px
+
+.back-button
+    width: 44px
+    height: 44px
+    border-radius: 12px
+    border: 1px solid $color-light-300
+    background: $color-light-50
+    display: flex
+    align-items: center
+    justify-content: center
+    cursor: pointer
+    transition: .18s ease
+
+    i
+        font-size: 20px
+        color: $color-dark-800
+
+    &:hover
+        background: $color-light-100
+        border-color: $color-primary-200
+
+        i
+            color: $color-primary-600

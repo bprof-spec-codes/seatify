@@ -1,5 +1,8 @@
+using Api.Helpers;
 using Data;
 using Logic.Helper;
+using Entities.Models;
+using Logic.Interfaces;
 using Logic.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,7 +16,11 @@ namespace Api
 
             // Add services to the container.
 
-            builder.Services.AddControllers();
+            builder.Services.AddControllers(opt =>
+            {
+                opt.Filters.Add<ValidationFilter>();
+                opt.Filters.Add<ExceptionFilter>();
+            });
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
@@ -27,16 +34,19 @@ namespace Api
 
             // DI registrations
             builder.Services.AddTransient(typeof(Repository<>));
-            builder.Services.AddScoped<DtoProvider>();
+            builder.Services.AddSingleton<DtoProvider>();
             builder.Services.AddScoped<VenueService>();
             builder.Services.AddScoped<IAuditoriumService, AuditoriumService>();
             builder.Services.AddScoped<ISectorService, SectorService>();
             builder.Services.AddScoped<ISeatService, SeatService>();
             builder.Services.AddScoped<IOrganizerService, OrganizerService>();
+            builder.Services.AddScoped<IEventOccurrenceService, EventOccurrenceService>();
+            builder.Services.AddScoped<IReservationService, ReservationService>();
+            builder.Services.AddScoped<ILayoutMatrixService, LayoutMatrixService>();
 
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy("AngularDev", policy =>
+                options.AddPolicy("AllowOrigin", policy =>
                 {
                     policy
                     .WithOrigins(allowedOrigins!)
@@ -65,12 +75,12 @@ namespace Api
             }
 
             app.UseHttpsRedirection();
+            
+            app.UseCors("AllowOrigin");
 
             app.UseAuthorization();
 
             app.MapControllers();
-
-            app.UseCors("DefaultCors");
 
             using (var scope = app.Services.CreateScope())
             {

@@ -21,11 +21,13 @@ Unacceptable merges:
 - incomplete experimental code
 - non-functional partial implementations
 
----
-
 # Issue Based Development
 
+---
+
 All work must be performed in branches created from `develop`.
+
+# Issue Based Development
 
 ## Branch Source
 
@@ -106,7 +108,6 @@ Never merge directly into `develop` from your local machine.
 All merges must happen through an approved **Pull Request**.
 
 ---
-
 
 # Merge Checklist
 

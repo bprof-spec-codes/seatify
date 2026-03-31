@@ -8,7 +8,22 @@ import { FooterComponent } from './pages/footer/footer.component';
 import { SeatMapDisplayComponent } from './helpers/seat-map-display/seat-map-display.component';
 import { CreateEventComponent } from './pages/create-event/create-event.component';
 import { EventFormComponent } from './pages/create-event/eventform.component';
-import { provideHttpClient } from '@angular/common/http';
+import { VenueDashboardComponent } from './pages/venue-dashboard/venue-dashboard.component';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { ConfirmMessageComponent } from './helpers/confirm-message/confirm-message.component';
+import { AuditoriumDashboardComponent } from './pages/auditorium-dashboard/auditorium-dashboard.component';
+import { LayoutMatrixEditorComponent } from './pages/layout-matrix-editor/layout-matrix-editor.component';
+import { CommonModule, DecimalPipe } from '@angular/common';
+import { LayoutMatrixFormComponent } from './pages/layout-matrix-form/layout-matrix-form.component';
+import { SeatEditorComponent } from './pages/seat-editor/seat-editor.component';
+import { VenueFormComponent } from './pages/venue-form/venue-form.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { CheckoutComponent } from './pages/checkout/checkout.component';
+import { SectorEditorComponent } from './pages/sector-editor/sector-editor.component';
+import { SectorFormComponent } from './pages/sector-form/sector-form.component';
+import { EventsPageComponent } from './pages/events-page/events-page.component';
+import { OrganizerLayoutComponent } from './pages/organizer-layout/organizer-layout.component';
+import { OrganizerDashboardComponent } from './pages/organizer-dashboard/organizer-dashboard.component';
 
 @NgModule({
   declarations: [
@@ -18,12 +33,31 @@ import { provideHttpClient } from '@angular/common/http';
     SeatMapDisplayComponent,
     //CreateEventComponent,
     //EventFormComponent,
+    VenueDashboardComponent,
+    ConfirmMessageComponent,
+    AuditoriumDashboardComponent,
+    VenueFormComponent,
+    CheckoutComponent,
+    LayoutMatrixEditorComponent,
+    LayoutMatrixFormComponent,
+    SeatEditorComponent,
+    SectorEditorComponent,
+    SectorFormComponent,
+    EventsPageComponent,
+    OrganizerLayoutComponent,
+    OrganizerDashboardComponent,
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
+    ReactiveFormsModule,
+    CommonModule,
+    DecimalPipe,
+    FormsModule,
   ],
-  providers: [provideHttpClient()],
+  providers: [
+    provideHttpClient(withInterceptors([]))
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

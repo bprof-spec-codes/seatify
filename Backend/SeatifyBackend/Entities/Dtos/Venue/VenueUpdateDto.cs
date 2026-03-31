@@ -5,6 +5,9 @@ namespace Entities.Dtos.Venue;
 public class VenueUpdateDto
 {
     [Required]
+    public string Id { get; set; } = string.Empty;
+    
+    [Required]
     public string Name { get; set; } = string.Empty;
     
     [Required]
