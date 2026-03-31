@@ -1,4 +1,4 @@
-﻿using Entities.Dtos.Seat;
+using Entities.Dtos.Seat;
 using Logic.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -24,6 +24,22 @@ namespace Api.Controllers
             {
                 var created = await _seatService.CreateBatchAsync(dtos, ct);
                 return Ok(created);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPatch("seats/bulk")]
+        public async Task<ActionResult<BulkSeatUpdateResponseDto>> BulkUpdate(
+            [FromBody] BulkSeatUpdateDto dto,
+            CancellationToken ct)
+        {
+            try
+            {
+                var response = await _seatService.BulkUpdateAsync(dto, ct);
+                return Ok(response);
             }
             catch (ArgumentException ex)
             {
