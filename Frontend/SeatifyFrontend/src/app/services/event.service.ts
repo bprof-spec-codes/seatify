@@ -18,12 +18,34 @@ export class EventService {
 
   constructor(private readonly http: HttpClient) {}
 
-  createEvent(eventrequest: EventRequest): Observable<EventResponse>{
-    return this.http.post<EventResponse>(this.eventOccurrencesApiUrl, eventrequest);
+  uploadImage(file: File): Observable<{ url: string }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<{ url: string }>(`${this.apiUrl}/upload`, formData);
   }
 
+  createEvent(eventrequest: EventRequest): Observable<EventResponse>{
+    return this.http.post<EventResponse>(this.apiUrl + '/event', eventrequest);
+  }
+  
   updateEvent(eventrequest: EventRequest, id: number): Observable<EventResponse>{
-    return this.http.put<EventResponse>(`${this.eventOccurrencesApiUrl}/${id}`, eventrequest);
+    return this.http.put<EventResponse>(`${this.apiUrl}/event/${id}`, eventrequest);
+  }
+
+  getEventById(id: string): Observable<SeatifyEvent> {
+    return this.http.get<SeatifyEvent>(`${this.apiUrl}/event/${id}`);
+  }
+
+  getOccurrenceById(id: string): Observable<EventOccurrence> {
+    return this.http.get<EventOccurrence>(`${this.eventOccurrencesApiUrl}/${id}`);
+  }
+
+  createOccurrence(occurrence: Partial<EventOccurrence>): Observable<any> {
+    return this.http.post(this.eventOccurrencesApiUrl, occurrence);
+  }
+
+  updateOccurrence(id: string, occurrence: Partial<EventOccurrence>): Observable<any> {
+    return this.http.put(`${this.eventOccurrencesApiUrl}/${id}`, occurrence);
   }
 
   getEventCards(): Observable<EventCard[]> {

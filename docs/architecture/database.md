@@ -18,6 +18,7 @@ erDiagram
         string LogoImageUrl
         string BannerImageUrl
         string ThemePreset
+        boolean IsDefault
     }
 
     VENUE {

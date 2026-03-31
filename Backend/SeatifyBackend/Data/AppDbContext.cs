@@ -15,6 +15,7 @@ namespace Data
         public DbSet<Seat> Seats => Set<Seat>();
         public DbSet<Organizer> Organizers => Set<Organizer>();
         public DbSet<Appearance> Appearances => Set<Appearance>();
+        public DbSet<EventAppearance> EventAppearances => Set<EventAppearance>();
         public DbSet<Reservation> Reservations => Set<Reservation>();
         public DbSet<ReservationSeat> ReservationSeats => Set<ReservationSeat>();
 
@@ -118,6 +119,13 @@ namespace Data
                 .HasOne(a => a.Organizer)
                 .WithMany(o => o.Appearances)
                 .HasForeignKey(a => a.OrganizerId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // event appearance
+            modelBuilder.Entity<EventAppearance>()
+                .HasOne(ea => ea.Event)
+                .WithOne(e => e.Appearance)
+                .HasForeignKey<EventAppearance>(ea => ea.EventId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // Reservation

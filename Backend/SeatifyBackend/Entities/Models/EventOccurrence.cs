@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -22,6 +22,8 @@ namespace Entities.Models
 
         public DateTime BookingOpenAtUtc { get; set; }
         public DateTime BookingCloseAtUtc { get; set; }
+
+        public DateTime? DoorsOpenAtUtc { get; set; }
 
         public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAtUtc { get; set; } = DateTime.UtcNow;
