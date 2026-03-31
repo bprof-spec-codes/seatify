@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, SimpleChanges } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, HostListener, Input, Output, SimpleChanges } from '@angular/core';
 import { CreateUpdateSectorDto, Sector } from '../../models/sector';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
@@ -10,57 +10,134 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SectorEditorComponent {
-  @Input() sectors: Sector[] = []
-  @Input() selectedSectorId: string | null = null
-  @Input() disabled = false
+  @Input() sectors: Sector[] = [];
+  @Input() selectedSectorId: string | null = null;
+  @Input() disabled = false;
 
-  @Input() isCreateFormOpen = false
-  @Input() isCreatingSector = false
+  @Input() isCreateFormOpen = false;
+  @Input() isCreatingSector = false;
 
-  @Input() editingSectorId: string | null = null
-  @Input() isUpdatingSector = false
+  @Input() editingSectorId: string | null = null;
+  @Input() isUpdatingSector = false;
 
-  @Input() canAssign = false
+  @Input() canAssign = false;
 
-  @Output() applySector = new EventEmitter<string | null>()
+  @Input() isDeletingSector = false;
 
-  @Output() createClicked = new EventEmitter<void>()
-  @Output() createCancelled = new EventEmitter<void>()
-  @Output() createSubmitted = new EventEmitter<CreateUpdateSectorDto>()
+  @Output() applySector = new EventEmitter<string | null>();
 
-  @Output() editClicked = new EventEmitter<string>()
-  @Output() editCancelled = new EventEmitter<void>()
-  @Output() editSubmitted = new EventEmitter<{ id: string; dto: CreateUpdateSectorDto }>()
+  @Output() createClicked = new EventEmitter<void>();
+  @Output() createCancelled = new EventEmitter<void>();
+  @Output() createSubmitted = new EventEmitter<CreateUpdateSectorDto>();
 
-  @Input() isDeletingSector = false
+  @Output() editClicked = new EventEmitter<string>();
+  @Output() editCancelled = new EventEmitter<void>();
+  @Output() editSubmitted = new EventEmitter<{ id: string; dto: CreateUpdateSectorDto }>();
 
-  @Output() deleteClicked = new EventEmitter<string>()
+  @Output() deleteClicked = new EventEmitter<string>();
 
-  pendingSectorId: string | null = null
-  editingSectorInitialValue: CreateUpdateSectorDto | null = null
+  pendingSectorId: string | null = null;
+  editingSectorInitialValue: CreateUpdateSectorDto | null = null;
+
+  openSectorMenuId: string | null = null;
+  hoveredSectorId: string | null = null;
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['selectedSectorId']) {
-      this.pendingSectorId = this.selectedSectorId ?? null
+      this.pendingSectorId = this.selectedSectorId ?? null;
     }
 
     if (changes['editingSectorId'] || changes['sectors']) {
-      this.syncEditingSectorInitialValue()
+      this.syncEditingSectorInitialValue();
+    }
+
+    if (this.editingSectorId) {
+      this.openSectorMenuId = null;
     }
   }
 
+  selectSector(sectorId: string | null): void {
+    if (this.disabled) return;
+    this.pendingSectorId = sectorId;
+    this.openSectorMenuId = null;
+  }
+
+  applyToSelected(): void {
+    if (this.disabled || !this.canAssign) return;
+    this.applySector.emit(this.pendingSectorId);
+  }
+
+  openCreateForm(): void {
+    if (this.disabled) return;
+    this.openSectorMenuId = null;
+    this.createClicked.emit();
+  }
+
+  cancelCreate(): void {
+    this.createCancelled.emit();
+  }
+
+  submitCreate(dto: CreateUpdateSectorDto): void {
+    this.createSubmitted.emit(dto);
+  }
+
+  openEditForm(sectorId: string): void {
+    if (this.disabled) return;
+    this.editClicked.emit(sectorId);
+  }
+
+  cancelEdit(): void {
+    this.editCancelled.emit();
+  }
+
+  submitEdit(dto: CreateUpdateSectorDto): void {
+    if (!this.editingSectorId) return;
+
+    this.editSubmitted.emit({
+      id: this.editingSectorId,
+      dto
+    });
+  }
+
   requestDelete(sectorId: string): void {
-    if (this.disabled || this.isDeletingSector || this.isCreatingSector || this.isUpdatingSector) return
-    this.deleteClicked.emit(sectorId)
+    if (this.disabled || this.isDeletingSector || this.isCreatingSector || this.isUpdatingSector) return;
+    this.deleteClicked.emit(sectorId);
+  }
+
+  startEditSector(sectorId: string): void {
+    this.openSectorMenuId = null;
+    this.openEditForm(sectorId);
+  }
+
+  startDeleteSector(sectorId: string): void {
+    this.openSectorMenuId = null;
+    this.requestDelete(sectorId);
+  }
+
+  toggleSectorMenu(sectorId: string, event: MouseEvent): void {
+    event.stopPropagation();
+    this.openSectorMenuId = this.openSectorMenuId === sectorId ? null : sectorId;
+  }
+
+  isSectorMenuOpen(sector: Sector): boolean {
+    return this.openSectorMenuId === sector.id;
+  }
+
+  isEditing(sector: Sector): boolean {
+    return this.editingSectorId === sector.id;
+  }
+
+  trackBySectorId(index: number, sector: Sector): string {
+    return sector.id;
   }
 
   private syncEditingSectorInitialValue(): void {
     if (!this.editingSectorId) {
-      this.editingSectorInitialValue = null
-      return
+      this.editingSectorInitialValue = null;
+      return;
     }
 
-    const sector = this.sectors.find(s => s.id === this.editingSectorId)
+    const sector = this.sectors.find(s => s.id === this.editingSectorId);
 
     this.editingSectorInitialValue = sector
       ? {
@@ -68,55 +145,30 @@ export class SectorEditorComponent {
         color: sector.color,
         basePrice: sector.basePrice
       }
-      : null
+      : null;
   }
 
-  selectSector(sectorId: string | null): void {
-    if (this.disabled) return
-    this.pendingSectorId = sectorId
+  getSectorHoverBackground(color: string | null | undefined): string {
+    if (!color) return '#f8fafc';
+    return `${color}22`;
   }
 
-  applyToSelected(): void {
-    if (this.disabled) return
-    this.applySector.emit(this.pendingSectorId)
+  getSectorHoverBorder(color: string | null | undefined): string {
+    if (!color) return '#d1d5db';
+    return `${color}`;
   }
 
-  openCreateForm(): void {
-    if (this.disabled) return
-    this.createClicked.emit()
-  }
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    if (!this.openSectorMenuId) return;
 
-  cancelCreate(): void {
-    this.createCancelled.emit()
-  }
+    const target = event.target as HTMLElement | null;
+    if (!target) return;
 
-  submitCreate(dto: CreateUpdateSectorDto): void {
-    this.createSubmitted.emit(dto)
-  }
+    const clickedInsideMenu = !!target.closest('.sector-item-menu');
 
-  openEditForm(sectorId: string): void {
-    if (this.disabled) return
-    this.editClicked.emit(sectorId)
-  }
-
-  cancelEdit(): void {
-    this.editCancelled.emit()
-  }
-
-  submitEdit(dto: CreateUpdateSectorDto): void {
-    if (!this.editingSectorId) return
-
-    this.editSubmitted.emit({
-      id: this.editingSectorId,
-      dto
-    })
-  }
-
-  isEditing(sector: Sector): boolean {
-    return this.editingSectorId === sector.id
-  }
-
-  trackBySectorId(index: number, sector: Sector): string {
-    return sector.id
+    if (!clickedInsideMenu) {
+      this.openSectorMenuId = null;
+    }
   }
 }

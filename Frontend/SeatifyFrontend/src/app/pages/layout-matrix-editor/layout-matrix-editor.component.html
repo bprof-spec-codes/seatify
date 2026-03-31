@@ -96,7 +96,7 @@
                   [class.cell--selected]="isCellSelected(cell)"
                   [class.cell--accessible]="cell.seatType === seatType.AccessibleSeat"
                   [class.cell--aisle]="cell.seatType === seatType.Aisle" (click)="selectCell(cell)"
-                  [style.backgroundColor]="getSectorColor(cell.sectorId)"
+                  [style.backgroundColor]="isCellSelected(cell) ? '#2563eb' : getSectorColor(cell.sectorId)"
                   [title]="cell.seatLabel || ('Row ' + cell.row + ', Column ' + cell.column)"></div>
               </div>
             </div>

@@ -244,15 +244,19 @@ h1
 .cell
     width: 36px
     height: 36px
-    border: 1px solid $border-color
+    border: 1px solid orange
     border-radius: 8px
     cursor: pointer
+    background-color: #f8fafc
     transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease
 
     &--selected
-        border-color: #111
-        box-shadow: 0 0 0 3px rgba(17, 17, 17, 0.28)
+        border-color: #1d4ed8
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.22)
         transform: scale(1.04)
+        background-color: orange
+        outline: 2px solid rgba(255, 255, 255, 0.9)
+        outline-offset: -3px
 
     &:hover
         transform: translateY(-1px)

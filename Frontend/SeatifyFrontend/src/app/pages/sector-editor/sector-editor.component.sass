@@ -32,31 +32,22 @@
     gap: 8px
 
 .sector-item-wrapper
-    --sector-color: #ffffff
     position: relative
     display: flex
     align-items: center
-
-    &:hover .sector-item:not(:disabled)
-        background: color-mix(in srgb, var(--sector-color) 16%, white)
-        border-color: color-mix(in srgb, var(--sector-color) 45%, #d1d5db)
-
-    &:hover .sector-item__actions
-        opacity: 1
-        pointer-events: auto
 
 .sector-item
     width: 100%
     border: 1px solid $color-light-200
     border-radius: 14px
     background: $color-light-50
-    padding: 12px 14px
+    padding: 12px 48px 12px 14px
     display: flex
     align-items: center
     gap: 12px
     text-align: left
     cursor: pointer
-    transition: .18s ease
+    transition: background-color .18s ease, border-color .18s ease, box-shadow .18s ease
     min-height: 52px
 
     &:hover:not(:disabled)
@@ -106,31 +97,27 @@
     color: $color-dark-700
     white-space: nowrap
     flex: 0 0 auto
-    margin-right: 72px
 
-.sector-item__actions
+.sector-item-menu
     position: absolute
+    right: 10px
     top: 50%
-    right: 12px
     transform: translateY(-50%)
+
+.sector-item-menu__trigger
+    width: 30px
+    height: 30px
+    border: none
+    border-radius: 8px
+    background: transparent
+    color: $color-dark-600
+    font-size: 20px
+    line-height: 1
+    cursor: pointer
     display: flex
     align-items: center
-    gap: 4px
-    opacity: .45
-    pointer-events: auto
-    transition: .18s ease
-
-.icon-action
-    border: none
-    background: transparent
-    padding: 4px 6px
-    border-radius: 8px
-    font-size: 12px
-    line-height: 16px
-    font-weight: 600
-    color: $color-dark-600
-    cursor: pointer
-    transition: .18s ease
+    justify-content: center
+    transition: background-color .18s ease, color .18s ease
 
     &:hover:not(:disabled)
         background: rgba(255, 255, 255, 0.55)
@@ -140,11 +127,42 @@
         opacity: .45
         cursor: not-allowed
 
-.icon-action--danger
+.sector-item-menu__dropdown
+    position: absolute
+    top: calc(100% + 6px)
+    right: 0
+    min-width: 120px
+    display: flex
+    flex-direction: column
+    padding: 6px
+    border: 1px solid $color-light-200
+    border-radius: 12px
+    background: $color-light-50
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12)
+    z-index: 20
+
+.sector-item-menu__action
+    min-height: 34px
+    padding: 0 10px
+    border: none
+    border-radius: 8px
+    background: transparent
+    text-align: left
+    font-size: 13px
+    font-weight: 600
+    color: $color-dark-700
+    cursor: pointer
+    transition: background-color .18s ease, color .18s ease
+
+    &:hover:not(:disabled)
+        background: $color-light-100
+        color: $color-dark-950
+
+.sector-item-menu__action--danger
     color: $color-danger-500
 
     &:hover:not(:disabled)
-        background: rgba(255, 255, 255, 0.55)
+        background: rgba(239, 68, 68, 0.08)
         color: $color-danger-500
 
 .sector-form-block
@@ -194,3 +212,39 @@
 
     &:hover:not(:disabled)
         background: $color-primary-600
+
+.sector-list
+    display: flex
+    flex-direction: column
+    gap: 8px
+    overflow: visible
+
+.sector-item-wrapper
+    position: relative
+    display: flex
+    align-items: center
+    z-index: 1
+
+.sector-item-wrapper--menu-open
+    z-index: 30
+
+.sector-item-menu
+    position: absolute
+    right: 10px
+    top: 50%
+    transform: translateY(-50%)
+    z-index: 40
+
+.sector-item-menu__dropdown
+    position: absolute
+    top: calc(100% + 6px)
+    right: 0
+    min-width: 120px
+    display: flex
+    flex-direction: column
+    padding: 6px
+    border: 1px solid $color-light-200
+    border-radius: 12px
+    background: $color-light-50
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12)
+    z-index: 50

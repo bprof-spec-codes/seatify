@@ -11,15 +11,17 @@
 
             <span class="sector-item__content">
                 <span class="sector-item__name">No sector</span>
-                <span class="sector-item__price">No base price</span>
             </span>
         </button>
 
         <ng-container *ngFor="let sector of sectors; trackBy: trackBySectorId">
             <ng-container *ngIf="!isEditing(sector); else editSectorBlock">
-                <div class="sector-item-wrapper" [style.--sector-color]="sector.color">
+                <div class="sector-item-wrapper" [class.sector-item-wrapper--menu-open]="isSectorMenuOpen(sector)">
                     <button type="button" class="sector-item"
                         [class.sector-item--selected]="pendingSectorId === sector.id" [disabled]="disabled"
+                        [style.backgroundColor]="hoveredSectorId === sector.id ? getSectorHoverBackground(sector.color) : null"
+                        [style.borderColor]="hoveredSectorId === sector.id ? getSectorHoverBorder(sector.color) : null"
+                        (mouseenter)="hoveredSectorId = sector.id" (mouseleave)="hoveredSectorId = null"
                         (click)="selectSector(sector.id)">
                         <span class="sector-item__icon" [style.backgroundColor]="sector.color"></span>
 
@@ -29,17 +31,24 @@
                         </span>
                     </button>
 
-                    <div class="sector-item__actions">
-                        <button type="button" class="icon-action" [disabled]="disabled || isCreateFormOpen"
-                            (click)="openEditForm(sector.id)">
-                            Edit
+                    <div class="sector-item-menu">
+                        <button type="button" class="sector-item-menu__trigger"
+                            [disabled]="disabled || isCreateFormOpen || !!editingSectorId || isDeletingSector || isUpdatingSector || isCreatingSector"
+                            [attr.aria-expanded]="isSectorMenuOpen(sector)"
+                            (click)="toggleSectorMenu(sector.id, $event)">
+                            ⋯
                         </button>
 
-                        <button type="button" class="icon-action icon-action--danger"
-                            [disabled]="disabled || isCreateFormOpen || !!editingSectorId || isDeletingSector || isUpdatingSector || isCreatingSector"
-                            (click)="requestDelete(sector.id)">
-                            Delete
-                        </button>
+                        <div class="sector-item-menu__dropdown" *ngIf="isSectorMenuOpen(sector)">
+                            <button type="button" class="sector-item-menu__action" (click)="startEditSector(sector.id)">
+                                Edit
+                            </button>
+
+                            <button type="button" class="sector-item-menu__action sector-item-menu__action--danger"
+                                (click)="startDeleteSector(sector.id)">
+                                Delete
+                            </button>
+                        </div>
                     </div>
                 </div>
             </ng-container>
@@ -69,7 +78,7 @@
         </ng-template>
     </div>
 
-    <button type="button" class="btn btn--primary" [disabled]="canAssign" (click)="applyToSelected()">
+    <button type="button" class="btn btn--primary" [disabled]="!canAssign" (click)="applyToSelected()">
         Apply to selected
     </button>
 </div>
