@@ -87,6 +87,7 @@ export class AuditoriumDashboardComponent implements OnInit, OnDestroy {
 
   editAuditorium(auditorium: Auditorium): void {
     console.log('Edit auditorium! ', auditorium);
+    this.router.navigate(['/layout-matrix', auditorium.id, 'editor']);
   }
 
   confirmDelete(auditorium: Auditorium): void {

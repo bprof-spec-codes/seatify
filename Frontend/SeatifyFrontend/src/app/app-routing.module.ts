@@ -5,6 +5,7 @@ import { VenueDashboardComponent } from './pages/venue-dashboard/venue-dashboard
 import { AuditoriumDashboardComponent } from './pages/auditorium-dashboard/auditorium-dashboard.component';
 import { VenueFormComponent } from './pages/venue-form/venue-form.component';
 import { CheckoutComponent } from './pages/checkout/checkout.component';
+import { LayoutMatrixEditorComponent } from './pages/layout-matrix-editor/layout-matrix-editor.component';
 import { EventsPageComponent } from './pages/events-page/events-page.component';
 import { OrganizerDashboardComponent } from './pages/organizer-dashboard/organizer-dashboard.component';
 import { OrganizerLayoutComponent } from './pages/organizer-layout/organizer-layout.component';
@@ -26,6 +27,7 @@ export const routes: Routes = [
   },
 
   { path: 'checkout', component: CheckoutComponent },
+  { path: 'layout-matrix/:auditoriumId/editor', component: LayoutMatrixEditorComponent },
   { path: '**', redirectTo: '' }
 ];
 
