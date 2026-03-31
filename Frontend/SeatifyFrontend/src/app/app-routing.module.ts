@@ -6,10 +6,12 @@ import { AuditoriumDashboardComponent } from './pages/auditorium-dashboard/audit
 import { VenueFormComponent } from './pages/venue-form/venue-form.component';
 import { CheckoutComponent } from './pages/checkout/checkout.component';
 import { EventsPageComponent } from './pages/events-page/events-page.component';
+import { OrganizerDashboardComponent } from './pages/organizer-dashboard/organizer-dashboard.component';
 
 export const routes: Routes = [
   { path: '', component: LandingPageComponent },
   { path: 'landingpage', component: LandingPageComponent },
+  { path: 'dashboard', component: OrganizerDashboardComponent },
   { path: 'venues', component: VenueDashboardComponent },
   { path: 'venues/form', component: VenueFormComponent },
   { path: 'auditoriums/:venueId', component: AuditoriumDashboardComponent },

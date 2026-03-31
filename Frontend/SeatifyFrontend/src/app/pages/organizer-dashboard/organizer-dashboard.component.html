@@ -1,1 +1,75 @@
-<p>organizer-dashboard works!</p>
+<div class="organizer-shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">
+        <i class="bi bi-ticket-perforated"></i>
+      </div>
+      <span class="brand-text">Seatify</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button
+        type="button"
+        class="nav-item"
+        [class.active]="isActive('dashboard')"
+        (click)="setActivePage('dashboard')"
+      >
+        <i class="bi bi-grid"></i>
+        <span>Dashboard</span>
+      </button>
+
+      <button
+        type="button"
+        class="nav-item"
+        [class.active]="isActive('venues')"
+        (click)="setActivePage('venues')"
+      >
+        <i class="bi bi-building"></i>
+        <span>Venues</span>
+      </button>
+
+      <button
+        type="button"
+        class="nav-item"
+        [class.active]="isActive('events')"
+        (click)="setActivePage('events')"
+      >
+        <i class="bi bi-calendar-event"></i>
+        <span>Events</span>
+      </button>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    <header class="page-header">
+      <h1 class="page-title">{{ getPageTitle() }}</h1>
+      <p class="page-subtitle">{{ getPageSubtitle() }}</p>
+    </header>
+
+    <ng-container [ngSwitch]="activePage">
+      <section *ngSwitchCase="'dashboard'" class="dashboard-overview">
+        <div class="overview-grid">
+          <div class="stats-card">
+            <div class="stats-icon">
+              <i class="bi bi-calendar-event"></i>
+            </div>
+
+            <div class="stats-value">12</div>
+            <div class="stats-label">Active Events</div>
+          </div>
+
+          <div class="overview-panel top-panel"></div>
+          <div class="overview-panel bottom-panel"></div>
+        </div>
+      </section>
+
+      <ng-container *ngSwitchCase="'venues'">
+        <ng-container *ngComponentOutlet="venueDashboardComponent"></ng-container>
+      </ng-container>
+
+      <ng-container *ngSwitchCase="'events'">
+        <ng-container *ngComponentOutlet="eventsPageComponent"></ng-container>
+      </ng-container>
+    </ng-container>
+  </main>
+</div>
