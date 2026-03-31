@@ -21,7 +21,7 @@ export class SeatMapDisplayComponent implements AfterViewInit, OnDestroy {
   private camera!: THREE.PerspectiveCamera;
   private renderer!: THREE.WebGLRenderer;
   private animationFrameId: number | null = null;
-  private clock = new THREE.Clock();
+  private timer = new THREE.Timer();
 
   private seatGroups: THREE.Group[] = [];
   private stageGlow!: THREE.Mesh;
@@ -84,7 +84,7 @@ export class SeatMapDisplayComponent implements AfterViewInit, OnDestroy {
     this.renderer.setSize(container.clientWidth, container.clientHeight);
     this.renderer.setClearColor(0xffffff, 0);
     this.renderer.shadowMap.enabled = true;
-    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    this.renderer.shadowMap.type = THREE.PCFShadowMap;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.08;
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -357,7 +357,9 @@ export class SeatMapDisplayComponent implements AfterViewInit, OnDestroy {
   }
 
   private animate = (): void => {
-    const t = this.clock.getElapsedTime();
+    this.timer.update();
+    this.timer.connect(document);
+    const t = this.timer.getElapsed();
 
     this.camera.position.x = Math.sin(t * 0.28) * 4.5;
     this.camera.position.y = 18 + Math.sin(t * 0.65) * 0.35;
