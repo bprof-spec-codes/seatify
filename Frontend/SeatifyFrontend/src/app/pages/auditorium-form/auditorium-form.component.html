@@ -1,0 +1,40 @@
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-7 col-lg-6">
+            <div class="card shadow-sm border-0" style="border-radius: 12px; border: 1px solid #E5E7EB !important; background-color: #ffffff;">
+                <div class="card-header bg-white border-bottom-0 pt-4 pb-2 px-4 rounded-top" style="border-radius: 12px 12px 0 0;">
+                    <h2 style="font-size: 1.5rem; font-weight: 600; color: #111827;" class="mb-0">
+                        {{ (editMode$ | async) ? 'Edit Auditorium' : 'Create Auditorium' }}
+                    </h2>
+                </div>
+                <div class="card-body px-4 pb-4">
+                    <form [formGroup]="auditoriumForm" (ngSubmit)="onSubmit()">
+                        <div class="form-group mb-4">
+                            <label for="auditoriumName" class="form-label d-block mb-1" style="font-weight: 500; font-size: 0.875rem; color: #374151;">Name*</label>
+                            <input type="text" class="form-control px-3 py-2" id="auditoriumName" formControlName="auditoriumName" placeholder="Enter simple auditorium name (e.g. Main Hall)" style="border-radius: 8px; border: 1px solid #D1D5DB; background-color: #F9FAFB; color: #1F2937;">
+                            <div *ngIf="auditoriumForm.get('auditoriumName')?.invalid && (auditoriumForm.get('auditoriumName')?.touched || auditoriumForm.get('auditoriumName')?.dirty)" class="text-danger mt-1" style="font-size: 0.75rem;">
+                                <div *ngIf="auditoriumForm.get('auditoriumName')?.errors?.['required']">Auditorium name is required.</div>
+                                <div *ngIf="auditoriumForm.get('auditoriumName')?.errors?.['maxlength']">Auditorium name cannot exceed 100 characters.</div>
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-5">
+                            <label for="auditoriumDescription" class="form-label d-block mb-1" style="font-weight: 500; font-size: 0.875rem; color: #374151;">Description</label>
+                            <textarea class="form-control px-3 py-2" id="auditoriumDescription" formControlName="auditoriumDescription" placeholder="Optional brief details..." rows="4" style="border-radius: 8px; border: 1px solid #D1D5DB; background-color: #F9FAFB; color: #1F2937; resize: vertical;"></textarea>
+                            <div *ngIf="auditoriumForm.get('auditoriumDescription')?.invalid && (auditoriumForm.get('auditoriumDescription')?.touched || auditoriumForm.get('auditoriumDescription')?.dirty)" class="text-danger mt-1" style="font-size: 0.75rem;">
+                                <div *ngIf="auditoriumForm.get('auditoriumDescription')?.errors?.['maxlength']">Description cannot exceed 500 characters.</div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mt-2">
+                            <button type="button" class="btn btn-light" (click)="back()" style="font-weight: 500; font-size: 0.875rem; background-color: #F9FAFB; border: 1px solid #D1D5DB; color: #374151; border-radius: 8px; padding: 0.5rem 1rem;">Cancel</button>
+                            <button type="submit" class="btn btn-primary" [disabled]="auditoriumForm.invalid" style="font-weight: 500; font-size: 0.875rem; background-color: #3B82F6; border: none; border-radius: 8px; padding: 0.5rem 1.5rem; color: #ffffff;">
+                                Save Auditorium
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
