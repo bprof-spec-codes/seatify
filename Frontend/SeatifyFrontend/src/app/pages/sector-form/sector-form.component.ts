@@ -16,7 +16,7 @@ export class SectorFormComponent implements OnInit, OnChanges {
   @Output() submitted = new EventEmitter<CreateUpdateSectorDto>()
   @Output() cancelled = new EventEmitter<void>()
 
-  form!: FormGroup;
+  form!: FormGroup
 
   constructor(private fb: FormBuilder) { }
 
@@ -28,6 +28,7 @@ export class SectorFormComponent implements OnInit, OnChanges {
     })
 
     this.applyInitialValue()
+    this.syncFormDisabledState()
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -36,6 +37,10 @@ export class SectorFormComponent implements OnInit, OnChanges {
     if (changes['initialValue']) {
       this.applyInitialValue()
     }
+
+    if (changes['isSubmitting']) {
+      this.syncFormDisabledState()
+    }
   }
 
   private applyInitialValue(): void {
@@ -43,7 +48,7 @@ export class SectorFormComponent implements OnInit, OnChanges {
       name: '',
       color: '#FFFFFF',
       basePrice: 0
-    }
+    };
 
     this.form.patchValue(
       {
@@ -55,10 +60,18 @@ export class SectorFormComponent implements OnInit, OnChanges {
     )
   }
 
+  private syncFormDisabledState(): void {
+    if (this.isSubmitting) {
+      this.form.disable({ emitEvent: false })
+    } else {
+      this.form.enable({ emitEvent: false })
+    }
+  }
+
   submit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched()
-      return
+      return;
     }
 
     const raw = this.form.getRawValue()
@@ -71,6 +84,7 @@ export class SectorFormComponent implements OnInit, OnChanges {
   }
 
   cancel(): void {
+    if (this.isSubmitting) return
     this.cancelled.emit()
   }
 

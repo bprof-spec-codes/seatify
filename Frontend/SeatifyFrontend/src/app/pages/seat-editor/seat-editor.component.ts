@@ -28,9 +28,10 @@ export class SeatEditorComponent implements OnInit, OnChanges {
       seatLabel: ['', [Validators.maxLength(20)]],
       priceOverride: [null, [Validators.min(0), Validators.max(999999)]],
       seatType: [this.seatType.Seat, [Validators.required]]
-    });
+    })
 
-    this.applyCell();
+    this.applyCell()
+    this.syncFormDisabledState()
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -38,6 +39,10 @@ export class SeatEditorComponent implements OnInit, OnChanges {
 
     if (changes['cell']) {
       this.applyCell();
+    }
+
+    if (changes['disabled'] || changes['isSaving']) {
+      this.syncFormDisabledState()
     }
   }
 
@@ -59,6 +64,14 @@ export class SeatEditorComponent implements OnInit, OnChanges {
       priceOverride: cell.priceOverride ?? null,
       seatType: cell.seatType
     }, { emitEvent: false });
+  }
+
+  private syncFormDisabledState(): void {
+    if (this.disabled || this.isSaving) {
+      this.form.disable({ emitEvent: false })
+    } else {
+      this.form.enable({ emitEvent: false })
+    }
   }
 
   submit(): void {

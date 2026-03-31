@@ -25,11 +25,11 @@
     </div>
 
     <div class="ui-form__actions">
-        <button type="submit" class="btn btn--primary" [disabled]="form.invalid || isSubmitting">
+        <button type="submit" class="btn btn--primary" [disabled]="form.invalid">
             {{ submitLabel }}
         </button>
 
-        <button type="button" class="btn btn--secondary" (click)="cancel()" [disabled]="isSubmitting">
+        <button type="button" class="btn btn--secondary" (click)="cancel()">
             Cancel
         </button>
     </div>
