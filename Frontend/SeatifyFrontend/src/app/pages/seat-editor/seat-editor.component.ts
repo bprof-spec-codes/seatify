@@ -15,6 +15,7 @@ export class SeatEditorComponent implements OnInit, OnChanges {
   @Input() isSaving = false;
   @Input() disabled = false;
 
+
   @Output() save = new EventEmitter<UpdateSeatDto>();
 
   form!: FormGroup;

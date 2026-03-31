@@ -1,20 +1,8 @@
-<ng-container *ngIf="cell as selectedCell; else noCellSelected">
+<ng-container >
     <div class="seat-panel">
         <div class="tool-section-header">
             <h3 class="tool-section-title">Seat</h3>
             <p class="tool-section-subtitle">Edit the selected seat properties.</p>
-        </div>
-
-        <div class="seat-meta">
-            <div class="seat-meta__item">
-                <span>Row</span>
-                <strong>{{ selectedCell.row }}</strong>
-            </div>
-
-            <div class="seat-meta__item">
-                <span>Column</span>
-                <strong>{{ selectedCell.column }}</strong>
-            </div>
         </div>
 
         <form class="seat-form" [formGroup]="form" (ngSubmit)="submit()">
@@ -66,7 +54,7 @@
 
             <div class="form-actions">
                 <button type="submit" class="btn btn--primary"
-                    [disabled]="!selectedCell.seatId || form.invalid || isSaving || disabled">
+                    [disabled]="form.invalid || isSaving || disabled">
                     Save seat
                 </button>
             </div>
