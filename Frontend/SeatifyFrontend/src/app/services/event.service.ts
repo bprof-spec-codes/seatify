@@ -5,6 +5,8 @@ import { environment } from '../../environments/environment.development';
 import { SeatifyEvent } from '../models/event';
 import { EventCard } from '../models/event-card';
 import { EventOccurrence } from '../models/event-occurrence';
+import EventRequest from '../models/event.request';
+import EventResponse from '../models/event.response';
 
 @Injectable({
   providedIn: 'root'
@@ -15,6 +17,14 @@ export class EventService {
   private readonly eventOccurrencesApiUrl = `${this.apiUrl}/event-occurrences`;
 
   constructor(private readonly http: HttpClient) {}
+
+  createEvent(eventrequest: EventRequest): Observable<EventResponse>{
+    return this.http.post<EventResponse>(this.eventOccurrencesApiUrl, eventrequest);
+  }
+
+  updateEvent(eventrequest: EventRequest, id: number): Observable<EventResponse>{
+    return this.http.put<EventResponse>(`${this.eventOccurrencesApiUrl}/${id}`, eventrequest);
+  }
 
   getEventCards(): Observable<EventCard[]> {
     return this.http.get<SeatifyEvent[]>(this.eventsApiUrl).pipe(

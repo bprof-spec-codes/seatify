@@ -1,0 +1,153 @@
+<div class="layout-editor-page">
+  <header class="page-header">
+    <div class="page-header__content">
+
+      <button type="button" class="back-button" (click)="goBack()" title="Back">
+        <i class="bi bi-arrow-left"></i>
+      </button>
+
+      <div>
+        <h1>Layout Matrix Editor</h1>
+        <p class="page-subtitle">
+          Auditorium ID: {{ auditoriumId || 'N/A' }}
+        </p>
+      </div>
+
+    </div>
+  </header>
+
+  <div class="editor-layout">
+    <aside class="left-panel panel">
+      <div class="panel-header">
+        <h2 class="panel-title">Layout Matrices</h2>
+      </div>
+
+      <div class="matrix-list" *ngIf="matrices$ | async as matrices">
+        <div *ngIf="matrices.length === 0" class="panel-placeholder">
+          No layout matrices found for this auditorium. Create one to get started.
+        </div>
+
+        <ng-container *ngFor="let matrix of matrices; trackBy: trackByMatrixId">
+          <ng-container *ngIf="!isEditing(matrix); else editFormBlock">
+            <div class="matrix-item-wrapper">
+              <button type="button" class="matrix-item" [class.matrix-item--active]="isSelected(matrix)"
+                (click)="selectMatrix(matrix)">
+                <span class="matrix-item__name">{{ matrix.name }}</span>
+                <span class="matrix-item__meta">{{ matrix.rows }} × {{ matrix.columns }}</span>
+              </button>
+
+              <div class="matrix-item-menu">
+                <button type="button" class="matrix-item-menu__trigger" (click)="toggleMatrixMenu(matrix.id)"
+                  [attr.aria-expanded]="isMatrixMenuOpen(matrix)">
+                  ⋯
+                </button>
+
+                <div class="matrix-item-menu__dropdown" *ngIf="isMatrixMenuOpen(matrix)">
+                  <button type="button" class="matrix-item-menu__action" (click)="startEditMatrix(matrix)">
+                    Edit
+                  </button>
+
+                  <button type="button" class="matrix-item-menu__action matrix-item-menu__action--danger"
+                    (click)="startDeleteMatrix(matrix)" [disabled]="isDeletingMatrix || isSavingMatrix">
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+
+          <ng-template #editFormBlock>
+            <div class="matrix-edit-block">
+              <app-layout-matrix-form [initialValue]="{
+                  name: matrix.name,
+                  rows: matrix.rows,
+                  columns: matrix.columns
+                }" [submitLabel]="'Save'" [isSubmitting]="isSavingMatrix" (submitted)="updateMatrix(matrix.id, $event)"
+                (cancelled)="closeEditForm()">
+              </app-layout-matrix-form>
+            </div>
+          </ng-template>
+        </ng-container>
+
+        <ng-container *ngIf="!isCreateFormOpen; else createFormBlock">
+          <button type="button" class="matrix-add-button" (click)="openCreateForm()">
+            + New matrix
+          </button>
+        </ng-container>
+
+        <ng-template #createFormBlock>
+          <app-layout-matrix-form [submitLabel]="'Create'" [isSubmitting]="isCreatingMatrix"
+            (submitted)="createMatrix($event)" (cancelled)="closeCreateForm()">
+          </app-layout-matrix-form>
+        </ng-template>
+      </div>
+    </aside>
+
+    <main class="center-panel panel">
+      <div class="editor-shell" *ngIf="selectedMatrix as matrix; else emptyEditor">
+        <div class="editor-shell__header">
+          <div>
+            <h2 class="panel-title">{{ selectedMatrixTitle }}</h2>
+            <p class="editor-shell__subtitle">{{ selectedMatrixSummary }}</p>
+          </div>
+        </div>
+
+        <div class="editor-shell__body">
+          <div class="editor-canvas">
+            <div class="editor-stage-badge">STAGE</div>
+
+            <div class="grid-wrapper">
+              <div class="grid" [style.gridTemplateColumns]="'repeat(' + gridColumns + ', 36px)'">
+                <div class="cell" *ngFor="let cell of gridCells; trackBy: trackByCellKey"
+                  [class.cell--selected]="isCellSelected(cell)"
+                  [class.cell--accessible]="cell.seatType === seatType.AccessibleSeat"
+                  [class.cell--aisle]="cell.seatType === seatType.Aisle" (click)="selectCell(cell)"
+                  [style.backgroundColor]="isCellSelected(cell) ? '#2563eb' : getSectorColor(cell.sectorId)"
+                  [title]="cell.seatLabel || ('Row ' + cell.row + ', Column ' + cell.column)"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <ng-template #emptyEditor>
+        <div class="editor-empty-state">
+          <div class="panel-placeholder panel-placeholder-large">
+            Choose a layout matrix from the left to start editing.
+          </div>
+        </div>
+      </ng-template>
+    </main>
+
+    <aside class="right-panel panel">
+      <div class="panel-header">
+        <h2 class="panel-title">Properties & Tools</h2>
+      </div>
+
+      <div class="selection-summary__hint" *ngIf="isBulkSelection">
+        Bulk edit will be available later. For now, properties can only be edited when exactly one seat is selected.
+      </div>
+
+      <div class="tool-stack">
+        <div class="tool-card">
+          <app-seat-editor [cell]="selectedCell" [isSaving]="isSavingSeat" [disabled]="!selectedCell || isBulkSelection"
+            (save)="saveSeat($event)">
+          </app-seat-editor>
+        </div>
+
+        <div class="tool-card">
+          <app-sector-editor [sectors]="(sectors$ | async) ?? []" [selectedSectorId]="selectedCell?.sectorId ?? null"
+            [disabled]="isSavingSeat" [canAssign]="!!selectedCell && !isBulkSelection"
+            [isCreateFormOpen]="isCreateSectorFormOpen" [isCreatingSector]="isCreatingSector"
+            [editingSectorId]="editingSectorId" [isUpdatingSector]="isUpdatingSector"
+            [isDeletingSector]="isDeletingSector" (applySector)="applySectorToSelectedSeat($event)"
+            (createClicked)="openCreateSectorForm()" (createCancelled)="closeCreateSectorForm()"
+            (createSubmitted)="createSector($event)" (editClicked)="openEditSectorForm($event)"
+            (editCancelled)="closeEditSectorForm()" (editSubmitted)="updateSector($event)"
+            (deleteClicked)="deleteSector($event)">
+          </app-sector-editor>
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>

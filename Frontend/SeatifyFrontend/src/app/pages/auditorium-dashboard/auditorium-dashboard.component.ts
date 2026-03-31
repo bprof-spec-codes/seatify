@@ -88,6 +88,11 @@ export class AuditoriumDashboardComponent implements OnInit, OnDestroy {
     this.router.navigate([`dashboard/auditoriums/${this.venue.id}/form`]);
   }
 
+  editLayout(auditorium: Auditorium): void {
+    console.log('Edit auditorium layout! ', auditorium);
+    this.router.navigate(['/layout-matrix', auditorium.id, 'editor']);
+  }
+
   confirmDelete(auditorium: Auditorium): void {
     this.selectedAuditorium = auditorium;
     this.showModal = true;
