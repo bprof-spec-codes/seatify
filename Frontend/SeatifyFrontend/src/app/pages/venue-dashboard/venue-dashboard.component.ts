@@ -16,27 +16,27 @@ export class VenueDashboardComponent implements OnInit, OnDestroy {
   showModal: boolean = false;
   selectedVenue!: Venue;
   organizerId: string = "org-id-01"; // mock data
+  isVenuesCalled!: boolean;
   private unsubscribe$ = new Subject<void>();
 
   constructor(private venueService: VenueService, private router: Router) {}
 
   ngOnInit(): void {
-    // TODO: check if venues$ is empty
+    let fetchInitiated = false;
 
     this.venueService.venues$.pipe(takeUntil(this.unsubscribe$)).subscribe(venues => {
-      // If venues already stored don't call API again.
+      // If venues already stored don't call the API again.
       if (venues.length > 0)
       {
         this.venues = venues;
         this.venues$ = of(venues);
+        fetchInitiated = false;
       }
-      // If venues is empty call the API for venues.
-      else
+      // If venues is empty call the API once for the venues.
+      else if (venues.length === 0 && !fetchInitiated)
       {
-        this.venueService.getVenuesByOrganizerId(this.organizerId).pipe(takeUntil(this.unsubscribe$)).subscribe(venues => {
-          this.venues = venues;
-          this.venues$ = of(venues);
-        });
+        fetchInitiated = true;
+        this.fetchVenues();
       }
     });
   }
@@ -81,5 +81,13 @@ export class VenueDashboardComponent implements OnInit, OnDestroy {
 
   cancelDelete(): void {
     this.showModal = false;
+  }
+
+  private fetchVenues(): void {
+    this.venueService.getVenuesByOrganizerId(this.organizerId).pipe(takeUntil(this.unsubscribe$)).subscribe(fetchedVenues => {
+      this.venues = fetchedVenues;
+      this.venues$ = of(fetchedVenues);
+      this.isVenuesCalled = true;
+    });
   }
 }
