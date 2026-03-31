@@ -3,6 +3,7 @@ import { Auditorium } from '../../models/auditorium';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Observable, Subject, of, takeUntil } from 'rxjs';
 import { AuditoriumService } from '../../services/auditorium.service';
+import { VenueService } from '../../services/venue.service';
 import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
@@ -23,7 +24,8 @@ export class AuditoriumFormComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private fb: FormBuilder,
-    private auditoriumService: AuditoriumService
+    private auditoriumService: AuditoriumService,
+    private venueService: VenueService
   ) {}
 
   ngOnInit(): void {
@@ -51,7 +53,7 @@ export class AuditoriumFormComponent implements OnInit, OnDestroy {
   onSubmit() {
     if (this.auditoriumForm.valid) {
       const auditoriumData: Auditorium = {
-        id: this.editMode && this.auditorium ? this.auditorium.id : '',
+        id: this.editMode && this.auditorium ? this.auditorium.id : undefined,
         venueId: this.venueId,
         name: this.auditoriumForm.value.auditoriumName,
         description: this.auditoriumForm.value.auditoriumDescription,
@@ -60,11 +62,13 @@ export class AuditoriumFormComponent implements OnInit, OnDestroy {
       };
 
       if (this.editMode) {
-        this.auditoriumService.updateAuditorium(auditoriumData).pipe(takeUntil(this.unsubscribe$)).subscribe(() => {
+        this.auditoriumService.updateAuditorium(auditoriumData).pipe(takeUntil(this.unsubscribe$)).subscribe((updated) => {
+          this.venueService.updateAuditoriumInVenue(this.venueId, updated);
           this.router.navigate([`dashboard/auditoriums/${this.venueId}`]);
         });
       } else {
-        this.auditoriumService.createAuditorium(this.venueId, auditoriumData).pipe(takeUntil(this.unsubscribe$)).subscribe(() => {
+        this.auditoriumService.createAuditorium(this.venueId, auditoriumData).pipe(takeUntil(this.unsubscribe$)).subscribe((created) => {
+          this.venueService.addAuditoriumToVenue(this.venueId, created);
           this.router.navigate([`dashboard/auditoriums/${this.venueId}`]);
         });
       }

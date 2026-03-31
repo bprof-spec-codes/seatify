@@ -43,11 +43,7 @@ export class AuditoriumDashboardComponent implements OnInit, OnDestroy {
           this.venue$ = of(this.venue);
           this.auditoriums = this.venue.auditoriums;
           this.auditoriums$ = of(this.venue.auditoriums);
-
-          if (this.auditoriums.length === 0)
-          {
-            this.isEmpty = true;
-          }
+          this.isEmpty = this.auditoriums.length === 0;
         }
         // If venues is empty call the API for the venue by venueId.
         else
@@ -57,6 +53,7 @@ export class AuditoriumDashboardComponent implements OnInit, OnDestroy {
             this.venue$ = of(this.venue);
             this.auditoriums = venue.auditoriums;
             this.auditoriums$ = of(this.auditoriums);
+            this.isEmpty = this.auditoriums.length === 0;
           });
           /*this.auditoriumService.getAuditoriumsByVenueId(venueId).pipe(takeUntil(this.unsubscribe$)).subscribe(auditoriums => {
             this.auditoriums = auditoriums;
@@ -81,12 +78,14 @@ export class AuditoriumDashboardComponent implements OnInit, OnDestroy {
   }
 
   createAuditorium(): void {
-    console.log('Create auditorium!');
-    //this.isEmpty = false;
+    this.auditoriumService.setEditMode(false);
+    this.router.navigate([`dashboard/auditoriums/${this.venue.id}/form`]);
   }
 
   editAuditorium(auditorium: Auditorium): void {
-    console.log('Edit auditorium! ', auditorium);
+    this.auditoriumService.setEditMode(true);
+    this.auditoriumService.setEditAuditorium(auditorium);
+    this.router.navigate([`dashboard/auditoriums/${this.venue.id}/form`]);
   }
 
   confirmDelete(auditorium: Auditorium): void {
@@ -95,7 +94,7 @@ export class AuditoriumDashboardComponent implements OnInit, OnDestroy {
   }
 
   deleteAuditorium(auditorium: Auditorium): void {
-    this.auditoriumService.deleteAuditoriumById(auditorium.id).subscribe({
+    this.auditoriumService.deleteAuditoriumById(auditorium.id!).subscribe({
       next: () => {
         console.log('Auditorium successfully deleted!');
 
@@ -103,7 +102,7 @@ export class AuditoriumDashboardComponent implements OnInit, OnDestroy {
         this.auditoriums$ = of(this.auditoriums);
 
         // Update the local state to reflect the changes without unnecessary API calls.
-        this.venueService.removeAuditoriumFromVenue(this.venue.id!, auditorium.id);
+        this.venueService.removeAuditoriumFromVenue(this.venue.id!, auditorium.id!);
       },
       error: err => console.error('Error: ', err.message)
     });
