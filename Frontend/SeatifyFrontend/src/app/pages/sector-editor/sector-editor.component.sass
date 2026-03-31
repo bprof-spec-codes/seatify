@@ -1,4 +1,4 @@
-@use '../../../_variables' as *
+@use '../../../_variables.sass' as *
 
 :host
     display: block
@@ -29,12 +29,21 @@
 .sector-list
     display: flex
     flex-direction: column
-    gap: 10px
+    gap: 8px
 
 .sector-item-wrapper
+    --sector-color: #ffffff
+    position: relative
     display: flex
-    flex-direction: column
-    gap: 8px
+    align-items: center
+
+    &:hover .sector-item:not(:disabled)
+        background: color-mix(in srgb, var(--sector-color) 16%, white)
+        border-color: color-mix(in srgb, var(--sector-color) 45%, #d1d5db)
+
+    &:hover .sector-item__actions
+        opacity: 1
+        pointer-events: auto
 
 .sector-item
     width: 100%
@@ -48,9 +57,9 @@
     text-align: left
     cursor: pointer
     transition: .18s ease
+    min-height: 52px
 
     &:hover:not(:disabled)
-        background: $color-light-100
         border-color: $color-light-300
 
     &:disabled
@@ -63,8 +72,8 @@
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.08)
 
 .sector-item__icon
-    width: 16px
-    height: 16px
+    width: 14px
+    height: 14px
     border-radius: 999px
     border: 2px solid rgba(255, 255, 255, 0.9)
     box-shadow: 0 0 0 1px $color-light-300
@@ -75,45 +84,68 @@
 
 .sector-item__content
     display: flex
-    flex-direction: column
+    align-items: center
+    justify-content: space-between
+    gap: 12px
     min-width: 0
+    flex: 1
 
 .sector-item__name
     font-size: 14px
     line-height: 20px
     font-weight: 600
     color: $color-dark-950
+    white-space: nowrap
+    overflow: hidden
+    text-overflow: ellipsis
 
 .sector-item__price
-    font-size: 12px
+    font-size: 13px
     line-height: 18px
-    color: $color-dark-600
+    font-weight: 500
+    color: $color-dark-700
+    white-space: nowrap
+    flex: 0 0 auto
+    margin-right: 72px
 
 .sector-item__actions
+    position: absolute
+    top: 50%
+    right: 12px
+    transform: translateY(-50%)
     display: flex
-    gap: 8px
+    align-items: center
+    gap: 4px
+    opacity: .45
+    pointer-events: auto
+    transition: .18s ease
 
 .icon-action
-    flex: 1
-    min-height: 36px
-    border-radius: 10px
-    border: 1px solid $color-light-300
-    background: $color-light-50
-    font-size: 13px
+    border: none
+    background: transparent
+    padding: 4px 6px
+    border-radius: 8px
+    font-size: 12px
+    line-height: 16px
     font-weight: 600
-    color: $color-dark-700
+    color: $color-dark-600
     cursor: pointer
     transition: .18s ease
 
     &:hover:not(:disabled)
-        background: $color-light-100
+        background: rgba(255, 255, 255, 0.55)
+        color: $color-dark-900
 
     &:disabled
-        opacity: .6
+        opacity: .45
         cursor: not-allowed
 
 .icon-action--danger
     color: $color-danger-500
+
+    &:hover:not(:disabled)
+        background: rgba(255, 255, 255, 0.55)
+        color: $color-danger-500
 
 .sector-form-block
     border: 1px solid $color-light-200

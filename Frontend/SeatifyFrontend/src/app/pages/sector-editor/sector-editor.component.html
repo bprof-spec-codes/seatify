@@ -11,13 +11,13 @@
 
             <span class="sector-item__content">
                 <span class="sector-item__name">No sector</span>
-                <span class="sector-item__price">No assigned base price</span>
+                <span class="sector-item__price">No base price</span>
             </span>
         </button>
 
         <ng-container *ngFor="let sector of sectors; trackBy: trackBySectorId">
             <ng-container *ngIf="!isEditing(sector); else editSectorBlock">
-                <div class="sector-item-wrapper">
+                <div class="sector-item-wrapper" [style.--sector-color]="sector.color">
                     <button type="button" class="sector-item"
                         [class.sector-item--selected]="pendingSectorId === sector.id" [disabled]="disabled"
                         (click)="selectSector(sector.id)">
