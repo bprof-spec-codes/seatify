@@ -1,4 +1,4 @@
-@use '../../../_variables' as *
+@use '../../../_variables.sass' as *
 
 :host
     display: block
@@ -244,11 +244,15 @@ h1
 .cell
     width: 36px
     height: 36px
-    border-radius: 10px
-    background: $color-primary-500
-    border: 2px solid transparent
+    border: 1px solid $border-color
+    border-radius: 8px
     cursor: pointer
-    transition: transform .14s ease, box-shadow .14s ease, border-color .14s ease, opacity .14s ease
+    transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease
+
+    &--selected
+        border-color: #111
+        box-shadow: 0 0 0 3px rgba(17, 17, 17, 0.28)
+        transform: scale(1.04)
 
     &:hover
         transform: translateY(-1px)

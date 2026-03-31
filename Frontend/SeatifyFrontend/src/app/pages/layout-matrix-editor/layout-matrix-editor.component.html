@@ -96,6 +96,7 @@
                   [class.cell--selected]="isCellSelected(cell)"
                   [class.cell--accessible]="cell.seatType === seatType.AccessibleSeat"
                   [class.cell--aisle]="cell.seatType === seatType.Aisle" (click)="selectCell(cell)"
+                  [style.backgroundColor]="getSectorColor(cell.sectorId)"
                   [title]="cell.seatLabel || ('Row ' + cell.row + ', Column ' + cell.column)"></div>
               </div>
             </div>
@@ -117,22 +118,33 @@
         <h2 class="panel-title">Properties & Tools</h2>
       </div>
 
+      <div class="tool-card">
+        <div class="selection-summary">
+          <div class="selection-summary__title">Selection - {{ selectedCellKeys.length }}</div>
+
+          <div class="selection-summary__hint" *ngIf="isBulkSelection">
+            Bulk edit will be available later. For now, properties can only be edited when exactly one seat is selected.
+          </div>
+        </div>
+      </div>
+
       <div class="tool-stack">
         <div class="tool-card">
-          <app-seat-editor [cell]="selectedCell" [isSaving]="isSavingSeat" [disabled]="!selectedCell"
+          <app-seat-editor [cell]="selectedCell" [isSaving]="isSavingSeat" [disabled]="!selectedCell || isBulkSelection"
             (save)="saveSeat($event)">
           </app-seat-editor>
         </div>
 
         <div class="tool-card">
           <app-sector-editor [sectors]="(sectors$ | async) ?? []" [selectedSectorId]="selectedCell?.sectorId ?? null"
-            [disabled]="isSavingSeat" [canAssign]="!selectedCell" [isCreateFormOpen]="isCreateSectorFormOpen"
-            [isCreatingSector]="isCreatingSector" [editingSectorId]="editingSectorId"
-            [isUpdatingSector]="isUpdatingSector" [isDeletingSector]="isDeletingSector"
-            (applySector)="applySectorToSelectedSeat($event)" (createClicked)="openCreateSectorForm()"
-            (createCancelled)="closeCreateSectorForm()" (createSubmitted)="createSector($event)"
-            (editClicked)="openEditSectorForm($event)" (editCancelled)="closeEditSectorForm()"
-            (editSubmitted)="updateSector($event)" (deleteClicked)="deleteSector($event)">
+            [disabled]="isSavingSeat" [canAssign]="!selectedCell || isBulkSelection"
+            [isCreateFormOpen]="isCreateSectorFormOpen" [isCreatingSector]="isCreatingSector"
+            [editingSectorId]="editingSectorId" [isUpdatingSector]="isUpdatingSector"
+            [isDeletingSector]="isDeletingSector" (applySector)="applySectorToSelectedSeat($event)"
+            (createClicked)="openCreateSectorForm()" (createCancelled)="closeCreateSectorForm()"
+            (createSubmitted)="createSector($event)" (editClicked)="openEditSectorForm($event)"
+            (editCancelled)="closeEditSectorForm()" (editSubmitted)="updateSector($event)"
+            (deleteClicked)="deleteSector($event)">
           </app-sector-editor>
         </div>
       </div>

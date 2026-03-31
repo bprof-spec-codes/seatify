@@ -26,7 +26,7 @@ export class LayoutMatrixEditorComponent implements OnInit {
   seatMap$!: Observable<SeatMap | null>;
 
   gridCells: MatrixCellVm[] = []
-  selectedCellKey: string | null = null
+  selectedCellKeys: string[] = []
 
   auditoriumId: string = ""
   seatType = SeatType
@@ -77,7 +77,7 @@ export class LayoutMatrixEditorComponent implements OnInit {
         this.gridCells = []
         this.gridRows = 0
         this.gridColumns = 0
-        this.selectedCellKey = null
+        this.selectedCellKeys = []
         this.cdr.markForCheck()
       }),
       switchMap(matrix => {
@@ -155,7 +155,7 @@ export class LayoutMatrixEditorComponent implements OnInit {
   private setSelectedMatrix(matrix: LayoutMatrix | null): void {
     this.selectedMatrix = matrix
     this.selectedMatrixSubject.next(matrix)
-    this.selectedCellKey = null
+    this.selectedCellKeys = []
     this.cdr.markForCheck()
   }
 
@@ -206,25 +206,49 @@ export class LayoutMatrixEditorComponent implements OnInit {
   }
 
   selectCell(cell: MatrixCellVm): void {
-    this.selectedCellKey = cell.key
+    const isAlreadySelected = this.selectedCellKeys.includes(cell.key)
 
-    this.seatEditModel = {
-      seatLabel: cell.seatLabel ?? '',
-      sectorId: cell.sectorId ?? null,
-      priceOverride: cell.priceOverride ?? null,
-      seatType: cell.seatType
+    if (isAlreadySelected) {
+      this.selectedCellKeys = this.selectedCellKeys.filter(key => key !== cell.key)
+    } else {
+      this.selectedCellKeys = [...this.selectedCellKeys, cell.key]
+    }
+
+    if (this.selectedCells.length === 1) {
+      const selected = this.selectedCells[0]
+
+      this.seatEditModel = {
+        seatLabel: selected.seatLabel ?? '',
+        sectorId: selected.sectorId ?? null,
+        priceOverride: selected.priceOverride ?? null,
+        seatType: selected.seatType
+      }
+    } else {
+      this.seatEditModel = null
     }
 
     this.cdr.markForCheck()
   }
 
   isCellSelected(cell: MatrixCellVm): boolean {
-    return this.selectedCellKey === cell.key
+    return this.selectedCellKeys.includes(cell.key)
+  }
+
+  get selectedCells(): MatrixCellVm[] {
+    if (this.selectedCellKeys.length === 0) return []
+    return this.gridCells.filter(c => this.selectedCellKeys.includes(c.key))
   }
 
   get selectedCell(): MatrixCellVm | null {
-    if (!this.selectedCellKey) return null
-    return this.gridCells.find(c => c.key === this.selectedCellKey) ?? null
+    return this.selectedCells.length === 1 ? this.selectedCells[0] : null
+  }
+
+  get hasSelection(): boolean {
+    return this.selectedCellKeys.length > 0
+  }
+
+  get isBulkSelection(): boolean {
+    return this.selectedCellKeys.length > 1
   }
 
   setSelectedCellSeatType(type: SeatType): void {
@@ -347,7 +371,7 @@ export class LayoutMatrixEditorComponent implements OnInit {
         this.loadMatrices()
 
         if (deletedSelected) {
-          this.selectedCellKey = null
+          this.selectedCellKeys = []
           this.gridCells = []
           this.gridRows = 0
           this.gridColumns = 0
@@ -403,6 +427,8 @@ export class LayoutMatrixEditorComponent implements OnInit {
       this.cdr.markForCheck()
     }
   }
+
+  //update seat
 
   saveSeat(formValue: UpdateSeatDto): void {
     const cell = this.selectedCell
@@ -482,6 +508,9 @@ export class LayoutMatrixEditorComponent implements OnInit {
     })
   }
 
+  
+  //sector
+
   openCreateSectorForm(): void {
     this.isCreateSectorFormOpen = true
     this.cdr.markForCheck()
@@ -521,7 +550,6 @@ export class LayoutMatrixEditorComponent implements OnInit {
     this.editingSectorId = null
     this.cdr.markForCheck()
   }
-
   updateSector(event: { id: string; dto: CreateUpdateSectorDto }): void {
     if (this.isUpdatingSector) return
 
@@ -557,9 +585,11 @@ export class LayoutMatrixEditorComponent implements OnInit {
       next: () => {
         this.isDeletingSector = false
 
-        if (this.selectedCell?.sectorId === sectorId) {
-          this.selectedCellKey = this.selectedCell?.key ?? null
-        }
+        this.gridCells = this.gridCells.map(cell =>
+          cell.sectorId === sectorId
+            ? { ...cell, sectorId: null }
+            : cell
+        )
 
         if (this.editingSectorId === sectorId) {
           this.editingSectorId = null
@@ -591,6 +621,13 @@ export class LayoutMatrixEditorComponent implements OnInit {
 
   private findSectorById(sectorId: string): Sector | undefined {
     return this.latestSectors.find(s => s.id === sectorId)
+  }
+
+  getSectorColor(sectorId: string | null | undefined): string | null {
+    if (!sectorId) return null
+
+    const sector = this.latestSectors.find(s => s.id === sectorId)
+    return sector?.color ?? null
   }
 
 }
