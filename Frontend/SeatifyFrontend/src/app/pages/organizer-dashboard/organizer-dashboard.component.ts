@@ -1,8 +1,6 @@
-import { Component } from '@angular/core';
-import { VenueDashboardComponent } from '../venue-dashboard/venue-dashboard.component';
-import { EventsPageComponent } from '../events-page/events-page.component';
-
-type OrganizerPage = 'dashboard' | 'venues' | 'events';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Subject, takeUntil } from 'rxjs';
+import { EventService } from '../../services/event.service';
 
 @Component({
   selector: 'app-organizer-dashboard',
@@ -10,41 +8,34 @@ type OrganizerPage = 'dashboard' | 'venues' | 'events';
   templateUrl: './organizer-dashboard.component.html',
   styleUrls: ['./organizer-dashboard.component.sass']
 })
-export class OrganizerDashboardComponent {
-  activePage: OrganizerPage = 'dashboard';
+export class OrganizerDashboardComponent implements OnInit, OnDestroy {
+  activeEventsCount = 0;
 
-  readonly venueDashboardComponent = VenueDashboardComponent;
-  readonly eventsPageComponent = EventsPageComponent;
+  private readonly destroy$ = new Subject<void>();
 
-  setActivePage(page: OrganizerPage): void {
-    this.activePage = page;
+  constructor(private readonly eventService: EventService) {}
+
+  ngOnInit(): void {
+    this.loadActiveEventsCount();
   }
 
-  isActive(page: OrganizerPage): boolean {
-    return this.activePage === page;
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
-  
-
-  getPageTitle(): string {
-    switch (this.activePage) {
-      case 'venues':
-        return 'Venues';
-      case 'events':
-        return 'Events';
-      default:
-        return 'Dashboard';
-    }
-  }
-
-  getPageSubtitle(): string {
-    switch (this.activePage) {
-      case 'venues':
-        return 'Manage your venues and auditoriums';
-      case 'events':
-        return 'Manage your event catalog and schedules';
-      default:
-        return 'Overview of your ticketing platform';
-    }
+  private loadActiveEventsCount(): void {
+    this.eventService
+      .getActiveEventsCount()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (count) => {
+          this.activeEventsCount = count;
+        },
+        error: (error) => {
+          console.error('Failed to load active events count.', error);
+          this.activeEventsCount = 0;
+        }
+      });
   }
 }

@@ -1,1 +1,42 @@
-<p>organizer-layout works!</p>
+<div class="dashboard-layout">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">
+        <i class="bi bi-ticket-perforated"></i>
+      </div>
+      <span class="brand-text" routerLink="/landingpage">Seatify</span>
+    </div>
+
+    <a
+      class="nav-item"
+      routerLink="/dashboard"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }"
+    >
+      <i class="bi bi-grid"></i>
+      <span>Dashboard</span>
+    </a>
+
+    <a
+      class="nav-item"
+      routerLink="/dashboard/venues"
+      routerLinkActive="active"
+    >
+      <i class="bi bi-building"></i>
+      <span>Venues</span>
+    </a>
+
+    <a
+      class="nav-item"
+      routerLink="/dashboard/events"
+      routerLinkActive="active"
+    >
+      <i class="bi bi-calendar-event"></i>
+      <span>Events</span>
+    </a>
+  </aside>
+
+  <section class="dashboard-content">
+    <router-outlet></router-outlet>
+  </section>
+</div>
