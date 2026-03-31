@@ -308,3 +308,31 @@ h1
     .center-panel,
     .right-panel
         padding: 16px
+
+.page-header__content
+    display: flex
+    align-items: center
+    gap: 16px
+
+.back-button
+    width: 44px
+    height: 44px
+    border-radius: 12px
+    border: 1px solid $color-light-300
+    background: $color-light-50
+    display: flex
+    align-items: center
+    justify-content: center
+    cursor: pointer
+    transition: .18s ease
+
+    i
+        font-size: 20px
+        color: $color-dark-800
+
+    &:hover
+        background: $color-light-100
+        border-color: $color-primary-200
+
+        i
+            color: $color-primary-600

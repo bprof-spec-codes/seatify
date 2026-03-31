@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, HostListener, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, OnInit } from '@angular/core';
 import { LayoutMatrixService } from '../../services/layout-matrix.service';
 import { BehaviorSubject, catchError, Observable, of, switchMap, tap } from 'rxjs';
 import { CreateLayoutMatrixDto, LayoutMatrix } from '../../models/layout-matrix';
@@ -9,6 +9,7 @@ import { SeatType, UpdateSeatDto } from '../../models/seat';
 import { SeatMap } from '../../models/seat-map';
 import { CreateUpdateSectorDto, Sector } from '../../models/sector';
 import { SectorService } from '../../services/sector.service';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-layout-matrix-editor',
@@ -63,10 +64,11 @@ export class LayoutMatrixEditorComponent implements OnInit {
     private seatService: SeatService,
     private cdr: ChangeDetectorRef,
     private sectorService: SectorService,
+    private location: Location,
   ) { }
 
   ngOnInit(): void {
-    this.auditoriumId = this.route.snapshot.paramMap.get('auditoriumId') ?? 'aud-id-01';
+    this.auditoriumId = this.route.snapshot.paramMap.get('auditoriumId') ?? '';
     this.matrices$ = this.matrixService.LayoutMatrix$
     this.sectors$ = this.sectorService.sector$;
 
@@ -159,18 +161,22 @@ export class LayoutMatrixEditorComponent implements OnInit {
     this.cdr.markForCheck()
   }
 
+  goBack(): void {
+    this.location.back()
+  }
+
   private buildGridCellsFromSeatMap(seatMap: SeatMap): MatrixCellVm[] {
     const cells: MatrixCellVm[] = [];
-    const seatLookup = new Map<string, typeof seatMap.seats[number]>();
+    const seatLookup = new Map<string, typeof seatMap.seats[number]>()
 
     for (const seat of seatMap.seats) {
-      seatLookup.set(`${seat.row}-${seat.column}`, seat);
+      seatLookup.set(`${seat.row}-${seat.column}`, seat)
     }
 
     for (let row = 1; row <= seatMap.rows; row++) {
       for (let column = 1; column <= seatMap.columns; column++) {
-        const key = `${row}-${column}`;
-        const seat = seatLookup.get(key);
+        const key = `${row}-${column}`
+        const seat = seatLookup.get(key)
 
         cells.push({
           key,
@@ -181,11 +187,11 @@ export class LayoutMatrixEditorComponent implements OnInit {
           seatType: seat?.seatType ?? SeatType.Seat,
           sectorId: seat?.sectorId ?? null,
           priceOverride: seat?.priceOverride ?? null
-        });
+        })
       }
     }
 
-    return cells;
+    return cells
   }
 
   trackByMatrixId(index: number, matrix: LayoutMatrix): string {
@@ -508,7 +514,7 @@ export class LayoutMatrixEditorComponent implements OnInit {
     })
   }
 
-  
+
   //sector
 
   openCreateSectorForm(): void {

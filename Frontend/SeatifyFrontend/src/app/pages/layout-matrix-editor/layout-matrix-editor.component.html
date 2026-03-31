@@ -1,12 +1,18 @@
 <div class="layout-editor-page">
   <header class="page-header">
     <div class="page-header__content">
+
+      <button type="button" class="back-button" (click)="goBack()" title="Back">
+        <i class="bi bi-arrow-left"></i>
+      </button>
+
       <div>
         <h1>Layout Matrix Editor</h1>
         <p class="page-subtitle">
           Auditorium ID: {{ auditoriumId || 'N/A' }}
         </p>
       </div>
+
     </div>
   </header>
 
