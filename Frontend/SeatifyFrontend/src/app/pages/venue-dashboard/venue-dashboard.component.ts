@@ -47,18 +47,18 @@ export class VenueDashboardComponent implements OnInit, OnDestroy {
   }
 
   showVenueAuditoriums(venue: Venue): void {
-    this.router.navigate(['/auditoriums', venue.id]);
+    this.router.navigate(['dashboard/auditoriums', venue.id]);
   }
 
   createVenue(): void {
     this.venueService.setEditMode(false);
-    this.router.navigate(['/venues/form']);
+    this.router.navigate(['dashboard/venues/form']);
   }
 
   editVenue(venue: Venue): void {
     this.venueService.setEditVenue(venue);
     this.venueService.setEditMode(true);
-    this.router.navigate(['/venues/form']);
+    this.router.navigate(['dashboard/venues/form']);
   }
 
   confirmDelete(venue: any): void {

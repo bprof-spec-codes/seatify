@@ -84,19 +84,19 @@ export class VenueFormComponent implements OnInit, OnDestroy {
       if (this.editMode)
       {
         this.venueService.updateVenue(venueData).pipe(takeUntil(this.unsubscribe$)).subscribe(() => {
-          this.router.navigate(['/venues']);
+          this.router.navigate(['dashboard/venues']);
         });
       }
       else
       {
         this.venueService.createVenue(venueData).pipe(takeUntil(this.unsubscribe$)).subscribe(() => {
-          this.router.navigate(['/venues']);
+          this.router.navigate(['dashboard/venues']);
         });
       }
     }
   }
 
   back(): void {
-    this.router.navigate(['/venues']);
+    this.router.navigate(['dashboard/venues']);
   }
 }
