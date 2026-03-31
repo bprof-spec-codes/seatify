@@ -12,6 +12,10 @@ import { OrganizerLayoutComponent } from './pages/organizer-layout/organizer-lay
 export const routes: Routes = [
   { path: '', component: LandingPageComponent },
   { path: 'landingpage', component: LandingPageComponent },
+  { path: 'venues/form', component: VenueFormComponent },
+  { path: 'auditoriums/:venueId', component: AuditoriumDashboardComponent },
+
+
 
   {
     path: 'dashboard',
@@ -19,8 +23,6 @@ export const routes: Routes = [
     children: [
       { path: '', component: OrganizerDashboardComponent },
       { path: 'venues', component: VenueDashboardComponent },
-      { path: 'venues/form', component: VenueFormComponent },
-      { path: 'auditoriums/:venueId', component: AuditoriumDashboardComponent },
       { path: 'events', component: EventsPageComponent }
     ]
   },
