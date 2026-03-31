@@ -1,5 +1,5 @@
 export class Auditorium {
-    id: string = '';
+    id: string | undefined;
     venueId: string = '';
     name: string = '';
     description: string = '';

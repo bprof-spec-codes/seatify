@@ -6,6 +6,7 @@ import { UpdateEventComponent } from './pages/create-event/update-event.componen
 import { VenueDashboardComponent } from './pages/venue-dashboard/venue-dashboard.component';
 import { AuditoriumDashboardComponent } from './pages/auditorium-dashboard/auditorium-dashboard.component';
 import { VenueFormComponent } from './pages/venue-form/venue-form.component';
+import { AuditoriumFormComponent } from './pages/auditorium-form/auditorium-form.component';
 import { CheckoutComponent } from './pages/checkout/checkout.component';
 import { LayoutMatrixEditorComponent } from './pages/layout-matrix-editor/layout-matrix-editor.component';
 import { EventsPageComponent } from './pages/events-page/events-page.component';
@@ -26,6 +27,7 @@ export const routes: Routes = [
       { path: 'venues', component: VenueDashboardComponent },
       { path: 'venues/form', component: VenueFormComponent },
       { path: 'auditoriums/:venueId', component: AuditoriumDashboardComponent },
+      { path: 'auditoriums/:venueId/form', component: AuditoriumFormComponent },
       { path: 'events', component: EventsPageComponent }
     ]
   },
