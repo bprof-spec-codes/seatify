@@ -1,0 +1,288 @@
+.events-page
+  min-height: 100vh
+  background: #f6f8fc
+
+.container
+  max-width: 1160px
+
+.page-header
+  display: flex
+  justify-content: space-between
+  align-items: flex-start
+  gap: 1rem
+  margin-bottom: 1.75rem
+
+.page-title
+  margin: 0
+  font-size: 2rem
+  font-weight: 700
+  color: #101828
+
+.page-subtitle
+  margin-top: .35rem
+  color: #667085
+  font-size: .98rem
+
+.add-button
+  display: inline-flex
+  align-items: center
+  gap: .5rem
+  border-radius: 12px
+  padding: .8rem 1.1rem
+  font-weight: 600
+
+.status-card
+  background: #ffffff
+  border: 1px solid #e4e7ec
+  border-radius: 20px
+  padding: 1.25rem 1.5rem
+  color: #344054
+  box-shadow: 0 8px 24px rgba(16, 24, 40, 0.05)
+
+.status-card-error
+  border-color: #fda29b
+  color: #b42318
+  background: #fffbfa
+
+.events-list
+  display: flex
+  flex-direction: column
+  gap: 1rem
+
+.event-card
+  background: #ffffff
+  border: 1px solid #e4e7ec
+  border-radius: 20px
+  padding: 1.5rem
+  box-shadow: 0 8px 24px rgba(16, 24, 40, 0.05)
+
+.event-content
+  display: block
+
+.event-main
+  min-width: 0
+
+.event-title
+  margin: 0 0 .55rem
+  font-size: 1.7rem
+  font-weight: 700
+  color: #101828
+
+.event-description
+  margin: 0 0 1rem
+  color: #475467
+  font-size: 1rem
+  line-height: 1.55
+
+.event-meta
+  display: flex
+  flex-wrap: wrap
+  gap: 1rem 1.5rem
+  margin-bottom: 1rem
+
+.meta-item
+  display: inline-flex
+  align-items: center
+  gap: .45rem
+  color: #344054
+  font-size: .96rem
+
+.occurrence-section
+  display: flex
+  flex-direction: column
+  gap: .65rem
+
+.occurrence-title
+  margin: 0
+  font-size: 1rem
+  font-weight: 700
+  color: #101828
+
+.empty-occurrences
+  margin: 0
+  color: #667085
+
+.occurrence-list
+  display: flex
+  flex-wrap: wrap
+  gap: .65rem
+
+.occurrence-badge
+  display: inline-flex
+  align-items: center
+  gap: .45rem
+  border: 1px solid #cfd8e3
+  background: #f8fafc
+  color: #344054
+  border-radius: 12px
+  padding: .65rem .9rem
+  font-size: .92rem
+  font-weight: 500
+  cursor: pointer
+  transition: all .2s ease
+
+.occurrence-badge:hover
+  border-color: #98a2b3
+  transform: translateY(-1px)
+
+.occurrence-badge-selected
+  background: #eef4ff
+  color: #155eef
+  border-color: #155eef
+  box-shadow: 0 0 0 3px rgba(21, 94, 239, 0.12)
+
+.occurrence-actions-panel
+  margin-top: 1.1rem
+  padding: 1rem
+  border: 1px solid #dbe5ff
+  background: #f8fbff
+  border-radius: 16px
+
+.occurrence-actions-header
+  margin-bottom: .85rem
+
+.occurrence-actions-label
+  color: #667085
+  font-size: .85rem
+
+.occurrence-actions
+  display: flex
+  flex-wrap: wrap
+  gap: .75rem
+
+.action-button
+  border-radius: 12px
+  padding: .72rem 1rem
+  font-weight: 600
+
+@media (max-width: 767.98px)
+  .page-header
+    flex-direction: column
+    align-items: stretch
+
+  .add-button
+    justify-content: center
+
+  .event-title
+    font-size: 1.4rem
+
+  .occurrence-actions
+    flex-direction: column
+
+  .action-button
+    width: 100%
+
+
+.modal-overlay
+  position: fixed
+  inset: 0
+  background: rgba(15, 23, 42, 0.45)
+  display: flex
+  align-items: center
+  justify-content: center
+  padding: 1.5rem
+  z-index: 1050
+  backdrop-filter: blur(2px)
+
+.create-event-modal
+  width: 100%
+  max-width: 640px
+  background: #ffffff
+  border-radius: 24px
+  border: 1px solid #e4e7ec
+  box-shadow: 0 24px 64px rgba(16, 24, 40, 0.18)
+  padding: 1.5rem
+
+.modal-header
+  display: flex
+  justify-content: space-between
+  align-items: flex-start
+  gap: 1rem
+  margin-bottom: 1.25rem
+
+.modal-title
+  margin: 0
+  font-size: 1.5rem
+  font-weight: 700
+  color: #101828
+
+.modal-subtitle
+  margin: .35rem 0 0
+  color: #667085
+
+.modal-close-button
+  width: 42px
+  height: 42px
+  border: 1px solid #d0d5dd
+  border-radius: 12px
+  background: #ffffff
+  color: #344054
+  display: inline-flex
+  align-items: center
+  justify-content: center
+  cursor: pointer
+  transition: .2s ease
+
+.modal-close-button:hover
+  background: #f8fafc
+
+.modal-form
+  display: flex
+  flex-direction: column
+  gap: 1rem
+
+.form-field
+  display: flex
+  flex-direction: column
+  gap: .45rem
+
+.form-field label
+  font-size: .92rem
+  font-weight: 600
+  color: #344054
+
+.form-field input,
+.form-field select,
+.form-field textarea
+  width: 100%
+  border: 1px solid #d0d5dd
+  border-radius: 14px
+  padding: .85rem 1rem
+  font-size: .96rem
+  color: #101828
+  background: #ffffff
+  outline: none
+  transition: border-color .2s ease, box-shadow .2s ease
+
+.form-field input:focus,
+.form-field select:focus,
+.form-field textarea:focus
+  border-color: #155eef
+  box-shadow: 0 0 0 4px rgba(21, 94, 239, 0.12)
+
+.form-field textarea
+  resize: vertical
+  min-height: 120px
+
+.modal-actions
+  display: flex
+  justify-content: flex-end
+  gap: .75rem
+  margin-top: .5rem
+
+.modal-action-button
+  min-width: 140px
+  border-radius: 12px
+  padding: .75rem 1rem
+  font-weight: 600
+
+@media (max-width: 767.98px)
+  .create-event-modal
+    padding: 1.15rem
+    border-radius: 18px
+
+  .modal-actions
+    flex-direction: column
+
+  .modal-action-button
+    width: 100%

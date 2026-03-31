@@ -11,8 +11,9 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { ConfirmMessageComponent } from './helpers/confirm-message/confirm-message.component';
 import { AuditoriumDashboardComponent } from './pages/auditorium-dashboard/auditorium-dashboard.component';
 import { VenueFormComponent } from './pages/venue-form/venue-form.component';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CheckoutComponent } from './pages/checkout/checkout.component';
+import { EventsPageComponent } from './pages/events-page/events-page.component';
 
 @NgModule({
   declarations: [
@@ -25,11 +26,13 @@ import { CheckoutComponent } from './pages/checkout/checkout.component';
     AuditoriumDashboardComponent,
     VenueFormComponent,
     CheckoutComponent,
+    EventsPageComponent,
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    FormsModule
   ],
   providers: [
     provideHttpClient(withInterceptors([]))
