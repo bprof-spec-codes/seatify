@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, input, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { MatrixCellVm } from '../../models/matrix-cell-vm';
 import { SeatType, UpdateSeatDto } from '../../models/seat';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -13,6 +13,7 @@ import { Sector } from '../../models/sector';
 export class SeatEditorComponent implements OnInit, OnChanges {
   @Input() cell: MatrixCellVm | null = null;
   @Input() isSaving = false;
+  @Input() disabled = false;
 
   @Output() save = new EventEmitter<UpdateSeatDto>();
 

@@ -20,7 +20,7 @@
         <form class="seat-form" [formGroup]="form" (ngSubmit)="submit()">
             <div class="form-section">
                 <label for="seatLabel">Label</label>
-                <input id="seatLabel" type="text" formControlName="seatLabel" />
+                <input id="seatLabel" type="text" formControlName="seatLabel" [disabled]="disabled || isSaving" />
 
                 <div class="field-error" *ngIf="seatLabelControl?.touched && seatLabelControl?.invalid">
                     <span *ngIf="seatLabelControl?.errors?.['maxlength']">
@@ -31,7 +31,7 @@
 
             <div class="form-section">
                 <label for="priceOverride">Price override</label>
-                <input id="priceOverride" type="number" min="0" formControlName="priceOverride" />
+                <input id="priceOverride" type="number" min="0" formControlName="priceOverride" [disabled]="disabled || isSaving" />
 
                 <div class="field-error" *ngIf="priceOverrideControl?.touched && priceOverrideControl?.invalid">
                     <span *ngIf="priceOverrideControl?.errors?.['min']">
@@ -47,17 +47,17 @@
                 <label>Seat type</label>
 
                 <div class="segmented-control">
-                    <button type="button" [class.active]="seatTypeControl?.value === seatType.Seat"
+                    <button type="button" [class.active]="seatTypeControl?.value === seatType.Seat" [disabled]="disabled || isSaving"
                         (click)="setSeatType(seatType.Seat)">
                         Seat
                     </button>
 
-                    <button type="button" [class.active]="seatTypeControl?.value === seatType.AccessibleSeat"
+                    <button type="button" [class.active]="seatTypeControl?.value === seatType.AccessibleSeat" [disabled]="disabled || isSaving"
                         (click)="setSeatType(seatType.AccessibleSeat)">
                         Accessible
                     </button>
 
-                    <button type="button" [class.active]="seatTypeControl?.value === seatType.Aisle"
+                    <button type="button" [class.active]="seatTypeControl?.value === seatType.Aisle" [disabled]="disabled || isSaving"
                         (click)="setSeatType(seatType.Aisle)">
                         Aisle
                     </button>
@@ -66,7 +66,7 @@
 
             <div class="form-actions">
                 <button type="submit" class="btn btn--primary"
-                    [disabled]="!selectedCell.seatId || form.invalid || isSaving">
+                    [disabled]="!selectedCell.seatId || form.invalid || isSaving || disabled">
                     Save seat
                 </button>
             </div>

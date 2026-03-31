@@ -20,6 +20,8 @@ export class SectorEditorComponent {
   @Input() editingSectorId: string | null = null
   @Input() isUpdatingSector = false
 
+  @Input() canAssign = false
+
   @Output() applySector = new EventEmitter<string | null>()
 
   @Output() createClicked = new EventEmitter<void>()

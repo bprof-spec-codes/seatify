@@ -117,32 +117,25 @@
         <h2 class="panel-title">Properties & Tools</h2>
       </div>
 
-      <ng-container *ngIf="selectedCell as cell; else noCellSelected">
-        <div class="tool-stack">
-          <div class="tool-card">
-            <app-seat-editor [cell]="selectedCell" [isSaving]="isSavingSeat" (save)="saveSeat($event)">
-            </app-seat-editor>
-          </div>
-
-          <div class="tool-card">
-            <app-sector-editor [sectors]="(sectors$ | async) ?? []" [selectedSectorId]="selectedCell?.sectorId ?? null"
-              [disabled]="isSavingSeat" [isCreateFormOpen]="isCreateSectorFormOpen"
-              [isCreatingSector]="isCreatingSector" [editingSectorId]="editingSectorId"
-              [isUpdatingSector]="isUpdatingSector" [isDeletingSector]="isDeletingSector"
-              (applySector)="applySectorToSelectedSeat($event)" (createClicked)="openCreateSectorForm()"
-              (createCancelled)="closeCreateSectorForm()" (createSubmitted)="createSector($event)"
-              (editClicked)="openEditSectorForm($event)" (editCancelled)="closeEditSectorForm()"
-              (editSubmitted)="updateSector($event)" (deleteClicked)="deleteSector($event)">
-            </app-sector-editor>
-          </div>
+      <div class="tool-stack">
+        <div class="tool-card">
+          <app-seat-editor [cell]="selectedCell" [isSaving]="isSavingSeat" [disabled]="!selectedCell"
+            (save)="saveSeat($event)">
+          </app-seat-editor>
         </div>
-      </ng-container>
 
-      <ng-template #noCellSelected>
-        <div class="panel-placeholder">
-          No cell selected.
+        <div class="tool-card">
+          <app-sector-editor [sectors]="(sectors$ | async) ?? []" [selectedSectorId]="selectedCell?.sectorId ?? null"
+            [disabled]="isSavingSeat" [canAssign]="!selectedCell" [isCreateFormOpen]="isCreateSectorFormOpen"
+            [isCreatingSector]="isCreatingSector" [editingSectorId]="editingSectorId"
+            [isUpdatingSector]="isUpdatingSector" [isDeletingSector]="isDeletingSector"
+            (applySector)="applySectorToSelectedSeat($event)" (createClicked)="openCreateSectorForm()"
+            (createCancelled)="closeCreateSectorForm()" (createSubmitted)="createSector($event)"
+            (editClicked)="openEditSectorForm($event)" (editCancelled)="closeEditSectorForm()"
+            (editSubmitted)="updateSector($event)" (deleteClicked)="deleteSector($event)">
+          </app-sector-editor>
         </div>
-      </ng-template>
+      </div>
     </aside>
   </div>
 </div>
