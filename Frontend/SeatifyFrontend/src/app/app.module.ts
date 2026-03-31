@@ -14,6 +14,8 @@ import { VenueFormComponent } from './pages/venue-form/venue-form.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CheckoutComponent } from './pages/checkout/checkout.component';
 import { EventsPageComponent } from './pages/events-page/events-page.component';
+import { OrganizerLayoutComponent } from './pages/organizer-layout/organizer-layout.component';
+import { OrganizerDashboardComponent } from './pages/organizer-dashboard/organizer-dashboard.component';
 
 @NgModule({
   declarations: [
@@ -27,6 +29,8 @@ import { EventsPageComponent } from './pages/events-page/events-page.component';
     VenueFormComponent,
     CheckoutComponent,
     EventsPageComponent,
+    OrganizerLayoutComponent,
+    OrganizerDashboardComponent,
   ],
   imports: [
     BrowserModule,

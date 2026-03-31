@@ -1,117 +1,117 @@
 <section class="events-page">
-  <div class="container py-4 py-lg-5">
-    <div class="page-header">
-      <div>
-        <h1 class="page-title">Events</h1>
-        <p class="page-subtitle">Manage your event catalog and schedules</p>
-      </div>
-
-      <button type="button" class="btn btn-primary add-button" (click)="addEvent()">
-        <i class="bi bi-plus-lg"></i>
-        <span>Add New Event</span>
-      </button>
+  <header class="page-header">
+    <div>
+      <h1 class="page-title">Events</h1>
+      <p class="page-subtitle">Manage your event catalog and schedules</p>
     </div>
 
-    <div class="status-card" *ngIf="isLoading">
-      Loading events from backend...
-    </div>
+    <button type="button" class="btn btn-primary page-action-button" (click)="addEvent()">
+      <i class="bi bi-plus-lg"></i>
+      <span>Add New Event</span>
+    </button>
+  </header>
 
-    <div class="status-card status-card-error" *ngIf="!isLoading && errorMessage">
-      {{ errorMessage }}
-    </div>
+  <div class="status-card surface-card" *ngIf="isLoading">
+    Loading events from backend...
+  </div>
 
-    <div class="status-card" *ngIf="!isLoading && !errorMessage && events.length === 0">
-      No events found.
-    </div>
+  <div class="status-card status-card-error surface-card" *ngIf="!isLoading && errorMessage">
+    {{ errorMessage }}
+  </div>
 
-    <div class="events-list" *ngIf="!isLoading && !errorMessage && events.length > 0">
-      <article class="event-card" *ngFor="let event of events; trackBy: trackByEventId">
-        <div class="event-content">
-          <div class="event-main">
+  <div class="status-card surface-card" *ngIf="!isLoading && !errorMessage && events.length === 0">
+    No events found.
+  </div>
+
+  <div class="events-list" *ngIf="!isLoading && !errorMessage && events.length > 0">
+    <article class="surface-card event-card" *ngFor="let event of events; trackBy: trackByEventId">
+      <div class="event-card-body">
+        <div class="event-card-header">
+          <div class="event-header-main">
             <h2 class="event-title">{{ event.title }}</h2>
 
             <p class="event-description">
               {{ event.description || 'No description available.' }}
             </p>
-
-            <div class="event-meta">
-              <span class="meta-item">
-                <i class="bi bi-geo-alt"></i>
-
-                <ng-container *ngIf="event.auditoriumName; else venueOnly">
-                  {{ event.venueName }} - {{ event.auditoriumName }}
-                </ng-container>
-
-                <ng-template #venueOnly>
-                  {{ event.venueName }}
-                </ng-template>
-              </span>
-            </div>
-
-            <div class="occurrence-section">
-              <h3 class="occurrence-title">Occurrences:</h3>
-
-              <p class="empty-occurrences" *ngIf="event.occurrences.length === 0">
-                No occurrences available yet.
-              </p>
-
-              <div class="occurrence-list" *ngIf="event.occurrences.length > 0">
-                <button
-                  type="button"
-                  class="occurrence-badge"
-                  [class.occurrence-badge-selected]="isOccurrenceSelected(event, occurrence)"
-                  *ngFor="let occurrence of event.occurrences; trackBy: trackByOccurrenceId"
-                  (click)="selectOccurrence(event, occurrence)"
-                >
-                  <i class="bi bi-calendar-event"></i>
-                  {{ occurrence.startsAtUtc | date:'MMMM d, HH:mm' }}
-                </button>
-              </div>
-            </div>
-
-            <div
-              class="occurrence-actions-panel"
-              *ngIf="getSelectedOccurrence(event) as selectedOccurrence"
-            >
-              <div class="occurrence-actions-header">
-                <div>
-                  <p class="occurrence-actions-label mb-1">Selected occurrence</p>
-                  <strong>
-                    {{ selectedOccurrence.startsAtUtc | date:'MMMM d, y, HH:mm' }}
-                  </strong>
-                </div>
-              </div>
-
-              <div class="occurrence-actions">
-                <button
-                  type="button"
-                  class="btn btn-primary action-button"
-                  (click)="editSeatMap(event, selectedOccurrence)"
-                >
-                  Edit Seat Map
-                </button>
-
-                <button
-                  type="button"
-                  class="btn btn-outline-secondary action-button"
-                  (click)="editDetails(event, selectedOccurrence)"
-                >
-                  Edit Details
-                </button>
-
-                <button
-                  type="button"
-                  class="btn btn-outline-secondary action-button"
-                  (click)="viewPublicPage(event, selectedOccurrence)"
-                >
-                  View Public Page
-                </button>
-              </div>
-            </div>
           </div>
         </div>
-      </article>
-    </div>
+
+        <div class="event-meta">
+          <span class="event-meta-chip">
+            <i class="bi bi-geo-alt"></i>
+
+            <ng-container *ngIf="event.auditoriumName; else venueOnly">
+              {{ event.venueName }} - {{ event.auditoriumName }}
+            </ng-container>
+
+            <ng-template #venueOnly>
+              {{ event.venueName }}
+            </ng-template>
+          </span>
+        </div>
+
+        <div class="occurrence-section">
+          <h3 class="section-title">Occurrences</h3>
+
+          <p class="empty-state-text" *ngIf="event.occurrences.length === 0">
+            No occurrences available yet.
+          </p>
+
+          <div class="occurrence-list" *ngIf="event.occurrences.length > 0">
+            <button
+              type="button"
+              class="occurrence-chip"
+              [class.occurrence-chip-selected]="isOccurrenceSelected(event, occurrence)"
+              *ngFor="let occurrence of event.occurrences; trackBy: trackByOccurrenceId"
+              (click)="selectOccurrence(event, occurrence)"
+            >
+              <i class="bi bi-calendar-event"></i>
+              {{ occurrence.startsAtUtc | date:'MMMM d, HH:mm' }}
+            </button>
+          </div>
+        </div>
+
+        <div
+          class="selected-occurrence-panel"
+          *ngIf="getSelectedOccurrence(event) as selectedOccurrence"
+        >
+          <div class="selected-occurrence-header">
+            <div>
+              <p class="selected-occurrence-label">Selected occurrence</p>
+              <strong class="selected-occurrence-value">
+                {{ selectedOccurrence.startsAtUtc | date:'MMMM d, y, HH:mm' }}
+              </strong>
+            </div>
+          </div>
+
+          <div class="selected-occurrence-actions">
+            <button
+              type="button"
+              class="btn btn-primary event-action-button"
+              (click)="editSeatMap(event, selectedOccurrence)"
+            >
+              Edit Seat Map
+            </button>
+
+            <button
+              type="button"
+              class="btn btn-outline-secondary event-action-button"
+              (click)="editDetails(event, selectedOccurrence)"
+            >
+              Edit Details
+            </button>
+
+            <button
+              type="button"
+              class="btn btn-outline-secondary event-action-button"
+              (click)="viewPublicPage(event, selectedOccurrence)"
+            >
+              View Public Page
+            </button>
+          </div>
+        </div>
+      </div>
+    </article>
   </div>
 </section>
 
@@ -162,7 +162,6 @@
           required
         />
       </div>
-
 
       <div class="form-field">
         <label for="eventDescription">Description</label>

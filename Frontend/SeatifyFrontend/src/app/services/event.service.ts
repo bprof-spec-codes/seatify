@@ -87,6 +87,25 @@ export class EventService {
     });
   }
 
+  getEvents(): Observable<SeatifyEvent[]> {
+    return this.http.get<SeatifyEvent[]>(this.eventsApiUrl).pipe(
+      map(events => events ?? []),
+      catchError(error => this.handleFatalError(error))
+    );
+  }
+
+  getActiveEventsCount(): Observable<number> {
+    return this.getEvents().pipe(
+      map(events => events.filter(event => event.status === 'Published').length)
+    );
+  }
+
+  getAllEventsCount(): Observable<number> {
+    return this.getEvents().pipe(
+      map(events => events.length)
+    );
+  }
+
   private handleFatalError(error: HttpErrorResponse): Observable<never> {
     console.error('Failed to load events page.', error);
     return throwError(() => new Error('Failed to load events from the backend.'));
