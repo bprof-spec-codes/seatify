@@ -23,6 +23,7 @@ export interface EventOccurrence {
   endsAtUtc: string;
   bookingOpenAtUtc: string;
   bookingCloseAtUtc: string;
+  doorsOpenAtUtc?: string | null;
   status: string;
   event?: EventOccurrenceEvent | null;
   venue?: EventOccurrenceVenue | null;

@@ -6,8 +6,6 @@ import { AppComponent } from './app.component';
 import { LandingPageComponent } from './pages/landing-page/landing-page.component';
 import { FooterComponent } from './pages/footer/footer.component';
 import { SeatMapDisplayComponent } from './helpers/seat-map-display/seat-map-display.component';
-import { CreateEventComponent } from './pages/create-event/create-event.component';
-import { EventFormComponent } from './pages/create-event/eventform.component';
 import { VenueDashboardComponent } from './pages/venue-dashboard/venue-dashboard.component';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { ConfirmMessageComponent } from './helpers/confirm-message/confirm-message.component';
@@ -25,6 +23,7 @@ import { EventsPageComponent } from './pages/events-page/events-page.component';
 import { OrganizerLayoutComponent } from './pages/organizer-layout/organizer-layout.component';
 import { OrganizerDashboardComponent } from './pages/organizer-dashboard/organizer-dashboard.component';
 import { AuditoriumFormComponent } from './pages/auditorium-form/auditorium-form.component';
+import { EventOccurrenceFormComponent } from './pages/event-occurrence-form/event-occurrence-form.component';
 
 @NgModule({
   declarations: [
@@ -32,8 +31,6 @@ import { AuditoriumFormComponent } from './pages/auditorium-form/auditorium-form
     LandingPageComponent,
     FooterComponent,
     SeatMapDisplayComponent,
-    //CreateEventComponent,
-    //EventFormComponent,
     VenueDashboardComponent,
     ConfirmMessageComponent,
     AuditoriumDashboardComponent,
@@ -48,6 +45,7 @@ import { AuditoriumFormComponent } from './pages/auditorium-form/auditorium-form
     OrganizerLayoutComponent,
     OrganizerDashboardComponent,
     AuditoriumFormComponent,
+    EventOccurrenceFormComponent,
   ],
   imports: [
     BrowserModule,

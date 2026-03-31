@@ -76,6 +76,8 @@ namespace Api
 
             app.UseHttpsRedirection();
             
+            app.UseStaticFiles(); // Allow to serve /images/...
+
             app.UseCors("AllowOrigin");
 
             app.UseAuthorization();

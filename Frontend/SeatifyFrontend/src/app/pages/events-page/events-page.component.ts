@@ -1,5 +1,6 @@
 import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
+import { Router } from '@angular/router';
 import { EventCard, EventCardOccurrence } from '../../models/event-card';
 import { EventService } from '../../services/event.service';
 import { CreateEventForm } from '../../models/event';
@@ -28,7 +29,10 @@ export class EventsPageComponent implements OnInit, OnDestroy {
 
   private readonly destroy$ = new Subject<void>();
 
-  constructor(private readonly eventService: EventService) {}
+  constructor(
+    private readonly eventService: EventService,
+    private readonly router: Router
+  ) {}
 
   ngOnInit(): void {
     this.loadEvents();
@@ -152,17 +156,15 @@ export class EventsPageComponent implements OnInit, OnDestroy {
   }
 
   editSeatMap(event: EventCard, occurrence: EventCardOccurrence): void {
-    console.log('TODO: navigate to seat map editor', {
-      eventId: event.id,
-      occurrenceId: occurrence.id
-    });
+    this.router.navigate(['/layout-matrix', occurrence.id, 'editor']);
   }
 
   editDetails(event: EventCard, occurrence: EventCardOccurrence): void {
-    console.log('TODO: navigate to occurrence details editor', {
-      eventId: event.id,
-      occurrenceId: occurrence.id
-    });
+    this.router.navigate(['/dashboard/events', event.id, 'occurrences', occurrence.id, 'edit']);
+  }
+
+  addDate(event: EventCard): void {
+    this.router.navigate(['/dashboard/events', event.id, 'occurrences', 'new']);
   }
 
   viewPublicPage(event: EventCard, occurrence: EventCardOccurrence): void {
