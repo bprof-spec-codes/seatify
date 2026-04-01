@@ -13,7 +13,7 @@ import EventResponse from '../models/event.response';
 })
 export class EventService {
   private readonly apiUrl = `${environment.baseApiUrl}/api`;
-  private readonly eventsApiUrl = `${this.apiUrl}/event`;
+  private readonly eventsApiUrl = `${this.apiUrl}/events`;
   private readonly eventOccurrencesApiUrl = `${this.apiUrl}/event-occurrences`;
 
   constructor(private readonly http: HttpClient) {}
@@ -25,15 +25,15 @@ export class EventService {
   }
 
   createEvent(eventrequest: EventRequest): Observable<EventResponse>{
-    return this.http.post<EventResponse>(this.apiUrl + '/event', eventrequest);
+    return this.http.post<EventResponse>(this.apiUrl + '/events', eventrequest);
   }
   
   updateEvent(eventrequest: EventRequest, id: number): Observable<EventResponse>{
-    return this.http.put<EventResponse>(`${this.apiUrl}/event/${id}`, eventrequest);
+    return this.http.put<EventResponse>(`${this.apiUrl}/events/${id}`, eventrequest);
   }
 
   getEventById(id: string): Observable<SeatifyEvent> {
-    return this.http.get<SeatifyEvent>(`${this.apiUrl}/event/${id}`);
+    return this.http.get<SeatifyEvent>(`${this.apiUrl}/events/${id}`);
   }
 
   getOccurrenceById(id: string): Observable<EventOccurrence> {

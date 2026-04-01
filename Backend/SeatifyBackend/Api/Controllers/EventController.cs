@@ -1,4 +1,4 @@
-﻿using Entities.Dtos.Event;
+using Entities.Dtos.Event;
 using Logic.Services;
 using Microsoft.AspNetCore.Mvc;
 using EventDto = Entities.Dtos.Event.EventViewDto;
@@ -14,6 +14,21 @@ namespace Api.Controllers
         public EventsController(IEventService eventService)
         {
             _eventService = eventService;
+        }
+
+        // GET /api/events
+        [HttpGet]
+        public async Task<ActionResult<List<Entities.Dtos.Event.EventViewDto>>> GetAll(CancellationToken ct)
+        {
+            try
+            {
+                var events = await _eventService.GetAllAsync(ct);
+                return Ok(events);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         // GET /api/events/public
