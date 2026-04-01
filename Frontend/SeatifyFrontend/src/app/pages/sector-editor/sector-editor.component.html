@@ -1,0 +1,84 @@
+<div class="sector-editor">
+    <div class="tool-section-header">
+        <h3 class="tool-section-title">Sector</h3>
+        <p class="tool-section-subtitle">Assign a sector to the selected seat.</p>
+    </div>
+
+    <div class="sector-list">
+        <button type="button" class="sector-item" [class.sector-item--selected]="pendingSectorId === null"
+            [disabled]="disabled" (click)="selectSector(null)">
+            <span class="sector-item__icon sector-item__icon--empty"></span>
+
+            <span class="sector-item__content">
+                <span class="sector-item__name">No sector</span>
+            </span>
+        </button>
+
+        <ng-container *ngFor="let sector of sectors; trackBy: trackBySectorId">
+            <ng-container *ngIf="!isEditing(sector); else editSectorBlock">
+                <div class="sector-item-wrapper" [class.sector-item-wrapper--menu-open]="isSectorMenuOpen(sector)">
+                    <button type="button" class="sector-item"
+                        [class.sector-item--selected]="pendingSectorId === sector.id" [disabled]="disabled"
+                        [style.backgroundColor]="hoveredSectorId === sector.id ? getSectorHoverBackground(sector.color) : null"
+                        [style.borderColor]="hoveredSectorId === sector.id ? getSectorHoverBorder(sector.color) : null"
+                        (mouseenter)="hoveredSectorId = sector.id" (mouseleave)="hoveredSectorId = null"
+                        (click)="selectSector(sector.id)">
+                        <span class="sector-item__icon" [style.backgroundColor]="sector.color"></span>
+
+                        <span class="sector-item__content">
+                            <span class="sector-item__name">{{ sector.name }}</span>
+                            <span class="sector-item__price">{{ sector.basePrice | number:'1.0-0' }} Ft</span>
+                        </span>
+                    </button>
+
+                    <div class="sector-item-menu">
+                        <button type="button" class="sector-item-menu__trigger"
+                            [disabled]="disabled || isCreateFormOpen || !!editingSectorId || isDeletingSector || isUpdatingSector || isCreatingSector"
+                            [attr.aria-expanded]="isSectorMenuOpen(sector)"
+                            (click)="toggleSectorMenu(sector.id, $event)">
+                            ⋯
+                        </button>
+
+                        <div class="sector-item-menu__dropdown" *ngIf="isSectorMenuOpen(sector)">
+                            <button type="button" class="sector-item-menu__action" (click)="startEditSector(sector.id)">
+                                Edit
+                            </button>
+
+                            <button type="button" class="sector-item-menu__action sector-item-menu__action--danger"
+                                (click)="startDeleteSector(sector.id)">
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </ng-container>
+
+            <ng-template #editSectorBlock>
+                <div class="sector-form-block">
+                    <app-sector-form [initialValue]="editingSectorInitialValue" [submitLabel]="'Save'"
+                        [isSubmitting]="isUpdatingSector" (submitted)="submitEdit($event)" (cancelled)="cancelEdit()">
+                    </app-sector-form>
+                </div>
+            </ng-template>
+        </ng-container>
+
+        <ng-container *ngIf="!isCreateFormOpen; else createFormBlock">
+            <button type="button" class="sector-add-button" [disabled]="disabled || editingSectorId"
+                (click)="openCreateForm()">
+                + New sector
+            </button>
+        </ng-container>
+
+        <ng-template #createFormBlock>
+            <div class="sector-form-block">
+                <app-sector-form [submitLabel]="'Create'" [isSubmitting]="isCreatingSector"
+                    (submitted)="submitCreate($event)" (cancelled)="cancelCreate()">
+                </app-sector-form>
+            </div>
+        </ng-template>
+    </div>
+
+    <button type="button" class="btn btn--primary" [disabled]="!canAssign || disabled" (click)="applyToSelected()">
+        Apply to selected
+    </button>
+</div>

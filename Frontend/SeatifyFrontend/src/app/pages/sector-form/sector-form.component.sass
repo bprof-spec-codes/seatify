@@ -1,0 +1,80 @@
+@use '../../../_variables' as *
+
+:host
+    display: block
+
+.ui-form
+    display: flex
+    flex-direction: column
+    gap: 14px
+
+.ui-form__field
+    display: flex
+    flex-direction: column
+    gap: 8px
+
+    label
+        font-size: 12px
+        line-height: 16px
+        font-weight: 600
+        color: $color-dark-700
+
+    input
+        width: 100%
+        min-height: 42px
+        border-radius: 12px
+        border: 1px solid $color-light-300
+        background: $color-light-50
+        padding: 0 14px
+        font-size: 14px
+        color: $color-dark-950
+        outline: none
+        transition: .18s ease
+
+        &:focus
+            border-color: $color-primary-500
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12)
+
+.color-input
+    padding: 4px
+    min-height: 44px
+
+.ui-form__actions
+    display: grid
+    grid-template-columns: 1fr 1fr
+    gap: 10px
+    padding-top: 4px
+
+.btn
+    min-height: 42px
+    border-radius: 12px
+    border: 1px solid transparent
+    padding: 0 16px
+    font-size: 14px
+    font-weight: 600
+    cursor: pointer
+    transition: .18s ease
+
+    &:disabled
+        opacity: .6
+        cursor: not-allowed
+
+.btn--primary
+    background: $color-primary-500
+    color: $color-light-50
+
+    &:hover:not(:disabled)
+        background: $color-primary-600
+
+.btn--secondary
+    background: $color-light-50
+    color: $color-dark-950
+    border-color: $color-light-300
+
+    &:hover:not(:disabled)
+        background: $color-light-100
+
+.field-error
+    font-size: 12px
+    line-height: 16px
+    color: $color-danger-500

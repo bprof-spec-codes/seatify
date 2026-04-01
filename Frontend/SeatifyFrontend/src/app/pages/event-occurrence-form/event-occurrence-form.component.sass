@@ -1,0 +1,48 @@
+.occurrence-form-container
+  .card
+    border: none
+    border-radius: 12px
+    background-color: #fff
+
+  .form-label
+    color: #4a5568
+    margin-bottom: 0.5rem
+
+  .form-control, .form-select
+    padding: 0.75rem 1rem
+    border-radius: 8px
+    border: 1px solid #e2e8f0
+    transition: all 0.2s
+    
+    &:focus
+      border-color: #ecc94b
+      box-shadow: 0 0 0 3px rgba(236, 201, 75, 0.2)
+      outline: none
+
+  .btn-warning
+    background-color: #ecc94b
+    border: none
+    padding: 0.75rem 2rem
+    border-radius: 8px
+    
+    &:hover:not(:disabled)
+      background-color: #d69e2e
+
+    &:disabled
+      opacity: 0.6
+      cursor: not-allowed
+
+  .surface-card
+    background: white
+    border-radius: 12px
+    padding: 24px
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1)
+
+  .form-switch .form-check-input
+    width: 2.5em
+    height: 1.25em
+    cursor: pointer
+    
+    &:checked
+      background-color: #ecc94b
+      border-color: #ecc94b

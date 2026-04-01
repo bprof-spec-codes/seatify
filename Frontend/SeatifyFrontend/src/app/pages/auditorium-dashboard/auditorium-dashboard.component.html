@@ -1,0 +1,73 @@
+<div class="container mt-4">
+    <div class="row align-items-center">
+        <div class="col">
+            <h1>Auditorium Dashboard</h1>
+        </div>
+        <div class="col-auto">
+            <button type="button" class="btn btn-primary" (click)="back()">Back</button>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-4">
+    <div class="row align-items-center">
+        <div class="col">
+            <h3>{{ (venue$ | async)?.name }}</h3>
+            <p>
+                <i class="bi bi-geo-alt"></i>
+                {{ (venue$ | async)?.postalCode }} {{ (venue$ | async)?.city }}, {{ (venue$ | async)?.addressLine }}
+            </p>
+        </div>
+        <div class="col-auto">
+            <button type="button" class="btn btn-primary" (click)="createAuditorium()">Add New Auditorium</button>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-4">
+    <div class="row">
+        @if (isEmpty)
+        {
+            <div class="col text-center">
+                No Auditoriums!
+            </div>
+        }
+        @else
+        {
+            @for (auditorium of auditoriums$ | async; track $index)
+            {
+                <div class="col-md-4 mb-4" [attr.data-index]="$index">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title mb-3">
+                                {{ auditorium.name }}
+                            </h5>
+                            <p class="card-text">
+                                {{ auditorium.description }}
+                            </p>
+                            <p class="card-text">
+                                {{ auditorium.createdAtUtc }}
+                            </p>
+                            <p class="card-text">
+                                {{ auditorium.updatedAtUtc }}
+                            </p>
+                            <button type="button" class="btn btn-primary me-3" (click)="viewAuditorium(auditorium)">View</button>
+                            <button type="button" class="btn btn-warning me-3" (click)="editAuditorium(auditorium)">Edit</button>
+                            <button type="button" class="btn btn-info me-3" (click)="editLayout(auditorium)">Edit Layout</button>
+                            <button type="button" class="btn btn-danger" (click)="confirmDelete(auditorium)">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+@if (showModal)
+{
+    <app-confirm-message
+        [item]="selectedAuditorium"
+        (confirm)="deleteAuditorium(selectedAuditorium)"
+        (cancel)="cancelDelete()">
+    </app-confirm-message>
+}

@@ -1,0 +1,531 @@
+# Seat Layout Architecture
+
+## Overview
+
+This document describes the architecture and creation workflow of the **Seat Layout system** used in the ticket booking platform.
+
+The seat layout defines the physical seating structure of a venue’s auditorium and is reused by the booking system when creating event occurrences.
+
+The seat layout system is responsible for:
+
+- defining venue seating structure
+- generating seat records
+- grouping seats into sectors
+- configuring seat properties
+- providing layout preview data for the frontend
+- serving as the base template for booking during event occurrences
+
+Seat layouts are **templates** describing the static structure of an auditorium.
+
+Bookings are always evaluated relative to a specific **EventOccurrence**.
+
+---
+
+# Domain Model
+
+The architecture separates **static layout configuration** from **dynamic event scheduling and booking**.
+
+### Static layout entities
+
+- Organizer
+- Venue
+- Auditorium
+- LayoutMatrix
+- Sector
+- Seat
+
+### Dynamic scheduling entities
+
+- Event
+- EventOccurrence
+
+---
+
+# Entity Relationships
+
+## Ownership structure
+
+```
+Organizer
+├── Events
+│    └── EventOccurrences
+│
+└── Venues
+     └── Auditoriums
+          ├── LayoutMatrices
+          │     └── Seats
+          └── Sectors
+```
+
+## Booking context
+
+Seat availability is always evaluated in the context of:
+
+```
+Seat + EventOccurrence
+```
+
+---
+
+# Entities
+
+## Venue
+
+Represents a physical location such as a cinema, theatre, or concert hall.
+
+Relationship:
+
+```
+Organizer 1 → N Venue
+Venue 1 → N Auditorium
+```
+
+Example JSON:
+
+```json
+{
+  "id": "venue-001",
+  "organizerId": "org-001",
+  "name": "Corvin Cinema",
+  "city": "Budapest",
+  "postalCode": "1082",
+  "addressLine": "Corvin köz 1"
+}
+```
+
+---
+
+## Auditorium
+
+Represents a specific hall or seating area within a venue.
+
+Examples include cinema halls or theatre stages.
+
+Relationship:
+
+```
+Venue 1 → N Auditorium
+```
+
+Example JSON:
+
+```json
+{
+  "id": "aud-001",
+  "venueId": "venue-001",
+  "name": "Hall 1"
+}
+```
+
+---
+
+## LayoutMatrix
+
+Defines a rectangular seating grid inside an auditorium.
+
+Each matrix describes:
+
+- number of rows
+- number of columns
+
+When a matrix is created, **rows × columns number of seats are automatically generated**.
+
+Example:
+
+```
+6 rows × 10 columns → 60 seats
+```
+
+Example JSON:
+
+```json
+{
+  "id": "matrix-001",
+  "auditoriumId": "aud-001",
+  "name": "Main Block",
+  "rows": 6,
+  "columns": 10
+}
+```
+
+---
+
+## Sector
+
+Sectors represent seat groupings used for pricing and categorization.
+
+Example JSON:
+
+```json
+{
+  "id": "sector-001",
+  "auditoriumId": "aud-001",
+  "name": "VIP",
+  "color": "#DC2626",
+  "basePrice": 7990
+}
+```
+
+---
+
+## Seat
+
+Represents a single selectable seat.
+
+Seat properties:
+
+- row label
+- seat label
+- position in the layout grid
+- sector reference
+- seat type
+- optional price override
+
+Example JSON:
+
+```json
+{
+  "id": "seat-001",
+  "matrixId": "matrix-001",
+  "sectorId": "sector-001",
+  "row": 1,
+  "column": 1,
+  "seatLabel": "1",
+  "priceOverride": null,
+  "seatType": "Seat"
+}
+```
+
+---
+
+# Seat Layout Creation Workflow
+
+## Step 1 — Create Auditorium
+
+API:
+
+```
+POST /api/venues/{venueId}/auditoriums
+```
+
+Request:
+
+```json
+{
+  "name": "Hall 1"
+}
+```
+
+Response:
+
+```json
+{
+  "id": "aud-001",
+  "venueId": "venue-001",
+  "name": "Hall 1"
+}
+```
+
+---
+
+## Step 2 — Create Layout Matrix
+
+API:
+
+```
+POST /api/auditoriums/{auditoriumId}/layout-matrices
+```
+
+Request:
+
+```json
+{
+  "name": "Main Block",
+  "rows": 6,
+  "columns": 10
+}
+```
+
+Response:
+
+```json
+{
+  "id": "matrix-001",
+  "auditoriumId": "aud-001",
+  "name": "Main Block",
+  "rows": 6,
+  "columns": 10
+}
+```
+
+Seat records are automatically generated after this step.
+
+---
+
+## Step 3 — Retrieve Seats
+
+API:
+
+```
+GET /api/layout-matrices/{matrixId}/seats
+```
+
+Response:
+
+```json
+{
+  "matrixId": "matrix-001",
+  "rows": 6,
+  "columns": 10,
+  "seats": [
+    {
+      "id": "seat-001",
+      "row": 1,
+      "column": 1,
+      "seatLabel": "1",
+      "seatType": "Seat"
+    }
+  ]
+}
+```
+
+---
+
+## Step 4 — Create Sector
+
+API:
+
+```
+POST /api/auditoriums/{auditoriumId}/sectors
+```
+
+Request:
+
+```json
+{
+  "name": "Standard",
+  "color": "#2563EB",
+  "basePrice": 4990
+}
+```
+
+Response:
+
+```json
+{
+  "id": "sector-001",
+  "name": "Standard",
+  "basePrice": 4990
+}
+```
+
+---
+
+## Step 5 — Bulk Seat Configuration
+
+API:
+
+```
+PATCH /api/seats/bulk
+```
+
+Request:
+
+```json
+{
+  "seatIds": ["seat-001", "seat-002", "seat-003"],
+  "sectorId": "sector-001",
+  "seatType": "Standard",
+  "priceOverride": null
+}
+```
+
+Response:
+
+```json
+{
+  "updatedSeatCount": 3
+}
+```
+
+Bulk operations allow assigning:
+
+- sector
+- seat type
+- price overrides
+
+---
+
+## Step 6 — Layout Preview
+
+API:
+
+```
+GET /api/auditoriums/{auditoriumId}/layout-preview
+```
+
+Response:
+
+```json
+{
+  "auditorium": {
+    "id": "aud-001",
+    "name": "Hall 1"
+  },
+  "sectors": [
+    {
+      "id": "sector-001",
+      "name": "Standard",
+      "color": "#2563EB",
+      "basePrice": 4990
+    }
+  ],
+  "matrices": [
+    {
+      "id": "matrix-001",
+      "rows": 6,
+      "columns": 10,
+      "seats": [
+        {
+          "id": "seat-001",
+          "row": 1,
+          "column": 1,
+          "seatLabel": "1",
+          "sectorId": "sector-001"
+        }
+      ]
+    }
+  ]
+}
+```
+
+The frontend uses this endpoint to render the complete seat layout preview.
+
+---
+
+# Seat Layout as Template
+
+Seat layouts are reusable structures used by event occurrences.
+
+```
+EventOccurrence
+    └── Auditorium
+          └── LayoutMatrix
+                └── Seat
+```
+
+The booking system references the same seat structure for each occurrence.
+
+---
+
+# Booking Context
+
+Bookings reference both the occurrence and the reserved seats through the reservation system.
+
+```
+Reservation
+└── ReservationSeat
+        └── SeatId
+```
+
+Seat availability is derived from:
+
+- SeatHold
+- ReservationSeat
+
+---
+
+# Domain Diagram
+
+```mermaid
+classDiagram
+direction LR
+
+class Organizer {
+  +Guid Id
+  +string DisplayName
+  +string Email
+  +string PhoneNumber
+  +DateTime CreatedAtUtc
+  +DateTime UpdatedAtUtc
+}
+
+class Venue {
+  +Guid Id
+  +Guid OrganizerId
+  +string Name
+  +string City
+  +string PostalCode
+  +string AddressLine
+}
+
+class Auditorium {
+  +Guid Id
+  +Guid VenueId
+  +string Name
+}
+
+class LayoutMatrix {
+  +Guid Id
+  +Guid AuditoriumId
+  +string Name
+  +int Rows
+  +int Columns
+}
+
+class Sector {
+  +Guid Id
+  +Guid AuditoriumId
+  +string Name
+  +string Color
+  +decimal BasePrice
+}
+
+class Seat {
+  +Guid Id
+  +Guid MatrixId
+  +Guid SectorId
+  +int Row
+  +int Column
+  +string SeatLabel
+  +decimal PriceOverride
+  +string SeatType
+}
+
+class Event {
+  +Guid Id
+  +Guid OrganizerId
+  +string Slug
+  +string Name
+  +string Description
+  +string Status
+  +DateTime CreatedAtUtc
+  +DateTime UpdatedAtUtc
+}
+
+class EventOccurrence {
+  +Guid Id
+  +Guid EventId
+  +Guid VenueId
+  +Guid AuditoriumId
+  +DateTime StartsAtUtc
+  +DateTime EndsAtUtc
+  +string Status
+  +DateTime BookingOpenAtUtc
+  +DateTime BookingCloseAtUtc
+  +DateTime DoorsOpenAtUtc
+  +DateTime CreatedAtUtc
+  +DateTime UpdatedAtUtc
+}
+
+Organizer "1" --> "0..*" Venue : owns
+Organizer "1" --> "0..*" Event : owns
+
+Venue "1" --> "0..*" Auditorium : contains
+LayoutMatrix "1" --> "0..*" Seat : contains
+Sector "1" --> "0..*" Seat : groups
+
+Event "1" --> "0..*" EventOccurrence : has
+EventOccurrence "*" --> "1" Venue : takes place at
+EventOccurrence "*" --> "1" Auditorium : uses
+```

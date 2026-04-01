@@ -1,0 +1,97 @@
+<div class="occurrence-form-container container mt-4 mb-5" style="max-width: 800px;">
+  <div class="d-flex align-items-center mb-4">
+    <button class="btn btn-outline-secondary me-3" (click)="cancel()">
+      <i class="bi bi-arrow-left"></i>
+    </button>
+    <div>
+      <h2 class="mb-1">{{ isEditMode ? 'Edit Event Date' : 'Add New Event Date' }}</h2>
+      <p class="text-muted mb-0" *ngIf="event">For event: <strong>{{ event.name }}</strong></p>
+    </div>
+  </div>
+
+  <form [formGroup]="occurrenceForm" (ngSubmit)="onSubmit()">
+    <!-- Location Section -->
+    <div class="card mb-4 shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title fw-bold mb-3"><i class="bi bi-geo-alt me-2"></i>Location</h5>
+        
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-semibold">Venue *</label>
+            <select class="form-select" formControlName="venueId" (change)="onVenueChange($any($event.target).value)">
+              <option value="" disabled>Select a venue</option>
+              <option *ngFor="let venue of venues" [value]="venue.id">{{ venue.name }}</option>
+            </select>
+            <div class="text-danger small" *ngIf="occurrenceForm.get('venueId')?.touched && occurrenceForm.get('venueId')?.invalid">
+              Venue is required.
+            </div>
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-semibold">Auditorium *</label>
+            <select class="form-select" formControlName="auditoriumId">
+              <option value="" disabled>{{ auditoriums.length ? 'Select an auditorium' : 'First select a venue' }}</option>
+              <option *ngFor="let aud of auditoriums" [value]="aud.id">{{ aud.name }}</option>
+            </select>
+            <div class="text-danger small" *ngIf="occurrenceForm.get('auditoriumId')?.touched && occurrenceForm.get('auditoriumId')?.invalid">
+              Auditorium is required.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Timing Section -->
+    <div class="card mb-4 shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title fw-bold mb-3"><i class="bi bi-clock me-2"></i>Event Timing</h5>
+        
+        <div class="row mb-3">
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-semibold">Start Date & Time *</label>
+            <input type="datetime-local" class="form-control" formControlName="startsAt">
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-semibold">End Date & Time *</label>
+            <input type="datetime-local" class="form-control" formControlName="endsAt">
+          </div>
+        </div>
+
+        <div class="form-check form-switch mb-3">
+          <input class="form-check-input" type="checkbox" id="doorsOpenSwitch" formControlName="hasDoorsOpenTime" (change)="toggleDoorsOpen()">
+          <label class="form-check-label fw-semibold" for="doorsOpenSwitch">Set custom doors open time?</label>
+        </div>
+
+        <div class="mb-3" *ngIf="occurrenceForm.get('hasDoorsOpenTime')?.value">
+          <label class="form-label fw-semibold">Doors Open At *</label>
+          <input type="datetime-local" class="form-control" formControlName="doorsOpenAt">
+        </div>
+      </div>
+    </div>
+
+    <!-- Booking Section -->
+    <div class="card mb-4 shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title fw-bold mb-3"><i class="bi bi-ticket-perforated me-2"></i>Booking Period</h5>
+        
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-semibold">Booking Opens *</label>
+            <input type="datetime-local" class="form-control" formControlName="bookingOpenAt">
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-semibold">Booking Closes *</label>
+            <input type="datetime-local" class="form-control" formControlName="bookingCloseAt">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-end gap-3 pt-3">
+      <button type="button" class="btn btn-light border px-4" (click)="cancel()">Cancel</button>
+      <button type="submit" class="btn btn-warning text-dark fw-bold px-5" [disabled]="occurrenceForm.invalid">
+        {{ isEditMode ? 'Update Date' : 'Save Date' }}
+      </button>
+    </div>
+  </form>
+</div>
