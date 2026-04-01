@@ -8,50 +8,52 @@ namespace Logic.Services;
 
 public class VenueService
 {
-    private readonly Repository<Venue> _venueRepository;
-    DtoProvider dtoProvider;
+    private readonly AppDbContext _ctx;
+    private readonly DtoProvider dtoProvider;
 
-    public VenueService(Repository<Venue> venueRepository, DtoProvider dtoProvider)
+    public VenueService(AppDbContext ctx, DtoProvider dtoProvider)
     {
-        _venueRepository = venueRepository;
+        _ctx = ctx;
         this.dtoProvider = dtoProvider;
     }
 
     public async Task<Venue> CreateVenueAsync(VenueCreateDto createDto)
     {
         var newVenue = dtoProvider.Mapper.Map<Venue>(createDto);
-        _venueRepository.Add(newVenue);
+
+        await _ctx.Venues.AddAsync(newVenue);
+        await _ctx.SaveChangesAsync();
+
         return newVenue;
     }
 
     public async Task<VenueViewDto> GetVenueByIdAsync(string venueId)
     {
-        Venue? venue = await _venueRepository.GetAll()
+        var venue = await _ctx.Venues
             .Include(v => v.Auditoriums)
-            .FirstOrDefaultAsync(e => e.Id == venueId);
+            .FirstOrDefaultAsync(v => v.Id == venueId);
 
         if (venue == null)
         {
             throw new Exception("Venue does not exist!");
         }
 
-        VenueViewDto venueViewDto = dtoProvider.Mapper.Map<VenueViewDto>(venue);
-        return venueViewDto;
+        return dtoProvider.Mapper.Map<VenueViewDto>(venue);
     }
-    
+
     public async Task<List<VenueViewDto>> GetAllVenuesAsync()
     {
-        var venues = await _venueRepository.GetAll()
+        var venues = await _ctx.Venues
             .Include(v => v.Auditoriums)
             .ToListAsync();
 
-        List<VenueViewDto> venueDtos = dtoProvider.Mapper.Map<List<VenueViewDto>>(venues);
-        return venueDtos;
+        return dtoProvider.Mapper.Map<List<VenueViewDto>>(venues);
     }
 
     public async Task<Venue> UpdateVenueByIdAsync(VenueUpdateDto updateDto, string venueId)
     {
-        Venue? existingVenue = await _venueRepository.GetAll().FirstOrDefaultAsync(e => e.Id == venueId);
+        var existingVenue = await _ctx.Venues
+            .FirstOrDefaultAsync(v => v.Id == venueId);
 
         if (existingVenue == null)
         {
@@ -63,14 +65,18 @@ public class VenueService
             throw new Exception("The venue does not belong to the logged-in user!");
         }
 
-        var updatedVenue = dtoProvider.Mapper.Map(updateDto, existingVenue);
-        _venueRepository.Update(updatedVenue);
-        return updatedVenue;
+        dtoProvider.Mapper.Map(updateDto, existingVenue);
+
+        _ctx.Venues.Update(existingVenue);
+        await _ctx.SaveChangesAsync();
+
+        return existingVenue;
     }
 
     public async Task<bool> DeleteVenueByIdAsync(string organizerId, string venueId)
     {
-        Venue? existingVenue = await _venueRepository.GetAll().FirstOrDefaultAsync(e => e.Id == venueId);
+        var existingVenue = await _ctx.Venues
+            .FirstOrDefaultAsync(v => v.Id == venueId);
 
         if (existingVenue == null)
         {
@@ -82,18 +88,19 @@ public class VenueService
             throw new Exception("The venue does not belong to the logged-in user!");
         }
 
-        _venueRepository.Delete(existingVenue);
+        _ctx.Venues.Remove(existingVenue);
+        await _ctx.SaveChangesAsync();
+
         return true;
     }
 
     public async Task<List<VenueViewDto>> GetVenuesByOrganizerIdAsync(string organizerId)
     {
-        var venues = await _venueRepository.GetAll()
+        var venues = await _ctx.Venues
             .Where(v => v.OrganizerId == organizerId)
             .Include(v => v.Auditoriums)
             .ToListAsync();
 
         return dtoProvider.Mapper.Map<List<VenueViewDto>>(venues);
     }
-
 }
