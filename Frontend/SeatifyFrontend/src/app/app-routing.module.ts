@@ -4,13 +4,35 @@ import { LandingPageComponent } from './pages/landing-page/landing-page.componen
 import { VenueDashboardComponent } from './pages/venue-dashboard/venue-dashboard.component';
 import { AuditoriumDashboardComponent } from './pages/auditorium-dashboard/auditorium-dashboard.component';
 import { VenueFormComponent } from './pages/venue-form/venue-form.component';
+import { AuditoriumFormComponent } from './pages/auditorium-form/auditorium-form.component';
+import { CheckoutComponent } from './pages/checkout/checkout.component';
+import { LayoutMatrixEditorComponent } from './pages/layout-matrix-editor/layout-matrix-editor.component';
+import { EventsPageComponent } from './pages/events-page/events-page.component';
+import { OrganizerDashboardComponent } from './pages/organizer-dashboard/organizer-dashboard.component';
+import { OrganizerLayoutComponent } from './pages/organizer-layout/organizer-layout.component';
+import { EventOccurrenceFormComponent } from './pages/event-occurrence-form/event-occurrence-form.component';
 
 export const routes: Routes = [
   { path: '', component: LandingPageComponent },
   { path: 'landingpage', component: LandingPageComponent },
-  { path: 'venues', component: VenueDashboardComponent },
-  { path: 'venues/form', component: VenueFormComponent },
-  { path: 'auditoriums/:venueId', component: AuditoriumDashboardComponent },
+
+  {
+    path: 'dashboard',
+    component: OrganizerLayoutComponent,
+    children: [
+      { path: '', component: OrganizerDashboardComponent },
+      { path: 'venues', component: VenueDashboardComponent },
+      { path: 'venues/form', component: VenueFormComponent },
+      { path: 'auditoriums/:venueId', component: AuditoriumDashboardComponent },
+      { path: 'auditoriums/:venueId/form', component: AuditoriumFormComponent },
+      { path: 'events', component: EventsPageComponent },
+      { path: 'events/:eventId/occurrences/new', component: EventOccurrenceFormComponent },
+      { path: 'events/:eventId/occurrences/:id/edit', component: EventOccurrenceFormComponent }
+    ]
+  },
+
+  { path: 'checkout', component: CheckoutComponent },
+  { path: 'layout-matrix/:auditoriumId/editor', component: LayoutMatrixEditorComponent },
   { path: '**', redirectTo: '' }
 ];
 

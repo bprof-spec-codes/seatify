@@ -6,7 +6,7 @@
 This document describes the architecture and relationships between the following entities:
 
 - Organizer
-- OrganizerBrand
+- Appearance (Global default branding)
 - Event
 - EventAppearance
 - EventOccurrence
@@ -53,11 +53,11 @@ Organizer
 
 Key rules:
 
-- Each organizer may define one default **OrganizerBrand**.
+- Each organizer may define one default **Appearance**.
 - Each event belongs to exactly one organizer.
 - Each event may define one optional **EventAppearance**.
 - Each event may define multiple **EventOccurrences**.
-- If an event does not define its own appearance, the public event page falls back to the **OrganizerBrand**.
+- If an event does not define its own appearance, the public event page falls back to the organizer's **Appearance**.
 - Booking is tied to **EventOccurrence**, not directly to **Event**.
 
 ---
@@ -97,11 +97,11 @@ Organizer 1 → 0..1 OrganizerBrand
 
 ---
 
-## OrganizerBrand
+## Appearance
 
 Defines the default visual identity of the organizer.
 
-This configuration is used automatically when an event does not define its own appearance.
+This configuration is used automatically when an event does not define its own appearance. An organizer can have multiple appearances, but one is usually marked as default.
 
 Typical properties:
 
@@ -110,6 +110,7 @@ Typical properties:
 - logo
 - banner
 - theme preset
+- isDefault
 
 Example JSON:
 
@@ -121,14 +122,15 @@ Example JSON:
   "secondaryColor": "#1E40AF",
   "logoImageUrl": "/assets/organizers/org-001/logo.png",
   "bannerImageUrl": "/assets/organizers/org-001/banner.png",
-  "themePreset": "default"
+  "themePreset": "default",
+  "isDefault": true
 }
 ```
 
 Relationship:
 
 ```
-Organizer 1 → 0..1 OrganizerBrand
+Organizer 1 → N Appearance
 ```
 
 ---
@@ -250,6 +252,7 @@ Example JSON:
   "status": "Published",
   "bookingOpenAtUtc": "2026-03-01T08:00:00Z",
   "bookingCloseAtUtc": "2026-03-20T17:45:00Z",
+  "doorsOpenAtUtc": "2026-03-20T17:30:00Z",
   "createdAtUtc": "2026-03-10T14:10:00Z",
   "updatedAtUtc": "2026-03-10T14:10:00Z"
 }
@@ -271,12 +274,12 @@ When rendering the public event page, the system resolves the visual configurati
 
 1. Check whether the event has an `EventAppearance`.
 2. If it exists, use it.
-3. Otherwise use the organizer-level `OrganizerBrand`.
+3. Otherwise use the organizer-level default `Appearance`.
 
 Resolution rule:
 
 ```
-EventAppearance ?? OrganizerBrand
+EventAppearance ?? Appearance(where isDefault=true)
 ```
 
 This guarantees that every public event page has a valid appearance configuration.
@@ -371,7 +374,7 @@ class Organizer {
   +DateTime UpdatedAtUtc
 }
 
-class OrganizerBrand {
+class Appearance {
   +Guid Id
   +Guid OrganizerId
   +string PrimaryColor
@@ -379,6 +382,7 @@ class OrganizerBrand {
   +string LogoImageUrl
   +string BannerImageUrl
   +string ThemePreset
+  +bool IsDefault
 }
 
 class Event {
@@ -417,7 +421,7 @@ class EventOccurrence {
 }
 
 Organizer "1" --> "0..*" Event
-Organizer "1" --> "0..1" OrganizerBrand
+Organizer "1" --> "0..*" Appearance
 
 Event "1" --> "0..1" EventAppearance
 Event "1" --> "1..*" EventOccurrence

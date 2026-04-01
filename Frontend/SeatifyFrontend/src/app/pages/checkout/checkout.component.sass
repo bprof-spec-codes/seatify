@@ -1,0 +1,197 @@
+@use '../../../_variables.sass'
+
+// In case variables file doesn't have these defined from the start, we fallback to design specs
+$primary: #3b82f6 !default
+$primary-hover: #2563eb !default
+$secondary: #f59e0b !default
+$dark-text: #1f2937 !default
+$light-bg: #f9fafb !default
+$border-color: #d1d5db !default
+$danger: #ef4444 !default
+
+.checkout-container
+  max-width: 1000px
+  margin: 0 auto
+  padding: 2rem
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif
+  color: $dark-text
+
+.checkout-header
+  margin-bottom: 2rem
+  text-align: center
+  
+  h1
+    font-size: 2.25rem
+    font-weight: 600
+    color: #111827
+    margin-bottom: 0.5rem
+    
+  p
+    font-size: 1rem
+    color: #4b5563
+
+.checkout-content
+  display: grid
+  grid-template-columns: 1fr
+  gap: 2rem
+  
+  @media (min-width: 768px)
+    grid-template-columns: 1fr 1fr
+
+.summary-section, .form-section
+  background: white
+  border-radius: 8px
+  padding: 1.5rem
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)
+  
+  h2
+    font-size: 1.5rem
+    font-weight: 600
+    margin-bottom: 1.5rem
+    padding-bottom: 0.5rem
+    border-bottom: 1px solid $border-color
+
+.seat-list
+  margin-bottom: 1.5rem
+
+.seat-item
+  display: flex
+  justify-content: space-between
+  align-items: center
+  padding: 0.75rem 0
+  border-bottom: 1px solid #f3f4f6
+  
+  &:last-child
+    border-bottom: none
+
+.seat-info
+  display: flex
+  gap: 1rem
+  font-weight: 500
+
+.seat-price
+  font-weight: 600
+  color: #374151
+
+.total-section
+  display: flex
+  justify-content: space-between
+  align-items: center
+  padding-top: 1rem
+  border-top: 2px solid $border-color
+  
+  .total-label
+    font-size: 1.125rem
+    font-weight: 600
+  
+  .total-price
+    font-size: 1.25rem
+    font-weight: 600
+    color: $primary
+
+// Form Styling
+.form-group
+  margin-bottom: 1.5rem
+  
+  label
+    display: block
+    font-size: 0.875rem
+    font-weight: 500
+    margin-bottom: 0.5rem
+    color: #374151
+    
+  input
+    width: 100%
+    padding: 0.75rem 1rem
+    border: 1px solid $border-color
+    border-radius: 6px
+    font-size: 1rem
+    transition: border-color 0.2s, box-shadow 0.2s
+    box-sizing: border-box
+    
+    &:focus
+      outline: none
+      border-color: $primary
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2)
+      
+    &.invalid
+      border-color: $danger
+      
+      &:focus
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2)
+
+.validation-message
+  color: $danger
+  font-size: 0.75rem
+  margin-top: 0.5rem
+
+.btn-primary
+  width: 100%
+  padding: 0.875rem 1.5rem
+  background-color: $secondary // Using accent color for checkout
+  color: white
+  border: none
+  border-radius: 6px
+  font-size: 1rem
+  font-weight: 500
+  cursor: pointer
+  transition: background-color 0.2s
+  display: flex
+  justify-content: center
+  align-items: center
+  height: 48px
+  
+  &:hover:not([disabled])
+    background-color: #d97706
+    
+  &[disabled]
+    opacity: 0.6
+    cursor: not-allowed
+
+.terms-text
+  font-size: 0.75rem
+  color: #6b7280
+  text-align: center
+  margin-top: 1rem
+  
+  .terms-link
+    color: $primary
+    text-decoration: none
+    font-weight: 500
+    
+    &:hover
+      text-decoration: underline
+
+// Loading and Error States
+.loading-state, .error-message
+  text-align: center
+  padding: 3rem
+  background: white
+  border-radius: 8px
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1)
+
+.error-message
+  color: $danger
+  font-weight: 500
+
+.spinner
+  border: 3px solid rgba(0, 0, 0, 0.1)
+  border-radius: 50%
+  border-top: 3px solid $primary
+  width: 24px
+  height: 24px
+  animation: spin 1s linear infinite
+  margin: 0 auto 1rem
+  
+  &.button-spinner
+    border-color: rgba(255, 255, 255, 0.3)
+    border-top-color: white
+    margin: 0
+    width: 20px
+    height: 20px
+
+@keyframes spin
+  0%
+    transform: rotate(0deg)
+  100%
+    transform: rotate(360deg)

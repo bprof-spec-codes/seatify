@@ -1,0 +1,62 @@
+<div class="seat-panel">
+    <div class="tool-section-header">
+        <h3 class="tool-section-title">{{ isBulkMode ? 'Bulk Edit' : 'Seat' }}</h3>
+        <p class="tool-section-subtitle">
+            {{ isBulkMode ? 'Apply changes to all selected seats.' : 'Edit the selected seat properties.' }}
+        </p>
+    </div>
+
+    <form class="seat-form" [formGroup]="form" (ngSubmit)="submit()">
+        <div class="form-section" *ngIf="!isBulkMode">
+            <label for="seatLabel">Label</label>
+            <input id="seatLabel" type="text" formControlName="seatLabel" />
+
+            <div class="field-error" *ngIf="seatLabelControl?.touched && seatLabelControl?.invalid">
+                <span *ngIf="seatLabelControl?.errors?.['maxlength']">
+                    Label is too long.
+                </span>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <label for="priceOverride">Price override</label>
+            <input id="priceOverride" type="number" min="0" placeholder="Inherited" formControlName="priceOverride" />
+
+            <div class="field-error" *ngIf="priceOverrideControl?.touched && priceOverrideControl?.invalid">
+                <span *ngIf="priceOverrideControl?.errors?.['min']">
+                    Price must be at least 0.
+                </span>
+                <span *ngIf="priceOverrideControl?.errors?.['max']">
+                    Price is too high.
+                </span>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <label>Seat type</label>
+
+            <div class="segmented-control">
+                <button type="button" [class.active]="seatTypeControl?.value === seatType.Seat"
+                    [disabled]="disabled || isSaving" (click)="setSeatType(seatType.Seat)">
+                    Seat
+                </button>
+
+                <button type="button" [class.active]="seatTypeControl?.value === seatType.AccessibleSeat"
+                    [disabled]="disabled || isSaving" (click)="setSeatType(seatType.AccessibleSeat)">
+                    Accessible
+                </button>
+
+                <button type="button" [class.active]="seatTypeControl?.value === seatType.Aisle"
+                    [disabled]="disabled || isSaving" (click)="setSeatType(seatType.Aisle)">
+                    Aisle
+                </button>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn--primary" [disabled]="form.invalid || isSaving || disabled">
+                {{ isBulkMode ? 'Update ' + ' seats' : 'Save seat' }}
+            </button>
+        </div>
+    </form>
+</div>

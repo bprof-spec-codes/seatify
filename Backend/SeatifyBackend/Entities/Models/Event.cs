@@ -1,4 +1,4 @@
-﻿namespace Entities.Models
+namespace Entities.Models
 {
     public class Event
     {
@@ -12,5 +12,7 @@
         public DateTime UpdatedAtUtc { get; set; } = DateTime.UtcNow;
 
         public virtual List<EventOccurrence> EventOccurrences { get; set; } = new();
+
+        public virtual EventAppearance? Appearance { get; set; }
     }
 }

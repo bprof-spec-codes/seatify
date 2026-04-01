@@ -124,17 +124,16 @@ namespace Logic.Services
 
             var oldRows = entity.Rows;
             var oldColumns = entity.Columns;
-
-            _dtoProvider.Mapper.Map(dto, entity);
-            entity.UpdatedAtUtc = DateTime.UtcNow;
+            var now = DateTime.UtcNow;
 
             var dimensionsChanged = oldRows != dto.Rows || oldColumns != dto.Columns;
 
+            _dtoProvider.Mapper.Map(dto, entity);
+            entity.UpdatedAtUtc = now;
+
             if (dimensionsChanged)
             {
-                _ctx.Seats.RemoveRange(entity.Seats);
-
-                entity.Seats = GenerateSeats(entity.Id, entity.Rows, entity.Columns, entity.UpdatedAtUtc);
+                ApplySeatMatrixResize(entity, dto.Rows, dto.Columns, now);
             }
 
             await _ctx.SaveChangesAsync(ct);
@@ -232,6 +231,73 @@ namespace Logic.Services
             }
 
             return label;
+        }
+
+        private void ApplySeatMatrixResize(LayoutMatrix entity, int newRows, int newColumns, DateTime now)
+        {
+            var seats = entity.Seats.ToList();
+
+            var seatsToRemove = seats
+                .Where(s => s.Row > newRows || s.Column > newColumns)
+                .ToList();
+
+            if (seatsToRemove.Count > 0)
+            {
+                _ctx.Seats.RemoveRange(seatsToRemove);
+            }
+
+            var remainingSeatKeys = seats
+                .Where(s => s.Row <= newRows && s.Column <= newColumns)
+                .Select(s => (s.Row, s.Column))
+                .ToHashSet();
+
+            var seatsToAdd = new List<Seat>();
+
+            for (int row = 1; row <= newRows; row++)
+            {
+                for (int column = 1; column <= newColumns; column++)
+                {
+                    if (remainingSeatKeys.Contains((row, column)))
+                    {
+                        continue;
+                    }
+
+                    seatsToAdd.Add(new Seat
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        MatrixId = entity.Id,
+                        Row = row,
+                        Column = column,
+                        SeatLabel = $"{GetRowLabel(row)}{column}",
+                        SeatType = SeatType.Seat,
+                        CreatedAtUtc = now,
+                        UpdatedAtUtc = now
+                    });
+                }
+            }
+
+            if (seatsToAdd.Count > 0)
+            {
+                _ctx.Seats.AddRange(seatsToAdd);
+            }
+
+            foreach (var seat in seats.Where(s => s.Row <= newRows && s.Column <= newColumns))
+            {
+                var expectedLabel = $"{GetRowLabel(seat.Row)}{seat.Column}";
+
+                if (seat.SeatLabel != expectedLabel)
+                {
+                    seat.SeatLabel = expectedLabel;
+                    seat.UpdatedAtUtc = now;
+                }
+            }
+
+            entity.Seats = entity.Seats
+                .Where(s => s.Row <= newRows && s.Column <= newColumns)
+                .Concat(seatsToAdd)
+                .OrderBy(s => s.Row)
+                .ThenBy(s => s.Column)
+                .ToList();
         }
     }
 }

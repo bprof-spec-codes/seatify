@@ -2,6 +2,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, catchError, Observable, tap, throwError } from 'rxjs';
 import { Venue } from '../models/venue';
+import { Auditorium } from '../models/auditorium';
 import { environment } from '../../environments/environment.development';
 
 @Injectable({
@@ -90,6 +91,35 @@ export class VenueService {
       if (venue.id === venueId)
       {
         return { ...venue, auditoriums: venue.auditoriums.filter(a => a.id !== auditoriumId) };
+      }
+      return venue;
+    });
+
+    this.venuesSource.next(updatedVenues);
+  }
+
+  addAuditoriumToVenue(venueId: string, auditorium: Auditorium): void {
+    const currentVenues = this.venuesSource.value;
+
+    const updatedVenues = currentVenues.map(venue => {
+      if (venue.id === venueId) {
+        return { ...venue, auditoriums: [...venue.auditoriums, auditorium] };
+      }
+      return venue;
+    });
+
+    this.venuesSource.next(updatedVenues);
+  }
+
+  updateAuditoriumInVenue(venueId: string, updatedAuditorium: Auditorium): void {
+    const currentVenues = this.venuesSource.value;
+
+    const updatedVenues = currentVenues.map(venue => {
+      if (venue.id === venueId) {
+        return {
+          ...venue,
+          auditoriums: venue.auditoriums.map(a => a.id === updatedAuditorium.id ? updatedAuditorium : a)
+        };
       }
       return venue;
     });

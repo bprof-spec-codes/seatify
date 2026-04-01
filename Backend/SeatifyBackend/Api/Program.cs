@@ -1,3 +1,4 @@
+using Api.Helpers;
 using Data;
 using Logic.Helper;
 using Entities.Models;
@@ -15,7 +16,11 @@ namespace Api
 
             // Add services to the container.
 
-            builder.Services.AddControllers();
+            builder.Services.AddControllers(opt =>
+            {
+                opt.Filters.Add<ValidationFilter>();
+                opt.Filters.Add<ExceptionFilter>();
+            });
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
@@ -40,6 +45,7 @@ namespace Api
             builder.Services.AddScoped<IReservationService, ReservationService>();
             builder.Services.AddScoped<ILayoutMatrixService, LayoutMatrixService>();
             builder.Services.AddScoped<Logic.Services.IEventService, EventService>();
+            builder.Services.AddScoped<ISeatOverrideService, SeatOverrideService>();
 
             builder.Services.AddCors(options =>
             {
@@ -73,6 +79,8 @@ namespace Api
 
             app.UseHttpsRedirection();
             
+            app.UseStaticFiles(); // Allow to serve /images/...
+
             app.UseCors("AllowOrigin");
 
             app.UseAuthorization();

@@ -32,6 +32,7 @@ namespace Logic.Services
                 EndsAtUtc = createDto.EndsAtUtc,
                 BookingOpenAtUtc = createDto.BookingOpenAtUtc,
                 BookingCloseAtUtc = createDto.BookingCloseAtUtc,
+                DoorsOpenAtUtc = createDto.DoorsOpenAtUtc,
                 Status = createDto.Status
             };
 
@@ -77,6 +78,7 @@ namespace Logic.Services
                 EndsAtUtc = occurrence.EndsAtUtc,
                 BookingOpenAtUtc = occurrence.BookingOpenAtUtc,
                 BookingCloseAtUtc = occurrence.BookingCloseAtUtc,
+                DoorsOpenAtUtc = occurrence.DoorsOpenAtUtc,
                 Status = occurrence.Status,
 
                 Event = occurrence.Event != null ? new EventViewDto
@@ -112,6 +114,7 @@ namespace Logic.Services
             occurrence.EndsAtUtc = updateDto.EndsAtUtc;
             occurrence.BookingOpenAtUtc = updateDto.BookingOpenAtUtc;
             occurrence.BookingCloseAtUtc = updateDto.BookingCloseAtUtc;
+            occurrence.DoorsOpenAtUtc = updateDto.DoorsOpenAtUtc;
             occurrence.Status = updateDto.Status;
             occurrence.UpdatedAtUtc = DateTime.UtcNow;
 

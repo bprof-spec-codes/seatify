@@ -38,11 +38,16 @@ Meaning:
 * `EventOccurrence` represents a scheduled instance of the event
 * booking, seat availability, holds, reservations, and tickets must all be tied to `EventOccurrence`
 
-Seat availability must always be evaluated in the context of:
+Seat availability and pricing must always be evaluated in the context of:
 
 ```
-Seat + EventOccurrence
+Seat + Event + EventOccurrence
 ```
+
+Pricing and seat properties follow a 3-level override hierarchy:
+1. **EventOccurrence level** (highest priority)
+2. **Event level**
+3. **Auditorium level** (base template)
 
 ---
 
@@ -203,6 +208,18 @@ Possible states:
 * **Held** – active `SeatHold` exists
 * **Booked** – `ReservationSeat` exists
 
+### Pricing Resolution Logic
+
+The final price for a seat is resolved using the following priority:
+1. `OccurrenceSeatOverride.PriceOverride` (if exists)
+2. `EventSeatOverride.PriceOverride` (if exists)
+3. `Seat.PriceOverride` (if exists)
+4. `Sector.BasePrice` (from the resolved sector)
+
+The final sector and seat type are resolved similarly:
+- **Sector**: `OccurrenceOverride.SectorId ?? EventOverride.SectorId ?? Seat.SectorId`
+- **SeatType**: `OccurrenceOverride.SeatType ?? EventOverride.SeatType ?? Seat.SeatType`
+
 ---
 
 # Booking Session Phases
@@ -324,6 +341,7 @@ Seat state becomes **Booked**.
   "status": "Published",
   "bookingOpenAtUtc": "2026-03-01T10:00:00Z",
   "bookingCloseAtUtc": "2026-04-20T17:45:00Z",
+  "doorsOpenAtUtc": "2026-04-20T17:30:00Z",
   "createdAtUtc": "2026-01-01T10:05:00Z",
   "updatedAtUtc": "2026-01-10T12:00:00Z"
 }
@@ -336,15 +354,13 @@ Seat state becomes **Booked**.
 ```json
 {
   "id": "seat_A_12",
-  "layoutMatrixId": "layout_001",
+  "matrixId": "layout_001",
   "sectorId": "sector_A",
-  "rowLabel": "A",
+  "row": 1,
+  "column": 12,
   "seatLabel": "12",
-  "x": 12,
-  "y": 1,
-  "basePrice": 6500,
   "priceOverride": null,
-  "seatType": "Standard"
+  "seatType": "Seat"
 }
 ```
 
@@ -544,13 +560,12 @@ class BookingSession {
 
 class Seat {
   +Guid Id
-  +Guid LayoutMatrixId
+  +Guid MatrixId
   +Guid SectorId
-  +string RowLabel
+  +int Row
+  +int Column
   +string SeatLabel
-  +int X
-  +int Y
-  +decimal BasePrice
+  +decimal PriceOverride
   +string SeatType
 }
 

@@ -1,4 +1,4 @@
-﻿using Data;
+using Data;
 using Entities.Dtos.Seat;
 using Entities.Models;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +13,7 @@ namespace Logic.Services
         Task<SeatViewDto?> GetByIdAsync(string seatId, CancellationToken ct);
         Task<SeatViewDto?> UpdateAsync(string seatId, SeatUpdateDto dto, CancellationToken ct);
         Task<bool> DeleteAsync(string seatId, CancellationToken ct);
+        Task<BulkSeatUpdateResponseDto> BulkUpdateAsync(BulkSeatUpdateDto dto, CancellationToken ct);
     }
 
     public class SeatService : ISeatService
@@ -238,6 +239,113 @@ namespace Logic.Services
                     UpdatedAtUtc = s.UpdatedAtUtc
                 })
                 .FirstOrDefaultAsync(ct);
+        }
+
+        public async Task<BulkSeatUpdateResponseDto> BulkUpdateAsync(BulkSeatUpdateDto dto, CancellationToken ct)
+        {
+            if (dto == null || dto.SeatIds == null || !dto.SeatIds.Any())
+            {
+                throw new ArgumentException("At least one SeatId must be provided.");
+            }
+
+            var uniqueSeatIds = dto.SeatIds.Select(sid => sid.Trim()).Distinct().ToList();
+            Console.WriteLine($"BulkUpdate: Processing {uniqueSeatIds.Count} seats");
+
+            var seatsToUpdate = await _dbContext.Seats
+                .Where(s => uniqueSeatIds.Contains(s.Id))
+                .ToListAsync(ct);
+
+            Console.WriteLine($"BulkUpdate: Found {seatsToUpdate.Count} seats in DB");
+
+            if (seatsToUpdate.Count != uniqueSeatIds.Count)
+            {
+                var foundIds = seatsToUpdate.Select(s => s.Id).ToList();
+                var missingIds = uniqueSeatIds.Except(foundIds).ToList();
+                var missingIdsStr = string.Join(", ", missingIds);
+                Console.WriteLine($"BulkUpdate FAILED: Some seats were not found: {missingIdsStr}");
+                throw new ArgumentException($"Some seats were not found: {missingIdsStr}");
+            }
+
+            var distinctMatrixIds = seatsToUpdate.Select(s => s.MatrixId).Distinct().ToList();
+            if (distinctMatrixIds.Count > 1)
+            {
+                Console.WriteLine("BulkUpdate FAILED: Multiple matrix IDs detected");
+                throw new ArgumentException("All selected seats must belong to the same layout matrix.");
+            }
+
+            if (!string.IsNullOrWhiteSpace(dto.SectorId))
+            {
+                var sectorId = dto.SectorId.Trim();
+                bool sectorExists = await _dbContext.Sectors.AnyAsync(s => s.Id == sectorId, ct);
+                if (!sectorExists)
+                {
+                    Console.WriteLine($"BulkUpdate FAILED: Sector not found: {sectorId}");
+                    throw new ArgumentException($"Sector not found: {sectorId}");
+                }
+            }
+
+            SeatType? parsedSeatType = null;
+            if (!string.IsNullOrWhiteSpace(dto.SeatType))
+            {
+                parsedSeatType = ParseSeatType(dto.SeatType);
+            }
+
+            var updatedIds = new List<string>();
+
+            try
+            {
+                foreach (var seat in seatsToUpdate)
+                {
+                    bool isModified = false;
+
+                    if (!string.IsNullOrWhiteSpace(dto.SectorId))
+                    {
+                        seat.SectorId = dto.SectorId.Trim();
+                        isModified = true;
+                    }
+                    else if (dto.ClearSector)
+                    {
+                        seat.SectorId = null;
+                        isModified = true;
+                    }
+
+                    if (parsedSeatType.HasValue)
+                    {
+                        seat.SeatType = parsedSeatType.Value;
+                        isModified = true;
+                    }
+
+                    if (dto.PriceOverride.HasValue)
+                    {
+                        seat.PriceOverride = dto.PriceOverride.Value;
+                        isModified = true;
+                    }
+                    else if (dto.ClearPriceOverride)
+                    {
+                        seat.PriceOverride = null;
+                        isModified = true;
+                    }
+
+                    if (isModified)
+                    {
+                        seat.UpdatedAtUtc = DateTime.UtcNow;
+                        updatedIds.Add(seat.Id);
+                    }
+                }
+
+                await _dbContext.SaveChangesAsync(ct);
+
+                return new BulkSeatUpdateResponseDto
+                {
+                    UpdatedCount = updatedIds.Count,
+                    UpdatedSeatIds = updatedIds
+                };
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"BulkUpdate CRASHED in SaveChanges: {ex}");
+                throw;
+            }
         }
 
         public async Task<SeatViewDto?> UpdateAsync(string seatId, SeatUpdateDto dto, CancellationToken ct)

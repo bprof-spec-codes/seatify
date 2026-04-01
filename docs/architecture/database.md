@@ -10,7 +10,7 @@ erDiagram
         datetime UpdatedAtUtc
     }
 
-    ORGANIZER_BRAND_APPEARANCE {
+    APPEARANCE {
         Guid Id PK
         Guid OrganizerId FK
         string PrimaryColor
@@ -18,6 +18,7 @@ erDiagram
         string LogoImageUrl
         string BannerImageUrl
         string ThemePreset
+        boolean IsDefault
     }
 
     VENUE {
@@ -53,13 +54,11 @@ erDiagram
 
     SEAT {
         Guid Id PK
-        Guid LayoutMatrixId FK
+        Guid MatrixId FK
         Guid SectorId FK
-        string RowLabel
+        int Row
+        int Column
         string SeatLabel
-        int X
-        int Y
-        decimal BasePrice
         decimal PriceOverride
         string SeatType
     }
@@ -95,8 +94,27 @@ erDiagram
         string Status
         datetime BookingOpenAtUtc
         datetime BookingCloseAtUtc
+        datetime DoorsOpenAtUtc
         datetime CreatedAtUtc
         datetime UpdatedAtUtc
+    }
+
+    EVENT_SEAT_OVERRIDE {
+        Guid Id PK
+        Guid EventId FK
+        Guid SeatId FK
+        Guid SectorId FK
+        string SeatType
+        decimal PriceOverride
+    }
+
+    OCCURRENCE_SEAT_OVERRIDE {
+        Guid Id PK
+        Guid OccurrenceId FK
+        Guid SeatId FK
+        Guid SectorId FK
+        string SeatType
+        decimal PriceOverride
     }
 
     BOOKING_SESSION {
@@ -147,7 +165,7 @@ erDiagram
 
     ORGANIZER ||--o{ VENUE : owns
     ORGANIZER ||--o{ EVENT : owns
-    ORGANIZER ||--o| ORGANIZER_BRAND_APPEARANCE : has
+    ORGANIZER ||--o| APPEARANCE : has
 
     VENUE ||--o{ AUDITORIUM : contains
     AUDITORIUM ||--o{ LAYOUT_MATRIX : contains
@@ -157,9 +175,14 @@ erDiagram
 
     EVENT ||--o| EVENT_APPEARANCE : has
     EVENT ||--|{ EVENT_OCCURRENCE : has
+    EVENT ||--o{ EVENT_SEAT_OVERRIDE : defines_overrides
 
     VENUE ||--o{ EVENT_OCCURRENCE : hosts
     AUDITORIUM ||--o{ EVENT_OCCURRENCE : used_by
+
+    EVENT_OCCURRENCE ||--o{ OCCURRENCE_SEAT_OVERRIDE : defines_overrides
+    SEAT ||--o{ EVENT_SEAT_OVERRIDE : overridden_in
+    SEAT ||--o{ OCCURRENCE_SEAT_OVERRIDE : overridden_in
 
     EVENT_OCCURRENCE ||--o{ BOOKING_SESSION : starts
     EVENT_OCCURRENCE ||--o{ SEAT_HOLD : contains
@@ -173,4 +196,4 @@ erDiagram
 
     RESERVATION_SEAT ||--o| TICKET : generates
 
-```
+```

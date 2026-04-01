@@ -15,8 +15,11 @@ namespace Data
         public DbSet<Seat> Seats => Set<Seat>();
         public DbSet<Organizer> Organizers => Set<Organizer>();
         public DbSet<Appearance> Appearances => Set<Appearance>();
+        public DbSet<EventAppearance> EventAppearances => Set<EventAppearance>();
         public DbSet<Reservation> Reservations => Set<Reservation>();
         public DbSet<ReservationSeat> ReservationSeats => Set<ReservationSeat>();
+        public DbSet<EventSeatOverride> EventSeatOverrides => Set<EventSeatOverride>();
+        public DbSet<OccurrenceSeatOverride> OccurrenceSeatOverrides => Set<OccurrenceSeatOverride>();
 
         public AppDbContext(DbContextOptions<AppDbContext> ctx) : base(ctx)
         {
@@ -120,6 +123,13 @@ namespace Data
                 .HasForeignKey(a => a.OrganizerId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            // event appearance
+            modelBuilder.Entity<EventAppearance>()
+                .HasOne(ea => ea.Event)
+                .WithOne(e => e.Appearance)
+                .HasForeignKey<EventAppearance>(ea => ea.EventId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             // Reservation
             modelBuilder.Entity<Reservation>()
                 .HasOne(r => r.EventOccurrence)
@@ -132,6 +142,54 @@ namespace Data
                 .WithMany(r => r.ReservationSeats)
                 .HasForeignKey(rs => rs.ReservationId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // EventSeatOverride
+            modelBuilder.Entity<EventSeatOverride>()
+                .HasOne(e => e.Event)
+                .WithMany()
+                .HasForeignKey(e => e.EventId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<EventSeatOverride>()
+                .HasOne(e => e.Seat)
+                .WithMany()
+                .HasForeignKey(e => e.SeatId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<EventSeatOverride>()
+                .HasOne(e => e.Sector)
+                .WithMany()
+                .HasForeignKey(e => e.SectorId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .IsRequired(false);
+
+            modelBuilder.Entity<EventSeatOverride>()
+                .HasIndex(e => new { e.EventId, e.SeatId })
+                .IsUnique();
+
+            // OccurrenceSeatOverride
+            modelBuilder.Entity<OccurrenceSeatOverride>()
+                .HasOne(o => o.Occurrence)
+                .WithMany()
+                .HasForeignKey(o => o.OccurrenceId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<OccurrenceSeatOverride>()
+                .HasOne(o => o.Seat)
+                .WithMany()
+                .HasForeignKey(o => o.SeatId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<OccurrenceSeatOverride>()
+                .HasOne(o => o.Sector)
+                .WithMany()
+                .HasForeignKey(o => o.SectorId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .IsRequired(false);
+
+            modelBuilder.Entity<OccurrenceSeatOverride>()
+                .HasIndex(o => new { o.OccurrenceId, o.SeatId })
+                .IsUnique();
         }
     }
 }

@@ -1,0 +1,105 @@
+<div class="checkout-container">
+  <div class="checkout-header">
+    <h1>Complete Your Booking</h1>
+    <p>Please review your selected seats and provide your details to finalize the reservation.</p>
+  </div>
+
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading your booking details...</p>
+  </div>
+
+  <div *ngIf="!isLoading && errorMessage" class="error-message">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="!isLoading && session" class="checkout-content">
+    
+    <!-- Order Summary -->
+    <div class="summary-section">
+      <h2>Order Summary</h2>
+      
+      <div class="seat-list">
+        <div class="seat-item" *ngFor="let hold of session.holds">
+          <div class="seat-info">
+            <span class="seat-row">Row {{ hold.rowLabel }}</span>
+            <span class="seat-number">Seat {{ hold.seatLabel }}</span>
+          </div>
+          <div class="seat-price">{{ hold.basePrice }} Ft</div>
+        </div>
+      </div>
+      
+      <div class="total-section">
+        <span class="total-label">Total Amount:</span>
+        <span class="total-price">{{ totalPrice }} Ft</span>
+      </div>
+    </div>
+
+    <!-- Customer Form -->
+    <div class="form-section">
+      <h2>Customer Information</h2>
+      
+      <form [formGroup]="checkoutForm" (ngSubmit)="onSubmit()">
+        
+        <div class="form-group">
+          <label for="fullName">Full Name</label>
+          <input 
+            type="text" 
+            id="fullName" 
+            formControlName="fullName" 
+            placeholder="John Doe"
+            [class.invalid]="f['fullName'].invalid && f['fullName'].touched"
+          >
+          <div class="validation-message" *ngIf="f['fullName'].invalid && f['fullName'].touched">
+            <span *ngIf="f['fullName'].errors?.['required']">Name is required.</span>
+            <span *ngIf="f['fullName'].errors?.['minlength']">Name must be at least 3 characters.</span>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input 
+            type="email" 
+            id="email" 
+            formControlName="email" 
+            placeholder="john@example.com"
+            [class.invalid]="f['email'].invalid && f['email'].touched"
+          >
+          <div class="validation-message" *ngIf="f['email'].invalid && f['email'].touched">
+            <span *ngIf="f['email'].errors?.['required']">Email is required.</span>
+            <span *ngIf="f['email'].errors?.['email']">Please enter a valid email.</span>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="phone">Phone Number</label>
+          <input 
+            type="text" 
+            id="phone" 
+            formControlName="phone" 
+            placeholder="+36301234567"
+            [class.invalid]="f['phone'].invalid && f['phone'].touched"
+          >
+          <div class="validation-message" *ngIf="f['phone'].invalid && f['phone'].touched">
+            <span *ngIf="f['phone'].errors?.['required']">Phone number is required.</span>
+            <span *ngIf="f['phone'].errors?.['pattern']">Please enter a valid phone number.</span>
+          </div>
+        </div>
+        
+        <button 
+          type="submit" 
+          class="btn-primary" 
+          [disabled]="checkoutForm.invalid || isSubmitting">
+          <span *ngIf="!isSubmitting">Confirm Reservation</span>
+          <span *ngIf="isSubmitting" class="spinner button-spinner"></span>
+        </button>
+
+        <p class="terms-text">
+          By clicking confirm, you agree to our 
+          <a href="/assets/privacy-policy.pdf" target="_blank" class="terms-link">Privacy Policy</a>.
+        </p>
+        
+      </form>
+    </div>
+  </div>
+</div>

@@ -1,4 +1,4 @@
-﻿using Entities.Models;
+using Entities.Models;
 ﻿using Entities.Dtos.Auditorium;
 using Entities.Dtos.Venue;
 using Entities.Models;
@@ -21,6 +21,7 @@ namespace Entities.Dtos.EventOccurrence
         public DateTime EndsAtUtc { get; set; }
         public DateTime BookingOpenAtUtc { get; set; }
         public DateTime BookingCloseAtUtc { get; set; }
+        public DateTime? DoorsOpenAtUtc { get; set; }
         public string Status { get; set; } = string.Empty;
         public EventViewDto Event { get; set; } = null!;
         public VenueViewDto Venue { get; set; } = null!;

@@ -11,6 +11,12 @@
 
 <div class="container mt-4">
     <div class="row">
+        @if ((venues$ | async)?.length === 0 && isVenuesCalled)
+        {
+            <div class="col text-center">
+                No Venues!
+            </div>
+        }
         @for (venue of venues$ | async; track $index)
         {
             <div class="col-md-4 mb-4" [attr.data-index]="$index">
