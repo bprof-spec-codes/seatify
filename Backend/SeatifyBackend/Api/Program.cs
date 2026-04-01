@@ -25,6 +25,7 @@ namespace Api
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+
             var databaseProvider = builder.Configuration["Database:Provider"];
             var databaseName = builder.Configuration["Database:Name"] ?? "SeatifyDb";
 
@@ -43,6 +44,7 @@ namespace Api
             builder.Services.AddScoped<IEventOccurrenceService, EventOccurrenceService>();
             builder.Services.AddScoped<IReservationService, ReservationService>();
             builder.Services.AddScoped<ILayoutMatrixService, LayoutMatrixService>();
+            builder.Services.AddScoped<Logic.Services.IEventService, EventService>();
             builder.Services.AddScoped<ISeatOverrideService, SeatOverrideService>();
 
             builder.Services.AddCors(options =>
