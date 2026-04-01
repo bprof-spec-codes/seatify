@@ -186,15 +186,13 @@ Example JSON:
 ```json
 {
   "id": "seat-001",
-  "layoutMatrixId": "matrix-001",
+  "matrixId": "matrix-001",
   "sectorId": "sector-001",
-  "rowLabel": "A",
+  "row": 1,
+  "column": 1,
   "seatLabel": "1",
-  "x": 1,
-  "y": 1,
-  "basePrice": 4990,
   "priceOverride": null,
-  "seatType": "Standard"
+  "seatType": "Seat"
 }
 ```
 
@@ -282,11 +280,10 @@ Response:
   "seats": [
     {
       "id": "seat-001",
-      "rowLabel": "A",
+      "row": 1,
+      "column": 1,
       "seatLabel": "1",
-      "x": 1,
-      "y": 1,
-      "seatType": "Standard"
+      "seatType": "Seat"
     }
   ]
 }
@@ -391,7 +388,8 @@ Response:
       "seats": [
         {
           "id": "seat-001",
-          "rowLabel": "A",
+          "row": 1,
+          "column": 1,
           "seatLabel": "1",
           "sectorId": "sector-001"
         }
@@ -485,13 +483,11 @@ class Sector {
 
 class Seat {
   +Guid Id
-  +Guid LayoutMatrixId
+  +Guid MatrixId
   +Guid SectorId
-  +string RowLabel
+  +int Row
+  +int Column
   +string SeatLabel
-  +int X
-  +int Y
-  +decimal BasePrice
   +decimal PriceOverride
   +string SeatType
 }
@@ -517,6 +513,7 @@ class EventOccurrence {
   +string Status
   +DateTime BookingOpenAtUtc
   +DateTime BookingCloseAtUtc
+  +DateTime DoorsOpenAtUtc
   +DateTime CreatedAtUtc
   +DateTime UpdatedAtUtc
 }
@@ -525,9 +522,6 @@ Organizer "1" --> "0..*" Venue : owns
 Organizer "1" --> "0..*" Event : owns
 
 Venue "1" --> "0..*" Auditorium : contains
-Auditorium "1" --> "0..*" LayoutMatrix : contains
-Auditorium "1" --> "0..*" Sector : defines
-
 LayoutMatrix "1" --> "0..*" Seat : contains
 Sector "1" --> "0..*" Seat : groups
 

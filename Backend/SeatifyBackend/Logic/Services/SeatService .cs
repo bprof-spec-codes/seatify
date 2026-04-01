@@ -249,22 +249,27 @@ namespace Logic.Services
             }
 
             var uniqueSeatIds = dto.SeatIds.Select(sid => sid.Trim()).Distinct().ToList();
+            Console.WriteLine($"BulkUpdate: Processing {uniqueSeatIds.Count} seats");
 
             var seatsToUpdate = await _dbContext.Seats
                 .Where(s => uniqueSeatIds.Contains(s.Id))
                 .ToListAsync(ct);
+
+            Console.WriteLine($"BulkUpdate: Found {seatsToUpdate.Count} seats in DB");
 
             if (seatsToUpdate.Count != uniqueSeatIds.Count)
             {
                 var foundIds = seatsToUpdate.Select(s => s.Id).ToList();
                 var missingIds = uniqueSeatIds.Except(foundIds).ToList();
                 var missingIdsStr = string.Join(", ", missingIds);
+                Console.WriteLine($"BulkUpdate FAILED: Some seats were not found: {missingIdsStr}");
                 throw new ArgumentException($"Some seats were not found: {missingIdsStr}");
             }
 
             var distinctMatrixIds = seatsToUpdate.Select(s => s.MatrixId).Distinct().ToList();
             if (distinctMatrixIds.Count > 1)
             {
+                Console.WriteLine("BulkUpdate FAILED: Multiple matrix IDs detected");
                 throw new ArgumentException("All selected seats must belong to the same layout matrix.");
             }
 
@@ -274,6 +279,7 @@ namespace Logic.Services
                 bool sectorExists = await _dbContext.Sectors.AnyAsync(s => s.Id == sectorId, ct);
                 if (!sectorExists)
                 {
+                    Console.WriteLine($"BulkUpdate FAILED: Sector not found: {sectorId}");
                     throw new ArgumentException($"Sector not found: {sectorId}");
                 }
             }
@@ -286,7 +292,6 @@ namespace Logic.Services
 
             var updatedIds = new List<string>();
 
-            using var transaction = await _dbContext.Database.BeginTransactionAsync(ct);
             try
             {
                 foreach (var seat in seatsToUpdate)
@@ -329,7 +334,6 @@ namespace Logic.Services
                 }
 
                 await _dbContext.SaveChangesAsync(ct);
-                await transaction.CommitAsync(ct);
 
                 return new BulkSeatUpdateResponseDto
                 {
@@ -337,9 +341,9 @@ namespace Logic.Services
                     UpdatedSeatIds = updatedIds
                 };
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                await transaction.RollbackAsync(ct);
+                Console.WriteLine($"BulkUpdate CRASHED in SaveChanges: {ex}");
                 throw;
             }
         }

@@ -90,6 +90,11 @@
             <h2 class="panel-title">{{ selectedMatrixTitle }}</h2>
             <p class="editor-shell__subtitle">{{ selectedMatrixSummary }}</p>
           </div>
+          <div class="context-badge" [class]="'context-badge--' + editorContext">
+            <span *ngIf="editorContext === 'auditorium'">Auditorium</span>
+            <span *ngIf="editorContext === 'event'">Event override</span>
+            <span *ngIf="editorContext === 'occurrence'">Date override</span>
+          </div>
         </div>
 
         <div class="editor-shell__body">
@@ -101,9 +106,34 @@
                 <div class="cell" *ngFor="let cell of gridCells; trackBy: trackByCellKey"
                   [class.cell--selected]="isCellSelected(cell)"
                   [class.cell--accessible]="cell.seatType === seatType.AccessibleSeat"
-                  [class.cell--aisle]="cell.seatType === seatType.Aisle" (click)="selectCell(cell)"
-                  [style.backgroundColor]="isCellSelected(cell) ? '#2563eb' : getSectorColor(cell.sectorId)"
-                  [title]="cell.seatLabel || ('Row ' + cell.row + ', Column ' + cell.column)"></div>
+                  [class.cell--aisle]="cell.seatType === seatType.Aisle"
+                  (mousedown)="onMouseDown(cell, $event)"
+                  (mouseenter)="onMouseEnter(cell)"
+                  (click)="$event.stopPropagation()"
+                  [style.backgroundColor]="getSectorColor(cell.sectorId) || '#f8fafc'"
+                  [title]="cell.seatLabel || ('Row ' + cell.row + ', Column ' + cell.column)">
+                  <i class="bi bi-universal-access-circle cell__accessible-icon"
+                     *ngIf="cell.seatType === seatType.AccessibleSeat"></i>
+                  <!-- Override forrás jelzők: szektor · ár · kategória -->
+                  <div class="cell__override-dots"
+                       *ngIf="cell.sectorSource !== 'auditorium' || cell.priceSource !== 'auditorium' || cell.seatTypeSource !== 'auditorium'">
+                    <span class="cell__override-dot"
+                          [class.cell__override-dot--event]="cell.sectorSource === 'event'"
+                          [class.cell__override-dot--occurrence]="cell.sectorSource === 'occurrence'"
+                          *ngIf="cell.sectorSource !== 'auditorium'"
+                          title="Szektor: {{ cell.sectorSource }} override"></span>
+                    <span class="cell__override-dot"
+                          [class.cell__override-dot--event]="cell.priceSource === 'event'"
+                          [class.cell__override-dot--occurrence]="cell.priceSource === 'occurrence'"
+                          *ngIf="cell.priceSource !== 'auditorium'"
+                          title="Ár: {{ cell.priceSource }} override"></span>
+                    <span class="cell__override-dot"
+                          [class.cell__override-dot--event]="cell.seatTypeSource === 'event'"
+                          [class.cell__override-dot--occurrence]="cell.seatTypeSource === 'occurrence'"
+                          *ngIf="cell.seatTypeSource !== 'auditorium'"
+                          title="Kategória: {{ cell.seatTypeSource }} override"></span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -124,26 +154,39 @@
         <h2 class="panel-title">Properties & Tools</h2>
       </div>
 
-      <div class="selection-summary__hint" *ngIf="isBulkSelection">
-        Bulk edit will be available later. For now, properties can only be edited when exactly one seat is selected.
+      <div class="selection-summary__info" *ngIf="hasSelection" [class.selection-summary__info--bulk]="isBulkSelection">
+        {{ selectedCellKeys.length }} {{ selectedCellKeys.length === 1 ? 'seat' : 'seats' }} selected
       </div>
 
       <div class="tool-stack">
         <div class="tool-card">
-          <app-seat-editor [cell]="selectedCell" [isSaving]="isSavingSeat" [disabled]="!selectedCell || isBulkSelection"
-            (save)="saveSeat($event)">
+          <app-seat-editor 
+            [cell]="isBulkSelection ? null : selectedCell" 
+            [isSaving]="isSavingSeat" 
+            [disabled]="!hasSelection"
+            [isBulkMode]="isBulkSelection"
+            (save)="isBulkSelection ? bulkUpdateSeats($event) : saveSeat($event)">
           </app-seat-editor>
         </div>
 
         <div class="tool-card">
-          <app-sector-editor [sectors]="(sectors$ | async) ?? []" [selectedSectorId]="selectedCell?.sectorId ?? null"
-            [disabled]="isSavingSeat" [canAssign]="!!selectedCell && !isBulkSelection"
-            [isCreateFormOpen]="isCreateSectorFormOpen" [isCreatingSector]="isCreatingSector"
-            [editingSectorId]="editingSectorId" [isUpdatingSector]="isUpdatingSector"
-            [isDeletingSector]="isDeletingSector" (applySector)="applySectorToSelectedSeat($event)"
-            (createClicked)="openCreateSectorForm()" (createCancelled)="closeCreateSectorForm()"
-            (createSubmitted)="createSector($event)" (editClicked)="openEditSectorForm($event)"
-            (editCancelled)="closeEditSectorForm()" (editSubmitted)="updateSector($event)"
+          <app-sector-editor 
+            [sectors]="(sectors$ | async) ?? []" 
+            [selectedSectorId]="isBulkSelection ? null : (selectedCell?.sectorId ?? null)"
+            [disabled]="isSavingSeat" 
+            [canAssign]="hasSelection"
+            [isCreateFormOpen]="isCreateSectorFormOpen" 
+            [isCreatingSector]="isCreatingSector"
+            [editingSectorId]="editingSectorId" 
+            [isUpdatingSector]="isUpdatingSector"
+            [isDeletingSector]="isDeletingSector" 
+            (applySector)="applySectorToSelectedSeats($event)"
+            (createClicked)="openCreateSectorForm()" 
+            (createCancelled)="closeCreateSectorForm()"
+            (createSubmitted)="createSector($event)" 
+            (editClicked)="openEditSectorForm($event)"
+            (editCancelled)="closeEditSectorForm()" 
+            (editSubmitted)="updateSector($event)"
             (deleteClicked)="deleteSector($event)">
           </app-sector-editor>
         </div>

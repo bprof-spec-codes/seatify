@@ -156,7 +156,10 @@ export class EventsPageComponent implements OnInit, OnDestroy {
   }
 
   editSeatMap(event: EventCard, occurrence: EventCardOccurrence): void {
-    this.router.navigate(['/layout-matrix', occurrence.id, 'editor']);
+    this.router.navigate(
+      ['/layout-matrix', occurrence.auditoriumId, 'editor'],
+      { queryParams: { occurrenceId: occurrence.id, eventId: event.id } }
+    );
   }
 
   editDetails(event: EventCard, occurrence: EventCardOccurrence): void {

@@ -8,6 +8,8 @@ public class ExceptionFilter : IExceptionFilter
 {
     public void OnException(ExceptionContext context)
     {
+        Console.WriteLine($"[ERROR] Unhandled exception: {context.Exception}");
+        
         var error = new ErrorModel(context.Exception.Message);
 
         context.HttpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
