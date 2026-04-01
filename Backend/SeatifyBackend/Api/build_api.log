@@ -1,0 +1,14 @@
+﻿  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Entities -> C:\Users\admin\Documents\seatify\Backend\SeatifyBackend\Entities\bin\Debug\net8.0\Entities.dll
+  Data -> C:\Users\admin\Documents\seatify\Backend\SeatifyBackend\Data\bin\Debug\net8.0\Data.dll
+  Logic -> C:\Users\admin\Documents\seatify\Backend\SeatifyBackend\Logic\bin\Debug\net8.0\Logic.dll
+C:\Users\admin\Documents\seatify\Backend\SeatifyBackend\Api\Controllers\EventOccurrenceController.cs(22,40): error CS1061: 'IEventOccurrenceService' does not contain a definition for 'GetByEventId' and no accessible extension method 'GetByEventId' accepting a first argument of type 'IEventOccurrenceService' could be found (are you missing a using directive or an assembly reference?) [C:\Users\admin\Documents\seatify\Backend\SeatifyBackend\Api\Api.csproj]
+
+Build FAILED.
+
+C:\Users\admin\Documents\seatify\Backend\SeatifyBackend\Api\Controllers\EventOccurrenceController.cs(22,40): error CS1061: 'IEventOccurrenceService' does not contain a definition for 'GetByEventId' and no accessible extension method 'GetByEventId' accepting a first argument of type 'IEventOccurrenceService' could be found (are you missing a using directive or an assembly reference?) [C:\Users\admin\Documents\seatify\Backend\SeatifyBackend\Api\Api.csproj]
+    0 Warning(s)
+    1 Error(s)
+
+Time Elapsed 00:00:01.11
