@@ -98,6 +98,7 @@ export class EventService {
       auditoriumName: firstOccurrence?.auditorium?.name ?? '',
       occurrences: occurrences.map(occurrence => ({
         id: occurrence.id,
+        auditoriumId: occurrence.auditoriumId,
         startsAtUtc: occurrence.startsAtUtc,
         endsAtUtc: occurrence.endsAtUtc,
         status: occurrence.status

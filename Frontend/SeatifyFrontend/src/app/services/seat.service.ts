@@ -3,7 +3,7 @@ import { BehaviorSubject, catchError, map, Observable, tap, throwError } from 'r
 import { SeatMap } from '../models/seat-map';
 import { environment } from '../../environments/environment.development';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Seat, UpdateSeatDto } from '../models/seat';
+import { BulkSeatUpdateDto, Seat, UpdateSeatDto } from '../models/seat';
 
 @Injectable({
   providedIn: 'root'
@@ -36,6 +36,12 @@ export class SeatService {
           this.seatSource.next(updatedSeat);
         }
       }),
+      catchError(this.handleError)
+    )
+  }
+
+  bulkUpdateSeats(dto: BulkSeatUpdateDto): Observable<any> {
+    return this.http.patch<any>(`${this.apiUrl}/seats/bulk`, dto).pipe(
       catchError(this.handleError)
     )
   }

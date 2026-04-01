@@ -23,3 +23,12 @@ export interface UpdateSeatDto {
     priceOverride: number | null
     seatType: SeatType
 }
+
+export interface BulkSeatUpdateDto {
+    seatIds: string[]
+    sectorId?: string | null
+    seatType?: SeatType | null
+    priceOverride?: number | null
+    clearSector?: boolean
+    clearPriceOverride?: boolean
+}

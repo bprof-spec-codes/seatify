@@ -1,5 +1,6 @@
 export interface EventCardOccurrence {
   id: string;
+  auditoriumId: string;
   startsAtUtc: string;
   endsAtUtc: string;
   status: string;

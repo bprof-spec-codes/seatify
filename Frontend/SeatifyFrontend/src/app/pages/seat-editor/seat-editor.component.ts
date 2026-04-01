@@ -14,6 +14,7 @@ export class SeatEditorComponent implements OnInit, OnChanges {
   @Input() cell: MatrixCellVm | null = null;
   @Input() isSaving = false;
   @Input() disabled = false;
+  @Input() isBulkMode = false;
 
 
   @Output() save = new EventEmitter<UpdateSeatDto>();
@@ -50,11 +51,19 @@ export class SeatEditorComponent implements OnInit, OnChanges {
     const cell = this.cell;
 
     if (!cell) {
-      this.form.reset({
-        seatLabel: '',
-        priceOverride: null,
-        seatType: SeatType.Seat
-      }, { emitEvent: false });
+      if (this.isBulkMode) {
+        this.form.reset({
+          seatLabel: '',
+          priceOverride: null,
+          seatType: SeatType.Seat
+        }, { emitEvent: false });
+      } else {
+        this.form.reset({
+          seatLabel: '',
+          priceOverride: null,
+          seatType: SeatType.Seat
+        }, { emitEvent: false });
+      }
 
       return;
     }
@@ -75,7 +84,7 @@ export class SeatEditorComponent implements OnInit, OnChanges {
   }
 
   submit(): void {
-    if (!this.cell?.seatId) return;
+    if (!this.isBulkMode && !this.cell?.seatId) return;
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -84,12 +93,21 @@ export class SeatEditorComponent implements OnInit, OnChanges {
 
     const raw = this.form.getRawValue();
 
-    this.save.emit({
-      seatLabel: raw.seatLabel?.trim() || null,
-      sectorId: this.cell?.sectorId ?? null,
-      priceOverride: raw.priceOverride === '' || raw.priceOverride === null ? null : Number(raw.priceOverride),
-      seatType: raw.seatType
-    });
+    if (this.isBulkMode) {
+      this.save.emit({
+        seatLabel: null,
+        sectorId: null, // Sector is handled by separate sector editor usually, but we include it in dto if needed
+        priceOverride: raw.priceOverride === '' || raw.priceOverride === null ? null : Number(raw.priceOverride),
+        seatType: raw.seatType
+      });
+    } else {
+      this.save.emit({
+        seatLabel: raw.seatLabel?.trim() || null,
+        sectorId: this.cell?.sectorId ?? null,
+        priceOverride: raw.priceOverride === '' || raw.priceOverride === null ? null : Number(raw.priceOverride),
+        seatType: raw.seatType
+      });
+    }
   }
 
   setSeatType(type: SeatType): void {

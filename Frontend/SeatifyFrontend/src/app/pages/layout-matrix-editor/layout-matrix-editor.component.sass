@@ -59,6 +59,35 @@ h1
     font-weight: 700
     color: $color-dark-950
 
+.selection-summary__info
+    margin-bottom: 16px
+    padding: 10px 14px
+    background: #f8fafc
+    border: 1px solid $color-light-200
+    border-radius: 12px
+    font-size: 13px
+    font-weight: 600
+    color: $color-dark-700
+    display: flex
+    align-items: center
+    gap: 8px
+
+    &::before
+        content: ''
+        display: block
+        width: 8px
+        height: 8px
+        border-radius: 50%
+        background: #2563eb
+
+.selection-summary__info--bulk
+    background: #eff6ff
+    border-color: #bfdbfe
+    color: #1e40af
+
+    &::before
+        background: #2563eb
+
 .panel-placeholder
     padding: 20px
     border: 1px dashed $color-light-300
@@ -249,29 +278,96 @@ h1
     cursor: pointer
     background-color: #f8fafc
     transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease
+    display: flex
+    align-items: center
+    justify-content: center
+    position: relative
+
+    .cell__accessible-icon
+        font-size: 16px
+        color: white
+        pointer-events: none
+        line-height: 1
+        filter: drop-shadow(0 1px 1px rgba(0,0,0,0.3))
 
     &--selected
-        border-color: #1d4ed8
-        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.22)
+        border: 2px solid #2563eb !important
+        box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15)
         transform: scale(1.04)
-        background-color: orange
-        outline: 2px solid rgba(255, 255, 255, 0.9)
-        outline-offset: -3px
+        z-index: 10
 
-    &:hover
+    &:hover:not(.cell--selected)
         transform: translateY(-1px)
         box-shadow: 0 4px 10px rgba(59, 130, 246, 0.18)
-
-.cell--selected
-    border-color: $color-secondary-500
-    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.18)
 
 .cell--accessible
     background: $color-success-500
 
 .cell--aisle
-    background: #dbeafe
-    opacity: .75
+    background: #f1f5f9 !important
+    opacity: .25
+
+// Override forrás jelzők: kis pontok a jobb felső sarokban (szektor · ár · kategória)
+.cell__override-dots
+    position: absolute
+    top: 3px
+    right: 3px
+    display: flex
+    gap: 2px
+    pointer-events: none
+
+.cell__override-dot
+    width: 5px
+    height: 5px
+    border-radius: 50%
+    display: block
+    flex-shrink: 0
+
+    &--event
+        background: #2563eb
+
+    &--occurrence
+        background: #d97706
+
+// Context badge (header jobb oldala)
+.context-badge
+    display: inline-flex
+    align-items: center
+    gap: 8px
+    padding: 6px 14px
+    border-radius: 999px
+    font-size: 12px
+    font-weight: 600
+    border: 1px solid transparent
+
+    &::before
+        content: ''
+        display: block
+        width: 8px
+        height: 8px
+        border-radius: 50%
+        flex-shrink: 0
+
+    &--auditorium
+        background: $color-light-100
+        border-color: $color-light-300
+        color: $color-dark-600
+        &::before
+            background: #9ca3af
+
+    &--event
+        background: #eff6ff
+        border-color: #bfdbfe
+        color: #1e40af
+        &::before
+            background: #2563eb
+
+    &--occurrence
+        background: #fffbeb
+        border-color: #fde68a
+        color: #92400e
+        &::before
+            background: #d97706
 
 .editor-empty-state
     min-height: 640px

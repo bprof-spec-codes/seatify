@@ -43,6 +43,7 @@ namespace Api
             builder.Services.AddScoped<IEventOccurrenceService, EventOccurrenceService>();
             builder.Services.AddScoped<IReservationService, ReservationService>();
             builder.Services.AddScoped<ILayoutMatrixService, LayoutMatrixService>();
+            builder.Services.AddScoped<ISeatOverrideService, SeatOverrideService>();
 
             builder.Services.AddCors(options =>
             {

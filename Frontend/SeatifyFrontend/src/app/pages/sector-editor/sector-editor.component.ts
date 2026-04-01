@@ -43,8 +43,12 @@ export class SectorEditorComponent {
   hoveredSectorId: string | null = null;
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['selectedSectorId']) {
-      this.pendingSectorId = this.selectedSectorId ?? null;
+    if (changes['selectedSectorId'] && this.selectedSectorId !== undefined) {
+      // Only sync from input if it's NOT a bulk selection switch (null) 
+      // or if we really want to reset it.
+      if (this.selectedSectorId !== null || !this.pendingSectorId) {
+        this.pendingSectorId = this.selectedSectorId;
+      }
     }
 
     if (changes['editingSectorId'] || changes['sectors']) {

@@ -10,6 +10,8 @@ import { SeatMap } from '../../models/seat-map';
 import { CreateUpdateSectorDto, Sector } from '../../models/sector';
 import { SectorService } from '../../services/sector.service';
 import { Location } from '@angular/common';
+import { SeatOverrideService } from '../../services/seat-override.service';
+import { EffectiveSeat, EffectiveSeatMap } from '../../models/seat-override';
 
 @Component({
   selector: 'app-layout-matrix-editor',
@@ -24,13 +26,18 @@ export class LayoutMatrixEditorComponent implements OnInit {
 
   private selectedMatrixSubject = new BehaviorSubject<LayoutMatrix | null>(null);
   selectedMatrix$ = this.selectedMatrixSubject.asObservable();
-  seatMap$!: Observable<SeatMap | null>;
+  seatMap$!: Observable<SeatMap | EffectiveSeatMap | null>;
 
   gridCells: MatrixCellVm[] = []
   selectedCellKeys: string[] = []
 
-  auditoriumId: string = ""
+  auditoriumId: string = ''
   seatType = SeatType
+
+  /** Kontextus mód: auditorium (alap) | event | occurrence */
+  editorContext: 'auditorium' | 'event' | 'occurrence' = 'auditorium'
+  contextEventId: string | null = null
+  contextOccurrenceId: string | null = null
 
   gridRows = 0
   gridColumns = 0
@@ -45,6 +52,9 @@ export class LayoutMatrixEditorComponent implements OnInit {
 
   seatEditModel: UpdateSeatDto | null = null
   isSavingSeat = false
+
+  isSelecting = false
+  selectionStartCell: MatrixCellVm | null = null
 
   sectors$!: Observable<Sector[]>;
   isCreateSectorFormOpen = false
@@ -65,10 +75,24 @@ export class LayoutMatrixEditorComponent implements OnInit {
     private cdr: ChangeDetectorRef,
     private sectorService: SectorService,
     private location: Location,
+    private seatOverrideService: SeatOverrideService,
   ) { }
 
   ngOnInit(): void {
     this.auditoriumId = this.route.snapshot.paramMap.get('auditoriumId') ?? '';
+
+    // Kontextus meghatározása query paraméterekből
+    this.contextOccurrenceId = this.route.snapshot.queryParamMap.get('occurrenceId');
+    this.contextEventId = this.route.snapshot.queryParamMap.get('eventId');
+
+    if (this.contextOccurrenceId) {
+      this.editorContext = 'occurrence';
+    } else if (this.contextEventId) {
+      this.editorContext = 'event';
+    } else {
+      this.editorContext = 'auditorium';
+    }
+
     this.matrices$ = this.matrixService.LayoutMatrix$
     this.sectors$ = this.sectorService.sector$;
 
@@ -82,17 +106,9 @@ export class LayoutMatrixEditorComponent implements OnInit {
         this.selectedCellKeys = []
         this.cdr.markForCheck()
       }),
-      switchMap(matrix => {
-        if (!matrix) {
-          return of(null)
-        }
-
-        return this.seatService.getSeatMapByMatrixId(matrix.id).pipe(
-          catchError(err => {
-            console.error('Failed to load seat map', err)
-            return of(null)
-          })
-        )
+      switchMap((matrix): Observable<SeatMap | EffectiveSeatMap | null> => {
+        if (!matrix) return of(null)
+        return this.loadSeatMapForContext(matrix.id)
       }),
       tap(seatMap => {
         if (!seatMap) {
@@ -104,7 +120,6 @@ export class LayoutMatrixEditorComponent implements OnInit {
           this.gridColumns = seatMap.columns
           this.gridCells = this.buildGridCellsFromSeatMap(seatMap)
         }
-
         this.cdr.markForCheck()
       })
     )
@@ -165,29 +180,89 @@ export class LayoutMatrixEditorComponent implements OnInit {
     this.location.back()
   }
 
-  private buildGridCellsFromSeatMap(seatMap: SeatMap): MatrixCellVm[] {
-    const cells: MatrixCellVm[] = [];
-    const seatLookup = new Map<string, typeof seatMap.seats[number]>()
-
-    for (const seat of seatMap.seats) {
-      seatLookup.set(`${seat.row}-${seat.column}`, seat)
+  /**
+   * Kontextus alapján tölti be a helyes seat map-et:
+   * - occurrence: merged (occurrence ?? event ?? auditorium)
+   * - event: merged (event ?? auditorium)
+   * - auditorium: alap
+   */
+  private loadSeatMapForContext(matrixId: string): Observable<SeatMap | EffectiveSeatMap | null> {
+    if (this.editorContext === 'occurrence' && this.contextOccurrenceId) {
+      return this.seatOverrideService
+        .getEffectiveSeatMapForOccurrence(this.contextOccurrenceId, matrixId)
+        .pipe(catchError(err => {
+          console.error('Failed to load occurrence seat map', err)
+          return of(null)
+        }))
     }
+    if (this.editorContext === 'event' && this.contextEventId) {
+      return this.seatOverrideService
+        .getEffectiveSeatMapForEvent(this.contextEventId, matrixId)
+        .pipe(catchError(err => {
+          console.error('Failed to load event seat map', err)
+          return of(null)
+        }))
+    }
+    // Auditorium (alap) mód
+    return this.seatService.getSeatMapByMatrixId(matrixId).pipe(
+      catchError(err => {
+        console.error('Failed to load seat map', err)
+        return of(null)
+      })
+    )
+  }
 
-    for (let row = 1; row <= seatMap.rows; row++) {
-      for (let column = 1; column <= seatMap.columns; column++) {
-        const key = `${row}-${column}`
-        const seat = seatLookup.get(key)
+  private buildGridCellsFromSeatMap(seatMap: SeatMap | EffectiveSeatMap): MatrixCellVm[] {
+    const cells: MatrixCellVm[] = [];
 
-        cells.push({
-          key,
-          row,
-          column,
-          seatId: seat?.id ?? null,
-          seatLabel: seat?.seatLabel ?? null,
-          seatType: seat?.seatType ?? SeatType.Seat,
-          sectorId: seat?.sectorId ?? null,
-          priceOverride: seat?.priceOverride ?? null
-        })
+    // EffectiveSeatMap (override mód) vagy SeatMap (alap mód) ?
+    const isEffective = 'context' in seatMap;
+
+    if (isEffective) {
+      const effective = seatMap as EffectiveSeatMap;
+      const seatLookup = new Map<string, EffectiveSeat>()
+      for (const s of effective.seats) {
+        seatLookup.set(`${s.row}-${s.column}`, s)
+      }
+      for (let row = 1; row <= effective.rows; row++) {
+        for (let col = 1; col <= effective.columns; col++) {
+          const key = `${row}-${col}`
+          const seat = seatLookup.get(key)
+          cells.push({
+            key, row, column: col,
+            seatId: seat?.seatId ?? null,
+            seatLabel: seat?.seatLabel ?? null,
+            seatType: (seat?.seatType as unknown as SeatType) ?? SeatType.Seat,
+            sectorId: seat?.sectorId ?? null,
+            priceOverride: seat?.priceOverride ?? null,
+            sectorSource: seat?.sectorSource ?? 'auditorium',
+            priceSource: seat?.priceSource ?? 'auditorium',
+            seatTypeSource: seat?.seatTypeSource ?? 'auditorium'
+          })
+        }
+      }
+    } else {
+      const basic = seatMap as SeatMap;
+      const seatLookup = new Map<string, typeof basic.seats[number]>()
+      for (const seat of basic.seats) {
+        seatLookup.set(`${seat.row}-${seat.column}`, seat)
+      }
+      for (let row = 1; row <= basic.rows; row++) {
+        for (let col = 1; col <= basic.columns; col++) {
+          const key = `${row}-${col}`
+          const seat = seatLookup.get(key)
+          cells.push({
+            key, row, column: col,
+            seatId: seat?.id ?? null,
+            seatLabel: seat?.seatLabel ?? null,
+            seatType: seat?.seatType ?? SeatType.Seat,
+            sectorId: seat?.sectorId ?? null,
+            priceOverride: seat?.priceOverride ?? null,
+            sectorSource: 'auditorium',
+            priceSource: 'auditorium',
+            seatTypeSource: 'auditorium'
+          })
+        }
       }
     }
 
@@ -211,15 +286,54 @@ export class LayoutMatrixEditorComponent implements OnInit {
     return `${this.selectedMatrix.rows} rows × ${this.selectedMatrix.columns} columns`
   }
 
-  selectCell(cell: MatrixCellVm): void {
-    const isAlreadySelected = this.selectedCellKeys.includes(cell.key)
-
-    if (isAlreadySelected) {
-      this.selectedCellKeys = this.selectedCellKeys.filter(key => key !== cell.key)
-    } else {
-      this.selectedCellKeys = [...this.selectedCellKeys, cell.key]
+  selectCell(cell: MatrixCellVm, event?: MouseEvent): void {
+    if (event?.shiftKey && this.selectedCellKeys.length > 0) {
+      this.selectRange(cell);
+      return;
     }
 
+    const isAlreadySelected = this.selectedCellKeys.includes(cell.key)
+
+    if (event?.ctrlKey || event?.metaKey) {
+      if (isAlreadySelected) {
+        this.selectedCellKeys = this.selectedCellKeys.filter(key => key !== cell.key)
+      } else {
+        this.selectedCellKeys = [...this.selectedCellKeys, cell.key]
+      }
+    } else {
+      if (isAlreadySelected && this.selectedCellKeys.length === 1) {
+        this.selectedCellKeys = []
+      } else {
+        this.selectedCellKeys = [cell.key]
+      }
+    }
+
+    this.updateSeatEditModel()
+    this.cdr.markForCheck()
+  }
+
+  private selectRange(targetCell: MatrixCellVm): void {
+    if (this.selectedCellKeys.length === 0) return;
+
+    const firstKey = this.selectedCellKeys[0];
+    const firstCell = this.gridCells.find(c => c.key === firstKey);
+
+    if (!firstCell) return;
+
+    const minRow = Math.min(firstCell.row, targetCell.row);
+    const maxRow = Math.max(firstCell.row, targetCell.row);
+    const minCol = Math.min(firstCell.column, targetCell.column);
+    const maxCol = Math.max(firstCell.column, targetCell.column);
+
+    const rangeKeys = this.gridCells
+      .filter(c => c.row >= minRow && c.row <= maxRow && c.column >= minCol && c.column <= maxCol)
+      .map(c => c.key);
+
+    this.selectedCellKeys = Array.from(new Set([...this.selectedCellKeys, ...rangeKeys]));
+    this.updateSeatEditModel();
+  }
+
+  private updateSeatEditModel(): void {
     if (this.selectedCells.length === 1) {
       const selected = this.selectedCells[0]
 
@@ -232,8 +346,47 @@ export class LayoutMatrixEditorComponent implements OnInit {
     } else {
       this.seatEditModel = null
     }
+  }
 
-    this.cdr.markForCheck()
+  onMouseDown(cell: MatrixCellVm, event: MouseEvent): void {
+    if (event.button !== 0) return; // Only left click
+
+    if (!event.ctrlKey && !event.metaKey && !event.shiftKey) {
+      this.isSelecting = true;
+      this.selectionStartCell = cell;
+      this.selectedCellKeys = [cell.key];
+    } else if (event.shiftKey) {
+      this.selectRange(cell);
+    } else {
+      this.selectCell(cell, event);
+    }
+
+    this.updateSeatEditModel();
+    this.cdr.markForCheck();
+  }
+
+  onMouseEnter(cell: MatrixCellVm): void {
+    if (!this.isSelecting || !this.selectionStartCell) return;
+
+    const start = this.selectionStartCell;
+    const minRow = Math.min(start.row, cell.row);
+    const maxRow = Math.max(start.row, cell.row);
+    const minCol = Math.min(start.column, cell.column);
+    const maxCol = Math.max(start.column, cell.column);
+
+    this.selectedCellKeys = this.gridCells
+      .filter(c => c.row >= minRow && c.row <= maxRow && c.column >= minCol && c.column <= maxCol)
+      .map(c => c.key);
+
+    this.updateSeatEditModel();
+    this.cdr.markForCheck();
+  }
+
+  @HostListener('document:mouseup')
+  onMouseUp(): void {
+    this.isSelecting = false;
+    this.selectionStartCell = null;
+    this.cdr.markForCheck();
   }
 
   isCellSelected(cell: MatrixCellVm): boolean {
@@ -475,9 +628,50 @@ export class LayoutMatrixEditorComponent implements OnInit {
     })
   }
 
-  applySectorToSelectedSeat(sectorId: string | null): void {
+  applySectorToSelectedSeats(sectorId: string | null): void {
+    if (this.selectedCellKeys.length === 0 || this.isSavingSeat) return
+
+    if (this.selectedCellKeys.length === 1 && this.editorContext === 'auditorium') {
+      this.applySectorToSingleSeat(sectorId)
+      return
+    }
+
+    const seatIds = this.selectedCells.map(c => c.seatId).filter((id): id is string => !!id)
+    if (seatIds.length === 0) return
+
+    this.isSavingSeat = true
+    const overrideSource = this.editorContext
+
+    // Kontextus-specifikus endpoint
+    const save$ = this.editorContext === 'occurrence' && this.contextOccurrenceId
+      ? this.seatOverrideService.bulkUpsertOccurrenceOverride(this.contextOccurrenceId, {
+          seatIds, sectorId: sectorId ?? undefined, clearSector: sectorId === null
+        })
+      : this.editorContext === 'event' && this.contextEventId
+        ? this.seatOverrideService.bulkUpsertEventOverride(this.contextEventId, {
+            seatIds, sectorId: sectorId ?? undefined, clearSector: sectorId === null
+          })
+        : this.seatService.bulkUpdateSeats({
+            seatIds, sectorId: sectorId ?? undefined, clearSector: sectorId === null
+          })
+
+    save$.subscribe({
+      next: () => {
+        this.isSavingSeat = false
+        this.updateLocalCells({ sectorId, sectorSource: overrideSource })
+        this.cdr.markForCheck()
+      },
+      error: err => {
+        this.isSavingSeat = false
+        console.error('Failed to bulk update sectors', err)
+        this.cdr.markForCheck()
+      }
+    })
+  }
+
+  private applySectorToSingleSeat(sectorId: string | null): void {
     const cell = this.selectedCell
-    if (!cell?.seatId || this.isSavingSeat) return
+    if (!cell?.seatId) return
 
     this.isSavingSeat = true
 
@@ -491,19 +685,13 @@ export class LayoutMatrixEditorComponent implements OnInit {
     this.seatService.updateSeat(cell.seatId, dto).subscribe({
       next: updatedSeat => {
         this.isSavingSeat = false
-
-        this.gridCells = this.gridCells.map(c =>
-          c.seatId === updatedSeat.id
-            ? {
-              ...c,
-              seatLabel: updatedSeat.seatLabel ?? null,
-              seatType: updatedSeat.seatType,
-              sectorId: updatedSeat.sectorId ?? null,
-              priceOverride: updatedSeat.priceOverride ?? null
-            }
-            : c
-        )
-
+        this.updateLocalCells({
+          seatId: updatedSeat.id,
+          seatLabel: updatedSeat.seatLabel ?? null,
+          seatType: updatedSeat.seatType,
+          sectorId: updatedSeat.sectorId ?? null,
+          priceOverride: updatedSeat.priceOverride ?? null
+        })
         this.cdr.markForCheck()
       },
       error: err => {
@@ -511,6 +699,53 @@ export class LayoutMatrixEditorComponent implements OnInit {
         console.error('Failed to update seat sector', err)
         this.cdr.markForCheck()
       }
+    })
+  }
+
+  bulkUpdateSeats(formValue: Partial<UpdateSeatDto>): void {
+    if (this.selectedCellKeys.length <= 1 || this.isSavingSeat) return
+
+    const seatIds = this.selectedCells.map(c => c.seatId).filter((id): id is string => !!id)
+    if (seatIds.length === 0) return
+
+    this.isSavingSeat = true
+
+    this.seatService.bulkUpdateSeats({
+      seatIds,
+      seatType: formValue.seatType,
+      priceOverride: formValue.priceOverride,
+      clearPriceOverride: formValue.priceOverride === null
+    }).subscribe({
+      next: () => {
+        this.isSavingSeat = false
+        this.updateLocalCells({
+          seatType: formValue.seatType,
+          priceOverride: formValue.priceOverride
+        })
+        this.cdr.markForCheck()
+      },
+      error: err => {
+        this.isSavingSeat = false
+        console.error('Failed to bulk update seats', err)
+        this.cdr.markForCheck()
+      }
+    })
+  }
+
+  private updateLocalCells(patch: Partial<MatrixCellVm>): void {
+    const selectedKeys = this.selectedCellKeys
+
+    this.gridCells = this.gridCells.map(cell => {
+      if (patch.seatId) {
+        // Single update by ID
+        if (cell.seatId === patch.seatId) {
+          return { ...cell, ...patch }
+        }
+      } else if (selectedKeys.includes(cell.key)) {
+        // Bulk update by selection
+        return { ...cell, ...patch }
+      }
+      return cell
     })
   }
 
