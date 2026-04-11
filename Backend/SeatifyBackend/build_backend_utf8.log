@@ -1,0 +1,13 @@
+﻿  Determining projects to restore...
+  All projects are up-to-date for restore.
+C:\Users\admin\Documents\seatify\Backend\SeatifyBackend\Entities\Dtos\EventOccurrence\EventOccurrenceViewDto.cs(4,7): warning CS0105: The using directive for 'Entities.Models' appeared previously in this namespace [C:\Users\admin\Documents\seatify\Backend\SeatifyBackend\Entities\Entities.csproj]
+C:\Users\admin\Documents\seatify\Backend\SeatifyBackend\Entities\Models\Organizer.cs(29,43): error CS0102: The type 'Organizer' already contains a definition for 'Venues' [C:\Users\admin\Documents\seatify\Backend\SeatifyBackend\Entities\Entities.csproj]
+
+Build FAILED.
+
+C:\Users\admin\Documents\seatify\Backend\SeatifyBackend\Entities\Dtos\EventOccurrence\EventOccurrenceViewDto.cs(4,7): warning CS0105: The using directive for 'Entities.Models' appeared previously in this namespace [C:\Users\admin\Documents\seatify\Backend\SeatifyBackend\Entities\Entities.csproj]
+C:\Users\admin\Documents\seatify\Backend\SeatifyBackend\Entities\Models\Organizer.cs(29,43): error CS0102: The type 'Organizer' already contains a definition for 'Venues' [C:\Users\admin\Documents\seatify\Backend\SeatifyBackend\Entities\Entities.csproj]
+    1 Warning(s)
+    1 Error(s)
+
+Time Elapsed 00:00:00.68
