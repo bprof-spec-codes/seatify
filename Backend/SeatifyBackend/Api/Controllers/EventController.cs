@@ -1,4 +1,4 @@
-using Entities.Dtos.Event;
+﻿using Entities.Dtos.Event;
 using Logic.Services;
 using Microsoft.AspNetCore.Mvc;
 using EventDto = Entities.Dtos.Event.EventViewDto;
