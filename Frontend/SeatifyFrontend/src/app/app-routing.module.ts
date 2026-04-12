@@ -11,6 +11,7 @@ import { EventsPageComponent } from './pages/events-page/events-page.component';
 import { OrganizerDashboardComponent } from './pages/organizer-dashboard/organizer-dashboard.component';
 import { OrganizerLayoutComponent } from './pages/organizer-layout/organizer-layout.component';
 import { EventOccurrenceFormComponent } from './pages/event-occurrence-form/event-occurrence-form.component';
+import { EventFormComponent } from './pages/event-form/event-form.component';
 
 export const routes: Routes = [
   { path: '', component: LandingPageComponent },
@@ -26,6 +27,8 @@ export const routes: Routes = [
       { path: 'auditoriums/:venueId', component: AuditoriumDashboardComponent },
       { path: 'auditoriums/:venueId/form', component: AuditoriumFormComponent },
       { path: 'events', component: EventsPageComponent },
+      { path: 'events/new', component: EventFormComponent },
+      { path: 'events/:eventId/edit', component: EventFormComponent },
       { path: 'events/:eventId/occurrences/new', component: EventOccurrenceFormComponent },
       { path: 'events/:eventId/occurrences/:id/edit', component: EventOccurrenceFormComponent }
     ]

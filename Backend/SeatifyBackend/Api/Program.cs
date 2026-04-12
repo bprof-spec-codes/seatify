@@ -77,7 +77,10 @@ namespace Api
                 app.UseSwaggerUI();
             }
 
-            app.UseHttpsRedirection();
+            if (!app.Environment.IsDevelopment())
+            {
+                app.UseHttpsRedirection();
+            }
             
             app.UseStaticFiles(); // Allow to serve /images/...
 
