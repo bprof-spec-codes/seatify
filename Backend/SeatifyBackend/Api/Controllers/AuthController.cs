@@ -1,6 +1,8 @@
 ﻿using Entities.Dtos.Auth;
 using Logic.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Api.Controllers
 {
@@ -45,6 +47,27 @@ namespace Api.Controllers
             {
                 return BadRequest(new { message = ex.Message });
             }
+        }
+
+        [Authorize]
+        [HttpGet("me")]
+        public ActionResult<CurrentUserDto> Me()
+        {
+            var organizerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var email = User.FindFirstValue(ClaimTypes.Email);
+            var name = User.FindFirstValue(ClaimTypes.Name);
+
+            if (string.IsNullOrWhiteSpace(organizerId))
+            {
+                return Unauthorized(new { message = "Invalid token." });
+            }
+
+            return Ok(new CurrentUserDto
+            {
+                OrganizerId = organizerId,
+                Email = email ?? string.Empty,
+                Name = name ?? string.Empty
+            });
         }
     }
 }
