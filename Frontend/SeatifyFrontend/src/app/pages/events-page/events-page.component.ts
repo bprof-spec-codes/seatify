@@ -18,15 +18,6 @@ export class EventsPageComponent implements OnInit, OnDestroy {
 
   selectedOccurrenceIds: Record<string, string> = {};
 
-  isCreateEventModalOpen = false;
-  isSubmittingCreateEvent = false;
-
-  createEventForm: CreateEventForm = {
-    name: '',
-    slug: '',
-    description: ''
-  };
-
   private readonly destroy$ = new Subject<void>();
 
   constructor(
@@ -43,12 +34,6 @@ export class EventsPageComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  @HostListener('document:keydown.escape')
-  onEscapePressed(): void {
-    if (this.isCreateEventModalOpen && !this.isSubmittingCreateEvent) {
-      this.closeCreateEventModal();
-    }
-  }
 
   loadEvents(): void {
     this.isLoading = true;
@@ -114,46 +99,13 @@ export class EventsPageComponent implements OnInit, OnDestroy {
   }
 
   addEvent(): void {
-    this.resetCreateEventForm();
-    this.isCreateEventModalOpen = true;
+    this.router.navigate(['/dashboard/events/new']);
   }
 
-  closeCreateEventModal(): void {
-    this.isCreateEventModalOpen = false;
+  editEvent(event: EventCard): void {
+    this.router.navigate(['/dashboard/events', event.id, 'edit']);
   }
 
-  onModalBackdropClick(event: MouseEvent): void {
-    if (event.target === event.currentTarget && !this.isSubmittingCreateEvent) {
-      this.closeCreateEventModal();
-    }
-  }
-
-  submitCreateEvent(): void {
-    if (!this.createEventForm.name.trim() || !this.createEventForm.slug.trim()) {
-      return;
-    }
-
-    this.isSubmittingCreateEvent = true;
-
-    // TODO: ha lesz backend POST /api/event endpoint,
-    // ide kell bekötni a service hívást.
-    console.log('Create event payload:', {
-      name: this.createEventForm.name.trim(),
-      slug: this.createEventForm.slug.trim(),
-      description: this.createEventForm.description.trim(),
-    });
-
-    this.isSubmittingCreateEvent = false;
-    this.closeCreateEventModal();
-  }
-
-  private resetCreateEventForm(): void {
-    this.createEventForm = {
-      name: '',
-      slug: '',
-      description: '',
-    };
-  }
 
   editSeatMap(event: EventCard, occurrence: EventCardOccurrence): void {
     this.router.navigate(

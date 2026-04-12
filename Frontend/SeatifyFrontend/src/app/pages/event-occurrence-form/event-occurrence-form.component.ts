@@ -59,7 +59,7 @@ export class EventOccurrenceFormComponent implements OnInit {
       this.eventService.getEventById(this.eventId).subscribe(ev => this.event = ev);
 
       // 2. Load Venues
-      this.venueService.getVenuesByOrganizerId('placeholder-organizer-id').subscribe(vn => {
+      this.venueService.getVenuesByOrganizerId('org-id-01').subscribe(vn => {
         this.venues = vn;
         
         // 3. If Edit Mode, load occurrence and patch
