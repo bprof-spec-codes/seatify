@@ -30,6 +30,7 @@ export class VenueDashboardComponent implements OnInit, OnDestroy {
       {
         this.venues = venues;
         this.venues$ = of(venues);
+        this.isVenuesCalled = true;
         fetchInitiated = false;
       }
       // If venues is empty call the API once for the venues.
