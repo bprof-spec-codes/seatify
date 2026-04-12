@@ -26,6 +26,7 @@ namespace Logic.Services
             _dbContext = dbContext;
             _passwordHasher = new PasswordHasher<Organizer>();
         }
+
         public async Task<OrganizerViewDto> CreateAsync(OrganizerCreateDto dto)
         {
             var organizer = new Organizer
@@ -36,6 +37,8 @@ namespace Logic.Services
                 CreatedAtUtc = DateTime.UtcNow,
                 UpdatedAtUtc = DateTime.UtcNow
             };
+
+            organizer.PasswordHash = _passwordHasher.HashPassword(organizer, dto.Password);
 
             _dbContext.Organizers.Add(organizer);
             await _dbContext.SaveChangesAsync();

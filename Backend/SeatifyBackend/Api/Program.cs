@@ -1,10 +1,12 @@
 using Api.Helpers;
 using Data;
 using Logic.Helper;
-using Entities.Models;
 using Logic.Interfaces;
 using Logic.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace Api
 {
@@ -33,6 +35,12 @@ namespace Api
                 .GetSection("AllowedOrigins")
                 .Get<string[]>();
 
+            var jwtKey = builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT key is not configured.");
+
+            var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? throw new InvalidOperationException("JWT issuer is not configured.");
+
+            var jwtAudience = builder.Configuration["Jwt:Audience"] ?? throw new InvalidOperationException("JWT audience is not configured.");
+
             // DI registrations
             builder.Services.AddTransient(typeof(Repository<>));
             builder.Services.AddSingleton<DtoProvider>();
@@ -46,6 +54,28 @@ namespace Api
             builder.Services.AddScoped<ILayoutMatrixService, LayoutMatrixService>();
             builder.Services.AddScoped<Logic.Services.IEventService, EventService>();
             builder.Services.AddScoped<ISeatOverrideService, SeatOverrideService>();
+            builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
+
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidIssuer = jwtIssuer,
+                    ValidateAudience = true,
+                    ValidAudience = jwtAudience,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero
+                };
+            });
 
             builder.Services.AddCors(options =>
             {
@@ -81,11 +111,12 @@ namespace Api
             {
                 app.UseHttpsRedirection();
             }
-            
+
             app.UseStaticFiles(); // Allow to serve /images/...
 
             app.UseCors("AllowOrigin");
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllers();
