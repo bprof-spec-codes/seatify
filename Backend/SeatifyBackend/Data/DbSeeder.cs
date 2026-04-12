@@ -1,4 +1,5 @@
 using Entities.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace Data
 {
@@ -11,17 +12,22 @@ namespace Data
 
             if (!ctx.Organizers.Any())
             {
+                var passwordHasher = new PasswordHasher<Organizer>();
+
+                var devOrganizer = new Organizer
+                {
+                    Id = "org-id-01",
+                    Name = "Budapest Event Organizers",
+                    Email = "contact@budapest-events.hu",
+                    CreatedAtUtc = DateTime.UtcNow,
+                    UpdatedAtUtc = DateTime.UtcNow
+                };
+
+                devOrganizer.PasswordHash = passwordHasher.HashPassword(devOrganizer, "Dev123456!");
+
                 var organizers = new List<Organizer>
                 {
-                    new Organizer
-                    {
-                        Id = "org-id-01",
-                        Name = "Budapest Event Organizers",
-                        Email = "contact@budapest-events.hu",
-                        PasswordHash = "HashedPassword123!",
-                        CreatedAtUtc = DateTime.UtcNow,
-                        UpdatedAtUtc = DateTime.UtcNow
-                    }
+                    devOrganizer
                 };
 
                 ctx.Organizers.AddRange(organizers);
@@ -92,7 +98,6 @@ namespace Data
             {
                 var auditoriums = new List<Auditorium>
                 {
-                    // Arena Auditoriumok
                     new Auditorium
                     {
                         Id = "aud-id-01",
@@ -111,7 +116,6 @@ namespace Data
                         CreatedAtUtc = DateTime.UtcNow,
                         UpdatedAtUtc = DateTime.UtcNow
                     },
-                    // Műpa Auditoriumok
                     new Auditorium
                     {
                         Id = "aud-id-03",
@@ -192,12 +196,10 @@ namespace Data
             {
                 var sectors = new List<Sector>
                 {
-                    // Aréna Szektora
                     new Sector { Id = "sector-01", AuditoriumId = "aud-id-01", Name = "Front VIP", Color = "#FFD700", BasePrice = 25000 },
                     new Sector { Id = "sector-02", AuditoriumId = "aud-id-01", Name = "Arena Standing", Color = "#22c55e", BasePrice = 12000 },
                     new Sector { Id = "sector-03", AuditoriumId = "aud-id-01", Name = "Side Seating", Color = "#3b82f6", BasePrice = 15000 },
-                    
-                    // Műpa Szektora
+
                     new Sector { Id = "sector-04", AuditoriumId = "aud-id-03", Name = "Parterre", Color = "#991b1b", BasePrice = 18000 },
                     new Sector { Id = "sector-05", AuditoriumId = "aud-id-03", Name = "First Balcony", Color = "#1e40af", BasePrice = 14000 },
                     new Sector { Id = "sector-06", AuditoriumId = "aud-id-04", Name = "Theater Center", Color = "#6d28d9", BasePrice = 10000 }
@@ -231,7 +233,6 @@ namespace Data
                                 UpdatedAtUtc = now
                             };
 
-                            // Alapértelmezett szektor hozzárendelés néhány üléshez a teszteléshez
                             if (matrix.Id == "matrix-id-01")
                             {
                                 if (row <= 3) seat.SectorId = "sector-01";
@@ -261,7 +262,6 @@ namespace Data
             {
                 var occurrences = new List<EventOccurrence>
                 {
-                    // Rock Fesztivál az Arénában (2 helyszínen/teremben ugyanazon az eseményen belül)
                     new EventOccurrence
                     {
                         Id = "occ-01",
@@ -290,8 +290,6 @@ namespace Data
                         CreatedAtUtc = DateTime.UtcNow,
                         UpdatedAtUtc = DateTime.UtcNow
                     },
-
-                    // Klasszikus Gála a Műpában (2 különböző teremben)
                     new EventOccurrence
                     {
                         Id = "occ-03",
