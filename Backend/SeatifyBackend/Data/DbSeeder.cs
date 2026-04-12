@@ -18,7 +18,7 @@ namespace Data
                         Id = "org-id-01",
                         Name = "Budapest Event Organizers",
                         Email = "contact@budapest-events.hu",
-                        Password = "HashedPassword123!",
+                        PasswordHash = "HashedPassword123!",
                         CreatedAtUtc = DateTime.UtcNow,
                         UpdatedAtUtc = DateTime.UtcNow
                     }
