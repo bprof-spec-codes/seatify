@@ -12,7 +12,9 @@ namespace Logic.Services
         Task<OrganizerViewDto> CreateAsync(OrganizerCreateDto dto);
         Task<List<OrganizerViewDto>> GetAllAsync();
         Task<OrganizerViewDto?> GetByIdAsync(string id);
+        Task<OrganizerViewDto?> GetByEmailAsync(string email);
         Task<OrganizerViewDto> UpdateAsync(string id, OrganizerUpdateDto dto);
+        Task<OrganizerViewDto> UpdateProfileAsync(string organizerId, OrganizerProfileUpdateDto dto);
         Task<bool> DeleteAsync(string id);
     }
 
@@ -100,6 +102,32 @@ namespace Logic.Services
                 .FirstOrDefaultAsync();
         }
 
+        public async Task<OrganizerViewDto?> GetByEmailAsync(string email)
+        {
+            var normalizedEmail = email.Trim().ToLowerInvariant();
+
+            return await _dbContext.Organizers
+                .Where(o => o.Email.ToLower() == normalizedEmail)
+                .Include(o => o.Venues)
+                .Select(o => new OrganizerViewDto
+                {
+                    Id = o.Id,
+                    Email = o.Email,
+                    Name = o.Name,
+                    Venues = o.Venues.Select(v => new VenueViewDto
+                    {
+                        Id = v.Id,
+                        Name = v.Name,
+                        City = v.City,
+                        PostalCode = v.PostalCode,
+                        AddressLine = v.AddressLine
+                    }).ToList(),
+                    CreatedAtUtc = o.CreatedAtUtc,
+                    UpdatedAtUtc = o.UpdatedAtUtc
+                })
+                .FirstOrDefaultAsync();
+        }
+
         public async Task<OrganizerViewDto> UpdateAsync(string id, OrganizerUpdateDto dto)
         {
             var organizer = await _dbContext.Organizers.FirstOrDefaultAsync(o => o.Id == id);
@@ -118,6 +146,40 @@ namespace Logic.Services
                 Id = organizer.Id,
                 Email = organizer.Email,
                 Name = organizer.Name,
+                CreatedAtUtc = organizer.CreatedAtUtc,
+                UpdatedAtUtc = organizer.UpdatedAtUtc
+            };
+        }
+
+        public async Task<OrganizerViewDto> UpdateProfileAsync(string organizerId, OrganizerProfileUpdateDto dto)
+        {
+            var organizer = await _dbContext.Organizers
+                .Include(o => o.Venues)
+                .FirstOrDefaultAsync(o => o.Id == organizerId);
+
+            if (organizer == null)
+            {
+                throw new ArgumentException("Organizer not found.");
+            }
+
+            organizer.Name = dto.Name.Trim();
+            organizer.UpdatedAtUtc = DateTime.UtcNow;
+
+            await _dbContext.SaveChangesAsync();
+
+            return new OrganizerViewDto
+            {
+                Id = organizer.Id,
+                Email = organizer.Email,
+                Name = organizer.Name,
+                Venues = organizer.Venues.Select(v => new VenueViewDto
+                {
+                    Id = v.Id,
+                    Name = v.Name,
+                    City = v.City,
+                    PostalCode = v.PostalCode,
+                    AddressLine = v.AddressLine
+                }).ToList(),
                 CreatedAtUtc = organizer.CreatedAtUtc,
                 UpdatedAtUtc = organizer.UpdatedAtUtc
             };
