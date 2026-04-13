@@ -20,6 +20,8 @@ namespace Data
         public DbSet<ReservationSeat> ReservationSeats => Set<ReservationSeat>();
         public DbSet<EventSeatOverride> EventSeatOverrides => Set<EventSeatOverride>();
         public DbSet<OccurrenceSeatOverride> OccurrenceSeatOverrides => Set<OccurrenceSeatOverride>();
+        public DbSet<SeatHold> seatHolds => Set<SeatHold>();
+        public DbSet<BookingSession> bookingSessions => Set<BookingSession>();
 
         public AppDbContext(DbContextOptions<AppDbContext> ctx) : base(ctx)
         {
@@ -190,6 +192,34 @@ namespace Data
             modelBuilder.Entity<OccurrenceSeatOverride>()
                 .HasIndex(o => new { o.OccurrenceId, o.SeatId })
                 .IsUnique();
+
+            modelBuilder.Entity<BookingSession>()
+                .HasOne(b => b.EventOccurrence)
+                .WithMany()
+                .HasForeignKey(b => b.EventOccurrendeId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .IsRequired();
+
+            modelBuilder.Entity<SeatHold>()
+                .HasOne(s => s.BookingSession)
+                .WithMany()
+                .HasForeignKey(s => s.BookingSessionId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .IsRequired();
+
+            modelBuilder.Entity<SeatHold>()
+                .HasOne(s => s.EventOccurrence)
+                .WithMany()
+                .HasForeignKey(s => s.EventOccurrenceId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .IsRequired();
+
+            modelBuilder.Entity<SeatHold>()
+                .HasOne(s => s.Seat)
+                .WithMany()
+                .HasForeignKey(s => s.SeatId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .IsRequired();
         }
     }
 }
