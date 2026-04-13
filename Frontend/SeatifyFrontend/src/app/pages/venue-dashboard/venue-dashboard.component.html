@@ -1,53 +1,90 @@
-<div class="container mt-4">
-    <div class="row align-items-center">
-        <div class="col">
-            <h1>Venue Dashboard</h1>
-        </div>
-        <div class="col-auto">
-            <button type="button" class="btn btn-primary" (click)="createVenue()">Add New Venue</button>
-        </div>
+<section class="venue-dashboard">
+  <header class="page-header">
+    <div>
+      <h1 class="page-title">Venues</h1>
+      <p class="page-subtitle">Manage your physical locations and auditoriums</p>
     </div>
-</div>
 
-<div class="container mt-4">
-    <div class="row">
-        @if ((venues$ | async)?.length === 0 && isVenuesCalled)
-        {
-            <div class="col text-center">
-                No Venues!
-            </div>
-        }
-        @for (venue of venues$ | async; track $index)
-        {
-            <div class="col-md-4 mb-4" [attr.data-index]="$index">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title mb-3">
-                            <i class="bi bi-building"></i>
-                            {{ venue.name }}
-                        </h5>
-                        <p class="card-text">
-                            <i class="bi bi-geo-alt"></i>
-                            {{ venue.postalCode }} {{ venue.city }}, {{ venue.addressLine }}
-                        </p>
-                        <button type="button" class="btn btn-primary me-3" (click)="showVenueAuditoriums(venue)">
-                            Auditoriums
-                            ({{ venue.auditoriums.length }})
-                        </button>
-                        <button type="button" class="btn btn-warning me-3" (click)="editVenue(venue)">Edit</button>
-                        <button type="button" class="btn btn-danger" (click)="confirmDelete(venue)">Delete</button>
-                    </div>
-                </div>
-            </div>
-        }
+    <button type="button" class="btn btn-primary page-action-button" (click)="createVenue()">
+      <i class="bi bi-plus-lg"></i>
+      <span>Add New Venue</span>
+    </button>
+  </header>
+
+  <div class="status-card surface-card" *ngIf="!isVenuesCalled">
+    <div class="d-flex align-items-center gap-3">
+      <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+      <span>Loading venues from backend...</span>
     </div>
-</div>
+  </div>
 
-@if (showModal)
-{
-    <app-confirm-message
-        [item]="selectedVenue"
-        (confirm)="deleteVenue(selectedVenue)"
-        (cancel)="cancelDelete()">
-    </app-confirm-message>
+  <div class="status-card surface-card" *ngIf="isVenuesCalled && (!venues || venues.length === 0)">
+    <i class="bi bi-info-circle me-2"></i>
+    No venues found. Start by adding your first venue.
+  </div>
+
+  <div class="venues-list" *ngIf="isVenuesCalled && venues && venues.length > 0">
+    @for (venue of venues; track venue.id) {
+      <article class="surface-card venue-card">
+        <div class="venue-actions-top">
+          <button 
+            type="button" 
+            class="venue-action-icon-button venue-edit-button" 
+            (click)="editVenue(venue)"
+            title="Edit venue details"
+          >
+            <i class="bi bi-pencil"></i>
+            <span>Edit</span>
+          </button>
+          <button 
+            type="button" 
+            class="venue-action-icon-button venue-delete-button" 
+            (click)="confirmDelete(venue)"
+            title="Delete venue"
+          >
+            <i class="bi bi-trash"></i>
+            <span>Delete</span>
+          </button>
+        </div>
+
+        <div class="venue-card-body">
+          <div class="venue-card-header">
+            <div class="venue-header-main">
+              <h2 class="venue-title">{{ venue.name }}</h2>
+              <div class="venue-address">
+                <i class="bi bi-geo-alt"></i>
+                <span>{{ venue.postalCode }} {{ venue.city }}, {{ venue.addressLine }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="venue-stats">
+            <div class="stat-chip">
+              <i class="bi bi-door-open"></i>
+              <span>{{ venue.auditoriums.length }} Auditoriums</span>
+            </div>
+          </div>
+
+          <div class="venue-card-footer">
+            <button 
+              type="button" 
+              class="btn btn-primary venue-main-action" 
+              (click)="showVenueAuditoriums(venue)"
+            >
+              Manage Auditoriums
+              <i class="bi bi-arrow-right ms-2"></i>
+            </button>
+          </div>
+        </div>
+      </article>
+    }
+  </div>
+</section>
+
+@if (showModal) {
+  <app-confirm-message
+    [item]="selectedVenue"
+    (confirm)="deleteVenue(selectedVenue)"
+    (cancel)="cancelDelete()">
+  </app-confirm-message>
 }
