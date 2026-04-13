@@ -61,6 +61,32 @@ namespace Api.Controllers
         }
 
         [Authorize]
+        [HttpPut("me/password")]
+        public async Task<ActionResult> ChangeMyPassword([FromBody] OrganizerPasswordChangeDto dto)
+        {
+            var organizerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrWhiteSpace(organizerId))
+            {
+                return Unauthorized(new { message = "Unauthorized operation!" });
+            }
+
+            try
+            {
+                await _organizerService.ChangePasswordAsync(organizerId, dto);
+                return NoContent();
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new { message = ex.Message });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [Authorize]
         [HttpPut("me")]
         public async Task<ActionResult<OrganizerViewDto>> UpdateMyProfile(
             [FromBody] OrganizerProfileUpdateDto dto)

@@ -15,6 +15,7 @@ namespace Logic.Services
         Task<OrganizerViewDto?> GetByEmailAsync(string email);
         Task<OrganizerViewDto> UpdateAsync(string id, OrganizerUpdateDto dto);
         Task<OrganizerViewDto> UpdateProfileAsync(string organizerId, OrganizerProfileUpdateDto dto);
+        Task ChangePasswordAsync(string organizerId, OrganizerPasswordChangeDto dto);
         Task<bool> DeleteAsync(string id);
     }
 
@@ -183,6 +184,33 @@ namespace Logic.Services
                 CreatedAtUtc = organizer.CreatedAtUtc,
                 UpdatedAtUtc = organizer.UpdatedAtUtc
             };
+        }
+
+        public async Task ChangePasswordAsync(string organizerId, OrganizerPasswordChangeDto dto)
+        {
+            var organizer = await _dbContext.Organizers
+                .FirstOrDefaultAsync(o => o.Id == organizerId);
+
+            if (organizer == null)
+            {
+                throw new ArgumentException("Organizer not found.");
+            }
+
+            var verifyResult = _passwordHasher.VerifyHashedPassword(
+                organizer,
+                organizer.PasswordHash,
+                dto.CurrentPassword
+            );
+
+            if (verifyResult == PasswordVerificationResult.Failed)
+            {
+                throw new UnauthorizedAccessException("Current password is incorrect.");
+            }
+
+            organizer.PasswordHash = _passwordHasher.HashPassword(organizer, dto.NewPassword);
+            organizer.UpdatedAtUtc = DateTime.UtcNow;
+
+            await _dbContext.SaveChangesAsync();
         }
 
         public async Task<bool> DeleteAsync(string id)
