@@ -17,6 +17,7 @@ namespace Logic.Services
         Task<List<Entities.Dtos.Event.EventViewDto>> GetPublicAsync(CancellationToken ct);
         Task<List<Entities.Dtos.Event.EventViewDto>> GetByUserIdAsync(string userId, CancellationToken ct);
         Task<List<Entities.Dtos.EventOccurrence.EventOccurrenceViewDto>> GetOccurrencesByEventIdAsync(string eventId, CancellationToken ct);
+        Task<List<Entities.Dtos.Event.EventViewDto>> GetEventsbySlug(string slug);
     }
 
     public class EventService : IEventService
@@ -282,6 +283,15 @@ namespace Logic.Services
                 .ToListAsync(ct);
         }
 
+        public async Task<List<Entities.Dtos.Event.EventViewDto>> GetEventsbySlug(string slug)
+        {
+            List<Event> events = _dbContext.Events.Where(e => e.Name.Contains(slug))
+                .Include(e => e.Description.Contains(slug))
+                .ToList(); // TODO In task #57 more search filters
+
+            return MapToViewDto(events);
+        }
+
         private static Entities.Dtos.Event.EventViewDto MapToViewDto(Event e)
         {
             return new Entities.Dtos.Event.EventViewDto
@@ -295,6 +305,11 @@ namespace Logic.Services
                 CreatedAtUtc = e.CreatedAtUtc,
                 UpdatedAtUtc = e.UpdatedAtUtc
             };
+        }
+
+        private static List<Entities.Dtos.Event.EventViewDto> MapToViewDto(List<Event> events)
+        {
+            return events.Select(e => MapToViewDto(e)).ToList();
         }
     }
 }
