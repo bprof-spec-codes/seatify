@@ -156,5 +156,18 @@ namespace Api.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+        [HttpGet("public/events/{eventSlug}")]
+        public async Task<ActionResult<List<EventViewDto>>> GetByEventSlug(string eventSlug)
+        {
+
+            try{
+                return await  _eventService.GetEventsbySlug(eventSlug);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
     }
 }
