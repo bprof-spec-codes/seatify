@@ -12,11 +12,12 @@ import { OrganizerDashboardComponent } from './pages/organizer-dashboard/organiz
 import { OrganizerLayoutComponent } from './pages/organizer-layout/organizer-layout.component';
 import { EventOccurrenceFormComponent } from './pages/event-occurrence-form/event-occurrence-form.component';
 import { EventFormComponent } from './pages/event-form/event-form.component';
+import { BookingSuccessComponent } from './pages/booking-success/booking-success.component';
 
 export const routes: Routes = [
   { path: '', component: LandingPageComponent },
   { path: 'landingpage', component: LandingPageComponent },
-
+  { path: 'booking-success', component: BookingSuccessComponent },
   {
     path: 'dashboard',
     component: OrganizerLayoutComponent,
