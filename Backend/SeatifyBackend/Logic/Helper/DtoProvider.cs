@@ -1,5 +1,6 @@
 using AutoMapper;
 using Entities.Dtos.Auditorium;
+using Entities.Dtos.BookingSession;
 using Entities.Dtos.Event;
 using Entities.Dtos.LayoutMatrix;
 using Entities.Dtos.Seat;
@@ -57,6 +58,8 @@ public class DtoProvider
                 .ForMember(dest => dest.UpdatedAtUtc, opt => opt.Ignore());
 
             cfg.CreateMap<Event, EventViewDto>();
+            
+            cfg.CreateMap<BookingSessionCreateDto, BookingSession>();
         }, new LoggerFactory());
 
         Mapper = new Mapper(config);

@@ -20,6 +20,7 @@ namespace Data
         public DbSet<ReservationSeat> ReservationSeats => Set<ReservationSeat>();
         public DbSet<EventSeatOverride> EventSeatOverrides => Set<EventSeatOverride>();
         public DbSet<OccurrenceSeatOverride> OccurrenceSeatOverrides => Set<OccurrenceSeatOverride>();
+        public DbSet<BookingSession> BookingSessions => Set<BookingSession>();
 
         public AppDbContext(DbContextOptions<AppDbContext> ctx) : base(ctx)
         {
