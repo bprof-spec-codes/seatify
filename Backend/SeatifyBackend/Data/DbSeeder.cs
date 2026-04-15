@@ -17,13 +17,13 @@ namespace Data
                 var devOrganizer = new Organizer
                 {
                     Id = "org-id-01",
-                    Name = "Budapest Event Organizers",
-                    Email = "contact@budapest-events.hu",
+                    Name = "Dev Organizer",
+                    Email = "dev@seatify.hu",
                     CreatedAtUtc = DateTime.UtcNow,
                     UpdatedAtUtc = DateTime.UtcNow
                 };
 
-                devOrganizer.PasswordHash = passwordHasher.HashPassword(devOrganizer, "Dev123456!");
+                devOrganizer.PasswordHash = passwordHasher.HashPassword(devOrganizer, "123456789");
 
                 var organizers = new List<Organizer>
                 {
