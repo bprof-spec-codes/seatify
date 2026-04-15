@@ -1,7 +1,6 @@
 using Entities.Dtos.Venue;
 using Entities.Models;
 using Logic.Services;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -18,7 +17,6 @@ public class VenueController : ControllerBase
         _venueService = venueService;
     }
 
-    [Authorize]
     [HttpPost("venues")]
     public async Task<IActionResult> CreateVenue([FromBody] VenueCreateDto venueCreateDto)
     {
@@ -62,7 +60,6 @@ public class VenueController : ControllerBase
     }
 
 
-    [Authorize]
     [HttpPut("venues/{id}")]
     public async Task<IActionResult> UpdateVenueById([FromBody] VenueUpdateDto venueUpdateDto, string id)
     {
@@ -84,7 +81,6 @@ public class VenueController : ControllerBase
         }
     }
 
-    [Authorize]
     [HttpDelete("venues/{id}")]
     public async Task<IActionResult> DeleteVenueById(string id)
     {
