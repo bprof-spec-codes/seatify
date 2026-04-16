@@ -1,3 +1,4 @@
+using Entities.Dtos.Exceptions;
 using Entities.Dtos.Seat;
 using Logic.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -141,6 +142,19 @@ namespace Api.Controllers
             catch (ArgumentException ex)
             {
                 return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("/public/events/{eventOccurrenceId}/seatmap")]
+        public IActionResult GetSeatMap(string eventOccurrenceId)
+        {
+            try
+            {
+                return Ok(_seatService.GetSeatMap(eventOccurrenceId));
+            }
+            catch (EventNotFoundException e)
+            {
+                return NotFound(new {message = e.Message});
             }
         }
     }
