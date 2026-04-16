@@ -285,9 +285,7 @@ namespace Logic.Services
 
         public async Task<List<Entities.Dtos.Event.EventViewDto>> GetEventsbySlug(string slug)
         {
-            List<Event> events = _dbContext.Events.Where(e => e.Name.Contains(slug))
-                .Include(e => e.Description.Contains(slug))
-                .ToList(); // TODO In task #57 more search filters
+            List<Event> events = _dbContext.Events.Where(e => e.Slug.Contains(slug)).ToList();
 
             return MapToViewDto(events);
         }
