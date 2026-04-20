@@ -1,10 +1,13 @@
 ﻿using Data;
+using Entities.Dtos.Bookings;
+using Entities.Dtos.Exceptions;
 using Entities.Dtos.Reservation;
 using Entities.Models;
 using Logic.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -109,6 +112,56 @@ namespace Logic.Services
 
             _context.Reservations.Remove(res);
             return _context.SaveChanges() > 0;
+        }
+
+        public BookingCheckoutResponseDto responseDto(BookingCheckoutRequestDto request)
+        {
+            BookingSession bookingSession = _context.bookingSessions.Find(request.BookingSessionId);
+            if(bookingSession == null)
+            {
+                throw new BookingSessionNotFoundException($"BookingSession could mot be found with this id: {request.BookingSessionId}");
+            }
+
+            EventOccurrence eventOccurrence = _context.EventOccurrences.Find(request.EventOccurrenceId);
+            if (eventOccurrence == null)
+            {
+                throw new EventOccurrenceNotFoundException($"EventOccurrence could mot be found with this id: {request.EventOccurrenceId}");
+            }
+
+            List<ReservationSeat> reservationSeats = new List<ReservationSeat>();
+
+            foreach (var seat in request.SeatIds)
+            {
+                reservationSeats.Add(new ReservationSeat
+                {
+                    SeatId = seat,
+                    FinalPrice = 5000 // mock data for testing
+                });
+            }
+
+            _context.ReservationSeats.AddRange(reservationSeats);
+            _context.SaveChanges();
+
+            Reservation reservation = new Reservation();
+            reservation.BookingSessionId = request.BookingSessionId;
+            reservation.EventOccurrenceId = request.EventOccurrenceId;
+            reservation.CustomerEmail = request.CustomerEmail;
+            reservation.CustomerName = request.CustomerName;
+            reservation.CustomerPhone = request.CustomerPhone;
+            reservation.ReservationSeats = reservationSeats;
+            reservation.Status = "Confirmed";
+            reservation.CreatedAtUtc = DateTime.UtcNow;
+            _context.Reservations.Add(reservation);
+            _context.SaveChanges();
+
+            BookingCheckoutResponseDto responseDto = new BookingCheckoutResponseDto();
+            responseDto.BookingId = reservation.Id;
+            responseDto.EventId = reservation.EventOccurrenceId;
+            responseDto.Seats = request.SeatIds;
+            responseDto.TotalPrice = reservationSeats.Sum(rs => rs.FinalPrice);
+            responseDto.QrCodeBase64 = string.Empty;
+
+            return responseDto;
         }
     }
 }
