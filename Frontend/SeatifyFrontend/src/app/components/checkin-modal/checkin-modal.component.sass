@@ -1,0 +1,29 @@
+.custom-modal
+  z-index: 1050
+  transition: opacity .15s linear
+
+#qr-reader
+  width: 100%
+  min-height: 250px
+  background: black
+  display: flex
+  align-items: center
+  justify-content: center
+  
+#qr-reader__scan_region
+  border: 4px solid rgba(255, 255, 255, 0.2)
+
+#qr-reader__dashboard_section_csr
+  span, button
+    color: white
+    
+.result-container
+  animation: fadeIn 0.3s ease-in-out
+
+@keyframes fadeIn
+  from
+    opacity: 0
+    transform: translateY(10px)
+  to
+    opacity: 1
+    transform: translateY(0)
