@@ -1,6 +1,5 @@
 using Entities.Dtos.Exceptions;
 using Entities.Dtos.Seat;
-using Entities.Models;
 using Logic.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -155,26 +154,27 @@ namespace Api.Controllers
             }
             catch (EventNotFoundException e)
             {
-                return NotFound(new {message = e.Message});
+                return NotFound(new { message = e.Message });
             }
         }
 
-        public IActionResult getSeatAvailability(SeatAvailabilityRequestDto requestDto)
+        [HttpPost("seats/availability")]
+        public IActionResult GetSeatAvailability([FromBody] SeatAvailabilityRequestDto requestDto)
         {
             try
             {
                 SeatAvailabilityResponseDto responseDto = _seatService.getSeatAvailability(requestDto);
-                if(responseDto.valid){
+
+                if (responseDto.valid)
+                {
                     return Ok(responseDto);
                 }
-                else
-                {
-                    return Conflict(responseDto);
-                }
+
+                return Conflict(responseDto);
             }
             catch (EventNotFoundException e)
             {
-               return BadRequest(new {message = e.Message }); 
+                return BadRequest(new { message = e.Message });
             }
         }
     }
