@@ -1,73 +1,90 @@
-<div class="container mt-4">
-    <div class="row align-items-center">
-        <div class="col">
-            <h1>Auditorium Dashboard</h1>
-        </div>
-        <div class="col-auto">
-            <button type="button" class="btn btn-primary" (click)="back()">Back</button>
-        </div>
+<div class="auditorium-dashboard page-container">
+  <header class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">Auditorium Dashboard</h1>
+      <p class="page-subtitle">Manage seating layouts and auditorium configurations</p>
     </div>
-</div>
-
-<div class="container mt-4">
-    <div class="row align-items-center">
-        <div class="col">
-            <h3>{{ (venue$ | async)?.name }}</h3>
-            <p>
-                <i class="bi bi-geo-alt"></i>
-                {{ (venue$ | async)?.postalCode }} {{ (venue$ | async)?.city }}, {{ (venue$ | async)?.addressLine }}
-            </p>
-        </div>
-        <div class="col-auto">
-            <button type="button" class="btn btn-primary" (click)="createAuditorium()">Add New Auditorium</button>
-        </div>
+    <div class="header-actions">
+      <button type="button" class="btn btn-outline-secondary page-action-button" (click)="back()">
+        <i class="bi bi-arrow-left"></i>
+        <span>Back to Venues</span>
+      </button>
+      <button type="button" class="btn btn-primary page-action-button" (click)="createAuditorium()">
+        <i class="bi bi-plus-lg"></i>
+        <span>Add New Auditorium</span>
+      </button>
     </div>
-</div>
+  </header>
 
-<div class="container mt-4">
-    <div class="row">
-        @if (isEmpty)
-        {
-            <div class="col text-center">
-                No Auditoriums!
+  <section class="surface-card venue-info-card">
+    <div class="venue-details">
+      <h3>{{ (venue$ | async)?.name }}</h3>
+      <p>
+        <i class="bi bi-geo-alt"></i>
+        <span>{{ (venue$ | async)?.postalCode }} {{ (venue$ | async)?.city }}, {{ (venue$ | async)?.addressLine }}</span>
+      </p>
+    </div>
+  </section>
+
+  <div class="auditoriums-grid">
+    @if (isEmpty) {
+      <div class="surface-card empty-state">
+        <i class="bi bi-building-slash"></i>
+        <div>
+          <h3>No Auditoriums Found</h3>
+          <p>Get started by creating your first auditorium for this venue.</p>
+        </div>
+        <button class="btn btn-primary" (click)="createAuditorium()">
+          <i class="bi bi-plus-lg"></i>
+          Create Auditorium
+        </button>
+      </div>
+    } @else {
+      @for (auditorium of auditoriums$ | async; track auditorium.id) {
+        <div class="surface-card auditorium-card">
+          <div class="card-actions-top">
+            <button class="action-icon-button" (click)="editAuditorium(auditorium)" title="Edit details">
+              <i class="bi bi-pencil"></i>
+              <span>Edit</span>
+            </button>
+            <button class="action-icon-button delete-button" (click)="confirmDelete(auditorium)" title="Delete auditorium">
+              <i class="bi bi-trash"></i>
+              <span>Delete</span>
+            </button>
+          </div>
+
+          <div class="auditorium-card-body">
+            <h2 class="auditorium-title">{{ auditorium.name }}</h2>
+            <p class="auditorium-description">{{ auditorium.description || 'No description provided.' }}</p>
+            
+            <div class="auditorium-meta">
+              <div class="meta-chip">
+                <i class="bi bi-calendar3"></i>
+                <span>Created: {{ auditorium.createdAtUtc | date }}</span>
+              </div>
+              <div class="meta-chip">
+                <i class="bi bi-clock-history"></i>
+                <span>Updated: {{ auditorium.updatedAtUtc | date }}</span>
+              </div>
             </div>
-        }
-        @else
-        {
-            @for (auditorium of auditoriums$ | async; track $index)
-            {
-                <div class="col-md-4 mb-4" [attr.data-index]="$index">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title mb-3">
-                                {{ auditorium.name }}
-                            </h5>
-                            <p class="card-text">
-                                {{ auditorium.description }}
-                            </p>
-                            <p class="card-text">
-                                {{ auditorium.createdAtUtc }}
-                            </p>
-                            <p class="card-text">
-                                {{ auditorium.updatedAtUtc }}
-                            </p>
-                            <button type="button" class="btn btn-primary me-3" (click)="viewAuditorium(auditorium)">View</button>
-                            <button type="button" class="btn btn-warning me-3" (click)="editAuditorium(auditorium)">Edit</button>
-                            <button type="button" class="btn btn-info me-3" (click)="editLayout(auditorium)">Edit Layout</button>
-                            <button type="button" class="btn btn-danger" (click)="confirmDelete(auditorium)">Delete</button>
-                        </div>
-                    </div>
-                </div>
-            }
-        }
-    </div>
+          </div>
+
+          <div class="auditorium-card-footer">
+            <button class="btn btn-primary main-action-button" (click)="editLayout(auditorium)">
+              <i class="bi bi-grid-3x3-gap"></i>
+              Manage Layout
+            </button>
+          </div>
+        </div>
+      }
+    }
+  </div>
 </div>
 
-@if (showModal)
-{
-    <app-confirm-message
-        [item]="selectedAuditorium"
-        (confirm)="deleteAuditorium(selectedAuditorium)"
-        (cancel)="cancelDelete()">
-    </app-confirm-message>
+@if (showModal) {
+  <app-confirm-message
+    [item]="selectedAuditorium"
+    (confirm)="deleteAuditorium(selectedAuditorium)"
+    (cancel)="cancelDelete()">
+  </app-confirm-message>
 }
