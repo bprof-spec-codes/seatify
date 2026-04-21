@@ -25,6 +25,7 @@ import { OrganizerDashboardComponent } from './pages/organizer-dashboard/organiz
 import { AuditoriumFormComponent } from './pages/auditorium-form/auditorium-form.component';
 import { EventOccurrenceFormComponent } from './pages/event-occurrence-form/event-occurrence-form.component';
 import { EventFormComponent } from './pages/event-form/event-form.component';
+import { CheckinModalComponent } from './components/checkin-modal/checkin-modal.component';
 
 @NgModule({
   declarations: [
@@ -48,6 +49,7 @@ import { EventFormComponent } from './pages/event-form/event-form.component';
     AuditoriumFormComponent,
     EventOccurrenceFormComponent,
     EventFormComponent,
+    CheckinModalComponent,
   ],
   imports: [
     BrowserModule,

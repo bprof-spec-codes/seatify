@@ -89,6 +89,7 @@ namespace Api
             builder.Services.AddScoped<ISeatOverrideService, SeatOverrideService>();
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
+            builder.Services.AddScoped<ICheckInService, CheckInService>();
 
             builder.Services.AddAuthentication(options =>
             {

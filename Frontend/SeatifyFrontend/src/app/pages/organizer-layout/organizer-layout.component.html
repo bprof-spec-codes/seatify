@@ -34,9 +34,20 @@
       <i class="bi bi-calendar-event"></i>
       <span>Events</span>
     </a>
+
+    <a
+      class="nav-item"
+      style="cursor: pointer;"
+      (click)="checkinModal.openModal()"
+    >
+      <i class="bi bi-qr-code-scan"></i>
+      <span>Ticket Check-In</span>
+    </a>
   </aside>
 
   <section class="dashboard-content">
     <router-outlet></router-outlet>
   </section>
+
+  <app-checkin-modal #checkinModal></app-checkin-modal>
 </div>

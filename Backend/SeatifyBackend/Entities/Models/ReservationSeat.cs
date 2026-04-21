@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -15,6 +15,9 @@ namespace Entities.Models
         public string ReservationId { get; set; } = string.Empty;
         public string SeatId { get; set; } = string.Empty;
         public decimal FinalPrice { get; set; }
+        public bool IsCheckedIn { get; set; } = false;
+        public DateTime? CheckInTimeUtc { get; set; }
+
         public virtual Reservation Reservation { get; set; } = null!;
 
         public virtual Seat Seat { get; set; } = null!;
