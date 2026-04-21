@@ -26,6 +26,9 @@ import { AuditoriumFormComponent } from './pages/auditorium-form/auditorium-form
 import { EventOccurrenceFormComponent } from './pages/event-occurrence-form/event-occurrence-form.component';
 import { EventFormComponent } from './pages/event-form/event-form.component';
 import { CheckinModalComponent } from './components/checkin-modal/checkin-modal.component';
+import { authInterceptor } from './interceptors/auth.interceptor';
+import { LoginPageComponent } from './pages/login-page/login-page.component';
+import { RegisterPageComponent } from './pages/register-page/register-page.component';
 
 @NgModule({
   declarations: [
@@ -50,6 +53,8 @@ import { CheckinModalComponent } from './components/checkin-modal/checkin-modal.
     EventOccurrenceFormComponent,
     EventFormComponent,
     CheckinModalComponent,
+    LoginPageComponent,
+    RegisterPageComponent,
   ],
   imports: [
     BrowserModule,
@@ -60,7 +65,7 @@ import { CheckinModalComponent } from './components/checkin-modal/checkin-modal.
     FormsModule,
   ],
   providers: [
-    provideHttpClient(withInterceptors([]))
+    provideHttpClient(withInterceptors([authInterceptor]))
   ],
   bootstrap: [AppComponent]
 })

@@ -1,0 +1,58 @@
+<div class="auth-page">
+    <div class="auth-card">
+        <h1>Register</h1>
+        <p class="auth-subtitle">Create your organizer account.</p>
+
+        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+
+            <div class="form-field">
+                <label>Name</label>
+                <input type="text" formControlName="name" />
+
+                <small *ngIf="f['name'].touched && f['name'].invalid">
+                    Name is required.
+                </small>
+            </div>
+
+            <div class="form-field">
+                <label>Email</label>
+                <input type="email" formControlName="email" />
+
+                <small *ngIf="f['email'].touched && f['email'].invalid">
+                    Enter a valid email.
+                </small>
+            </div>
+
+            <div class="form-field">
+                <label>Password</label>
+                <input type="password" formControlName="password" />
+
+                <small *ngIf="f['password'].touched && f['password'].invalid">
+                    Minimum 6 characters.
+                </small>
+            </div>
+
+            <div class="form-field">
+                <label>Confirm Password</label>
+                <input type="password" formControlName="confirmPassword" />
+
+                <small *ngIf="passwordMismatch">
+                    Passwords do not match.
+                </small>
+            </div>
+
+            <div class="form-error" *ngIf="errorMessage">
+                {{ errorMessage }}
+            </div>
+
+            <button class="primary-button" type="submit" [disabled]="isSubmitting">
+                {{ isSubmitting ? 'Creating account...' : 'Register' }}
+            </button>
+        </form>
+
+        <p class="auth-footer">
+            Already have an account?
+            <a routerLink="/login">Login</a>
+        </p>
+    </div>
+</div>
