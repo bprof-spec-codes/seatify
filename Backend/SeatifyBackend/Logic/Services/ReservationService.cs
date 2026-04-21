@@ -17,10 +17,12 @@ namespace Logic.Services
     public class ReservationService: IReservationService
     {
         private readonly AppDbContext _context;
+        private readonly QrService _qrService;
 
-        public ReservationService(AppDbContext context)
+        public ReservationService(AppDbContext context, QrService qrService)
         {
             _context = context;
+            _qrService = qrService;
         }
 
         public bool CreateReservation(string eventOccurrenceId, ReservationCreateDto dto)
@@ -114,18 +116,18 @@ namespace Logic.Services
             return _context.SaveChanges() > 0;
         }
 
-        public BookingCheckoutResponseDto responseDto(BookingCheckoutRequestDto request)
+        public BookingCheckoutResponseDto CheckoutReservation(BookingCheckoutRequestDto request)
         {
             BookingSession bookingSession = _context.bookingSessions.Find(request.BookingSessionId);
             if(bookingSession == null)
             {
-                throw new BookingSessionNotFoundException($"BookingSession could mot be found with this id: {request.BookingSessionId}");
+                throw new BookingSessionNotFoundException($"BookingSession could not be found with this id: {request.BookingSessionId}");
             }
 
             EventOccurrence eventOccurrence = _context.EventOccurrences.Find(request.EventOccurrenceId);
             if (eventOccurrence == null)
             {
-                throw new EventOccurrenceNotFoundException($"EventOccurrence could mot be found with this id: {request.EventOccurrenceId}");
+                throw new EventOccurrenceNotFoundException($"EventOccurrence could not be found with this id: {request.EventOccurrenceId}");
             }
 
             List<ReservationSeat> reservationSeats = new List<ReservationSeat>();
@@ -135,7 +137,7 @@ namespace Logic.Services
                 reservationSeats.Add(new ReservationSeat
                 {
                     SeatId = seat,
-                    FinalPrice = 5000 // mock data for testing
+                    FinalPrice = calculateFinalSeatPrice(eventOccurrence.Event.Id, eventOccurrence.Id, seat)
                 });
             }
 
@@ -159,9 +161,41 @@ namespace Logic.Services
             responseDto.EventId = reservation.EventOccurrenceId;
             responseDto.Seats = request.SeatIds;
             responseDto.TotalPrice = reservationSeats.Sum(rs => rs.FinalPrice);
-            responseDto.QrCodeBase64 = string.Empty;
+            responseDto.QrCodeBase64 = _qrService.GenerateReservationQrCode(reservation.Id);
 
             return responseDto;
+        }
+        private decimal calculateFinalSeatPrice(string eventId, string eventOccurrenceId, string seatId)
+        {
+            var eventSeatOverridePrice = _context.EventSeatOverrides.Where(es => es.SeatId == seatId && es.EventId == eventId).First();
+            var occurrenceOverridePrice = _context.OccurrenceSeatOverrides.Where(os => os.SeatId == seatId && os.OccurrenceId == eventOccurrenceId).First();
+            var seat = _context.Seats.Where(s => s.Id == seatId).First();
+            decimal finalPrice;
+
+            if(occurrenceOverridePrice != null && occurrenceOverridePrice.PriceOverride != null)
+            {
+                finalPrice = occurrenceOverridePrice.PriceOverride.Value;
+            }
+            else if(eventSeatOverridePrice != null && eventSeatOverridePrice.PriceOverride != null)
+            {
+                finalPrice = eventSeatOverridePrice.PriceOverride.Value;
+            }
+            else
+            {
+                if(seat != null && seat.PriceOverride != null)
+                {
+                    finalPrice = seat.PriceOverride.Value;
+                }
+                else if(seat != null && seat.Sector != null)
+                {
+                    finalPrice = seat.Sector.BasePrice;
+                }
+                else
+                {
+                    finalPrice = -1;
+                }
+            }
+            return finalPrice;
         }
     }
 }
