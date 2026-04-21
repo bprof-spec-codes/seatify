@@ -17,9 +17,16 @@ public class VenueService
         this.dtoProvider = dtoProvider;
     }
 
-    public async Task<Venue> CreateVenueAsync(VenueCreateDto createDto)
+    public async Task<Venue> CreateVenueAsync(VenueCreateDto createDto, string organizerId)
     {
+        var organizerExists = await _ctx.Organizers.AnyAsync(x => x.Id == organizerId);
+        if (!organizerExists)
+        {
+            throw new Exception("Organizer does not exist.");
+        }
+
         var newVenue = dtoProvider.Mapper.Map<Venue>(createDto);
+        newVenue.OrganizerId = organizerId;
 
         await _ctx.Venues.AddAsync(newVenue);
         await _ctx.SaveChangesAsync();
@@ -50,7 +57,7 @@ public class VenueService
         return dtoProvider.Mapper.Map<List<VenueViewDto>>(venues);
     }
 
-    public async Task<Venue> UpdateVenueByIdAsync(VenueUpdateDto updateDto, string venueId)
+    public async Task<Venue> UpdateVenueByIdAsync(VenueUpdateDto updateDto, string venueId, string organizerId)
     {
         var existingVenue = await _ctx.Venues
             .FirstOrDefaultAsync(v => v.Id == venueId);
@@ -60,7 +67,7 @@ public class VenueService
             throw new Exception("Venue does not exist!");
         }
 
-        if (existingVenue.OrganizerId != updateDto.OrganizerId)
+        if (existingVenue.OrganizerId != organizerId)
         {
             throw new Exception("The venue does not belong to the logged-in user!");
         }

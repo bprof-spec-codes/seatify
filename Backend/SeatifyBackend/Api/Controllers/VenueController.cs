@@ -17,23 +17,19 @@ public class VenueController : ControllerBase
         _venueService = venueService;
     }
 
-    //[Authorize]
     [HttpPost("venues")]
     public async Task<IActionResult> CreateVenue([FromBody] VenueCreateDto venueCreateDto)
     {
         var organizerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        /* (organizerId == null)
+        if (string.IsNullOrWhiteSpace(organizerId))
         {
             return Unauthorized(new { message = "Unauthorized operation!" });
-        }*/
+        }
 
         try
         {
-            //venueCreateDto.OrganizerId = organizerId;
-            venueCreateDto.OrganizerId = organizerId ?? "org-id-01";
-
-            Venue newVenue = await _venueService.CreateVenueAsync(venueCreateDto);
+            Venue newVenue = await _venueService.CreateVenueAsync(venueCreateDto, organizerId);
             return Ok(newVenue);
         }
         catch (Exception ex)
@@ -62,25 +58,21 @@ public class VenueController : ControllerBase
         var venue = await _venueService.GetAllVenuesAsync();
         return Ok(venue);
     }
-      
 
-    //[Authorize]
+
     [HttpPut("venues/{id}")]
     public async Task<IActionResult> UpdateVenueById([FromBody] VenueUpdateDto venueUpdateDto, string id)
     {
         var organizerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        /*if (organizerId == null)
+        if (string.IsNullOrWhiteSpace(organizerId))
         {
             return Unauthorized(new { message = "Unauthorized operation!" });
-        }*/
+        }
 
         try
         {
-            //venueUpdateDto.OrganizerId = organizerId;
-            venueUpdateDto.OrganizerId = organizerId ?? "org-id-01";
-
-            await _venueService.UpdateVenueByIdAsync(venueUpdateDto, id);
+            await _venueService.UpdateVenueByIdAsync(venueUpdateDto, id, organizerId);
             return Ok(venueUpdateDto);
         }
         catch (Exception ex)
@@ -89,21 +81,19 @@ public class VenueController : ControllerBase
         }
     }
 
-    //[Authorize]
     [HttpDelete("venues/{id}")]
     public async Task<IActionResult> DeleteVenueById(string id)
     {
         var organizerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        /*if (organizerId == null)
+        if (string.IsNullOrWhiteSpace(organizerId))
         {
             return Unauthorized(new { message = "Unauthorized operation!" });
-        }*/
+        }
 
         try
         {
-            //await _venueService.DeleteVenueByIdAsync(organizerId, id);
-            await _venueService.DeleteVenueByIdAsync(organizerId ?? "org-id-01", id);
+            await _venueService.DeleteVenueByIdAsync(organizerId, id);
             return Ok();
         }
         catch (Exception ex)
@@ -125,6 +115,4 @@ public class VenueController : ControllerBase
             return BadRequest(new { message = ex.Message });
         }
     }
-
-    // TODO: remove commented out sections if authentication is implemented
 }

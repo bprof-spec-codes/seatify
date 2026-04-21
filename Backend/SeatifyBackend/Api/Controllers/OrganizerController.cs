@@ -2,12 +2,12 @@
 using Logic.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Api.Controllers
 {
     [ApiController]
     [Route("api/organizer")]
-    //[Authorize]
     public class OrganizerController : ControllerBase
     {
         private readonly IOrganizerService _organizerService;
@@ -16,7 +16,6 @@ namespace Api.Controllers
         {
             _organizerService = organizerService;
         }
-
 
         [HttpPost]
         public async Task<ActionResult<OrganizerViewDto>> CreateProfile(
@@ -33,6 +32,84 @@ namespace Api.Controllers
             }
         }
 
+        [Authorize]
+        [HttpGet("me")]
+        public async Task<ActionResult<OrganizerViewDto>> GetMyProfile()
+        {
+            var organizerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrWhiteSpace(organizerId))
+            {
+                return Unauthorized(new { message = "Unauthorized operation!" });
+            }
+
+            try
+            {
+                var result = await _organizerService.GetByIdAsync(organizerId);
+
+                if (result == null)
+                {
+                    return NotFound(new { message = "Organizer profile not found." });
+                }
+
+                return Ok(result);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [Authorize]
+        [HttpPut("me/password")]
+        public async Task<ActionResult> ChangeMyPassword([FromBody] OrganizerPasswordChangeDto dto)
+        {
+            var organizerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrWhiteSpace(organizerId))
+            {
+                return Unauthorized(new { message = "Unauthorized operation!" });
+            }
+
+            try
+            {
+                await _organizerService.ChangePasswordAsync(organizerId, dto);
+                return NoContent();
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new { message = ex.Message });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [Authorize]
+        [HttpPut("me")]
+        public async Task<ActionResult<OrganizerViewDto>> UpdateMyProfile(
+            [FromBody] OrganizerProfileUpdateDto dto)
+        {
+            var organizerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrWhiteSpace(organizerId))
+            {
+                return Unauthorized(new { message = "Unauthorized operation!" });
+            }
+
+            try
+            {
+                var result = await _organizerService.UpdateProfileAsync(organizerId, dto);
+                return Ok(result);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<OrganizerViewDto>>> GetOrganisers()
         {
@@ -53,6 +130,7 @@ namespace Api.Controllers
             }
         }
 
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<ActionResult<OrganizerViewDto>> GetOrganiser([FromRoute] string id)
         {
@@ -63,7 +141,7 @@ namespace Api.Controllers
                 {
                     return NotFound(new { message = "Organizer profile not found." });
                 }
-                return Ok(result);      
+                return Ok(result);
             }
             catch (ArgumentException ex)
             {
@@ -71,8 +149,7 @@ namespace Api.Controllers
             }
         }
 
-
-
+        [Authorize]
         [HttpPut("{id}")]
         public async Task<ActionResult<OrganizerViewDto>> UpdateProfile(
             [FromRoute] string id,
@@ -89,6 +166,7 @@ namespace Api.Controllers
             }
         }
 
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteProfile([FromRoute] string id)
         {

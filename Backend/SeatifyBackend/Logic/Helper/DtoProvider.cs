@@ -2,6 +2,7 @@ using AutoMapper;
 using Entities.Dtos.Auditorium;
 using Entities.Dtos.Event;
 using Entities.Dtos.LayoutMatrix;
+using Entities.Dtos.Organizer;
 using Entities.Dtos.Seat;
 using Entities.Dtos.Venue;
 using Entities.Models;
@@ -57,6 +58,8 @@ public class DtoProvider
                 .ForMember(dest => dest.UpdatedAtUtc, opt => opt.Ignore());
 
             cfg.CreateMap<Event, EventViewDto>();
+
+            cfg.CreateMap<Organizer, OrganizerViewDto>();
         }, new LoggerFactory());
 
         Mapper = new Mapper(config);
