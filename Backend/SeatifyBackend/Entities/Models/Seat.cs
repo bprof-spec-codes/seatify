@@ -38,8 +38,8 @@ namespace Entities.Models
         public DateTime CreatedAtUtc { get; set; }
         public DateTime UpdatedAtUtc { get; set; }
 
-        public LayoutMatrix LayoutMatrix { get; set; } = null!;
-        public Sector? Sector { get; set; }
+        public virtual LayoutMatrix LayoutMatrix { get; set; } = null!;
+        public virtual Sector? Sector { get; set; }
 
         public Seat()
         {
