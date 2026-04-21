@@ -13,11 +13,13 @@ import { OrganizerLayoutComponent } from './pages/organizer-layout/organizer-lay
 import { EventOccurrenceFormComponent } from './pages/event-occurrence-form/event-occurrence-form.component';
 import { EventFormComponent } from './pages/event-form/event-form.component';
 import { LoginPageComponent } from './pages/login-page/login-page.component';
+import { RegisterPageComponent } from './pages/register-page/register-page.component';
 
 export const routes: Routes = [
   { path: '', component: LandingPageComponent },
   { path: 'landingpage', component: LandingPageComponent },
   { path: 'login', component: LoginPageComponent},
+  { path: 'register', component: RegisterPageComponent },
 
   {
     path: 'dashboard',

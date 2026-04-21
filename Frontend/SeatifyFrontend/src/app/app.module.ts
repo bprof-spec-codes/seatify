@@ -28,6 +28,7 @@ import { EventFormComponent } from './pages/event-form/event-form.component';
 import { CheckinModalComponent } from './components/checkin-modal/checkin-modal.component';
 import { authInterceptor } from './interceptors/auth.interceptor';
 import { LoginPageComponent } from './pages/login-page/login-page.component';
+import { RegisterPageComponent } from './pages/register-page/register-page.component';
 
 @NgModule({
   declarations: [
@@ -53,6 +54,7 @@ import { LoginPageComponent } from './pages/login-page/login-page.component';
     EventFormComponent,
     CheckinModalComponent,
     LoginPageComponent,
+    RegisterPageComponent,
   ],
   imports: [
     BrowserModule,
