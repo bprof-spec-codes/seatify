@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="16.1.1" />
+    <PackageReference Include="Resend" Version="0.5.0" />
     <ProjectReference Include="..\Entities\Entities.csproj" />
   </ItemGroup>
 

@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using Resend;
 
 namespace Api
 {
@@ -89,6 +90,17 @@ namespace Api
             builder.Services.AddScoped<ISeatOverrideService, SeatOverrideService>();
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
+            builder.Services.AddScoped<IEmailService, EmailService>();
+
+            builder.Services.AddOptions();
+            builder.Services.AddHttpClient<ResendClient>();
+            builder.Services.Configure<ResendClientOptions>(o =>
+            {
+                o.ApiToken = Environment.GetEnvironmentVariable("RESEND_API_KEY") 
+                    ?? builder.Configuration["Resend:ApiToken"] 
+                    ?? string.Empty;
+            });
+            builder.Services.AddTransient<IResend, ResendClient>();
 
             builder.Services.AddAuthentication(options =>
             {
