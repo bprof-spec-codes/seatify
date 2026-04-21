@@ -17,6 +17,7 @@ namespace Logic.Services
         Task<bool> DeleteAsync(string seatId, CancellationToken ct);
         Task<BulkSeatUpdateResponseDto> BulkUpdateAsync(BulkSeatUpdateDto dto, CancellationToken ct);
         SeatMapDto GetSeatMap(string eventOccurrenceId);
+        SeatAvailabilityResponseDto getSeatAvailability(SeatAvailabilityRequestDto SeatavailabilityRequestDto);
     }
 
     public class SeatService : ISeatService
@@ -559,6 +560,25 @@ namespace Logic.Services
 
             return 0m;
         }
+
+public SeatAvailabilityResponseDto getSeatAvailability(SeatAvailabilityRequestDto request)
+{
+    if (_dbContext.EventOccurrences.Find(request.eventOccurrenceId) == null)
+    {
+        throw new EventNotFoundException(
+            $"EventOccurrence with this id_ {request.eventOccurrenceId} could not be found");
+    }
+
+    List<ReservationSeat> reservationSeats = _dbContext.ReservationSeats
+        .Where(rs => request.seatIds.Contains(rs.SeatId))
+        .ToList();
+
+    return new SeatAvailabilityResponseDto
+    {
+        valid = reservationSeats.Count == 0,
+        unavailableSeats = reservationSeats.Select(rs => rs.Id).ToList()
+    };
+}
 
         private static SeatType ParseSeatType(string seatType)
         {

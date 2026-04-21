@@ -154,7 +154,27 @@ namespace Api.Controllers
             }
             catch (EventNotFoundException e)
             {
-                return NotFound(new {message = e.Message});
+                return NotFound(new { message = e.Message });
+            }
+        }
+
+        [HttpPost("seats/availability")]
+        public IActionResult GetSeatAvailability([FromBody] SeatAvailabilityRequestDto requestDto)
+        {
+            try
+            {
+                SeatAvailabilityResponseDto responseDto = _seatService.getSeatAvailability(requestDto);
+
+                if (responseDto.valid)
+                {
+                    return Ok(responseDto);
+                }
+
+                return Conflict(responseDto);
+            }
+            catch (EventNotFoundException e)
+            {
+                return BadRequest(new { message = e.Message });
             }
         }
     }
