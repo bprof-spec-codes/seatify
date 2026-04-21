@@ -159,23 +159,25 @@ namespace Api.Controllers
             }
         }
 
-        public IActionResult getSeatAvailability(SeatAvailabilityRequestDto requestDto)
+[HttpPost("events/seat-availability")]
+public IActionResult GetSeatAvailability([FromBody] SeatAvailabilityRequestDto requestDto)
+{
+    try
+    {
+        SeatAvailabilityResponseDto responseDto = _seatService.getSeatAvailability(requestDto);
+        if (responseDto.valid)
         {
-            try
-            {
-                SeatAvailabilityResponseDto responseDto = _seatService.getSeatAvailability(requestDto);
-                if(responseDto.valid){
-                    return Ok(responseDto);
-                }
-                else
-                {
-                    return Conflict(responseDto);
-                }
-            }
-            catch (EventNotFoundException e)
-            {
-               return BadRequest(new {message = e.Message }); 
-            }
+            return Ok(responseDto);
         }
+        else
+        {
+            return Conflict(responseDto);
+        }
+    }
+    catch (EventNotFoundException e)
+    {
+        return BadRequest(new { message = e.Message });
+    }
+}
     }
 }
