@@ -163,7 +163,7 @@ namespace Api.Controllers
         {
             try
             {
-                SeatAvailabilityResponseDto responseDto = _seatService.getSeatAvailability(requestDto);
+                SeatAvailabilityResponseDto responseDto = _seatService.GetSeatAvailability(requestDto);
 
                 if (responseDto.valid)
                 {

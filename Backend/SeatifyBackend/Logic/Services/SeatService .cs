@@ -17,7 +17,7 @@ namespace Logic.Services
         Task<bool> DeleteAsync(string seatId, CancellationToken ct);
         Task<BulkSeatUpdateResponseDto> BulkUpdateAsync(BulkSeatUpdateDto dto, CancellationToken ct);
         SeatMapDto GetSeatMap(string eventOccurrenceId);
-        SeatAvailabilityResponseDto getSeatAvailability(SeatAvailabilityRequestDto SeatavailabilityRequestDto);
+        SeatAvailabilityResponseDto GetSeatAvailability(SeatAvailabilityRequestDto seatAvailabilityRequestDto);
     }
 
     public class SeatService : ISeatService
@@ -561,24 +561,66 @@ namespace Logic.Services
             return 0m;
         }
 
-public SeatAvailabilityResponseDto getSeatAvailability(SeatAvailabilityRequestDto request)
-{
-    if (_dbContext.EventOccurrences.Find(request.eventOccurrenceId) == null)
-    {
-        throw new EventNotFoundException(
-            $"EventOccurrence with this id_ {request.eventOccurrenceId} could not be found");
-    }
+        public SeatAvailabilityResponseDto GetSeatAvailability(SeatAvailabilityRequestDto request)
+        {
+            if (request == null)
+            {
+                throw new ArgumentException("Request is required.");
+            }
 
-    List<ReservationSeat> reservationSeats = _dbContext.ReservationSeats
-        .Where(rs => request.seatIds.Contains(rs.SeatId))
-        .ToList();
+            if (string.IsNullOrWhiteSpace(request.eventOccurrenceId))
+            {
+                throw new ArgumentException("eventOccurrenceId is required.");
+            }
 
-    return new SeatAvailabilityResponseDto
-    {
-        valid = reservationSeats.Count == 0,
-        unavailableSeats = reservationSeats.Select(rs => rs.Id).ToList()
-    };
-}
+            if (request.seatIds == null || request.seatIds.Count == 0)
+            {
+                throw new ArgumentException("At least one seatId is required.");
+            }
+
+            var eventOccurrenceId = request.eventOccurrenceId.Trim();
+
+            var occurrenceExists = _dbContext.EventOccurrences
+                .Any(e => e.Id == eventOccurrenceId);
+
+            if (!occurrenceExists)
+            {
+                throw new EventNotFoundException(
+                    $"EventOccurrence with this id '{eventOccurrenceId}' could not be found");
+            }
+
+            var requestedSeatIds = request.seatIds
+                .Where(id => !string.IsNullOrWhiteSpace(id))
+                .Select(id => id.Trim())
+                .Distinct()
+                .ToList();
+
+            var bookedSeatIds = _dbContext.Reservations
+                .Where(r => r.EventOccurrenceId == eventOccurrenceId)
+                .SelectMany(r => r.ReservationSeats)
+                .Where(rs => requestedSeatIds.Contains(rs.SeatId))
+                .Select(rs => rs.SeatId)
+                .Distinct()
+                .ToList();
+
+            var heldSeatIds = _dbContext.seatHolds
+                .Where(h => h.EventOccurrenceId == eventOccurrenceId)
+                .Where(h => requestedSeatIds.Contains(h.SeatId))
+                .Select(h => h.SeatId)
+                .Distinct()
+                .ToList();
+
+            var unavailableSeatIds = bookedSeatIds
+                .Concat(heldSeatIds)
+                .Distinct()
+                .ToList();
+
+            return new SeatAvailabilityResponseDto
+            {
+                valid = unavailableSeatIds.Count == 0,
+                unavailableSeats = unavailableSeatIds
+            };
+        }
 
         private static SeatType ParseSeatType(string seatType)
         {
@@ -608,111 +650,5 @@ public SeatAvailabilityResponseDto getSeatAvailability(SeatAvailabilityRequestDt
                 UpdatedAtUtc = seat.UpdatedAtUtc
             };
         }
-<<<<<<<<< Temporary merge branch 1
-
-        public SeatMapDto GetSeatMap(string eventOccurrenceId)
-        {
-            EventOccurrence eventOccurrence = _dbContext.EventOccurrences.Where(e => e.Id == eventOccurrenceId).First();
-            Event @event = _dbContext.EventOccurrences.Where(e => e.Id == eventOccurrenceId).First()?.Event;
-            if (eventOccurrence == null)
-            {
-                throw new EventNotFoundException("Invalid eventOccurrenceId: " + eventOccurrenceId);
-            }
-
-            Dictionary<string, decimal> seatPrices = new Dictionary<string, decimal>();
-            List<EventSeatOverride> eventSeatOverrides = _dbContext.EventSeatOverrides.Where(e => e.EventId == @event.Id).ToList();
-            List<OccurrenceSeatOverride> occurrenceSeatOverrides = _dbContext.OccurrenceSeatOverrides.Where(o => o.Occurrence.Id == eventOccurrence.Id).ToList();
-            HashSet<string> sectors = new HashSet<string>();
-
-            foreach (var occurrenceSeatOverride in occurrenceSeatOverrides)
-            {
-                if (occurrenceSeatOverride.PriceOverride != null)
-                {
-                    seatPrices[occurrenceSeatOverride.SeatId] = occurrenceSeatOverride.PriceOverride.Value;
-                }
-            }
-
-            foreach (var eventSeatOverride in eventSeatOverrides)
-            {
-                if (!sectors.Contains(eventSeatOverride.Seat.Sector.Name))
-                {
-                    sectors.Add(eventSeatOverride.Seat.Sector.Name);
-                }
-
-                if (seatPrices.ContainsKey(eventSeatOverride.SeatId))
-                {
-                    continue;
-                }
-
-                if (eventSeatOverride.PriceOverride != null)
-                {
-                    seatPrices.Add(eventSeatOverride.SeatId, eventSeatOverride.PriceOverride.Value);
-                }
-                else if (eventSeatOverride.Seat.PriceOverride != null)
-                {
-                    seatPrices.Add(eventSeatOverride.SeatId, eventSeatOverride.Seat.PriceOverride.Value);
-                }
-                else
-                {
-                    seatPrices.Add(eventSeatOverride.SeatId, eventSeatOverride.Seat.Sector.BasePrice);                 
-                }
-            }  
-            
-            List<SeatDetailsDto> seatDeatails = new List<SeatDetailsDto>();
-            foreach (var eventSeatOverride in eventSeatOverrides)
-            {
-                string status;
-                if (_dbContext.ReservationSeats.Count(r => r.SeatId == eventSeatOverride.SeatId) > 0)
-                {
-                    status = "Booked";
-                }
-                else if (_dbContext.seatHolds.Count(s => s.SeatId == eventSeatOverride.SeatId) > 0)
-                {
-                    status = "Reserved";
-                }
-                else
-                {
-                    status = "Available";
-                }
-                decimal finalPrice = seatPrices[eventSeatOverride.SeatId];
-                SeatDetailsDto seatDetails = MapSeatDetailsDto(eventSeatOverride, finalPrice, status);
-                seatDeatails.Add(seatDetails);
-            }
-
-            SeatMapDto seatMapDto = new SeatMapDto();
-            seatMapDto.sectors = sectors.ToList();
-            seatMapDto.seats = seatDeatails;
-
-            return seatMapDto;
-        }
-
-        public SeatAvailabilityResponseDto getSeatAvailability(SeatAvailabilityRequestDto request)
-        {
-            if (_dbContext.EventOccurrences.Find(request.eventOccurrenceId) == null)
-            {
-                throw new EventNotFoundException($"EventOccurrence with this id_ {request.eventOccurrenceId} could not be found");
-            }
-            List<ReservationSeat> reservationSeats = _dbContext.ReservationSeats.Where(rs => request.seatIds.Contains(rs.SeatId)).ToList();
-            SeatAvailabilityResponseDto responseDto = new SeatAvailabilityResponseDto();
-            responseDto.valid = reservationSeats.Count == 0;
-            responseDto.unavailableSeats = reservationSeats.Select(rs => rs.Id).ToList();
-            return responseDto;
-        }
-
-        public SeatDetailsDto MapSeatDetailsDto(EventSeatOverride eventSeatOverride, decimal finalPrice, string status)
-        {
-            SeatDetailsDto seatDetailsDto = new SeatDetailsDto();
-            seatDetailsDto.seatId = eventSeatOverride.SeatId;
-            seatDetailsDto.row = eventSeatOverride.Seat.Row;
-            seatDetailsDto.column = eventSeatOverride.Seat.Column;
-            seatDetailsDto.sector = eventSeatOverride.Seat.Sector.Name;
-            seatDetailsDto.price = finalPrice;
-            seatDetailsDto.status = status;
-
-            return seatDetailsDto;
-
-        }
-=========
->>>>>>>>> Temporary merge branch 2
     }
 }
