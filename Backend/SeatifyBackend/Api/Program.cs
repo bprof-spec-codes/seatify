@@ -87,9 +87,10 @@ namespace Api
             builder.Services.AddScoped<ILayoutMatrixService, LayoutMatrixService>();
             builder.Services.AddScoped<Logic.Services.IEventService, EventService>();
             builder.Services.AddScoped<ISeatOverrideService, SeatOverrideService>();
+            builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
+            builder.Services.AddScoped<ICheckInService, CheckInService>();
 builder.Services.AddScoped<QrService>();
-builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 
 builder.Services.AddAuthentication(options =>
 {
