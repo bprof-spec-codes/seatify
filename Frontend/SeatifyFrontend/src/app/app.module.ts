@@ -26,6 +26,7 @@ import { AuditoriumFormComponent } from './pages/auditorium-form/auditorium-form
 import { EventOccurrenceFormComponent } from './pages/event-occurrence-form/event-occurrence-form.component';
 import { EventFormComponent } from './pages/event-form/event-form.component';
 import { CheckinModalComponent } from './components/checkin-modal/checkin-modal.component';
+import { authInterceptor } from './interceptors/auth.interceptor';
 
 @NgModule({
   declarations: [
@@ -60,7 +61,7 @@ import { CheckinModalComponent } from './components/checkin-modal/checkin-modal.
     FormsModule,
   ],
   providers: [
-    provideHttpClient(withInterceptors([]))
+    provideHttpClient(withInterceptors([authInterceptor]))
   ],
   bootstrap: [AppComponent]
 })
