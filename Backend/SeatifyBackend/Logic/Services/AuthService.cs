@@ -67,6 +67,11 @@ namespace Logic.Services
                 throw new ArgumentException("Request body is required.");
             }
 
+            if (dto.Password != dto.ConfirmPassword)
+            {
+                throw new ArgumentException("Password confirmation does not match the password.");
+            }
+
             var normalizedEmail = dto.Email.Trim().ToLowerInvariant();
 
             var emailExists = await _dbContext.Organizers.AnyAsync(o => o.Email.ToLower() == normalizedEmail, ct);

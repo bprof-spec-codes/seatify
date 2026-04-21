@@ -14,6 +14,10 @@ namespace Entities.Dtos.Auth
         public string Password { get; set; } = string.Empty;
 
         [Required]
+        [Compare(nameof(Password), ErrorMessage = "Password confirmation does not match the password.")]
+        public string ConfirmPassword { get; set; } = string.Empty;
+
+        [Required]
         [StringLength(100)]
         public string Name { get; set; } = string.Empty;
     }
