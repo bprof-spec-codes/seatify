@@ -4,11 +4,6 @@ using Entities.Dtos.Reservation;
 using Entities.Models;
 using Logic.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Logic.Services
 {
@@ -81,20 +76,20 @@ namespace Logic.Services
                 DoorsOpenAtUtc = occurrence.DoorsOpenAtUtc,
                 Status = occurrence.Status,
 
-                Event = occurrence.Event != null ? new EventViewDto
+                Event = occurrence.Event != null ? new EventOccurrenceEventDto
                 {
                     Id = occurrence.Event.Id,
                     Name = occurrence.Event.Name,
                     Description = occurrence.Event.Description
                 } : null!,
 
-                Venue = occurrence.Venue != null ? new VenueViewDto
+                Venue = occurrence.Venue != null ? new EventOccurrenceVenueDto
                 {
                     Id = occurrence.Venue.Id,
                     Name = occurrence.Venue.Name
                 } : null!,
 
-                Auditorium = occurrence.Auditorium != null ? new AuditoriumViewDto
+                Auditorium = occurrence.Auditorium != null ? new EventOccurrenceAuditoriumDto
                 {
                     Id = occurrence.Auditorium.Id,
                     Name = occurrence.Auditorium.Name
