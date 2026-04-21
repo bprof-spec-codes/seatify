@@ -1,13 +1,3 @@
-using Entities.Models;
-﻿using Entities.Dtos.Auditorium;
-using Entities.Dtos.Venue;
-using Entities.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace Entities.Dtos.EventOccurrence
 {
     public class EventOccurrenceViewDto
@@ -23,25 +13,25 @@ namespace Entities.Dtos.EventOccurrence
         public DateTime BookingCloseAtUtc { get; set; }
         public DateTime? DoorsOpenAtUtc { get; set; }
         public string Status { get; set; } = string.Empty;
-        public EventViewDto Event { get; set; } = null!;
-        public VenueViewDto Venue { get; set; } = null!;
-        public AuditoriumViewDto Auditorium { get; set; } = null!;
+        public EventOccurrenceEventDto Event { get; set; } = null!;
+        public EventOccurrenceVenueDto Venue { get; set; } = null!;
+        public EventOccurrenceAuditoriumDto Auditorium { get; set; } = null!;
     }
 
-    public class EventViewDto
+    public class EventOccurrenceEventDto
     {
         public string Id { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
     }
 
-    public class VenueViewDto
+    public class EventOccurrenceVenueDto
     {
         public string Id { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
     }
 
-    public class AuditoriumViewDto
+    public class EventOccurrenceAuditoriumDto
     {
         public string Id { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;

@@ -1,5 +1,7 @@
 using Data;
+using Entities.Dtos.Exceptions;
 using Entities.Dtos.Seat;
+using Entities.Dtos.SeatMap;
 using Entities.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,6 +16,8 @@ namespace Logic.Services
         Task<SeatViewDto?> UpdateAsync(string seatId, SeatUpdateDto dto, CancellationToken ct);
         Task<bool> DeleteAsync(string seatId, CancellationToken ct);
         Task<BulkSeatUpdateResponseDto> BulkUpdateAsync(BulkSeatUpdateDto dto, CancellationToken ct);
+        SeatMapDto GetSeatMap(string eventOccurrenceId);
+        SeatAvailabilityResponseDto GetSeatAvailability(SeatAvailabilityRequestDto seatAvailabilityRequestDto);
     }
 
     public class SeatService : ISeatService
@@ -45,7 +49,6 @@ namespace Logic.Services
                 }
             }
 
-            // 1) MatrixId-k ellenőrzése
             var matrixIds = dtos
                 .Select(x => x.MatrixId.Trim())
                 .Distinct()
@@ -62,7 +65,6 @@ namespace Logic.Services
                 throw new ArgumentException($"LayoutMatrix not found: {missingMatrixId}");
             }
 
-            // 2) SectorId-k ellenőrzése
             var sectorIds = dtos
                 .Where(x => !string.IsNullOrWhiteSpace(x.SectorId))
                 .Select(x => x.SectorId!.Trim())
@@ -83,7 +85,6 @@ namespace Logic.Services
                 }
             }
 
-            // 3) Duplikált pozíciók a requesten belül
             var duplicateInRequest = dtos
                 .GroupBy(x => new
                 {
@@ -99,7 +100,6 @@ namespace Logic.Services
                     $"Duplicate seat in request at MatrixId='{duplicateInRequest.Key.MatrixId}', Row={duplicateInRequest.Key.Row}, Column={duplicateInRequest.Key.Column}.");
             }
 
-            // 4) Duplikált pozíciók adatbázisban
             var existingSeats = await _dbContext.Seats
                 .Where(s => matrixIds.Contains(s.MatrixId))
                 .Select(s => new { s.MatrixId, s.Row, s.Column })
@@ -121,7 +121,6 @@ namespace Logic.Services
                 }
             }
 
-            // 5) Enum parse és entitások létrehozása
             var seatsToCreate = new List<Seat>();
 
             foreach (var dto in dtos)
@@ -249,27 +248,22 @@ namespace Logic.Services
             }
 
             var uniqueSeatIds = dto.SeatIds.Select(sid => sid.Trim()).Distinct().ToList();
-            Console.WriteLine($"BulkUpdate: Processing {uniqueSeatIds.Count} seats");
 
             var seatsToUpdate = await _dbContext.Seats
                 .Where(s => uniqueSeatIds.Contains(s.Id))
                 .ToListAsync(ct);
-
-            Console.WriteLine($"BulkUpdate: Found {seatsToUpdate.Count} seats in DB");
 
             if (seatsToUpdate.Count != uniqueSeatIds.Count)
             {
                 var foundIds = seatsToUpdate.Select(s => s.Id).ToList();
                 var missingIds = uniqueSeatIds.Except(foundIds).ToList();
                 var missingIdsStr = string.Join(", ", missingIds);
-                Console.WriteLine($"BulkUpdate FAILED: Some seats were not found: {missingIdsStr}");
                 throw new ArgumentException($"Some seats were not found: {missingIdsStr}");
             }
 
             var distinctMatrixIds = seatsToUpdate.Select(s => s.MatrixId).Distinct().ToList();
             if (distinctMatrixIds.Count > 1)
             {
-                Console.WriteLine("BulkUpdate FAILED: Multiple matrix IDs detected");
                 throw new ArgumentException("All selected seats must belong to the same layout matrix.");
             }
 
@@ -279,7 +273,6 @@ namespace Logic.Services
                 bool sectorExists = await _dbContext.Sectors.AnyAsync(s => s.Id == sectorId, ct);
                 if (!sectorExists)
                 {
-                    Console.WriteLine($"BulkUpdate FAILED: Sector not found: {sectorId}");
                     throw new ArgumentException($"Sector not found: {sectorId}");
                 }
             }
@@ -292,60 +285,52 @@ namespace Logic.Services
 
             var updatedIds = new List<string>();
 
-            try
+            foreach (var seat in seatsToUpdate)
             {
-                foreach (var seat in seatsToUpdate)
+                bool isModified = false;
+
+                if (!string.IsNullOrWhiteSpace(dto.SectorId))
                 {
-                    bool isModified = false;
-
-                    if (!string.IsNullOrWhiteSpace(dto.SectorId))
-                    {
-                        seat.SectorId = dto.SectorId.Trim();
-                        isModified = true;
-                    }
-                    else if (dto.ClearSector)
-                    {
-                        seat.SectorId = null;
-                        isModified = true;
-                    }
-
-                    if (parsedSeatType.HasValue)
-                    {
-                        seat.SeatType = parsedSeatType.Value;
-                        isModified = true;
-                    }
-
-                    if (dto.PriceOverride.HasValue)
-                    {
-                        seat.PriceOverride = dto.PriceOverride.Value;
-                        isModified = true;
-                    }
-                    else if (dto.ClearPriceOverride)
-                    {
-                        seat.PriceOverride = null;
-                        isModified = true;
-                    }
-
-                    if (isModified)
-                    {
-                        seat.UpdatedAtUtc = DateTime.UtcNow;
-                        updatedIds.Add(seat.Id);
-                    }
+                    seat.SectorId = dto.SectorId.Trim();
+                    isModified = true;
+                }
+                else if (dto.ClearSector)
+                {
+                    seat.SectorId = null;
+                    isModified = true;
                 }
 
-                await _dbContext.SaveChangesAsync(ct);
-
-                return new BulkSeatUpdateResponseDto
+                if (parsedSeatType.HasValue)
                 {
-                    UpdatedCount = updatedIds.Count,
-                    UpdatedSeatIds = updatedIds
-                };
+                    seat.SeatType = parsedSeatType.Value;
+                    isModified = true;
+                }
+
+                if (dto.PriceOverride.HasValue)
+                {
+                    seat.PriceOverride = dto.PriceOverride.Value;
+                    isModified = true;
+                }
+                else if (dto.ClearPriceOverride)
+                {
+                    seat.PriceOverride = null;
+                    isModified = true;
+                }
+
+                if (isModified)
+                {
+                    seat.UpdatedAtUtc = DateTime.UtcNow;
+                    updatedIds.Add(seat.Id);
+                }
             }
-            catch (Exception ex)
+
+            await _dbContext.SaveChangesAsync(ct);
+
+            return new BulkSeatUpdateResponseDto
             {
-                Console.WriteLine($"BulkUpdate CRASHED in SaveChanges: {ex}");
-                throw;
-            }
+                UpdatedCount = updatedIds.Count,
+                UpdatedSeatIds = updatedIds
+            };
         }
 
         public async Task<SeatViewDto?> UpdateAsync(string seatId, SeatUpdateDto dto, CancellationToken ct)
@@ -416,6 +401,225 @@ namespace Logic.Services
             await _dbContext.SaveChangesAsync(ct);
 
             return true;
+        }
+
+        public SeatMapDto GetSeatMap(string eventOccurrenceId)
+        {
+            if (string.IsNullOrWhiteSpace(eventOccurrenceId))
+            {
+                throw new ArgumentException("eventOccurrenceId is required.");
+            }
+
+            eventOccurrenceId = eventOccurrenceId.Trim();
+
+            var eventOccurrence = _dbContext.EventOccurrences
+                .AsNoTracking()
+                .FirstOrDefault(e => e.Id == eventOccurrenceId);
+
+            if (eventOccurrence == null)
+            {
+                throw new EventNotFoundException("Invalid eventOccurrenceId: " + eventOccurrenceId);
+            }
+
+            var matrixIds = _dbContext.LayoutMatrices
+                .AsNoTracking()
+                .Where(m => m.AuditoriumId == eventOccurrence.AuditoriumId)
+                .Select(m => m.Id)
+                .ToList();
+
+            var seats = _dbContext.Seats
+                .AsNoTracking()
+                .Include(s => s.Sector)
+                .Where(s => matrixIds.Contains(s.MatrixId))
+                .OrderBy(s => s.MatrixId)
+                .ThenBy(s => s.Row)
+                .ThenBy(s => s.Column)
+                .ToList();
+
+            var seatIds = seats.Select(s => s.Id).ToList();
+
+            var eventSeatOverrides = _dbContext.EventSeatOverrides
+                .AsNoTracking()
+                .Include(o => o.Sector)
+                .Where(o => o.EventId == eventOccurrence.EventId && seatIds.Contains(o.SeatId))
+                .ToList();
+
+            var occurrenceSeatOverrides = _dbContext.OccurrenceSeatOverrides
+                .AsNoTracking()
+                .Include(o => o.Sector)
+                .Where(o => o.OccurrenceId == eventOccurrenceId && seatIds.Contains(o.SeatId))
+                .ToList();
+
+            var reservations = _dbContext.Reservations
+                .AsNoTracking()
+                .Include(r => r.ReservationSeats)
+                .Where(r => r.EventOccurrenceId == eventOccurrenceId)
+                .ToList();
+
+            var holds = _dbContext.seatHolds
+                .AsNoTracking()
+                .Where(h => h.EventOccurrenceId == eventOccurrenceId)
+                .ToList();
+
+            var eventOverrideMap = eventSeatOverrides.ToDictionary(x => x.SeatId, x => x);
+            var occurrenceOverrideMap = occurrenceSeatOverrides.ToDictionary(x => x.SeatId, x => x);
+
+            var bookedSeatIds = reservations
+                .SelectMany(r => r.ReservationSeats)
+                .Select(rs => rs.SeatId)
+                .ToHashSet();
+
+            var heldSeatIds = holds
+                .Select(h => h.SeatId)
+                .ToHashSet();
+
+            var sectors = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var seatDetails = new List<SeatDetailsDto>();
+
+            foreach (var seat in seats)
+            {
+                eventOverrideMap.TryGetValue(seat.Id, out var eventOverride);
+                occurrenceOverrideMap.TryGetValue(seat.Id, out var occurrenceOverride);
+
+                var effectiveSectorName =
+                    occurrenceOverride?.Sector?.Name
+                    ?? eventOverride?.Sector?.Name
+                    ?? seat.Sector?.Name
+                    ?? string.Empty;
+
+                if (!string.IsNullOrWhiteSpace(effectiveSectorName))
+                {
+                    sectors.Add(effectiveSectorName);
+                }
+
+                string status;
+                if (bookedSeatIds.Contains(seat.Id))
+                {
+                    status = "Booked";
+                }
+                else if (heldSeatIds.Contains(seat.Id))
+                {
+                    status = "Reserved";
+                }
+                else
+                {
+                    status = "Available";
+                }
+
+                var finalPrice = ResolveFinalPrice(seat, eventOverride, occurrenceOverride);
+
+                seatDetails.Add(new SeatDetailsDto
+                {
+                    seatId = seat.Id,
+                    row = seat.Row,
+                    column = seat.Column,
+                    sector = effectiveSectorName,
+                    price = finalPrice,
+                    status = status
+                });
+            }
+
+            return new SeatMapDto
+            {
+                sectors = sectors.OrderBy(x => x).ToList(),
+                seats = seatDetails
+            };
+        }
+
+        private static decimal ResolveFinalPrice(Seat seat, EventSeatOverride? eventOverride, OccurrenceSeatOverride? occurrenceOverride)
+        {
+            if (occurrenceOverride?.PriceOverride != null)
+            {
+                return occurrenceOverride.PriceOverride.Value;
+            }
+
+            if (eventOverride?.PriceOverride != null)
+            {
+                return eventOverride.PriceOverride.Value;
+            }
+
+            if (seat.PriceOverride != null)
+            {
+                return seat.PriceOverride.Value;
+            }
+
+            if (occurrenceOverride?.Sector?.BasePrice != null)
+            {
+                return occurrenceOverride.Sector.BasePrice;
+            }
+
+            if (eventOverride?.Sector?.BasePrice != null)
+            {
+                return eventOverride.Sector.BasePrice;
+            }
+
+            if (seat.Sector?.BasePrice != null)
+            {
+                return seat.Sector.BasePrice;
+            }
+
+            return 0m;
+        }
+
+        public SeatAvailabilityResponseDto GetSeatAvailability(SeatAvailabilityRequestDto request)
+        {
+            if (request == null)
+            {
+                throw new ArgumentException("Request is required.");
+            }
+
+            if (string.IsNullOrWhiteSpace(request.eventOccurrenceId))
+            {
+                throw new ArgumentException("eventOccurrenceId is required.");
+            }
+
+            if (request.seatIds == null || request.seatIds.Count == 0)
+            {
+                throw new ArgumentException("At least one seatId is required.");
+            }
+
+            var eventOccurrenceId = request.eventOccurrenceId.Trim();
+
+            var occurrenceExists = _dbContext.EventOccurrences
+                .Any(e => e.Id == eventOccurrenceId);
+
+            if (!occurrenceExists)
+            {
+                throw new EventNotFoundException(
+                    $"EventOccurrence with this id '{eventOccurrenceId}' could not be found");
+            }
+
+            var requestedSeatIds = request.seatIds
+                .Where(id => !string.IsNullOrWhiteSpace(id))
+                .Select(id => id.Trim())
+                .Distinct()
+                .ToList();
+
+            var bookedSeatIds = _dbContext.Reservations
+                .Where(r => r.EventOccurrenceId == eventOccurrenceId)
+                .SelectMany(r => r.ReservationSeats)
+                .Where(rs => requestedSeatIds.Contains(rs.SeatId))
+                .Select(rs => rs.SeatId)
+                .Distinct()
+                .ToList();
+
+            var heldSeatIds = _dbContext.seatHolds
+                .Where(h => h.EventOccurrenceId == eventOccurrenceId)
+                .Where(h => requestedSeatIds.Contains(h.SeatId))
+                .Select(h => h.SeatId)
+                .Distinct()
+                .ToList();
+
+            var unavailableSeatIds = bookedSeatIds
+                .Concat(heldSeatIds)
+                .Distinct()
+                .ToList();
+
+            return new SeatAvailabilityResponseDto
+            {
+                valid = unavailableSeatIds.Count == 0,
+                unavailableSeats = unavailableSeatIds
+            };
         }
 
         private static SeatType ParseSeatType(string seatType)
