@@ -561,18 +561,24 @@ namespace Logic.Services
             return 0m;
         }
 
-        public SeatAvailabilityResponseDto getSeatAvailability(SeatAvailabilityRequestDto request)
-        {
-            if (_dbContext.EventOccurrences.Find(request.eventOccurrenceId) == null)
-            {
-                throw new EventNotFoundException($"EventOccurrence with this id_ {request.eventOccurrenceId} could not be found");
-            }
-            List<ReservationSeat> reservationSeats = _dbContext.ReservationSeats.Where(rs => request.seatIds.Contains(rs.SeatId)).ToList();
-            SeatAvailabilityResponseDto responseDto = new SeatAvailabilityResponseDto();
-            responseDto.valid = reservationSeats.Count == 0;
-            responseDto.unavailableSeats = reservationSeats.Select(rs => rs.Id).ToList();
-            return responseDto;
-        }
+public SeatAvailabilityResponseDto getSeatAvailability(SeatAvailabilityRequestDto request)
+{
+    if (_dbContext.EventOccurrences.Find(request.eventOccurrenceId) == null)
+    {
+        throw new EventNotFoundException(
+            $"EventOccurrence with this id_ {request.eventOccurrenceId} could not be found");
+    }
+
+    List<ReservationSeat> reservationSeats = _dbContext.ReservationSeats
+        .Where(rs => request.seatIds.Contains(rs.SeatId))
+        .ToList();
+
+    return new SeatAvailabilityResponseDto
+    {
+        valid = reservationSeats.Count == 0,
+        unavailableSeats = reservationSeats.Select(rs => rs.Id).ToList()
+    };
+}
 
         private static SeatType ParseSeatType(string seatType)
         {
