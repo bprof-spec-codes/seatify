@@ -12,10 +12,12 @@ import { OrganizerDashboardComponent } from './pages/organizer-dashboard/organiz
 import { OrganizerLayoutComponent } from './pages/organizer-layout/organizer-layout.component';
 import { EventOccurrenceFormComponent } from './pages/event-occurrence-form/event-occurrence-form.component';
 import { EventFormComponent } from './pages/event-form/event-form.component';
+import { LoginPageComponent } from './pages/login-page/login-page.component';
 
 export const routes: Routes = [
   { path: '', component: LandingPageComponent },
   { path: 'landingpage', component: LandingPageComponent },
+  { path: 'login', component: LoginPageComponent},
 
   {
     path: 'dashboard',
@@ -30,13 +32,13 @@ export const routes: Routes = [
       { path: 'events/new', component: EventFormComponent },
       { path: 'events/:eventId/edit', component: EventFormComponent },
       { path: 'events/:eventId/occurrences/new', component: EventOccurrenceFormComponent },
-      { path: 'events/:eventId/occurrences/:id/edit', component: EventOccurrenceFormComponent }
+      { path: 'events/:eventId/occurrences/:id/edit', component: EventOccurrenceFormComponent },
     ]
   },
 
   { path: 'checkout', component: CheckoutComponent },
   { path: 'layout-matrix/:auditoriumId/editor', component: LayoutMatrixEditorComponent },
-  { path: '**', redirectTo: '' }
+  { path: '**', redirectTo: '' },
 ];
 
 @NgModule({

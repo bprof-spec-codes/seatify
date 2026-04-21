@@ -27,6 +27,7 @@ import { EventOccurrenceFormComponent } from './pages/event-occurrence-form/even
 import { EventFormComponent } from './pages/event-form/event-form.component';
 import { CheckinModalComponent } from './components/checkin-modal/checkin-modal.component';
 import { authInterceptor } from './interceptors/auth.interceptor';
+import { LoginPageComponent } from './pages/login-page/login-page.component';
 
 @NgModule({
   declarations: [
@@ -51,6 +52,7 @@ import { authInterceptor } from './interceptors/auth.interceptor';
     EventOccurrenceFormComponent,
     EventFormComponent,
     CheckinModalComponent,
+    LoginPageComponent,
   ],
   imports: [
     BrowserModule,

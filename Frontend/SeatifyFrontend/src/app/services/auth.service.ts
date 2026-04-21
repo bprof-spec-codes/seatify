@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, Observable, catchError, tap, throwError } from 'rxjs';
 import { environment } from '../../environments/environment';
-import {AuthResponse, CurrentUser, LoginRequest, RegisterRequest} from '../models/auth';
+import { AuthResponse, CurrentUser, LoginRequest, RegisterRequest } from '../models/auth';
 
 @Injectable({
   providedIn: 'root'
@@ -93,9 +93,13 @@ export class AuthService {
   }
 
   private handleError(error: HttpErrorResponse) {
+    console.error('Auth error:', error);
+    console.error('Auth error payload:', error.error);
+
     const message =
       error.error?.message ||
       error.error?.errorMessage ||
+      error.message ||
       'Unexpected error occurred.';
 
     return throwError(() => new Error(message));
