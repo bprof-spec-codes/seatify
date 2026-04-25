@@ -1,4 +1,4 @@
-﻿using Entities.Dtos.Bookings;
+using Entities.Dtos.Bookings;
 using Entities.Dtos.Exceptions;
 using Entities.Dtos.Reservation;
 using Logic.Interfaces;
@@ -62,17 +62,22 @@ namespace Api.Controllers
             return Ok(new { message = "Reservation deleted successfully." });
         }
         [HttpPost("api/bookings/checkout")]
-        public IActionResult CreateReservation([FromBody]BookingCheckoutRequestDto request)
+        public async Task<IActionResult> CreateReservation([FromBody]BookingCheckoutRequestDto request)
         {
             try
             {
-                return Ok(_service.CheckoutReservation(request));
+                var response = await _service.CheckoutReservation(request);
+                return Ok(response);
             }
             catch(EventOccurrenceNotFoundException e)
             {
                 return BadRequest(new { message = e.Message });
             }
             catch (BookingSessionNotFoundException e)
+            {
+                return BadRequest(new { message = e.Message });
+            }
+            catch (ArgumentException e)
             {
                 return BadRequest(new { message = e.Message });
             }

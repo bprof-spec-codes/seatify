@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,10 +8,19 @@ namespace Entities.Dtos.Bookings
 {
     public class BookingCheckoutResponseDto
     {
-        public string BookingId { get; set; }
-        public string EventId { get; set; }
-        public List<string> Seats { get; set; }
+        public string BookingId { get; set; } = string.Empty;
+        public string EventId { get; set; } = string.Empty;
+        public List<TicketDto> Tickets { get; set; } = new();
         public decimal TotalPrice { get; set; }
-        public string QrCodeBase64 { get; set; }
+        public string Currency { get; set; } = "EUR";
+        public string QrCodeBase64 { get; set; } = string.Empty;
+    }
+
+    public class TicketDto
+    {
+        public string SeatId { get; set; } = string.Empty;
+        public string SeatLabel { get; set; } = string.Empty;
+        public string QrCodeBase64 { get; set; } = string.Empty;
+        public decimal Price { get; set; }
     }
 }

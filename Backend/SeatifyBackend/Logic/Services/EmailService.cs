@@ -23,7 +23,8 @@ namespace Logic.Services
             string eventName,
             DateTime eventTime,
             IEnumerable<EmailTicketItem> tickets,
-            decimal totalPrice)
+            decimal totalPrice,
+            string currency)
         {
             var message = new EmailMessage();
             message.From = "Seatify <confirmation@seatify.hu>";
@@ -37,14 +38,12 @@ namespace Logic.Services
 
             foreach (var ticket in tickets)
             {
-                // Summary row
                 ticketRowsHtml.Append($@"
                 <tr>
                     <td style='padding: 12px; border-bottom: 1px solid #e2e8f0; text-align: left;'>{ticket.SeatLabel}</td>
-                    <td style='padding: 12px; border-bottom: 1px solid #e2e8f0; text-align: right;'>{ticket.Price:C}</td>
+                    <td style='padding: 12px; border-bottom: 1px solid #e2e8f0; text-align: right;'>{ticket.Price:N0} {currency}</td>
                 </tr>");
 
-                // QR section
                 qrSectionsHtml.Append($@"
                 <div class='qr-section'>
                     <p style='margin-top:0; color: #4a5568;'><strong>Check-In QR Code: {ticket.SeatLabel}</strong></p>
@@ -53,7 +52,6 @@ namespace Logic.Services
                 </div>");
             }
 
-            // Build beautifully styled HTML email template
             message.HtmlBody = $@"
 <!DOCTYPE html>
 <html>
@@ -97,11 +95,13 @@ namespace Logic.Services
             border-collapse: collapse;
             margin: 24px 0;
         }}
-        .summary-header td {{
+        .summary-header {{
             color: #718096;
             font-weight: 600;
-            padding: 12px;
-            border-bottom: 2px solid #cbd5e0;
+        }}
+        .summary-header td {{
+           padding: 12px;
+           border-bottom: 2px solid #cbd5e0;
         }}
         .total-row td {{
             font-weight: bold;
@@ -147,7 +147,7 @@ namespace Logic.Services
                 {ticketRowsHtml}
                 <tr class='total-row'>
                     <td style='text-align: right;'>Total Price:</td>
-                    <td style='text-align: right;'>{totalPrice:C}</td>
+                    <td style='text-align: right;'>{totalPrice:N0} {currency}</td>
                 </tr>
             </table>
 
