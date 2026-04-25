@@ -1,0 +1,46 @@
+.public-booking-container
+  min-height: 100vh
+  display: flex
+  flex-direction: column
+  background-color: var(--surface-color, #f8f9fa)
+  color: var(--text-color, #212529)
+
+.public-booking-header
+  background-color: var(--primary-color, #0d6efd)
+  color: #ffffff
+  padding: 1rem 2rem
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1)
+
+  .header-content
+    max-width: 1200px
+    margin: 0 auto
+    display: flex
+    align-items: center
+    gap: 1rem
+
+  .organizer-logo
+    height: 48px
+    border-radius: 4px
+    object-fit: contain
+    background: white // Ensure visibility if logo has transparent bg
+
+  .event-title
+    margin: 0
+    font-size: 1.5rem
+    font-weight: 600
+
+.public-booking-main
+  flex: 1
+  max-width: 1200px
+  margin: 0 auto
+  width: 100%
+  padding: 2rem
+
+.status-message
+  padding: 2rem
+  text-align: center
+  font-size: 1.25rem
+  color: var(--text-muted, #6c757d)
+
+  &.error-message
+    color: var(--error-color, #dc3545)

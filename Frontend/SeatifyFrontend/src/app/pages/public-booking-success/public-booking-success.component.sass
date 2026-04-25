@@ -1,0 +1,64 @@
+.success-container
+  max-width: 900px
+  margin: 0 auto
+  animation: slideUp 0.6s ease-out
+
+.success-header
+  text-align: center
+  margin-bottom: 4rem
+  
+  .success-icon
+    font-size: 5.5rem
+    color: #00b894
+    margin-bottom: 1rem
+    
+  h1
+    font-weight: 900
+    color: var(--text-color, #2d3436)
+    letter-spacing: -1px
+  
+  .status-msg
+    font-size: 1.2rem
+    color: #636e72
+
+.ticket-card
+  border: none
+  border-radius: 16px
+  overflow: hidden
+  page-break-inside: avoid
+  
+  .bg-light
+    background-color: #f8f9fa !important
+
+.ticket-qr
+  width: 130px
+  height: 130px
+  mix-blend-mode: multiply
+
+.fw-mono
+  font-family: monospace
+
+@media print
+  .no-print
+    display: none !important
+  
+  body
+    background: white !important
+  
+  .success-container
+    width: 100%
+    max-width: 100%
+    margin: 0
+  
+  .ticket-card
+    box-shadow: none !important
+    border: 1px solid #eee !important
+    margin-bottom: 2rem !important
+
+@keyframes slideUp
+  from
+    opacity: 0
+    transform: translateY(30px)
+  to
+    opacity: 1
+    transform: translateY(0)

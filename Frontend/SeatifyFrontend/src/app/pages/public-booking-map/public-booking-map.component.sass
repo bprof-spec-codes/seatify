@@ -1,0 +1,127 @@
+.map-container
+  animation: fadeIn 0.5s ease-in-out
+
+.map-card
+  border: none
+  border-radius: 16px
+
+.map-header
+  text-align: center
+  h2
+    font-weight: 800
+    color: var(--text-color, #2d3436)
+  .subtitle
+    color: #636e72
+
+.stage-container
+  display: flex
+  justify-content: center
+  margin-bottom: 2rem
+
+.stage
+  width: 50%
+  background: #dfe6e9
+  color: #636e72
+  padding: 0.5rem
+  text-align: center
+  font-weight: 700
+  letter-spacing: 3px
+  border-radius: 0 0 40px 40px
+  box-shadow: inset 0 -4px 10px rgba(0,0,0,0.05)
+
+.grid-wrapper
+  overflow-x: auto
+  padding: 2rem
+  background: #f1f2f6
+  border-radius: 12px
+  display: flex
+  justify-content: center
+
+.seat-grid
+  display: grid
+  gap: 6px
+  min-width: fit-content
+
+.grid-cell
+  width: 30px
+  height: 30px
+  display: flex
+  align-items: center
+  justify-content: center
+  font-size: 0.65rem
+  border-radius: 4px
+  cursor: default
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1)
+  user-select: none
+  border: 1px solid transparent
+
+  &.is-seat
+    border-color: #dfe6e9
+    cursor: pointer
+    &:hover
+      transform: scale(1.15)
+      z-index: 10
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1)
+  
+  &.is-aisle
+    background: transparent !important
+
+  &.is-booked
+    cursor: not-allowed
+    color: #fff
+    &:hover
+      transform: none
+
+  &.is-selected
+    color: #ffffff
+    transform: scale(1.1)
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2)
+
+.seat-label
+  font-weight: 600
+
+.sidebar-info
+  border: none
+  border-radius: 16px
+  position: sticky
+  top: 2rem
+
+.color-box
+  width: 14px
+  height: 14px
+  border-radius: 3px
+  border: 1px solid #dfe6e9
+
+.legend-item
+  display: flex
+  align-items: center
+  font-size: 0.9rem
+  color: #636e72
+  margin-bottom: 0.5rem
+  
+  .box
+    width: 14px
+    height: 14px
+    border-radius: 3px
+    &.selected
+      background: var(--primary-color)
+    &.occupied
+      background: #b2bec3
+    &.aisle
+      border: 1px dashed #b2bec3
+
+.loading-state
+  display: flex
+  flex-direction: column
+  align-items: center
+  justify-content: center
+  padding: 5rem
+  gap: 1rem
+
+@keyframes fadeIn
+  from
+    opacity: 0
+    transform: translateY(10px)
+  to
+    opacity: 1
+    transform: translateY(0)

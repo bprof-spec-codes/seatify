@@ -36,6 +36,10 @@ export class EventService {
     return this.http.get<SeatifyEvent>(`${this.apiUrl}/events/${id}`);
   }
 
+  getEventBySlug(slug: string): Observable<SeatifyEvent> {
+    return this.http.get<SeatifyEvent>(`${this.apiUrl}/events/public/slug/${slug}`);
+  }
+
   getOccurrenceById(id: string): Observable<EventOccurrence> {
     return this.http.get<EventOccurrence>(`${this.eventOccurrencesApiUrl}/${id}`);
   }

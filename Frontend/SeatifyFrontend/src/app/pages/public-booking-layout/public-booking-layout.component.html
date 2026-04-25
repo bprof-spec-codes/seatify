@@ -1,0 +1,19 @@
+<div class="public-booking-container">
+  <header class="public-booking-header">
+    <div class="header-content">
+      <img *ngIf="logoUrl" [src]="logoUrl" alt="Organizer Logo" class="organizer-logo" />
+      <h1 class="event-title">{{ eventName }}</h1>
+    </div>
+  </header>
+
+  <main class="public-booking-main" *ngIf="!isLoading && !errorMessage">
+    <router-outlet></router-outlet>
+  </main>
+
+  <div class="status-message" *ngIf="isLoading">
+    Töltés...
+  </div>
+  <div class="status-message error-message" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </div>
+</div>
