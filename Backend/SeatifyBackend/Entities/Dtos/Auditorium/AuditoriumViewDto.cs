@@ -12,6 +12,8 @@ public class AuditoriumViewDto
     public string Name { get; set; } = string.Empty;
 
     public string? Description { get; set; } = string.Empty;
+    
+    public string Currency { get; set; } = "HUF";
 
     public List<LayoutMatrixViewDto> LayoutMatrices { get; set; } = new();
 

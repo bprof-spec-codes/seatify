@@ -16,6 +16,7 @@ namespace Entities.Dtos.SeatOverride
         public string? SectorId { get; set; }
         public string? SeatType { get; set; }
         public decimal? PriceOverride { get; set; }
+        public decimal FinalPrice { get; set; }
 
         // Honnan jön az érték?
         public string SectorSource { get; set; } = "auditorium";      // "auditorium" | "event" | "occurrence"

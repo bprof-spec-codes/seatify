@@ -12,6 +12,7 @@ namespace Entities.Dtos.EventOccurrence
         public DateTime BookingOpenAtUtc { get; set; }
         public DateTime BookingCloseAtUtc { get; set; }
         public DateTime? DoorsOpenAtUtc { get; set; }
+        public string? CurrencyOverride { get; set; }
         public string Status { get; set; } = string.Empty;
         public EventOccurrenceEventDto Event { get; set; } = null!;
         public EventOccurrenceVenueDto Venue { get; set; } = null!;
@@ -23,6 +24,10 @@ namespace Entities.Dtos.EventOccurrence
         public string Id { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
+        public string PrimaryColor { get; set; } = string.Empty;
+        public string SecondaryColor { get; set; } = string.Empty;
+        public string LogoImageUrl { get; set; } = string.Empty;
+        public string? Currency { get; set; }
     }
 
     public class EventOccurrenceVenueDto
