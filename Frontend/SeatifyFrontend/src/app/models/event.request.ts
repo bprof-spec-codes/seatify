@@ -4,4 +4,5 @@ export default interface EventRequest {
   name: string;
   description: string;
   status: string;
+  currency?: string;
 }
