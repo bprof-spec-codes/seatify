@@ -40,7 +40,8 @@ export class EventOccurrenceFormComponent implements OnInit {
       bookingOpenAt: ['', Validators.required],
       bookingCloseAt: ['', Validators.required],
       hasDoorsOpenTime: [false],
-      doorsOpenAt: [{ value: '', disabled: true }]
+      doorsOpenAt: [{ value: '', disabled: true }],
+      currencyOverride: ['']
     });
   }
 
@@ -75,7 +76,8 @@ export class EventOccurrenceFormComponent implements OnInit {
               bookingOpenAt: this.formatDateForInput(occ.bookingOpenAtUtc),
               bookingCloseAt: this.formatDateForInput(occ.bookingCloseAtUtc),
               hasDoorsOpenTime: !!occ.doorsOpenAtUtc,
-              doorsOpenAt: occ.doorsOpenAtUtc ? this.formatDateForInput(occ.doorsOpenAtUtc) : ''
+              doorsOpenAt: occ.doorsOpenAtUtc ? this.formatDateForInput(occ.doorsOpenAtUtc) : '',
+              currencyOverride: occ.currencyOverride || ''
             });
 
             if (occ.doorsOpenAtUtc) {
@@ -138,6 +140,7 @@ export class EventOccurrenceFormComponent implements OnInit {
       bookingOpenAtUtc: new Date(val.bookingOpenAt).toISOString(),
       bookingCloseAtUtc: new Date(val.bookingCloseAt).toISOString(),
       doorsOpenAtUtc: val.hasDoorsOpenTime && val.doorsOpenAt ? new Date(val.doorsOpenAt).toISOString() : null,
+      currencyOverride: val.currencyOverride || null,
       status: 'Published'
     };
 

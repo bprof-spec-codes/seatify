@@ -1,0 +1,80 @@
+<div class="checkout-container" *ngIf="occ">
+  <div class="row">
+    <div class="col-lg-7">
+      <div class="card checkout-card shadow-sm">
+        <div class="card-body p-4">
+          <h2 class="card-title h3 mb-4">Your Contact Information</h2>
+          <form [formGroup]="checkoutForm" (ngSubmit)="onSubmit()">
+            <div class="mb-3">
+              <label class="form-label">Email Address <span class="text-danger">*</span></label>
+              <input type="email" class="form-control form-control-lg" formControlName="email" placeholder="e.g. john.doe@example.com">
+              <div class="text-danger small mt-1" *ngIf="f['email'].touched && f['email'].errors">
+                Please provide a valid email address.
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Full Name (optional)</label>
+                <input type="text" class="form-control" formControlName="fullName" placeholder="e.g. John Doe">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Phone Number (optional)</label>
+                <input type="tel" class="form-control" formControlName="phone" placeholder="+36 ...">
+              </div>
+            </div>
+
+            <div class="alert alert-danger" *ngIf="errorMessage">
+              {{ errorMessage }}
+            </div>
+
+            <div class="mt-4">
+              <button type="submit" class="btn btn-primary btn-lg w-100 checkout-btn" [disabled]="isSubmitting">
+                <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2"></span>
+                {{ isSubmitting ? 'Processing Order...' : 'Complete Reservation' }}
+              </button>
+            </div>
+            
+            <p class="text-muted small text-center mt-3">
+              By clicking complete, you agree to our Terms of Service and Privacy Policy.
+            </p>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-5">
+      <div class="card summary-card shadow-sm">
+        <div class="card-body p-4">
+          <h3 class="card-title h5 mb-4">Order Summary</h3>
+          
+          <div class="event-mini-info mb-4">
+            <h4 class="h6 mb-2">{{ occ.event.name }}</h4>
+            <div class="text-muted small d-flex align-items-center mb-1">
+              <i class="bi bi-calendar-event me-2"></i> {{ occ.startsAtUtc | date:'fullDate' }} at {{ occ.startsAtUtc | date:'shortTime' }}
+            </div>
+            <div class="text-muted small d-flex align-items-center">
+              <i class="bi bi-geo-alt me-2"></i> {{ occ.venue.name }}, {{ occ.auditorium.name }}
+            </div>
+          </div>
+
+          <div class="selected-seats-list">
+            <div class="seat-item d-flex justify-content-between py-2 border-bottom border-light" *ngFor="let seat of selectedSeats">
+              <span class="seat-label">Seat <strong>{{ seat.seatLabel }}</strong></span>
+              <span class="seat-price fw-bold">{{ seat.price | number:'1.0-0' }} {{ currency }}</span>
+            </div>
+          </div>
+
+          <div class="total-row d-flex justify-content-between align-items-center mt-4">
+            <span class="h6 mb-0">Total Amount:</span>
+            <span class="h3 mb-0 fw-bolder text-primary">{{ totalPrice | number:'1.0-0' }} {{ currency }}</span>
+          </div>
+        </div>
+      </div>
+      
+      <button class="btn btn-link mt-3 text-decoration-none" (click)="goBack()">
+        <i class="bi bi-arrow-left me-2"></i> Back to seat selection
+      </button>
+    </div>
+  </div>
+</div>

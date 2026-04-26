@@ -6,9 +6,9 @@ namespace Logic.Interfaces
 {
     public class EmailTicketItem
     {
-        public string SeatLabel { get; set; }
+        public string SeatLabel { get; set; } = string.Empty;
         public decimal Price { get; set; }
-        public string QrCodeBase64 { get; set; }
+        public string QrCodeBase64 { get; set; } = string.Empty;
     }
 
     public interface IEmailService
@@ -19,6 +19,7 @@ namespace Logic.Interfaces
             string eventName,
             DateTime eventTime,
             IEnumerable<EmailTicketItem> tickets,
-            decimal totalPrice);
+            decimal totalPrice,
+            string currency);
     }
 }

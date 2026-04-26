@@ -29,6 +29,10 @@ import { CheckinModalComponent } from './components/checkin-modal/checkin-modal.
 import { authInterceptor } from './interceptors/auth.interceptor';
 import { LoginPageComponent } from './pages/login-page/login-page.component';
 import { RegisterPageComponent } from './pages/register-page/register-page.component';
+import { PublicBookingLayoutComponent } from './pages/public-booking-layout/public-booking-layout.component';
+import { PublicBookingMapComponent } from './pages/public-booking-map/public-booking-map.component';
+import { PublicBookingCheckoutComponent } from './pages/public-booking-checkout/public-booking-checkout.component';
+import { PublicBookingSuccessComponent } from './pages/public-booking-success/public-booking-success.component';
 
 @NgModule({
   declarations: [
@@ -55,6 +59,10 @@ import { RegisterPageComponent } from './pages/register-page/register-page.compo
     CheckinModalComponent,
     LoginPageComponent,
     RegisterPageComponent,
+    PublicBookingLayoutComponent,
+    PublicBookingMapComponent,
+    PublicBookingCheckoutComponent,
+    PublicBookingSuccessComponent,
   ],
   imports: [
     BrowserModule,

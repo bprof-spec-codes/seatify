@@ -33,7 +33,8 @@ export class AuditoriumFormComponent implements OnInit, OnDestroy {
 
     this.auditoriumForm = this.fb.group({
       auditoriumName: ['', [Validators.required, Validators.maxLength(100)]],
-      auditoriumDescription: ['', [Validators.maxLength(500)]]
+      auditoriumDescription: ['', [Validators.maxLength(500)]],
+      currency: ['HUF', [Validators.required, Validators.maxLength(10)]]
     });
 
     this.auditoriumService.editMode$.pipe(takeUntil(this.unsubscribe$)).subscribe(editMode => {
@@ -57,6 +58,7 @@ export class AuditoriumFormComponent implements OnInit, OnDestroy {
         venueId: this.venueId,
         name: this.auditoriumForm.value.auditoriumName,
         description: this.auditoriumForm.value.auditoriumDescription,
+        currency: this.auditoriumForm.value.currency,
         createdAtUtc: this.editMode && this.auditorium ? this.auditorium.createdAtUtc : new Date(),
         updatedAtUtc: new Date()
       };
@@ -84,9 +86,9 @@ export class AuditoriumFormComponent implements OnInit, OnDestroy {
       this.auditorium = auditorium;
       this.auditoriumForm.patchValue({
         auditoriumName: this.auditorium.name,
-        auditoriumDescription: this.auditorium.description
+        auditoriumDescription: this.auditorium.description,
+        currency: this.auditorium.currency || 'HUF'
       });
     });
   }
 }
-

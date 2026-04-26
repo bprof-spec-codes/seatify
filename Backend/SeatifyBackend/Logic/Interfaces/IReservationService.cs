@@ -1,4 +1,4 @@
-﻿using Entities.Dtos.Bookings;
+using Entities.Dtos.Bookings;
 using Entities.Dtos.Reservation;
 using System;
 using System.Collections.Generic;
@@ -15,6 +15,6 @@ namespace Logic.Interfaces
         public List<ReservationViewDto> GetByOccurrenceId(string eventOccurrenceId);
         public bool UpdateReservation(string id, ReservationUpdateDto dto);
         public bool DeleteReservation(string id);
-        public BookingCheckoutResponseDto CheckoutReservation(BookingCheckoutRequestDto request);
+        public Task<BookingCheckoutResponseDto> CheckoutReservation(BookingCheckoutRequestDto request);
     }
 }

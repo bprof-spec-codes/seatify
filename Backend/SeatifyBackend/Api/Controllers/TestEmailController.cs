@@ -37,7 +37,8 @@ namespace Api.Controllers
                     eventName: "Coldplay - Music of the Spheres",
                     eventTime: DateTime.UtcNow.AddDays(7),
                     tickets: tickets,
-                    totalPrice: 42500m
+                    totalPrice: 42500m,
+                    currency: "HUF"
                 );
 
                 return Ok(new { message = $"Test email sent successfully to {toEmail} from confirmation@seatify.hu!" });

@@ -25,6 +25,8 @@ namespace Entities.Models
 
         public DateTime? DoorsOpenAtUtc { get; set; }
 
+        public string? CurrencyOverride { get; set; }
+
         public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAtUtc { get; set; } = DateTime.UtcNow;
 

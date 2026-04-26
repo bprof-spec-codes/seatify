@@ -122,10 +122,25 @@ export class EventsPageComponent implements OnInit, OnDestroy {
     this.router.navigate(['/dashboard/events', event.id, 'occurrences', 'new']);
   }
 
-  viewPublicPage(event: EventCard, occurrence: EventCardOccurrence): void {
-    console.log('TODO: navigate to public occurrence page', {
-      slug: event.slug,
-      occurrenceId: occurrence.id
+  viewPublicPage(event: EventCard, occurrence: EventCardOccurrence, eventObj: MouseEvent): void {
+    eventObj.stopPropagation();
+    const url = this.router.serializeUrl(
+      this.router.createUrlTree(['/book', event.slug, occurrence.id])
+    );
+    window.open(url, '_blank');
+  }
+
+  copyPublicLink(event: EventCard, occurrence: EventCardOccurrence, eventObj: MouseEvent): void {
+    eventObj.stopPropagation();
+    const basePath = window.location.origin;
+    const path = this.router.serializeUrl(
+      this.router.createUrlTree(['/book', event.slug, occurrence.id])
+    );
+    const fullUrl = `${basePath}${path}`;
+    
+    navigator.clipboard.writeText(fullUrl).then(() => {
+      // Could show a toast notification here
+      alert('Link copied to clipboard!');
     });
   }
 }

@@ -43,11 +43,17 @@
               placeholder="Brief description of the auditorium..."
               [class.is-invalid]="auditoriumForm.get('auditoriumDescription')?.invalid && (auditoriumForm.get('auditoriumDescription')?.touched || auditoriumForm.get('auditoriumDescription')?.dirty)"
             ></textarea>
-            @if (auditoriumForm.get('auditoriumDescription')?.invalid && (auditoriumForm.get('auditoriumDescription')?.touched || auditoriumForm.get('auditoriumDescription')?.dirty)) {
-              <div class="error-text">
-                @if (auditoriumForm.get('auditoriumDescription')?.errors?.['maxlength']) { <span>Description is too long (max 500 characters)</span> }
-              </div>
-            }
+          </div>
+
+          <div class="form-field">
+            <label for="currency">Currency (e.g. HUF, EUR, USD)*</label>
+            <input 
+              type="text" 
+              id="currency" 
+              formControlName="currency" 
+              placeholder="HUF"
+              [class.is-invalid]="auditoriumForm.get('currency')?.invalid && (auditoriumForm.get('currency')?.touched || auditoriumForm.get('currency')?.dirty)"
+            >
           </div>
         </div>
       </div>

@@ -127,9 +127,17 @@
             <button
               type="button"
               class="btn btn-outline-secondary event-action-button"
-              (click)="viewPublicPage(event, selectedOccurrence)"
+              (click)="viewPublicPage(event, selectedOccurrence, $event)"
             >
               View Public Page
+            </button>
+            <button
+              type="button"
+              class="btn btn-outline-secondary event-action-button"
+              (click)="copyPublicLink(event, selectedOccurrence, $event)"
+              title="Copy public booking link"
+            >
+              <i class="bi bi-clipboard"></i>
             </button>
           </div>
         </div>

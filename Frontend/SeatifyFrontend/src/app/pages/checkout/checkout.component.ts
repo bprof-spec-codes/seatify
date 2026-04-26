@@ -47,12 +47,12 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     
     this.destroy$.add(
       this.bookingService.getActiveSession(sessionId).subscribe({
-        next: (session) => {
+        next: (session: any) => {
           this.session = session;
           this.calculateTotal(session.holds);
           this.isLoading = false;
         },
-        error: (err) => {
+        error: (err: any) => {
           this.errorMessage = 'Failed to load booking session. Please try again.';
           this.isLoading = false;
         }
@@ -81,14 +81,18 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     };
 
     this.destroy$.add(
-      this.reservationService.createReservation(request).subscribe({
-        next: (res) => {
+      this.reservationService.checkoutReservation({
+          ...request,
+          eventOccurrenceId: this.session.eventOccurrenceId,
+          seatIds: this.session.holds.map(h => h.seatId)
+      }).subscribe({
+        next: (res: any) => {
           this.isSubmitting = false;
           // In a real app we'd redirect to a success page with the reservation ID
           // this.router.navigate(['/booking-success', res.id]);
-          alert(`Reservation successful! ID: ${res.id}`);
+          alert(`Reservation successful! ID: ${res.bookingId}`);
         },
-        error: (err) => {
+        error: (err: any) => {
           this.errorMessage = 'Failed to create reservation. Please check your details and try again.';
           this.isSubmitting = false;
         }

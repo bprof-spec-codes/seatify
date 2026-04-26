@@ -14,6 +14,10 @@ import { EventOccurrenceFormComponent } from './pages/event-occurrence-form/even
 import { EventFormComponent } from './pages/event-form/event-form.component';
 import { LoginPageComponent } from './pages/login-page/login-page.component';
 import { RegisterPageComponent } from './pages/register-page/register-page.component';
+import { PublicBookingLayoutComponent } from './pages/public-booking-layout/public-booking-layout.component';
+import { PublicBookingMapComponent } from './pages/public-booking-map/public-booking-map.component';
+import { PublicBookingCheckoutComponent } from './pages/public-booking-checkout/public-booking-checkout.component';
+import { PublicBookingSuccessComponent } from './pages/public-booking-success/public-booking-success.component';
 
 export const routes: Routes = [
   { path: '', component: LandingPageComponent },
@@ -39,6 +43,15 @@ export const routes: Routes = [
   },
 
   { path: 'checkout', component: CheckoutComponent },
+  {
+    path: 'book/:slug/:occurrenceId',
+    component: PublicBookingLayoutComponent,
+    children: [
+      { path: '', component: PublicBookingMapComponent },
+      { path: 'checkout', component: PublicBookingCheckoutComponent },
+      { path: 'success', component: PublicBookingSuccessComponent }
+    ]
+  },
   { path: 'layout-matrix/:auditoriumId/editor', component: LayoutMatrixEditorComponent },
   { path: '**', redirectTo: '' },
 ];

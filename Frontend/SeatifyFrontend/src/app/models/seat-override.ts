@@ -11,6 +11,7 @@ export interface EffectiveSeat {
   sectorId: string | null;
   seatType: string;
   priceOverride: number | null;
+  finalPrice: number;
 
   // Honnan jön az érték
   sectorSource: OverrideSource;
