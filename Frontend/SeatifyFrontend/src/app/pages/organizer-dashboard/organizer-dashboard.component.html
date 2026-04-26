@@ -1,31 +1,237 @@
-<section class="dashboard-page">
-  <header class="page-header">
-    <div>
+<section
+  class="dashboard-page"
+  [ngStyle]="appearanceStyles"
+  [class.compact-dashboard]="appearance.density === 'compact'"
+  [class.glass-dashboard]="appearance.cardShape === 'glass'"
+  [class.solid-dashboard]="appearance.cardShape === 'solid'"
+>
+  <header class="dashboard-hero">
+    <div class="hero-content">
+      <span class="eyebrow">Organizer workspace</span>
+
       <h1 class="page-title">Dashboard</h1>
-      <p class="page-subtitle">Overview of your ticketing platform</p>
+
+      <p class="page-subtitle">
+        Manage events, venues, ticket check-in and the dashboard appearance from one place.
+      </p>
+
+      <div class="hero-actions">
+        <button type="button" class="primary-action" (click)="goToEvents()">
+          <i class="bi bi-calendar-plus"></i>
+          Manage Events
+        </button>
+
+        <button type="button" class="secondary-action" (click)="goToVenues()">
+          <i class="bi bi-building"></i>
+          Manage Venues
+        </button>
+      </div>
+    </div>
+
+    <div class="hero-preview-card">
+      <div class="preview-topline">
+        <span class="preview-dot"></span>
+        <span>Live appearance preview</span>
+      </div>
+
+      <div class="mini-event-card">
+        <div>
+          <p class="mini-label">Featured event</p>
+          <strong>Seatify Live Night</strong>
+        </div>
+
+        <span class="mini-status">Published</span>
+      </div>
+
+      <div class="mini-progress">
+        <span></span>
+      </div>
     </div>
   </header>
 
-  <div class="overview-grid">
-    <div class="surface-card stats-card">
-      <div class="stats-icon">
-        <i class="bi bi-calendar-event"></i>
+  <div class="status-card dashboard-card" *ngIf="isLoading">
+    <div class="spinner-border spinner-border-sm" role="status"></div>
+    <span>Loading organizer dashboard...</span>
+  </div>
+
+  <div class="status-card dashboard-card error-card" *ngIf="!isLoading && errorMessage">
+    <i class="bi bi-exclamation-triangle"></i>
+    <span>{{ errorMessage }}</span>
+  </div>
+
+  <div class="dashboard-grid" *ngIf="!isLoading">
+    <article
+      class="dashboard-card stat-card"
+      *ngFor="let stat of stats; trackBy: trackByStatLabel"
+      [class.clickable-card]="stat.label === 'Check-In'"
+      (click)="stat.label === 'Check-In' ? openCheckInModal(dashboardCheckinModal) : null"
+    >
+      <div class="stat-icon" [class]="'stat-icon tone-' + stat.tone">
+        <i class="bi" [ngClass]="stat.icon"></i>
       </div>
 
-      <div class="stats-value">{{ activeEventsCount }}</div>
-      <div class="stats-label">Active Events</div>
-    </div>
-
-    <div class="surface-card stats-card" style="cursor: pointer;" (click)="dashboardCheckinModal.openModal()">
-      <div class="stats-icon text-success">
-        <i class="bi bi-qr-code-scan"></i>
+      <div>
+        <p class="stat-label">{{ stat.label }}</p>
+        <strong class="stat-value">{{ stat.value }}</strong>
+        <p class="stat-helper">{{ stat.helper }}</p>
       </div>
-      <div class="stats-value">Scan</div>
-      <div class="stats-label">Ticket Check-In</div>
-    </div>
+    </article>
 
-    <div class="surface-card overview-panel top-panel"></div>
-    <div class="surface-card overview-panel bottom-panel"></div>
+    <article class="dashboard-card appearance-panel">
+      <div class="panel-header">
+        <div>
+          <span class="eyebrow">Appearance selector</span>
+          <h2>Choose dashboard style</h2>
+          <p>Pick a preset or tune the colors manually.</p>
+        </div>
+
+        <button type="button" class="text-button" (click)="resetAppearance()">
+          Reset
+        </button>
+      </div>
+
+      <div class="preset-grid">
+        <button
+          type="button"
+          class="preset-card"
+          *ngFor="let preset of appearancePresets; trackBy: trackByPresetId"
+          [class.active]="selectedPresetId === preset.id"
+          (click)="selectPreset(preset)"
+        >
+          <span class="preset-icon">
+            <i class="bi" [ngClass]="preset.icon"></i>
+          </span>
+
+          <span class="preset-content">
+            <strong>{{ preset.name }}</strong>
+            <small>{{ preset.description }}</small>
+          </span>
+
+          <span class="preset-colors">
+            <i [style.background]="preset.primaryColor"></i>
+            <i [style.background]="preset.accentColor"></i>
+            <i [style.background]="preset.backgroundColor"></i>
+          </span>
+        </button>
+      </div>
+    </article>
+
+    <article class="dashboard-card editor-panel">
+      <div class="panel-header">
+        <div>
+          <span class="eyebrow">Appearance editor</span>
+          <h2>Customize current theme</h2>
+          <p>Changes are saved locally in the browser.</p>
+        </div>
+      </div>
+
+      <div class="editor-grid">
+        <label class="color-field">
+          <span>Primary color</span>
+          <input
+            type="color"
+            [(ngModel)]="appearance.primaryColor"
+            (change)="updateAppearance()"
+          >
+        </label>
+
+        <label class="color-field">
+          <span>Accent color</span>
+          <input
+            type="color"
+            [(ngModel)]="appearance.accentColor"
+            (change)="updateAppearance()"
+          >
+        </label>
+
+        <label class="color-field">
+          <span>Background</span>
+          <input
+            type="color"
+            [(ngModel)]="appearance.backgroundColor"
+            (change)="updateAppearance()"
+          >
+        </label>
+
+        <label class="color-field">
+          <span>Card surface</span>
+          <input
+            type="color"
+            [(ngModel)]="appearance.surfaceColor"
+            (change)="updateAppearance()"
+          >
+        </label>
+
+        <label class="select-field">
+          <span>Card style</span>
+          <select
+            [(ngModel)]="appearance.cardShape"
+            (change)="updateAppearance()"
+          >
+            <option *ngFor="let option of cardShapeOptions" [value]="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+        </label>
+
+        <label class="select-field">
+          <span>Spacing</span>
+          <select
+            [(ngModel)]="appearance.density"
+            (change)="updateAppearance()"
+          >
+            <option *ngFor="let option of densityOptions" [value]="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+        </label>
+      </div>
+    </article>
+
+    <article class="dashboard-card upcoming-panel">
+      <div class="panel-header">
+        <div>
+          <span class="eyebrow">Schedule</span>
+          <h2>Upcoming events</h2>
+          <p>The next dates from your published event catalog.</p>
+        </div>
+      </div>
+
+      <div class="empty-state" *ngIf="upcomingEvents.length === 0">
+        <i class="bi bi-calendar-x"></i>
+
+        <div>
+          <strong>No upcoming dates</strong>
+          <p>Create an occurrence for an event to see it here.</p>
+        </div>
+      </div>
+
+      <div class="upcoming-list" *ngIf="upcomingEvents.length > 0">
+        <div
+          class="upcoming-item"
+          *ngFor="let item of upcomingEvents; trackBy: trackByUpcomingEvent"
+        >
+          <div class="date-box">
+            <strong>{{ item.occurrence.startsAtUtc | date:'dd' }}</strong>
+            <span>{{ item.occurrence.startsAtUtc | date:'MMM' }}</span>
+          </div>
+
+          <div class="upcoming-info">
+            <strong>{{ item.title }}</strong>
+            <span>
+              {{ item.venueName }}
+              <ng-container *ngIf="item.auditoriumName">
+                · {{ item.auditoriumName }}
+              </ng-container>
+            </span>
+          </div>
+
+          <span class="time-chip">
+            {{ item.occurrence.startsAtUtc | date:'HH:mm' }}
+          </span>
+        </div>
+      </div>
+    </article>
   </div>
 
   <app-checkin-modal #dashboardCheckinModal></app-checkin-modal>
