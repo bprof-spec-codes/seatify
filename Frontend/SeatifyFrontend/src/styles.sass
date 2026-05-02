@@ -1,4 +1,4 @@
-@use 'variables' as *
+@use '_variables' as *
 @import 'bootstrap-icons/font/bootstrap-icons.css'
 
 
@@ -8,3 +8,23 @@ body
   font-family: 'Inter', system-ui, sans-serif
   -webkit-font-smoothing: antialiased
   -moz-osx-font-smoothing: grayscale
+
+.surface-card
+  background: $color-light-50
+  border: 1px solid $color-light-200
+  border-radius: 20px
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.1)
+
+.text-secondary
+  color: $color-dark-600
+
+.text-muted
+  color: $color-dark-500 // Using a slightly darker gray for muted text
+
+.btn-outline-secondary
+  border-color: $color-light-400
+  color: $color-dark-700
+  &:hover
+    background-color: $color-light-100
+    border-color: $color-light-400
+    color: $color-dark-900

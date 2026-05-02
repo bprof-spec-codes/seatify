@@ -1,4 +1,4 @@
-﻿using Entities.Dtos.Event;
+using Entities.Dtos.Event;
 using Logic.Services;
 using Microsoft.AspNetCore.Mvc;
 using EventDto = Entities.Dtos.Event.EventViewDto;
@@ -150,6 +150,21 @@ namespace Api.Controllers
                     return NotFound(new { message = "Event not found" });
 
                 return NoContent();
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("public/slug/{eventSlug}")]
+        public async Task<ActionResult<EventViewDto>> GetByEventSlug(string eventSlug, CancellationToken ct)
+        {
+            try
+            {
+                var ev = await _eventService.GetBySlugAsync(eventSlug, ct);
+                if (ev == null) return NotFound(new { message = "Event not found" });
+                return Ok(ev);
             }
             catch (ArgumentException ex)
             {

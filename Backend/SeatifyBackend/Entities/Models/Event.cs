@@ -1,7 +1,10 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Entities.Models
 {
     public class Event
     {
+        [Key]
         public string Id { get; set; } = Guid.NewGuid().ToString();
         public string OrganizerId { get; set; } = string.Empty;
         public string Slug { get; set; } = string.Empty;

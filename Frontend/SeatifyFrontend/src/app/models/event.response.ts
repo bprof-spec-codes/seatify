@@ -1,8 +1,10 @@
-export default interface EventResponse{
-  id: number;
+export default interface EventResponse {
+  id: string;
+  organizerId: string;
+  slug: string;
   name: string;
   description: string;
-  startsAt: Date;
-  endsAt: Date;
-  basePrice: number;
+  status: string;
+  createdAtUtc: string;
+  updatedAtUtc: string;
 }

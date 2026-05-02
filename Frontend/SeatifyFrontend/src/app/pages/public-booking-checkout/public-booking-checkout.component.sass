@@ -1,0 +1,73 @@
+.checkout-container
+  animation: fadeIn 0.5s ease-in-out
+
+.checkout-card
+  border: none
+  border-radius: 16px
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05)
+  background: #ffffff
+
+.card-title
+  font-weight: 800
+  color: var(--text-color, #2d3436)
+
+.form-label
+  font-weight: 600
+  color: #636e72
+  margin-bottom: 0.5rem
+
+.form-control-lg
+  border-radius: 12px
+  font-size: 1rem
+  padding: 0.75rem 1rem
+  border: 1px solid #dfe6e9
+  &:focus
+    border-color: var(--primary-color, #0984e3)
+    box-shadow: 0 0 0 4px rgba(9, 132, 227, 0.1)
+
+.checkout-btn
+  border-radius: 12px
+  padding: 1rem
+  font-weight: 700
+  letter-spacing: 0.5px
+  transition: all 0.3s ease
+  &:hover:not(:disabled)
+    transform: translateY(-2px)
+    box-shadow: 0 8px 20px rgba(9, 132, 227, 0.3)
+
+.summary-card
+  border: none
+  border-radius: 16px
+  background: #f1f2f6
+  
+  .event-mini-info
+    background: #ffffff
+    padding: 1rem
+    border-radius: 12px
+
+.seat-item
+  display: flex
+  justify-content: space-between
+  padding: 0.5rem 0
+  font-size: 0.95rem
+  .seat-label
+    color: #636e72
+  .seat-price
+    font-weight: 600
+
+.total-row
+  .total-label
+    font-weight: 600
+    color: #636e72
+  .total-value
+    font-size: 1.5rem
+    font-weight: 800
+    color: var(--primary-color, #0984e3)
+
+@keyframes fadeIn
+  from
+    opacity: 0
+    transform: translateY(10px)
+  to
+    opacity: 1
+    transform: translateY(0)

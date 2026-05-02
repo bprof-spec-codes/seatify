@@ -1,7 +1,10 @@
-﻿using Entities.Dtos.Reservation;
+using Entities.Dtos.Bookings;
+using Entities.Dtos.Exceptions;
+using Entities.Dtos.Reservation;
 using Logic.Interfaces;
 using Logic.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace Api.Controllers
 {
@@ -57,6 +60,31 @@ namespace Api.Controllers
             var success = _service.DeleteReservation(reservationId);
             if (!success) return NotFound(new { message = "Reservation not found" });
             return Ok(new { message = "Reservation deleted successfully." });
+        }
+        [HttpPost("api/bookings/checkout")]
+        public async Task<IActionResult> CreateReservation([FromBody]BookingCheckoutRequestDto request)
+        {
+            try
+            {
+                var response = await _service.CheckoutReservation(request);
+                return Ok(response);
+            }
+            catch(EventOccurrenceNotFoundException e)
+            {
+                return BadRequest(new { message = e.Message });
+            }
+            catch (BookingSessionNotFoundException e)
+            {
+                return BadRequest(new { message = e.Message });
+            }
+            catch (ArgumentException e)
+            {
+                return BadRequest(new { message = e.Message });
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new { message = e.Message });
+            }
         }
     }
 }

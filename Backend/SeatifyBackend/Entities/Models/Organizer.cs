@@ -18,13 +18,13 @@ namespace Entities.Models
         public string Email { get; set; } = string.Empty;
 
         [Required]
-        public string Password { get; set; } = string.Empty;
+        public string PasswordHash { get; set; } = string.Empty;
 
         public ICollection<Appearance> Appearances { get; set; } = new List<Appearance>();
 
         public DateTime CreatedAtUtc { get; set; }
         public DateTime UpdatedAtUtc { get; set; }
-        
+
         public virtual ICollection<Venue> Venues { get; set; } = new List<Venue>();
 
         public Organizer()

@@ -1,7 +1,7 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, catchError, forkJoin, map, of, switchMap, throwError } from 'rxjs';
-import { environment } from '../../environments/environment.development';
+import { environment } from '../../environments/environment';
 import { SeatifyEvent } from '../models/event';
 import { EventCard } from '../models/event-card';
 import { EventOccurrence } from '../models/event-occurrence';
@@ -25,15 +25,19 @@ export class EventService {
   }
 
   createEvent(eventrequest: EventRequest): Observable<EventResponse>{
-    return this.http.post<EventResponse>(this.apiUrl + '/events', eventrequest);
+    return this.http.post<EventResponse>(`${this.eventsApiUrl}`, eventrequest);
   }
   
-  updateEvent(eventrequest: EventRequest, id: number): Observable<EventResponse>{
-    return this.http.put<EventResponse>(`${this.apiUrl}/events/${id}`, eventrequest);
+  updateEvent(eventrequest: EventRequest, id: string): Observable<EventResponse>{
+    return this.http.put<EventResponse>(`${this.eventsApiUrl}/${id}`, eventrequest);
   }
 
   getEventById(id: string): Observable<SeatifyEvent> {
     return this.http.get<SeatifyEvent>(`${this.apiUrl}/events/${id}`);
+  }
+
+  getEventBySlug(slug: string): Observable<SeatifyEvent> {
+    return this.http.get<SeatifyEvent>(`${this.apiUrl}/events/public/slug/${slug}`);
   }
 
   getOccurrenceById(id: string): Observable<EventOccurrence> {

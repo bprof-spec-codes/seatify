@@ -1,0 +1,137 @@
+@use '../../../variables' as *
+
+:host
+  display: block
+  width: 100%
+
+.auditorium-form-page
+  max-width: 700px
+  margin: 0 auto
+  width: 100%
+
+.form-header
+  display: flex
+  align-items: center
+  gap: 1.5rem
+  margin-bottom: 2.5rem
+
+.back-button
+  width: 44px
+  height: 44px
+  border-radius: 12px
+  border: 1px solid $color-light-200
+  background: $color-light-50
+  color: $color-dark-700
+  display: flex
+  align-items: center
+  justify-content: center
+  cursor: pointer
+  transition: all 0.2s ease
+  font-size: 1.25rem
+
+  &:hover
+    background: $color-light-100
+    color: $color-dark-950
+    border-color: $color-light-300
+
+.page-title
+  margin: 0
+  font-size: 1.75rem
+  font-weight: 600
+  color: $color-dark-950
+
+.page-subtitle
+  margin: 0.25rem 0 0
+  font-size: 0.9375rem
+  color: $color-dark-600
+
+.surface-card
+  background: $color-light-50
+  border: 1px solid $color-light-200
+  border-radius: 24px
+  box-shadow: 0 4px 20px rgba(17, 24, 39, 0.05)
+  overflow: hidden
+
+.card-section
+  padding: 2rem
+  border-bottom: 1px solid $color-light-100
+
+.section-title
+  margin: 0 0 1.5rem
+  font-size: 1.125rem
+  font-weight: 600
+  color: $color-dark-900
+  display: flex
+  align-items: center
+  gap: 0.75rem
+
+  i
+    color: $color-primary-500
+
+.form-fields
+  display: flex
+  flex-direction: column
+  gap: 1.5rem
+
+.form-field
+  display: flex
+  flex-direction: column
+  gap: 0.5rem
+
+  label
+    font-size: 0.875rem
+    font-weight: 500
+    color: $color-dark-700
+
+  input, textarea
+    width: 100%
+    border: 1px solid $color-light-300
+    border-radius: 12px
+    padding: 0.75rem 1rem
+    font-size: 0.9375rem
+    color: $color-dark-950
+    background: $color-light-50
+    outline: none
+    transition: all 0.2s ease
+
+    &::placeholder
+      color: $color-light-400
+
+    &:focus
+      border-color: $color-primary-500
+      box-shadow: 0 0 0 4px rgba($color-primary-500, 0.1)
+    
+    &.is-invalid
+      border-color: $color-danger-500
+      &:focus
+        box-shadow: 0 0 0 4px rgba($color-danger-500, 0.1)
+
+  textarea
+    resize: vertical
+    min-height: 120px
+
+.error-text
+  font-size: 0.75rem
+  color: $color-danger-500
+  margin-top: 0.25rem
+
+.form-actions
+  padding: 1.5rem 2rem
+  background: $color-light-100
+  display: flex
+  justify-content: flex-end
+  gap: 1rem
+
+.action-button
+  min-width: 140px
+  border-radius: 12px
+  padding: 0.75rem 1.5rem
+  font-weight: 600
+  font-size: 0.9375rem
+
+@media (max-width: 575.98px)
+  .form-actions
+    flex-direction: column-reverse
+  
+  .action-button
+    width: 100%

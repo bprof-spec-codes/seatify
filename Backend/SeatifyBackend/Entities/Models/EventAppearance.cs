@@ -21,6 +21,8 @@ namespace Entities.Models
         
         public string ThemePreset { get; set; } = "Default (Blue)";
 
+        public string? Currency { get; set; }
+
         public DateTime CreatedAtUtc { get; set; }
 
         public DateTime UpdatedAtUtc { get; set; }

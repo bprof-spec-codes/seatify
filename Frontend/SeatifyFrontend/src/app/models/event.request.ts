@@ -1,14 +1,8 @@
-export default interface EventRequest{
+export default interface EventRequest {
+  organizerId: string;
+  slug: string;
   name: string;
   description: string;
-  startsAt: Date;
-  endsAt: Date;
-  basePrice: number;
-  //new fields bellow:
-  logoImageUrl?: string;
-  bannerImageUrl?: string;
-  themePreset?: string;
-  venueId?: string;
-  auditoriumId?: string;
-
+  status: string;
+  currency?: string;
 }

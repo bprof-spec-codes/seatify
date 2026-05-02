@@ -1,10 +1,13 @@
-﻿using Data;
+using Data;
+using Entities.Dtos.Bookings;
+using Entities.Dtos.Exceptions;
 using Entities.Dtos.Reservation;
 using Entities.Models;
 using Logic.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,10 +17,16 @@ namespace Logic.Services
     public class ReservationService: IReservationService
     {
         private readonly AppDbContext _context;
+        private readonly IQrService _qrService;
+        private readonly IEmailService _emailService;
+        private readonly IPdfService _pdfService;
 
-        public ReservationService(AppDbContext context)
+        public ReservationService(AppDbContext context, IQrService qrService, IEmailService emailService, IPdfService pdfService)
         {
             _context = context;
+            _qrService = qrService;
+            _emailService = emailService;
+            _pdfService = pdfService;
         }
 
         public bool CreateReservation(string eventOccurrenceId, ReservationCreateDto dto)
@@ -109,6 +118,224 @@ namespace Logic.Services
 
             _context.Reservations.Remove(res);
             return _context.SaveChanges() > 0;
+        }
+
+        public async Task<BookingCheckoutResponseDto> CheckoutReservation(BookingCheckoutRequestDto request)
+        {
+            if(!string.IsNullOrEmpty(request.BookingSessionId))
+            {
+                BookingSession bookingSession = _context.bookingSessions.Find(request.BookingSessionId);
+                if(bookingSession == null)
+                {
+                    throw new BookingSessionNotFoundException($"BookingSession could not be found with this id: {request.BookingSessionId}");
+                }
+            }
+
+            EventOccurrence eventOccurrence = _context.EventOccurrences
+                .Include(eo => eo.Event)
+                    .ThenInclude(e => e.Appearance)
+                .Include(eo => eo.Auditorium)
+                .Include(eo => eo.Venue)
+                .FirstOrDefault(eo => eo.Id == request.EventOccurrenceId);
+
+            if (eventOccurrence == null)
+            {
+                throw new EventOccurrenceNotFoundException($"EventOccurrence could not be found with this id: {request.EventOccurrenceId}");
+            }
+
+            // Check if any requested seats are already booked for this occurrence
+            var alreadyBookedSeats = _context.ReservationSeats
+                .Where(rs => rs.Reservation.EventOccurrenceId == request.EventOccurrenceId && rs.Reservation.Status == "Confirmed" && request.SeatIds.Contains(rs.SeatId))
+                .Select(rs => rs.SeatId)
+                .ToList();
+
+            if (alreadyBookedSeats.Any())
+            {
+                throw new ArgumentException($"The following seats are already booked: {string.Join(", ", alreadyBookedSeats)}");
+            }
+
+            List<ReservationSeat> reservationSeats = new List<ReservationSeat>();
+            
+            foreach (var seatId in request.SeatIds)
+            {
+                var finalPrice = calculateFinalSeatPrice(eventOccurrence.Event.Id, eventOccurrence.Id, seatId);
+                
+                var reservationSeat = new ReservationSeat
+                {
+                    SeatId = seatId,
+                    FinalPrice = finalPrice
+                };
+                reservationSeats.Add(reservationSeat);
+            }
+
+            Reservation reservation = new Reservation();
+            reservation.BookingSessionId = request.BookingSessionId ?? string.Empty;
+            reservation.EventOccurrenceId = request.EventOccurrenceId;
+            reservation.CustomerEmail = request.CustomerEmail;
+            reservation.CustomerName = request.CustomerName;
+            reservation.CustomerPhone = request.CustomerPhone;
+            reservation.ReservationSeats = reservationSeats;
+            reservation.Status = "Confirmed";
+            reservation.CreatedAtUtc = DateTime.UtcNow;
+            
+            _context.Reservations.Add(reservation);
+            _context.SaveChanges();
+
+            // Prepare DTO and Email Tickets
+            var ticketDtos = new List<TicketDto>();
+            var emailTickets = new List<EmailTicketItem>();
+
+            foreach (var rs in reservationSeats)
+            {
+                var seatDetails = _context.Seats.FirstOrDefault(s => s.Id == rs.SeatId);
+                string seatLabel = seatDetails?.SeatLabel ?? rs.SeatId;
+                
+                var qrCode = _qrService.GenerateTicketQrCode(rs.Id);
+
+                ticketDtos.Add(new TicketDto
+                {
+                    TicketId = rs.Id,
+                    SeatId = rs.SeatId,
+                    SeatLabel = seatLabel,
+                    QrCodeBase64 = qrCode,
+                    Price = rs.FinalPrice
+                });
+
+                emailTickets.Add(new EmailTicketItem
+                {
+                    SeatLabel = seatLabel,
+                    Price = rs.FinalPrice,
+                    QrCodeBase64 = qrCode
+                });
+            }
+
+            var totalPrice = reservationSeats.Sum(rs => rs.FinalPrice);
+            var currency = eventOccurrence.CurrencyOverride 
+                           ?? eventOccurrence.Event.Appearance?.Currency 
+                           ?? eventOccurrence.Auditorium?.Currency 
+                           ?? "HUF";
+
+            // Generate PDF
+            var pdfTickets = new List<PdfTicketItem>();
+            
+            foreach (var rs in reservationSeats)
+            {
+                var seat = _context.Seats.FirstOrDefault(s => s.Id == rs.SeatId);
+                var qrCode = _qrService.GenerateTicketQrCode(rs.Id);
+                
+                pdfTickets.Add(new PdfTicketItem
+                {
+                    SeatLabel = seat?.SeatLabel ?? rs.SeatId,
+                    Row = GetRowLabel(seat),
+                    SeatNumber = seat?.Column.ToString() ?? "-",
+                    Price = rs.FinalPrice,
+                    QrCodeBase64 = qrCode,
+                    ManualCode = rs.Id
+                });
+            }
+
+            byte[]? pdfFile = null;
+            try
+            {
+                pdfFile = _pdfService.GenerateTicketPdf(
+                    eventOccurrence.Event.Name,
+                    eventOccurrence.Venue?.Name ?? "Unknown Venue",
+                    eventOccurrence.Auditorium?.Name ?? "Unknown Auditorium",
+                    eventOccurrence.StartsAtUtc,
+                    pdfTickets,
+                    currency
+                );
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"PDF generation failed: {ex.Message}");
+            }
+
+            // Send confirmation email
+            try 
+            {
+                await _emailService.SendBookingConfirmationAsync(
+                    reservation.CustomerEmail,
+                    reservation.CustomerName ?? "Customer",
+                    eventOccurrence.Event.Name,
+                    eventOccurrence.StartsAtUtc,
+                    emailTickets,
+                    totalPrice,
+                    currency,
+                    pdfFile
+                );
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine($"Email sending failed: {ex.Message}");
+            }
+
+            BookingCheckoutResponseDto responseDto = new BookingCheckoutResponseDto();
+            responseDto.BookingId = reservation.Id;
+            responseDto.EventId = reservation.EventOccurrenceId;
+            responseDto.Tickets = ticketDtos;
+            responseDto.TotalPrice = totalPrice;
+            responseDto.Currency = currency;
+            responseDto.QrCodeBase64 = _qrService.GenerateReservationQrCode(reservation.Id);
+            responseDto.PdfBase64 = pdfFile != null ? Convert.ToBase64String(pdfFile) : string.Empty;
+
+            return responseDto;
+        }
+
+        private decimal calculateFinalSeatPrice(string eventId, string eventOccurrenceId, string seatId)
+        {
+            var occurrenceOverride = _context.OccurrenceSeatOverrides
+                .FirstOrDefault(os => os.SeatId == seatId && os.OccurrenceId == eventOccurrenceId);
+            
+            if (occurrenceOverride?.PriceOverride != null)
+                return occurrenceOverride.PriceOverride.Value;
+
+            var eventSeatOverride = _context.EventSeatOverrides
+                .FirstOrDefault(es => es.SeatId == seatId && es.EventId == eventId);
+
+            if (eventSeatOverride?.PriceOverride != null)
+                return eventSeatOverride.PriceOverride.Value;
+
+            var seat = _context.Seats.Include(s => s.Sector).FirstOrDefault(s => s.Id == seatId);
+            if (seat == null) return 0;
+
+            if (seat.PriceOverride != null)
+                return seat.PriceOverride.Value;
+
+            if (seat.Sector != null)
+                return seat.Sector.BasePrice;
+
+            return 0;
+        }
+        private string GetRowLabel(Seat? seat)
+        {
+            if (seat == null) return "-";
+            
+            // If SeatLabel exists and contains a separator, try to extract the row part
+            if (!string.IsNullOrEmpty(seat.SeatLabel) && seat.SeatLabel.Contains('-'))
+            {
+                var parts = seat.SeatLabel.Split('-');
+                if (parts.Length > 0 && !int.TryParse(parts[0], out _))
+                {
+                    return parts[0]; // Returns 'A' if label is 'A-12'
+                }
+            }
+
+            // Fallback: If the user wants ABC rows but they are stored as ints
+            // We'll assume for now that if Row > 0, we can convert it to a letter
+            // A=1, B=2, ..., Z=26, AA=27 etc.
+            return IntToLetters(seat.Row);
+        }
+
+        private string IntToLetters(int value)
+        {
+            string result = string.Empty;
+            while (--value >= 0)
+            {
+                result = (char)('A' + value % 26) + result;
+                value /= 26;
+            }
+            return string.IsNullOrEmpty(result) ? "-" : result;
         }
     }
 }

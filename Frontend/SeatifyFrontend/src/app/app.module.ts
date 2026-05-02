@@ -24,6 +24,15 @@ import { OrganizerLayoutComponent } from './pages/organizer-layout/organizer-lay
 import { OrganizerDashboardComponent } from './pages/organizer-dashboard/organizer-dashboard.component';
 import { AuditoriumFormComponent } from './pages/auditorium-form/auditorium-form.component';
 import { EventOccurrenceFormComponent } from './pages/event-occurrence-form/event-occurrence-form.component';
+import { EventFormComponent } from './pages/event-form/event-form.component';
+import { CheckinModalComponent } from './components/checkin-modal/checkin-modal.component';
+import { authInterceptor } from './interceptors/auth.interceptor';
+import { LoginPageComponent } from './pages/login-page/login-page.component';
+import { RegisterPageComponent } from './pages/register-page/register-page.component';
+import { PublicBookingLayoutComponent } from './pages/public-booking-layout/public-booking-layout.component';
+import { PublicBookingMapComponent } from './pages/public-booking-map/public-booking-map.component';
+import { PublicBookingCheckoutComponent } from './pages/public-booking-checkout/public-booking-checkout.component';
+import { PublicBookingSuccessComponent } from './pages/public-booking-success/public-booking-success.component';
 
 @NgModule({
   declarations: [
@@ -46,6 +55,14 @@ import { EventOccurrenceFormComponent } from './pages/event-occurrence-form/even
     OrganizerDashboardComponent,
     AuditoriumFormComponent,
     EventOccurrenceFormComponent,
+    EventFormComponent,
+    CheckinModalComponent,
+    LoginPageComponent,
+    RegisterPageComponent,
+    PublicBookingLayoutComponent,
+    PublicBookingMapComponent,
+    PublicBookingCheckoutComponent,
+    PublicBookingSuccessComponent,
   ],
   imports: [
     BrowserModule,
@@ -56,7 +73,7 @@ import { EventOccurrenceFormComponent } from './pages/event-occurrence-form/even
     FormsModule,
   ],
   providers: [
-    provideHttpClient(withInterceptors([]))
+    provideHttpClient(withInterceptors([authInterceptor]))
   ],
   bootstrap: [AppComponent]
 })

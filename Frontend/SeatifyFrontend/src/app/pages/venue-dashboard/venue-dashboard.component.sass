@@ -1,0 +1,174 @@
+@use '../../../variables' as *
+
+:host
+  display: block
+  width: 100%
+
+.venue-dashboard
+  width: 100%
+
+.page-header
+  display: flex
+  justify-content: space-between
+  align-items: flex-start
+  gap: 1rem
+  margin-bottom: 2rem
+
+.page-title
+  margin: 0
+  font-size: 2.25rem
+  font-weight: 600
+  color: $color-dark-950
+
+.page-subtitle
+  margin: 0.5rem 0 0
+  font-size: 1rem
+  color: $color-dark-600
+
+.page-action-button
+  display: inline-flex
+  align-items: center
+  gap: 0.5rem
+  border-radius: 12px
+  padding: 0.75rem 1.25rem
+  font-size: 0.875rem
+  font-weight: 500
+
+.surface-card
+  background: $color-light-50
+  border: 1px solid $color-light-200
+  border-radius: 20px
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.1)
+
+.status-card
+  padding: 1.25rem 1.5rem
+  color: $color-dark-700
+
+.venues-list
+  display: grid
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr))
+  gap: 1.5rem
+
+.venue-card
+  position: relative
+  overflow: hidden
+  transition: transform 0.2s ease, box-shadow 0.2s ease
+  display: flex
+  flex-direction: column
+
+  &:hover
+    transform: translateY(-4px)
+    box-shadow: 0 10px 30px rgba(17, 24, 39, 0.1)
+
+.venue-actions-top
+  position: absolute
+  top: 0
+  right: 0
+  display: flex
+  z-index: 10
+
+.venue-action-icon-button
+  display: inline-flex
+  align-items: center
+  gap: 0.4rem
+  padding: 0.65rem 1rem
+  background: $color-light-100
+  border: 1px solid $color-light-200
+  border-top: none
+  border-right: none
+  font-size: 0.75rem
+  font-weight: 600
+  color: $color-dark-600
+  cursor: pointer
+  transition: all 0.2s ease
+
+  &:hover
+    background: $color-light-200
+    color: $color-dark-950
+
+  &.venue-delete-button
+    border-left: none
+    &:hover
+      background: rgba($color-danger-500, 0.1)
+      color: $color-danger-500
+      border-color: rgba($color-danger-500, 0.2)
+  
+  &:first-child
+    border-bottom-left-radius: 12px
+    border-top-right-radius: 0
+  
+  &:last-child
+    border-top-right-radius: 20px
+
+.venue-card-body
+  padding: 1.5rem
+  display: flex
+  flex-direction: column
+  gap: 1.25rem
+  flex: 1
+
+.venue-card-header
+  padding-right: 170px
+
+.venue-title
+  margin: 0 0 0.5rem
+  font-size: 1.5rem
+  font-weight: 600
+  color: $color-dark-900
+
+.venue-address
+  display: flex
+  align-items: center
+  gap: 0.5rem
+  color: $color-dark-600
+  font-size: 0.875rem
+
+  i
+    color: $color-primary-500
+
+.venue-stats
+  display: flex
+  gap: 0.75rem
+
+.stat-chip
+  display: inline-flex
+  align-items: center
+  gap: 0.5rem
+  padding: 0.5rem 0.85rem
+  border-radius: 999px
+  background: $color-light-100
+  border: 1px solid $color-light-300
+  color: $color-dark-800
+  font-size: 0.8125rem
+  font-weight: 500
+
+  i
+    color: $color-primary-400
+
+.venue-card-footer
+  margin-top: auto
+  padding-top: 0.5rem
+
+.venue-main-action
+  width: 100%
+  border-radius: 12px
+  padding: 0.75rem
+  font-weight: 600
+  display: flex
+  align-items: center
+  justify-content: center
+
+@media (max-width: 767.98px)
+  .page-header
+    flex-direction: column
+    align-items: stretch
+  
+  .page-action-button
+    justify-content: center
+
+  .venue-card-header
+    padding-right: 0
+    margin-top: 2.5rem
+  
+  .venues-list
+    grid-template-columns: 1fr

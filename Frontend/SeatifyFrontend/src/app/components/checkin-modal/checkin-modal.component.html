@@ -1,0 +1,101 @@
+<div class="modal fade show custom-modal" tabindex="-1" *ngIf="isVisible" style="display: block; background: rgba(0,0,0,0.5)">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header border-0 bg-dark text-white rounded-top">
+        <h5 class="modal-title m-0 fw-bold">Ticket Check-In</h5>
+        <button type="button" class="btn-close btn-close-white" aria-label="Close" (click)="closeModal()"></button>
+      </div>
+      <div class="modal-body p-4 bg-light">
+        
+        <!-- Toggle Mode -->
+        <div class="d-flex justify-content-center mb-4" *ngIf="!validationResult">
+          <div class="btn-group" role="group">
+            <button type="button" class="btn fw-semibold" [class.btn-primary]="inputMode === 'camera'" [class.btn-outline-primary]="inputMode !== 'camera'" (click)="toggleMode()">Camera Mode</button>
+            <button type="button" class="btn fw-semibold" [class.btn-primary]="inputMode === 'manual'" [class.btn-outline-primary]="inputMode !== 'manual'" (click)="toggleMode()">Manual Input</button>
+          </div>
+        </div>
+
+        <!-- Scanner View -->
+        <div *ngIf="!validationResult && inputMode === 'camera'" class="text-center mt-3 position-relative">
+          <div id="qr-reader" class="rounded overflow-hidden"></div>
+          <div *ngIf="processing" class="position-absolute top-50 start-50 translate-middle text-primary fw-bold" style="background: rgba(255,255,255,0.8); padding: 10px; border-radius: 8px;">Processing...</div>
+        </div>
+
+        <!-- Manual View -->
+        <div *ngIf="!validationResult && inputMode === 'manual'" class="text-center mt-3">
+          <div class="mb-3 text-start">
+            <label class="form-label fw-bold text-secondary">Enter Ticket Code</label>
+            <input type="text" class="form-control form-control-lg border-2" placeholder="e.g. 12345-ABCDE" [(ngModel)]="manualTicketCode">
+          </div>
+          <button class="btn btn-primary w-100 py-2 fw-bold text-uppercase shadow-sm" (click)="validateManualCode()" [disabled]="processing">
+            <span *ngIf="processing" class="spinner-border spinner-border-sm me-2"></span> Validate Ticket
+          </button>
+          <div *ngIf="errorMessage" class="alert alert-danger mt-3 small py-2">
+            {{ errorMessage }}
+          </div>
+        </div>
+
+        <!-- Result View -->
+        <div *ngIf="validationResult" class="result-container p-3 rounded bg-white shadow-sm border">
+          <!-- Status Alert -->
+          <div class="alert text-center fw-bold fs-5 mb-3 d-flex align-items-center justify-content-center gap-2"
+               [ngClass]="{
+                 'alert-success': validationResult.status === TicketStatus.Valid,
+                 'alert-warning': validationResult.status === TicketStatus.AlreadyUsed,
+                 'alert-danger': validationResult.status === TicketStatus.Invalid
+               }">
+               <i class="bi" 
+                  [ngClass]="{
+                    'bi-check-circle-fill': validationResult.status === TicketStatus.Valid,
+                    'bi-exclamation-triangle-fill': validationResult.status === TicketStatus.AlreadyUsed,
+                    'bi-x-circle-fill': validationResult.status === TicketStatus.Invalid
+                  }"></i>
+             {{ validationResult.statusMessage }}
+          </div>
+
+          <div class="ticket-details text-start" *ngIf="validationResult.status !== TicketStatus.Invalid">
+            <div class="mb-3 pb-3 border-bottom">
+              <span class="text-muted d-block small fw-bold text-uppercase">Event</span>
+              <span class="fs-5 fw-bold text-dark">{{ validationResult.event?.title || 'N/A' }}</span>
+              <div class="text-secondary small">{{ validationResult.event?.startTime | date:'medium' }}</div>
+            </div>
+
+            <div class="row mb-3 pb-3 border-bottom text-center">
+              <div class="col-4 border-end">
+                <span class="text-muted d-block small fw-bold text-uppercase">Section</span>
+                <span class="fs-5 fw-bold text-primary">{{ validationResult.seat?.section || 'N/A' }}</span>
+              </div>
+              <div class="col-4 border-end">
+                <span class="text-muted d-block small fw-bold text-uppercase">Row</span>
+                <span class="fs-5 fw-bold text-primary">{{ validationResult.seat?.row || 'N/A' }}</span>
+              </div>
+              <div class="col-4">
+                <span class="text-muted d-block small fw-bold text-uppercase">Seat</span>
+                <span class="fs-5 fw-bold text-primary">{{ validationResult.seat?.number || 'N/A' }}</span>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <span class="text-muted d-block small fw-bold text-uppercase">Purchaser</span>
+              <span class="fw-semibold text-dark">{{ validationResult.reservation?.customerName }}</span>
+              <span class="text-secondary ms-2 small">({{ validationResult.reservation?.customerEmail }})</span>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="d-flex gap-2 mt-4">
+            <button class="btn btn-outline-secondary w-50 fw-bold" (click)="resetScanner()">Scan Next</button>
+            
+            <button class="btn btn-success w-50 fw-bold" 
+                    *ngIf="validationResult.status === TicketStatus.Valid" 
+                    (click)="confirmCheckIn()" 
+                    [disabled]="processing">
+              <span *ngIf="processing" class="spinner-border spinner-border-sm me-2"></span> Confirm Check-In
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

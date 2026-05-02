@@ -1,0 +1,105 @@
+<div class="event-form-container container mt-4 mb-5" style="max-width: 800px;">
+  <div class="d-flex align-items-center mb-4">
+    <button class="btn btn-outline-secondary me-3" (click)="cancel()">
+      <i class="bi bi-arrow-left"></i>
+    </button>
+    <div>
+      <h2 class="mb-1">{{ isEditMode ? 'Edit Event' : 'Create New Event' }}</h2>
+      <p class="text-muted mb-0">Define the basic details for your event catalog.</p>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <form [formGroup]="eventForm" (ngSubmit)="onSubmit()" *ngIf="!isLoading">
+    <div class="card shadow-sm border-0 mb-4">
+      <div class="card-body p-4">
+        <h5 class="card-title fw-bold mb-4">
+          <i class="bi bi-info-circle me-2"></i>General Information
+        </h5>
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold" for="eventName">Event Name *</label>
+          <input 
+            type="text" 
+            id="eventName"
+            class="form-control form-control-lg" 
+            placeholder="e.g. Summer Music Festival 2026"
+            formControlName="name"
+            [class.is-invalid]="eventForm.get('name')?.touched && eventForm.get('name')?.invalid"
+          >
+          <div class="invalid-feedback">
+            Event name is required (min 3 characters).
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold" for="eventSlug">URL Slug *</label>
+          <input 
+            type="text" 
+            id="eventSlug"
+            class="form-control" 
+            placeholder="e.g. summer-music-fest"
+            formControlName="slug"
+            [class.is-invalid]="eventForm.get('slug')?.touched && eventForm.get('slug')?.invalid"
+          >
+          <div class="form-text mt-2 text-info d-flex align-items-start">
+            <i class="bi bi-info-circle-fill me-2 mt-1"></i>
+            <span>
+              This will be used in the booking URL (e.g., <code>seatify.com/events/<strong>your-slug</strong></code>). 
+              Only lowercase letters, numbers, and hyphens are allowed.
+            </span>
+          </div>
+          <div class="invalid-feedback">
+            Slug is required and can only contain lowercase letters, numbers, and hyphens.
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold" for="eventDescription">Description</label>
+          <textarea 
+            id="eventDescription"
+            class="form-control" 
+            rows="5" 
+            placeholder="Describe your event to attract attendees..."
+            formControlName="description"
+          ></textarea>
+        </div>
+
+        <div class="mb-0">
+          <label class="form-label fw-semibold">Status</label>
+          <select class="form-select" formControlName="status">
+            <option value="Draft">Draft (Hidden from public)</option>
+            <option value="Published">Published (Visible to everyone)</option>
+          </select>
+        </div>
+
+        <div class="mt-3">
+          <label class="form-label fw-semibold" for="currency">Default Currency Override</label>
+          <input 
+            type="text" 
+            id="currency"
+            class="form-control" 
+            placeholder="e.g. EUR (Leave empty to use auditorium default)"
+            formControlName="currency"
+          >
+          <div class="form-text mt-1 text-muted">
+            If set, this will override the default currency for all dates of this event.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-end gap-3 pt-3">
+      <button type="button" class="btn btn-light border px-4" (click)="cancel()">Cancel</button>
+      <button type="submit" class="btn btn-primary px-5" [disabled]="eventForm.invalid || isLoading">
+        <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+        {{ isEditMode ? 'Update Event' : 'Create Event' }}
+      </button>
+    </div>
+  </form>
+</div>
