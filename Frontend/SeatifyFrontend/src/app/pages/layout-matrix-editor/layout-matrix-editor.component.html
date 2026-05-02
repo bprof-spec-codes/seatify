@@ -99,11 +99,108 @@
 
         <div class="editor-shell__body">
           <div class="editor-canvas">
-            <div class="editor-stage-badge">STAGE</div>
+            <div class="matrix-canvas-header">
+              
 
-            <div class="grid-wrapper">
-              <div class="grid" [style.gridTemplateColumns]="'repeat(' + gridColumns + ', 36px)'">
-                <div class="cell" *ngFor="let cell of gridCells; trackBy: trackByCellKey"
+              <div class="matrix-canvas-toolbar">
+                <div class="matrix-tool-group">
+                  <button
+                    type="button"
+                    class="matrix-tool-button"
+                    [class.matrix-tool-button--active]="matrixTool === 'select'"
+                    (click)="setMatrixTool('select')"
+                    title="Select seats"
+                  >
+                    <i class="bi bi-cursor"></i>
+                    Select
+                  </button>
+
+                  <button
+                    type="button"
+                    class="matrix-tool-button"
+                    [class.matrix-tool-button--active]="matrixTool === 'pan'"
+                    (click)="setMatrixTool('pan')"
+                    title="Move around the matrix"
+                  >
+                    <i class="bi bi-hand-index-thumb"></i>
+                    Move
+                  </button>
+                </div>
+
+                <div class="matrix-tool-group">
+                  <button type="button" class="matrix-icon-button" (click)="zoomOut()" title="Zoom out">
+                    <i class="bi bi-dash-lg"></i>
+                  </button>
+
+                  <button type="button" class="matrix-zoom-value" (click)="resetMatrixZoom()" title="Reset zoom">
+                    {{ matrixZoomPercent }}%
+                  </button>
+
+                  <button type="button" class="matrix-icon-button" (click)="zoomIn()" title="Zoom in">
+                    <i class="bi bi-plus-lg"></i>
+                  </button>
+
+                  <button type="button" class="matrix-tool-button" (click)="fitMatrixToScreen()" title="Fit matrix to screen">
+                    <i class="bi bi-arrows-fullscreen"></i>
+                    Fit
+                  </button>
+                </div>
+
+                <div class="matrix-tool-group">
+                  <button type="button" class="matrix-tool-button" (click)="selectAllSeatsInMatrix()">
+                    <i class="bi bi-check2-square"></i>
+                    Select all
+                  </button>
+
+                  <button
+                    type="button"
+                    class="matrix-tool-button"
+                    [disabled]="!hasSelection"
+                    (click)="clearGridSelection()"
+                  >
+                    <i class="bi bi-x-lg"></i>
+                    Clear
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="matrix-status-row">
+              <span>
+                <strong>{{ gridRows }}</strong> rows × <strong>{{ gridColumns }}</strong> columns
+              </span>
+
+              <span>
+                <strong>{{ selectedCellKeys.length }}</strong>
+                {{ selectedCellKeys.length === 1 ? 'seat' : 'seats' }} selected
+              </span>
+
+              <span class="matrix-mode-chip" [class.matrix-mode-chip--pan]="matrixTool === 'pan'">
+                {{ matrixTool === 'select' ? 'Selection mode' : 'Move mode' }}
+              </span>
+            </div>
+
+            <div class="stage-area">
+                  <div class="editor-stage-badge">
+                    <span>STAGE</span>
+                  </div>
+                </div>
+
+            <div
+              #gridWrapper
+              class="grid-wrapper"
+              [class.grid-wrapper--pan-mode]="matrixTool === 'pan'"
+              [class.grid-wrapper--panning]="isPanning"
+              (mousedown)="onGridWrapperMouseDown($event)"
+              (wheel)="onGridWheel($event)"
+            >
+              
+              <div class="grid" [ngStyle]="matrixGridStyles">
+
+                
+                <div
+                  class="cell"
+                  *ngFor="let cell of gridCells; trackBy: trackByCellKey"
                   [class.cell--selected]="isCellSelected(cell)"
                   [class.cell--accessible]="cell.seatType === seatType.AccessibleSeat"
                   [class.cell--aisle]="cell.seatType === seatType.Aisle"
@@ -111,30 +208,54 @@
                   (mouseenter)="onMouseEnter(cell)"
                   (click)="$event.stopPropagation()"
                   [style.backgroundColor]="getSectorColor(cell.sectorId) || '#f8fafc'"
-                  [title]="cell.seatLabel || ('Row ' + cell.row + ', Column ' + cell.column)">
-                  <i class="bi bi-universal-access-circle cell__accessible-icon"
-                     *ngIf="cell.seatType === seatType.AccessibleSeat"></i>
-                  <!-- Override forrás jelzők: szektor · ár · kategória -->
-                  <div class="cell__override-dots"
-                       *ngIf="cell.sectorSource !== 'auditorium' || cell.priceSource !== 'auditorium' || cell.seatTypeSource !== 'auditorium'">
-                    <span class="cell__override-dot"
-                          [class.cell__override-dot--event]="cell.sectorSource === 'event'"
-                          [class.cell__override-dot--occurrence]="cell.sectorSource === 'occurrence'"
-                          *ngIf="cell.sectorSource !== 'auditorium'"
-                          title="Szektor: {{ cell.sectorSource }} override"></span>
-                    <span class="cell__override-dot"
-                          [class.cell__override-dot--event]="cell.priceSource === 'event'"
-                          [class.cell__override-dot--occurrence]="cell.priceSource === 'occurrence'"
-                          *ngIf="cell.priceSource !== 'auditorium'"
-                          title="Ár: {{ cell.priceSource }} override"></span>
-                    <span class="cell__override-dot"
-                          [class.cell__override-dot--event]="cell.seatTypeSource === 'event'"
-                          [class.cell__override-dot--occurrence]="cell.seatTypeSource === 'occurrence'"
-                          *ngIf="cell.seatTypeSource !== 'auditorium'"
-                          title="Kategória: {{ cell.seatTypeSource }} override"></span>
+                  [title]="cell.seatLabel || ('Row ' + cell.row + ', Column ' + cell.column)"
+                >
+                  <i
+                    class="bi bi-universal-access-circle cell__accessible-icon"
+                    *ngIf="cell.seatType === seatType.AccessibleSeat"
+                  ></i>
+
+                  
+
+                  <div
+                    class="cell__override-dots"
+                    *ngIf="cell.sectorSource !== 'auditorium' || cell.priceSource !== 'auditorium' || cell.seatTypeSource !== 'auditorium'"
+                  >
+                  
+                    <span
+                      class="cell__override-dot"
+                      [class.cell__override-dot--event]="cell.sectorSource === 'event'"
+                      [class.cell__override-dot--occurrence]="cell.sectorSource === 'occurrence'"
+                      *ngIf="cell.sectorSource !== 'auditorium'"
+                      title="Szektor: {{ cell.sectorSource }} override"
+                    ></span>
+
+                    <span
+                      class="cell__override-dot"
+                      [class.cell__override-dot--event]="cell.priceSource === 'event'"
+                      [class.cell__override-dot--occurrence]="cell.priceSource === 'occurrence'"
+                      *ngIf="cell.priceSource !== 'auditorium'"
+                      title="Ár: {{ cell.priceSource }} override"
+                    ></span>
+
+                    <span
+                      class="cell__override-dot"
+                      [class.cell__override-dot--event]="cell.seatTypeSource === 'event'"
+                      [class.cell__override-dot--occurrence]="cell.seatTypeSource === 'occurrence'"
+                      *ngIf="cell.seatTypeSource !== 'auditorium'"
+                      title="Kategória: {{ cell.seatTypeSource }} override"
+                    ></span>
                   </div>
                 </div>
               </div>
+            </div>
+
+            <div class="matrix-help-row">
+              <span><strong>Drag:</strong> select area</span>
+              <span><strong>Ctrl:</strong> add/remove</span>
+              <span><strong>Shift:</strong> range select</span>
+              <span><strong>Ctrl + wheel:</strong> zoom</span>
+              <span><strong>Move mode:</strong> drag canvas</span>
             </div>
           </div>
         </div>

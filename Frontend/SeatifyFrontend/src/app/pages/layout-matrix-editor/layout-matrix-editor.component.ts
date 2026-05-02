@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 import { LayoutMatrixService } from '../../services/layout-matrix.service';
 import { BehaviorSubject, catchError, Observable, of, switchMap, tap } from 'rxjs';
 import { CreateLayoutMatrixDto, LayoutMatrix } from '../../models/layout-matrix';
@@ -55,6 +55,23 @@ export class LayoutMatrixEditorComponent implements OnInit {
 
   isSelecting = false
   selectionStartCell: MatrixCellVm | null = null
+
+  @ViewChild('gridWrapper')
+  gridWrapper?: ElementRef<HTMLDivElement>
+
+  matrixTool: 'select' | 'pan' = 'select'
+  matrixZoom = 1
+  matrixCellSize = 36
+
+  readonly minMatrixZoom = 0.45
+  readonly maxMatrixZoom = 2
+  readonly matrixZoomStep = 0.1
+
+  isPanning = false
+  private panStartX = 0
+  private panStartY = 0
+  private panStartScrollLeft = 0
+  private panStartScrollTop = 0
 
   sectors$!: Observable<Sector[]>;
   isCreateSectorFormOpen = false
@@ -119,6 +136,10 @@ export class LayoutMatrixEditorComponent implements OnInit {
           this.gridRows = seatMap.rows
           this.gridColumns = seatMap.columns
           this.gridCells = this.buildGridCellsFromSeatMap(seatMap)
+
+          setTimeout(() => {
+            this.fitMatrixToScreen()
+          })
         }
         this.cdr.markForCheck()
       })
@@ -178,6 +199,130 @@ export class LayoutMatrixEditorComponent implements OnInit {
 
   goBack(): void {
     this.location.back()
+  }
+
+  setMatrixTool(tool: 'select' | 'pan'): void {
+    this.matrixTool = tool
+
+    if (tool === 'pan') {
+      this.isSelecting = false
+      this.selectionStartCell = null
+    }
+
+    this.cdr.markForCheck()
+  }
+
+  zoomIn(): void {
+    this.matrixZoom = Math.min(
+      this.maxMatrixZoom,
+      Number((this.matrixZoom + this.matrixZoomStep).toFixed(2))
+    )
+
+    this.cdr.markForCheck()
+  }
+
+  zoomOut(): void {
+    this.matrixZoom = Math.max(
+      this.minMatrixZoom,
+      Number((this.matrixZoom - this.matrixZoomStep).toFixed(2))
+    )
+
+    this.cdr.markForCheck()
+  }
+
+  resetMatrixZoom(): void {
+    this.matrixZoom = 1
+    this.cdr.markForCheck()
+  }
+
+  fitMatrixToScreen(): void {
+    if (!this.gridWrapper?.nativeElement || this.gridRows <= 0 || this.gridColumns <= 0) {
+      return
+    }
+
+    const wrapper = this.gridWrapper.nativeElement
+    const availableWidth = wrapper.clientWidth - 56
+    const availableHeight = wrapper.clientHeight - 56
+    const gap = 8
+
+    const maxCellByWidth = Math.floor((availableWidth - ((this.gridColumns - 1) * gap)) / this.gridColumns)
+    const maxCellByHeight = Math.floor((availableHeight - ((this.gridRows - 1) * gap)) / this.gridRows)
+    const nextCellSize = Math.min(maxCellByWidth, maxCellByHeight, 38)
+
+    this.matrixCellSize = Math.max(nextCellSize, 14)
+    this.matrixZoom = 1
+
+    this.cdr.markForCheck()
+  }
+
+  selectAllSeatsInMatrix(): void {
+    this.selectedCellKeys = this.gridCells
+      .filter(cell => cell.seatType !== SeatType.Aisle)
+      .map(cell => cell.key)
+
+    this.updateSeatEditModel()
+    this.cdr.markForCheck()
+  }
+
+  clearGridSelection(): void {
+    this.selectedCellKeys = []
+    this.updateSeatEditModel()
+    this.cdr.markForCheck()
+  }
+
+  get matrixZoomPercent(): number {
+    return Math.round(this.matrixZoom * 100)
+  }
+
+  get matrixGridStyles(): Record<string, string> {
+    return {
+      '--matrix-columns': String(this.gridColumns || 1),
+      '--matrix-cell-size': `${this.matrixCellSize}px`,
+      '--matrix-zoom': String(this.matrixZoom)
+    }
+  }
+
+  onGridWrapperMouseDown(event: MouseEvent): void {
+    if (this.matrixTool !== 'pan') return
+    if (event.button !== 0) return
+    if (!this.gridWrapper?.nativeElement) return
+
+    event.preventDefault()
+
+    const wrapper = this.gridWrapper.nativeElement
+
+    this.isPanning = true
+    this.panStartX = event.clientX
+    this.panStartY = event.clientY
+    this.panStartScrollLeft = wrapper.scrollLeft
+    this.panStartScrollTop = wrapper.scrollTop
+
+    this.cdr.markForCheck()
+  }
+
+  @HostListener('document:mousemove', ['$event'])
+  onDocumentMouseMove(event: MouseEvent): void {
+    if (!this.isPanning) return
+    if (!this.gridWrapper?.nativeElement) return
+
+    const wrapper = this.gridWrapper.nativeElement
+    const deltaX = event.clientX - this.panStartX
+    const deltaY = event.clientY - this.panStartY
+
+    wrapper.scrollLeft = this.panStartScrollLeft - deltaX
+    wrapper.scrollTop = this.panStartScrollTop - deltaY
+  }
+
+  onGridWheel(event: WheelEvent): void {
+    if (!event.ctrlKey && !event.metaKey) return
+
+    event.preventDefault()
+
+    if (event.deltaY > 0) {
+      this.zoomOut()
+    } else {
+      this.zoomIn()
+    }
   }
 
   /**
@@ -349,44 +494,50 @@ export class LayoutMatrixEditorComponent implements OnInit {
   }
 
   onMouseDown(cell: MatrixCellVm, event: MouseEvent): void {
-    if (event.button !== 0) return; // Only left click
+    if (this.matrixTool !== 'select') return
+    if (event.button !== 0) return
+
+    event.preventDefault()
+    event.stopPropagation()
 
     if (!event.ctrlKey && !event.metaKey && !event.shiftKey) {
-      this.isSelecting = true;
-      this.selectionStartCell = cell;
-      this.selectedCellKeys = [cell.key];
+      this.isSelecting = true
+      this.selectionStartCell = cell
+      this.selectedCellKeys = [cell.key]
     } else if (event.shiftKey) {
-      this.selectRange(cell);
+      this.selectRange(cell)
     } else {
-      this.selectCell(cell, event);
+      this.selectCell(cell, event)
     }
 
-    this.updateSeatEditModel();
-    this.cdr.markForCheck();
+    this.updateSeatEditModel()
+    this.cdr.markForCheck()
   }
 
   onMouseEnter(cell: MatrixCellVm): void {
-    if (!this.isSelecting || !this.selectionStartCell) return;
+    if (this.matrixTool !== 'select') return
+    if (!this.isSelecting || !this.selectionStartCell) return
 
-    const start = this.selectionStartCell;
-    const minRow = Math.min(start.row, cell.row);
-    const maxRow = Math.max(start.row, cell.row);
-    const minCol = Math.min(start.column, cell.column);
-    const maxCol = Math.max(start.column, cell.column);
+    const start = this.selectionStartCell
+    const minRow = Math.min(start.row, cell.row)
+    const maxRow = Math.max(start.row, cell.row)
+    const minCol = Math.min(start.column, cell.column)
+    const maxCol = Math.max(start.column, cell.column)
 
     this.selectedCellKeys = this.gridCells
       .filter(c => c.row >= minRow && c.row <= maxRow && c.column >= minCol && c.column <= maxCol)
-      .map(c => c.key);
+      .map(c => c.key)
 
-    this.updateSeatEditModel();
-    this.cdr.markForCheck();
+    this.updateSeatEditModel()
+    this.cdr.markForCheck()
   }
 
   @HostListener('document:mouseup')
   onMouseUp(): void {
-    this.isSelecting = false;
-    this.selectionStartCell = null;
-    this.cdr.markForCheck();
+    this.isSelecting = false
+    this.selectionStartCell = null
+    this.isPanning = false
+    this.cdr.markForCheck()
   }
 
   isCellSelected(cell: MatrixCellVm): boolean {

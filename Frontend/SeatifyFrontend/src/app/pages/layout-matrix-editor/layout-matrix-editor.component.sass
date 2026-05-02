@@ -232,49 +232,181 @@ h1
     min-height: 640px
 
 .editor-canvas
-    min-height: 100%
+    height: calc(100vh - 260px)
+    min-height: 640px
     border: 1px solid $color-light-200
-    border-radius: 18px
-    background: linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%)
-    padding: 28px
+    border-radius: 22px
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)
+    padding: 18px
+    display: flex
+    flex-direction: column
+    align-items: stretch
+    gap: 14px
+    overflow: hidden
+
+.matrix-canvas-header
+    display: flex
+    justify-content: space-between
+    align-items: flex-start
+    gap: 16px
+    flex-wrap: wrap
+
+.stage-area
     display: flex
     flex-direction: column
     align-items: center
-    gap: 20px
+    gap: 6px
 
 .editor-stage-badge
+    min-width: 260px
+    height: 42px
     display: inline-flex
     align-items: center
     justify-content: center
-    height: 30px
-    padding: 0 16px
-    border-radius: 999px
-    background: $color-light-100
-    border: 1px solid $color-light-200
-    font-size: 12px
-    font-weight: 700
-    letter-spacing: .04em
+    padding: 0 36px
+    border-radius: 0 0 999px 999px
+    background: linear-gradient(180deg, #e2e8f0 0%, #cbd5e1 100%)
+    border: 1px solid #cbd5e1
+    box-shadow: inset 0 -6px 12px rgba(15, 23, 42, 0.08)
     color: $color-dark-700
+    font-size: 12px
+    font-weight: 800
+    letter-spacing: .18em
+
+.stage-helper
+    margin: 0
+    color: $color-dark-500
+    font-size: 12px
+
+.matrix-canvas-toolbar
+    display: flex
+    align-items: center
+    justify-content: flex-end
+    flex-wrap: wrap
+    gap: 8px
+
+.matrix-tool-group
+    display: inline-flex
+    align-items: center
+    gap: 5px
+    padding: 4px
+    border: 1px solid $color-light-200
+    border-radius: 14px
+    background: $color-light-50
+
+.matrix-tool-button,
+.matrix-icon-button,
+.matrix-zoom-value
+    min-height: 34px
+    border: 0
+    border-radius: 10px
+    background: transparent
+    color: $color-dark-700
+    font-size: 12px
+    font-weight: 800
+    cursor: pointer
+    display: inline-flex
+    align-items: center
+    justify-content: center
+    gap: 6px
+    padding: 0 10px
+    transition: .18s ease
+
+    &:hover:not(:disabled)
+        background: $color-light-100
+        color: $color-primary-600
+
+    &:disabled
+        opacity: .45
+        cursor: not-allowed
+
+.matrix-icon-button
+    width: 34px
+    padding: 0
+
+.matrix-zoom-value
+    min-width: 58px
+    background: $color-light-100
+    color: $color-dark-900
+
+.matrix-tool-button--active
+    background: #eff6ff
+    color: #1d4ed8
+    box-shadow: inset 0 0 0 1px #bfdbfe
+
+.matrix-status-row
+    display: flex
+    align-items: center
+    justify-content: space-between
+    flex-wrap: wrap
+    gap: 10px
+    padding: 10px 12px
+    border-radius: 14px
+    background: $color-light-50
+    border: 1px solid $color-light-200
+    color: $color-dark-600
+    font-size: 12px
+
+    strong
+        color: $color-dark-950
+
+.matrix-mode-chip
+    display: inline-flex
+    align-items: center
+    justify-content: center
+    min-height: 24px
+    padding: 0 10px
+    border-radius: 999px
+    background: #eff6ff
+    color: #1d4ed8
+    font-weight: 800
+
+.matrix-mode-chip--pan
+    background: #fff7ed
+    color: #c2410c
 
 .grid-wrapper
     width: 100%
+    flex: 1
+    min-height: 360px
     overflow: auto
-    background: $color-light-100
-    border: 1px solid #eef2f7
-    border-radius: 18px
+    background: radial-gradient(circle at center, rgba(148, 163, 184, .18) 0 1px, transparent 1px), linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%)
+    background-size: 22px 22px, 100% 100%
+    border: 1px solid #e2e8f0
+    border-radius: 20px
     padding: 28px
     display: flex
     justify-content: center
+    align-items: flex-start
+    overscroll-behavior: contain
+    user-select: none
+
+.grid-wrapper--pan-mode
+    cursor: grab
+
+.grid-wrapper--panning
+    cursor: grabbing
 
 .grid
     display: grid
-    gap: 8px
+    grid-template-columns: repeat(var(--matrix-columns), calc(var(--matrix-cell-size) * var(--matrix-zoom)))
+    grid-auto-rows: calc(var(--matrix-cell-size) * var(--matrix-zoom))
+    gap: calc(8px * var(--matrix-zoom))
+    width: max-content
+    min-width: max-content
+    padding: 18px
+    border-radius: 22px
+    background: rgba(255, 255, 255, .78)
+    border: 1px solid rgba(226, 232, 240, .95)
+    box-shadow: 0 18px 45px rgba(15, 23, 42, .08)
 
 .cell
-    width: 36px
-    height: 36px
-    border: 1px solid orange
-    border-radius: 8px
+    width: calc(var(--matrix-cell-size) * var(--matrix-zoom))
+    height: calc(var(--matrix-cell-size) * var(--matrix-zoom))
+    min-width: 12px
+    min-height: 12px
+    border: 1px solid #f59e0b
+    border-radius: calc(8px * var(--matrix-zoom))
     cursor: pointer
     background-color: #f8fafc
     transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease
@@ -284,7 +416,7 @@ h1
     position: relative
 
     .cell__accessible-icon
-        font-size: 16px
+        font-size: max(9px, calc(16px * var(--matrix-zoom)))
         color: white
         pointer-events: none
         line-height: 1
@@ -292,20 +424,33 @@ h1
 
     &--selected
         border: 2px solid #2563eb !important
-        box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15)
-        transform: scale(1.04)
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2)
+        transform: scale(1.08)
         z-index: 10
 
     &:hover:not(.cell--selected)
-        transform: translateY(-1px)
-        box-shadow: 0 4px 10px rgba(59, 130, 246, 0.18)
+        transform: scale(1.05)
+        box-shadow: 0 6px 14px rgba(59, 130, 246, 0.18)
 
 .cell--accessible
     background: $color-success-500
 
 .cell--aisle
-    background: #f1f5f9 !important
-    opacity: .25
+    background: transparent !important
+    border-color: transparent !important
+    opacity: .35
+
+.matrix-help-row
+    display: flex
+    justify-content: center
+    align-items: center
+    flex-wrap: wrap
+    gap: 12px
+    color: $color-dark-500
+    font-size: 12px
+
+    strong
+        color: $color-dark-800
 
 // Override forrás jelzők: kis pontok a jobb felső sarokban (szektor · ár · kategória)
 .cell__override-dots
