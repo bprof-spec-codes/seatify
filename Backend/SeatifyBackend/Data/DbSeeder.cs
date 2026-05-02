@@ -323,6 +323,20 @@ namespace Data
                 ctx.EventOccurrences.AddRange(occurrences);
                 ctx.SaveChanges();
             }
+
+            if (!ctx.Appearances.Any())
+            {
+                var appearances = new List<Appearance>
+                {
+                    new Appearance { Id = "app-01", OrganizerId = "org-id-01", Name = "Ocean Blue", PrimaryColor = "#3b82f6", AccentColor = "#0ea5e9", BackgroundColor = "#f1f5f9", SurfaceColor = "#ffffff", TextColor = "#0f172a", SecondaryColor = "#64748b", ThemePreset = "Ocean Blue", BannerImageUrl = "https://files.123freevectors.com/wp-content/original/164510-dark-blue-texture-background.jpg", IsDefault = true, CreatedAtUtc = DateTime.UtcNow, UpdatedAtUtc = DateTime.UtcNow },
+                    new Appearance { Id = "app-02", OrganizerId = "org-id-01", Name = "Midnight Pro", PrimaryColor = "#8b5cf6", AccentColor = "#22d3ee", BackgroundColor = "#0f172a", SurfaceColor = "#1e293b", TextColor = "#f8fafc", SecondaryColor = "#334155", ThemePreset = "Midnight Pro", IsDefault = false, CreatedAtUtc = DateTime.UtcNow, UpdatedAtUtc = DateTime.UtcNow },
+                    new Appearance { Id = "app-03", OrganizerId = "org-id-01", Name = "Forest", PrimaryColor = "#10b981", AccentColor = "#84cc16", BackgroundColor = "#ecfdf5", SurfaceColor = "#ffffff", TextColor = "#064e3b", SecondaryColor = "#065f46", ThemePreset = "Forest", IsDefault = false, CreatedAtUtc = DateTime.UtcNow, UpdatedAtUtc = DateTime.UtcNow },
+                    new Appearance { Id = "app-04", OrganizerId = "org-id-01", Name = "Sunset", PrimaryColor = "#f97316", AccentColor = "#f43f5e", BackgroundColor = "#fff7ed", SurfaceColor = "#ffffff", TextColor = "#431407", SecondaryColor = "#9a3412", ThemePreset = "Sunset", IsDefault = false, CreatedAtUtc = DateTime.UtcNow, UpdatedAtUtc = DateTime.UtcNow }
+                };
+
+                ctx.Appearances.AddRange(appearances);
+                ctx.SaveChanges();
+            }
         }
 
         private static string GetRowLabel(int rowNumber)

@@ -19,7 +19,7 @@ namespace Entities.Dtos.EventOccurrence
         public DateTime BookingCloseAtUtc { get; set; }
         public DateTime? DoorsOpenAtUtc { get; set; }
         public string? CurrencyOverride { get; set; }
-
+        public string? AppearanceId { get; set; }
         public string Status { get; set; } = "Published";
 
     }

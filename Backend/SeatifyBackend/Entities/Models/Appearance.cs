@@ -9,11 +9,15 @@ namespace Entities.Models
         public string Id { get; set; } = Guid.NewGuid().ToString();
 
         public string OrganizerId { get; set; } = string.Empty;
-
         public Organizer Organizer { get; set; } = null!;
 
+        public string Name { get; set; } = "New Theme";
+
         public string PrimaryColor { get; set; } = string.Empty;
-        
+        public string AccentColor { get; set; } = string.Empty;
+        public string BackgroundColor { get; set; } = string.Empty;
+        public string SurfaceColor { get; set; } = string.Empty;
+        public string TextColor { get; set; } = string.Empty;
         public string SecondaryColor { get; set; } = string.Empty;
         
         public string LogoImageUrl { get; set; } = string.Empty;
