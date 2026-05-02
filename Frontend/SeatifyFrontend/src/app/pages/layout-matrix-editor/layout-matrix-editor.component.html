@@ -16,70 +16,76 @@
     </div>
   </header>
 
-  <div class="editor-layout">
-    <aside class="left-panel panel">
-      <div class="panel-header">
-        <h2 class="panel-title">Layout Matrices</h2>
-      </div>
+  <div class="editor-layout" [class.editor-layout--left-collapsed]="isLeftPanelCollapsed" [class.editor-layout--right-collapsed]="isRightPanelCollapsed">
+    <aside class="left-panel panel" [class.panel--collapsed]="isLeftPanelCollapsed">
+      <button type="button" class="panel-toggle-btn panel-toggle-btn--left" (click)="toggleLeftPanel()" [title]="isLeftPanelCollapsed ? 'Expand panel' : 'Collapse panel'">
+        <i class="bi" [class.bi-chevron-left]="!isLeftPanelCollapsed" [class.bi-chevron-right]="isLeftPanelCollapsed"></i>
+      </button>
 
-      <div class="matrix-list" *ngIf="matrices$ | async as matrices">
-        <div *ngIf="matrices.length === 0" class="panel-placeholder">
-          No layout matrices found for this auditorium. Create one to get started.
+      <div class="panel-content" *ngIf="!isLeftPanelCollapsed">
+        <div class="panel-header">
+          <h2 class="panel-title">Layout Matrices</h2>
         </div>
 
-        <ng-container *ngFor="let matrix of matrices; trackBy: trackByMatrixId">
-          <ng-container *ngIf="!isEditing(matrix); else editFormBlock">
-            <div class="matrix-item-wrapper">
-              <button type="button" class="matrix-item" [class.matrix-item--active]="isSelected(matrix)"
-                (click)="selectMatrix(matrix)">
-                <span class="matrix-item__name">{{ matrix.name }}</span>
-                <span class="matrix-item__meta">{{ matrix.rows }} × {{ matrix.columns }}</span>
-              </button>
+        <div class="matrix-list" *ngIf="matrices$ | async as matrices">
+          <div *ngIf="matrices.length === 0" class="panel-placeholder">
+            No layout matrices found for this auditorium. Create one to get started.
+          </div>
 
-              <div class="matrix-item-menu">
-                <button type="button" class="matrix-item-menu__trigger" (click)="toggleMatrixMenu(matrix.id)"
-                  [attr.aria-expanded]="isMatrixMenuOpen(matrix)">
-                  ⋯
+          <ng-container *ngFor="let matrix of matrices; trackBy: trackByMatrixId">
+            <ng-container *ngIf="!isEditing(matrix); else editFormBlock">
+              <div class="matrix-item-wrapper">
+                <button type="button" class="matrix-item" [class.matrix-item--active]="isSelected(matrix)"
+                  (click)="selectMatrix(matrix)">
+                  <span class="matrix-item__name">{{ matrix.name }}</span>
+                  <span class="matrix-item__meta">{{ matrix.rows }} × {{ matrix.columns }}</span>
                 </button>
 
-                <div class="matrix-item-menu__dropdown" *ngIf="isMatrixMenuOpen(matrix)">
-                  <button type="button" class="matrix-item-menu__action" (click)="startEditMatrix(matrix)">
-                    Edit
+                <div class="matrix-item-menu">
+                  <button type="button" class="matrix-item-menu__trigger" (click)="toggleMatrixMenu(matrix.id)"
+                    [attr.aria-expanded]="isMatrixMenuOpen(matrix)">
+                    ⋯
                   </button>
 
-                  <button type="button" class="matrix-item-menu__action matrix-item-menu__action--danger"
-                    (click)="startDeleteMatrix(matrix)" [disabled]="isDeletingMatrix || isSavingMatrix">
-                    Delete
-                  </button>
+                  <div class="matrix-item-menu__dropdown" *ngIf="isMatrixMenuOpen(matrix)">
+                    <button type="button" class="matrix-item-menu__action" (click)="startEditMatrix(matrix)">
+                      Edit
+                    </button>
+
+                    <button type="button" class="matrix-item-menu__action matrix-item-menu__action--danger"
+                      (click)="startDeleteMatrix(matrix)" [disabled]="isDeletingMatrix || isSavingMatrix">
+                      Delete
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
+            </ng-container>
+
+            <ng-template #editFormBlock>
+              <div class="matrix-edit-block">
+                <app-layout-matrix-form [initialValue]="{
+                    name: matrix.name,
+                    rows: matrix.rows,
+                    columns: matrix.columns
+                  }" [submitLabel]="'Save'" [isSubmitting]="isSavingMatrix" (submitted)="updateMatrix(matrix.id, $event)"
+                  (cancelled)="closeEditForm()">
+                </app-layout-matrix-form>
+              </div>
+            </ng-template>
           </ng-container>
 
-          <ng-template #editFormBlock>
-            <div class="matrix-edit-block">
-              <app-layout-matrix-form [initialValue]="{
-                  name: matrix.name,
-                  rows: matrix.rows,
-                  columns: matrix.columns
-                }" [submitLabel]="'Save'" [isSubmitting]="isSavingMatrix" (submitted)="updateMatrix(matrix.id, $event)"
-                (cancelled)="closeEditForm()">
-              </app-layout-matrix-form>
-            </div>
+          <ng-container *ngIf="!isCreateFormOpen; else createFormBlock">
+            <button type="button" class="matrix-add-button" (click)="openCreateForm()">
+              + New matrix
+            </button>
+          </ng-container>
+
+          <ng-template #createFormBlock>
+            <app-layout-matrix-form [submitLabel]="'Create'" [isSubmitting]="isCreatingMatrix"
+              (submitted)="createMatrix($event)" (cancelled)="closeCreateForm()">
+            </app-layout-matrix-form>
           </ng-template>
-        </ng-container>
-
-        <ng-container *ngIf="!isCreateFormOpen; else createFormBlock">
-          <button type="button" class="matrix-add-button" (click)="openCreateForm()">
-            + New matrix
-          </button>
-        </ng-container>
-
-        <ng-template #createFormBlock>
-          <app-layout-matrix-form [submitLabel]="'Create'" [isSubmitting]="isCreatingMatrix"
-            (submitted)="createMatrix($event)" (cancelled)="closeCreateForm()">
-          </app-layout-matrix-form>
-        </ng-template>
+        </div>
       </div>
     </aside>
 
@@ -90,48 +96,79 @@
             <h2 class="panel-title">{{ selectedMatrixTitle }}</h2>
             <p class="editor-shell__subtitle">{{ selectedMatrixSummary }}</p>
           </div>
-          <div class="context-badge" [class]="'context-badge--' + editorContext">
-            <span *ngIf="editorContext === 'auditorium'">Auditorium</span>
-            <span *ngIf="editorContext === 'event'">Event override</span>
-            <span *ngIf="editorContext === 'occurrence'">Date override</span>
+          
+          <div class="editor-shell__actions">
+            <div class="canvas-toolbar">
+              <div class="toolbar-group">
+                <button type="button" class="toolbar-button" [class.toolbar-button--active]="editorMode === 'select'" (click)="setEditorMode('select')" title="Select mode">
+                  <i class="bi bi-cursor-fill"></i>
+                </button>
+                <button type="button" class="toolbar-button" [class.toolbar-button--active]="editorMode === 'pan'" (click)="setEditorMode('pan')" title="Pan mode">
+                  <i class="bi bi-hand-index-thumb"></i>
+                </button>
+              </div>
+
+              <div class="toolbar-divider"></div>
+
+              <div class="toolbar-group">
+                <button type="button" class="toolbar-button" (click)="zoomOut()" title="Zoom Out">
+                  <i class="bi bi-dash-lg"></i>
+                </button>
+                <span class="zoom-indicator">{{ zoomLevel * 100 | number:'1.0-0' }}%</span>
+                <button type="button" class="toolbar-button" (click)="zoomIn()" title="Zoom In">
+                  <i class="bi bi-plus-lg"></i>
+                </button>
+                <button type="button" class="toolbar-button" (click)="resetZoom()" title="Reset Zoom">
+                  <i class="bi bi-aspect-ratio"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="context-badge" [class]="'context-badge--' + editorContext">
+              <span *ngIf="editorContext === 'auditorium'">Auditorium</span>
+              <span *ngIf="editorContext === 'event'">Event override</span>
+              <span *ngIf="editorContext === 'occurrence'">Date override</span>
+            </div>
           </div>
         </div>
 
         <div class="editor-shell__body">
-          <div class="editor-canvas">
+          <div class="editor-canvas" [class.editor-canvas--pan]="editorMode === 'pan'">
             <div class="editor-stage-badge">STAGE</div>
 
-            <div class="grid-wrapper">
-              <div class="grid" [style.gridTemplateColumns]="'repeat(' + gridColumns + ', 36px)'">
-                <div class="cell" *ngFor="let cell of gridCells; trackBy: trackByCellKey"
-                  [class.cell--selected]="isCellSelected(cell)"
-                  [class.cell--accessible]="cell.seatType === seatType.AccessibleSeat"
-                  [class.cell--aisle]="cell.seatType === seatType.Aisle"
-                  (mousedown)="onMouseDown(cell, $event)"
-                  (mouseenter)="onMouseEnter(cell)"
-                  (click)="$event.stopPropagation()"
-                  [style.backgroundColor]="getSectorColor(cell.sectorId) || '#f8fafc'"
-                  [title]="cell.seatLabel || ('Row ' + cell.row + ', Column ' + cell.column)">
-                  <i class="bi bi-universal-access-circle cell__accessible-icon"
-                     *ngIf="cell.seatType === seatType.AccessibleSeat"></i>
-                  <!-- Override forrás jelzők: szektor · ár · kategória -->
-                  <div class="cell__override-dots"
-                       *ngIf="cell.sectorSource !== 'auditorium' || cell.priceSource !== 'auditorium' || cell.seatTypeSource !== 'auditorium'">
-                    <span class="cell__override-dot"
-                          [class.cell__override-dot--event]="cell.sectorSource === 'event'"
-                          [class.cell__override-dot--occurrence]="cell.sectorSource === 'occurrence'"
-                          *ngIf="cell.sectorSource !== 'auditorium'"
-                          title="Szektor: {{ cell.sectorSource }} override"></span>
-                    <span class="cell__override-dot"
-                          [class.cell__override-dot--event]="cell.priceSource === 'event'"
-                          [class.cell__override-dot--occurrence]="cell.priceSource === 'occurrence'"
-                          *ngIf="cell.priceSource !== 'auditorium'"
-                          title="Ár: {{ cell.priceSource }} override"></span>
-                    <span class="cell__override-dot"
-                          [class.cell__override-dot--event]="cell.seatTypeSource === 'event'"
-                          [class.cell__override-dot--occurrence]="cell.seatTypeSource === 'occurrence'"
-                          *ngIf="cell.seatTypeSource !== 'auditorium'"
-                          title="Kategória: {{ cell.seatTypeSource }} override"></span>
+            <div class="grid-wrapper" #gridWrapper (mousedown)="onGridWrapperMouseDown($event)">
+              <div class="zoom-container" [style.transform]="'scale(' + zoomLevel + ')'">
+                <div class="grid" [style.gridTemplateColumns]="'repeat(' + gridColumns + ', 36px)'">
+                  <div class="cell" *ngFor="let cell of gridCells; trackBy: trackByCellKey"
+                    [class.cell--selected]="isCellSelected(cell)"
+                    [class.cell--accessible]="cell.seatType === seatType.AccessibleSeat"
+                    [class.cell--aisle]="cell.seatType === seatType.Aisle"
+                    (mousedown)="onMouseDown(cell, $event)"
+                    (mouseenter)="onMouseEnter(cell)"
+                    (click)="$event.stopPropagation()"
+                    [style.backgroundColor]="getSectorColor(cell.sectorId) || '#f8fafc'"
+                    [title]="cell.seatLabel || ('Row ' + cell.row + ', Column ' + cell.column)">
+                    <i class="bi bi-universal-access-circle cell__accessible-icon"
+                       *ngIf="cell.seatType === seatType.AccessibleSeat"></i>
+                    <!-- Override forrás jelzők: szektor · ár · kategória -->
+                    <div class="cell__override-dots"
+                         *ngIf="cell.sectorSource !== 'auditorium' || cell.priceSource !== 'auditorium' || cell.seatTypeSource !== 'auditorium'">
+                      <span class="cell__override-dot"
+                            [class.cell__override-dot--event]="cell.sectorSource === 'event'"
+                            [class.cell__override-dot--occurrence]="cell.sectorSource === 'occurrence'"
+                            *ngIf="cell.sectorSource !== 'auditorium'"
+                            title="Szektor: {{ cell.sectorSource }} override"></span>
+                      <span class="cell__override-dot"
+                            [class.cell__override-dot--event]="cell.priceSource === 'event'"
+                            [class.cell__override-dot--occurrence]="cell.priceSource === 'occurrence'"
+                            *ngIf="cell.priceSource !== 'auditorium'"
+                            title="Ár: {{ cell.priceSource }} override"></span>
+                      <span class="cell__override-dot"
+                            [class.cell__override-dot--event]="cell.seatTypeSource === 'event'"
+                            [class.cell__override-dot--occurrence]="cell.seatTypeSource === 'occurrence'"
+                            *ngIf="cell.seatTypeSource !== 'auditorium'"
+                            title="Kategória: {{ cell.seatTypeSource }} override"></span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -149,46 +186,52 @@
       </ng-template>
     </main>
 
-    <aside class="right-panel panel">
-      <div class="panel-header">
-        <h2 class="panel-title">Properties & Tools</h2>
-      </div>
+    <aside class="right-panel panel" [class.panel--collapsed]="isRightPanelCollapsed">
+      <button type="button" class="panel-toggle-btn panel-toggle-btn--right" (click)="toggleRightPanel()" [title]="isRightPanelCollapsed ? 'Expand panel' : 'Collapse panel'">
+        <i class="bi" [class.bi-chevron-right]="!isRightPanelCollapsed" [class.bi-chevron-left]="isRightPanelCollapsed"></i>
+      </button>
 
-      <div class="selection-summary__info" *ngIf="hasSelection" [class.selection-summary__info--bulk]="isBulkSelection">
-        {{ selectedCellKeys.length }} {{ selectedCellKeys.length === 1 ? 'seat' : 'seats' }} selected
-      </div>
-
-      <div class="tool-stack">
-        <div class="tool-card">
-          <app-seat-editor 
-            [cell]="isBulkSelection ? null : selectedCell" 
-            [isSaving]="isSavingSeat" 
-            [disabled]="!hasSelection"
-            [isBulkMode]="isBulkSelection"
-            (save)="isBulkSelection ? bulkUpdateSeats($event) : saveSeat($event)">
-          </app-seat-editor>
+      <div class="panel-content" *ngIf="!isRightPanelCollapsed">
+        <div class="panel-header">
+          <h2 class="panel-title">Properties & Tools</h2>
         </div>
 
-        <div class="tool-card">
-          <app-sector-editor 
-            [sectors]="(sectors$ | async) ?? []" 
-            [selectedSectorId]="isBulkSelection ? null : (selectedCell?.sectorId ?? null)"
-            [disabled]="isSavingSeat" 
-            [canAssign]="hasSelection"
-            [isCreateFormOpen]="isCreateSectorFormOpen" 
-            [isCreatingSector]="isCreatingSector"
-            [editingSectorId]="editingSectorId" 
-            [isUpdatingSector]="isUpdatingSector"
-            [isDeletingSector]="isDeletingSector" 
-            (applySector)="applySectorToSelectedSeats($event)"
-            (createClicked)="openCreateSectorForm()" 
-            (createCancelled)="closeCreateSectorForm()"
-            (createSubmitted)="createSector($event)" 
-            (editClicked)="openEditSectorForm($event)"
-            (editCancelled)="closeEditSectorForm()" 
-            (editSubmitted)="updateSector($event)"
-            (deleteClicked)="deleteSector($event)">
-          </app-sector-editor>
+        <div class="selection-summary__info" *ngIf="hasSelection" [class.selection-summary__info--bulk]="isBulkSelection">
+          {{ selectedCellKeys.length }} {{ selectedCellKeys.length === 1 ? 'seat' : 'seats' }} selected
+        </div>
+
+        <div class="tool-stack">
+          <div class="tool-card">
+            <app-seat-editor 
+              [cell]="isBulkSelection ? null : selectedCell" 
+              [isSaving]="isSavingSeat" 
+              [disabled]="!hasSelection"
+              [isBulkMode]="isBulkSelection"
+              (save)="isBulkSelection ? bulkUpdateSeats($event) : saveSeat($event)">
+            </app-seat-editor>
+          </div>
+
+          <div class="tool-card">
+            <app-sector-editor 
+              [sectors]="(sectors$ | async) ?? []" 
+              [selectedSectorId]="isBulkSelection ? null : (selectedCell?.sectorId ?? null)"
+              [disabled]="isSavingSeat" 
+              [canAssign]="hasSelection"
+              [isCreateFormOpen]="isCreateSectorFormOpen" 
+              [isCreatingSector]="isCreatingSector"
+              [editingSectorId]="editingSectorId" 
+              [isUpdatingSector]="isUpdatingSector"
+              [isDeletingSector]="isDeletingSector" 
+              (applySector)="applySectorToSelectedSeats($event)"
+              (createClicked)="openCreateSectorForm()" 
+              (createCancelled)="closeCreateSectorForm()"
+              (createSubmitted)="createSector($event)" 
+              (editClicked)="openEditSectorForm($event)"
+              (editCancelled)="closeEditSectorForm()" 
+              (editSubmitted)="updateSector($event)"
+              (deleteClicked)="deleteSector($event)">
+            </app-sector-editor>
+          </div>
         </div>
       </div>
     </aside>

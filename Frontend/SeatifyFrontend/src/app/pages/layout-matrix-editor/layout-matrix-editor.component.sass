@@ -9,13 +9,19 @@
     min-height: 100vh
     background: $color-light-100
     padding: 24px
+    display: flex
+    flex-direction: column
 
 .page-header
     margin-bottom: 24px
+    flex-shrink: 0
 
 .page-header__content
-    max-width: 1600px
-    margin: 0 auto
+    width: 100%
+    margin: 0
+    display: flex
+    align-items: center
+    gap: 16px
 
 h1
     margin: 0
@@ -31,23 +37,72 @@ h1
     color: $color-dark-600
 
 .editor-layout
-    max-width: 1600px
-    margin: 0 auto
+    width: 100%
+    flex: 1
     display: grid
     grid-template-columns: 300px minmax(0, 1fr) 340px
     gap: 24px
-    align-items: start
+    align-items: stretch
+    transition: grid-template-columns .3s cubic-bezier(0.4, 0, 0.2, 1)
+
+    &--left-collapsed
+        grid-template-columns: 48px minmax(0, 1fr) 340px
+
+    &--right-collapsed
+        grid-template-columns: 300px minmax(0, 1fr) 48px
+
+    &--left-collapsed.editor-layout--right-collapsed
+        grid-template-columns: 48px minmax(0, 1fr) 48px
 
 .panel
     background: $color-light-50
     border: 1px solid $color-light-200
     border-radius: 20px
     box-shadow: 0 6px 18px rgba(17, 24, 39, 0.04)
+    display: flex
+    flex-direction: column
+    position: relative
+    overflow: hidden
+    transition: width .3s ease, padding .3s ease
 
-.left-panel,
-.center-panel,
-.right-panel
+    &--collapsed
+        width: 48px
+        padding: 0 !important
+        align-items: center
+
+.panel-content
     padding: 20px
+    flex: 1
+    display: flex
+    flex-direction: column
+    overflow-y: auto
+
+.panel-toggle-btn
+    position: absolute
+    top: 12px
+    width: 32px
+    height: 32px
+    border-radius: 8px
+    border: 1px solid $color-light-200
+    background: $color-light-50
+    color: $color-dark-600
+    cursor: pointer
+    display: flex
+    align-items: center
+    justify-content: center
+    z-index: 10
+    transition: .2s ease
+
+    &:hover
+        background: $color-light-100
+        color: $color-primary-600
+        border-color: $color-primary-200
+
+    &--left
+        right: 8px
+
+    &--right
+        left: 8px
 
 .panel-header
     margin-bottom: 16px
@@ -85,9 +140,6 @@ h1
     border-color: #bfdbfe
     color: #1e40af
 
-    &::before
-        background: #2563eb
-
 .panel-placeholder
     padding: 20px
     border: 1px dashed $color-light-300
@@ -97,12 +149,6 @@ h1
     font-size: 14px
     line-height: 20px
     text-align: center
-
-.panel-placeholder-large
-    min-height: 320px
-    display: flex
-    align-items: center
-    justify-content: center
 
 .matrix-list
     display: flex
@@ -213,6 +259,7 @@ h1
         border-color: $color-primary-200
 
 .editor-shell
+    height: 100%
     display: flex
     flex-direction: column
     gap: 16px
@@ -221,6 +268,70 @@ h1
     display: flex
     align-items: center
     justify-content: space-between
+    padding: 12px 16px
+    margin-bottom: 8px
+
+    .panel-title
+        font-size: 20px
+        letter-spacing: -0.01em
+
+.editor-shell__actions
+    display: flex
+    align-items: center
+    gap: 16px
+
+.canvas-toolbar
+    display: flex
+    align-items: center
+    gap: 8px
+    background: #ffffff
+    border: 1px solid $color-light-200
+    border-radius: 14px
+    padding: 4px
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03)
+
+.toolbar-group
+    display: flex
+    align-items: center
+    gap: 2px
+
+.toolbar-divider
+    width: 1px
+    height: 20px
+    background: $color-light-200
+    margin: 0 4px
+
+.toolbar-button
+    width: 32px
+    height: 32px
+    border-radius: 8px
+    border: 0
+    background: transparent
+    color: $color-dark-600
+    cursor: pointer
+    display: flex
+    align-items: center
+    justify-content: center
+    transition: .15s ease
+
+    &:hover
+        background: $color-light-100
+        color: $color-dark-950
+
+    &--active
+        background: #eff6ff !important
+        color: $color-primary-600 !important
+        box-shadow: inset 0 0 0 1px $color-primary-200
+
+    i
+        font-size: 16px
+
+.zoom-indicator
+    font-size: 12px
+    font-weight: 700
+    color: $color-dark-700
+    min-width: 44px
+    text-align: center
 
 .editor-shell__subtitle
     margin: 4px 0 0
@@ -229,40 +340,65 @@ h1
     color: $color-dark-600
 
 .editor-shell__body
-    min-height: 640px
+    flex: 1
+    min-height: 0
+    position: relative
 
 .editor-canvas
-    min-height: 100%
+    height: 100%
     border: 1px solid $color-light-200
-    border-radius: 18px
-    background: linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%)
-    padding: 28px
+    border-radius: 20px
+    background: #fdfdfe
+    background-image: radial-gradient(#e5e7eb 1px, transparent 1px)
+    background-size: 20px 20px
     display: flex
     flex-direction: column
     align-items: center
     gap: 20px
+    position: relative
+    overflow: hidden
+
+    &--pan
+        .grid-wrapper
+            cursor: grab
+            &:active
+                cursor: grabbing
+        
+        .cell
+            cursor: grab !important
+            &:active
+                cursor: grabbing !important
 
 .editor-stage-badge
+    margin-top: 28px
     display: inline-flex
     align-items: center
     justify-content: center
     height: 30px
-    padding: 0 16px
+    padding: 0 20px
     border-radius: 999px
-    background: $color-light-100
-    border: 1px solid $color-light-200
-    font-size: 12px
-    font-weight: 700
-    letter-spacing: .04em
-    color: $color-dark-700
+    background: #1e293b
+    color: white
+    font-size: 11px
+    font-weight: 800
+    letter-spacing: .1em
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1)
+    z-index: 5
 
 .grid-wrapper
     width: 100%
+    flex: 1
     overflow: auto
-    background: $color-light-100
-    border: 1px solid #eef2f7
-    border-radius: 18px
-    padding: 28px
+    padding: 80px 100px
+    display: flex
+    justify-content: center
+    align-items: flex-start
+    mask-image: linear-gradient(to bottom, transparent, black 80px, black calc(100% - 80px), transparent)
+
+.zoom-container
+    transition: transform .2s cubic-bezier(0.4, 0, 0.2, 1)
+    transform-origin: top center
+    padding: 40px
     display: flex
     justify-content: center
 
@@ -273,104 +409,91 @@ h1
 .cell
     width: 36px
     height: 36px
-    border: 1px solid orange
-    border-radius: 8px
+    border: 1px solid rgba(0,0,0,0.06)
+    border-radius: 10px
     cursor: pointer
-    background-color: #f8fafc
-    transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease
+    background-color: #ffffff
+    box-shadow: 0 1px 2px rgba(0,0,0,0.02)
+    transition: all .15s ease
     display: flex
     align-items: center
     justify-content: center
     position: relative
 
-    .cell__accessible-icon
-        font-size: 16px
-        color: white
-        pointer-events: none
-        line-height: 1
-        filter: drop-shadow(0 1px 1px rgba(0,0,0,0.3))
-
     &--selected
         border: 2px solid #2563eb !important
-        box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15)
-        transform: scale(1.04)
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12), 0 8px 16px rgba(37, 99, 235, 0.1)
+        transform: scale(1.1)
         z-index: 10
+        background-color: #ffffff !important
 
     &:hover:not(.cell--selected)
-        transform: translateY(-1px)
-        box-shadow: 0 4px 10px rgba(59, 130, 246, 0.18)
+        transform: translateY(-2px)
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08)
+        border-color: $color-primary-300
+        z-index: 5
 
 .cell--accessible
-    background: $color-success-500
+    background: #10b981
 
 .cell--aisle
-    background: #f1f5f9 !important
-    opacity: .25
+    background: transparent !important
+    border: 1px dashed $color-light-300
+    opacity: .3
 
-// Override forrás jelzők: kis pontok a jobb felső sarokban (szektor · ár · kategória)
 .cell__override-dots
     position: absolute
-    top: 3px
-    right: 3px
+    top: 4px
+    right: 4px
     display: flex
     gap: 2px
-    pointer-events: none
 
 .cell__override-dot
-    width: 5px
-    height: 5px
+    width: 4px
+    height: 4px
     border-radius: 50%
-    display: block
-    flex-shrink: 0
 
     &--event
-        background: #2563eb
+        background: #3b82f6
 
     &--occurrence
-        background: #d97706
+        background: #f59e0b
 
-// Context badge (header jobb oldala)
 .context-badge
     display: inline-flex
     align-items: center
     gap: 8px
     padding: 6px 14px
-    border-radius: 999px
+    border-radius: 10px
     font-size: 12px
-    font-weight: 600
-    border: 1px solid transparent
+    font-weight: 700
+    background: $color-light-100
+    border: 1px solid $color-light-200
+    color: $color-dark-700
 
     &::before
         content: ''
-        display: block
         width: 8px
         height: 8px
         border-radius: 50%
-        flex-shrink: 0
-
-    &--auditorium
-        background: $color-light-100
-        border-color: $color-light-300
-        color: $color-dark-600
-        &::before
-            background: #9ca3af
+        background: #9ca3af
 
     &--event
         background: #eff6ff
-        border-color: #bfdbfe
-        color: #1e40af
+        border-color: #dbeafe
+        color: #2563eb
         &::before
             background: #2563eb
 
     &--occurrence
         background: #fffbeb
-        border-color: #fde68a
-        color: #92400e
+        border-color: #fef3c7
+        color: #d97706
         &::before
             background: #d97706
 
 .editor-empty-state
-    min-height: 640px
+    height: 100%
     display: flex
     align-items: center
     justify-content: center
@@ -378,37 +501,27 @@ h1
 .tool-stack
     display: flex
     flex-direction: column
-    gap: 16px
+    gap: 20px
 
 .tool-card
     border: 1px solid $color-light-200
     border-radius: 18px
-    background: $color-light-50
-    padding: 18px
+    background: #ffffff
+    padding: 20px
+    box-shadow: 0 2px 8px rgba(0,0,0,0.02)
 
 @media (max-width: 1280px)
     .editor-layout
         grid-template-columns: 280px minmax(0, 1fr)
-
+    
     .right-panel
         grid-column: 1 / -1
+        height: auto
+        max-height: none
 
 @media (max-width: 960px)
-    .layout-editor-page
-        padding: 16px
-
     .editor-layout
         grid-template-columns: 1fr
-
-    .left-panel,
-    .center-panel,
-    .right-panel
-        padding: 16px
-
-.page-header__content
-    display: flex
-    align-items: center
-    gap: 16px
 
 .back-button
     width: 44px
@@ -422,13 +535,10 @@ h1
     cursor: pointer
     transition: .18s ease
 
-    i
-        font-size: 20px
-        color: $color-dark-800
-
     &:hover
-        background: $color-light-100
-        border-color: $color-primary-200
-
+        background: #ffffff
+        border-color: $color-primary-400
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1)
         i
             color: $color-primary-600
+

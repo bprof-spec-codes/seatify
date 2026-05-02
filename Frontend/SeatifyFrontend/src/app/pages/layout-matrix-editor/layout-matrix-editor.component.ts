@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 import { LayoutMatrixService } from '../../services/layout-matrix.service';
 import { BehaviorSubject, catchError, Observable, of, switchMap, tap } from 'rxjs';
 import { CreateLayoutMatrixDto, LayoutMatrix } from '../../models/layout-matrix';
@@ -21,6 +21,7 @@ import { EffectiveSeat, EffectiveSeatMap } from '../../models/seat-override';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LayoutMatrixEditorComponent implements OnInit {
+  @ViewChild('gridWrapper') gridWrapper!: ElementRef<HTMLDivElement>;
   matrices$!: Observable<LayoutMatrix[]>
   selectedMatrix: LayoutMatrix | null = null
 
@@ -67,6 +68,11 @@ export class LayoutMatrixEditorComponent implements OnInit {
   sectorErrorMessage: string | null = null
 
   private latestSectors: Sector[] = []
+
+  isLeftPanelCollapsed = false
+  isRightPanelCollapsed = false
+  zoomLevel = 1
+  editorMode: 'select' | 'pan' = 'select'
 
   constructor(
     private matrixService: LayoutMatrixService,
@@ -349,6 +355,7 @@ export class LayoutMatrixEditorComponent implements OnInit {
   }
 
   onMouseDown(cell: MatrixCellVm, event: MouseEvent): void {
+    if (this.editorMode === 'pan') return;
     if (event.button !== 0) return; // Only left click
 
     if (!event.ctrlKey && !event.metaKey && !event.shiftKey) {
@@ -386,7 +393,19 @@ export class LayoutMatrixEditorComponent implements OnInit {
   onMouseUp(): void {
     this.isSelecting = false;
     this.selectionStartCell = null;
+    this.isPanning = false;
     this.cdr.markForCheck();
+  }
+
+  @HostListener('document:mousemove', ['$event'])
+  onDocumentMouseMove(event: MouseEvent): void {
+    if (!this.isPanning || !this.gridWrapper) return;
+
+    const dx = event.clientX - this.panStart.x;
+    const dy = event.clientY - this.panStart.y;
+
+    this.gridWrapper.nativeElement.scrollLeft = this.scrollStart.x - dx;
+    this.gridWrapper.nativeElement.scrollTop = this.scrollStart.y - dy;
   }
 
   isCellSelected(cell: MatrixCellVm): boolean {
@@ -585,6 +604,57 @@ export class LayoutMatrixEditorComponent implements OnInit {
       this.openMatrixMenuId = null
       this.cdr.markForCheck()
     }
+  }
+
+  toggleLeftPanel(): void {
+    this.isLeftPanelCollapsed = !this.isLeftPanelCollapsed
+    this.cdr.markForCheck()
+  }
+
+  toggleRightPanel(): void {
+    this.isRightPanelCollapsed = !this.isRightPanelCollapsed
+    this.cdr.markForCheck()
+  }
+
+  zoomIn(): void {
+    if (this.zoomLevel < 2) {
+      this.zoomLevel += 0.1
+      this.cdr.markForCheck()
+    }
+  }
+
+  zoomOut(): void {
+    if (this.zoomLevel > 0.4) {
+      this.zoomLevel -= 0.1
+      this.cdr.markForCheck()
+    }
+  }
+
+  resetZoom(): void {
+    this.zoomLevel = 1
+    this.cdr.markForCheck()
+  }
+
+  setEditorMode(mode: 'select' | 'pan'): void {
+    this.editorMode = mode
+    this.cdr.markForCheck()
+  }
+
+  isPanning = false;
+  private panStart = { x: 0, y: 0 };
+  private scrollStart = { x: 0, y: 0 };
+
+  onGridWrapperMouseDown(event: MouseEvent): void {
+    if (this.editorMode !== 'pan') return;
+
+    this.isPanning = true;
+    this.panStart = { x: event.clientX, y: event.clientY };
+    this.scrollStart = {
+      x: this.gridWrapper.nativeElement.scrollLeft,
+      y: this.gridWrapper.nativeElement.scrollTop
+    };
+
+    event.preventDefault();
   }
 
   //update seat
