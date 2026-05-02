@@ -15,6 +15,7 @@ export class SeatEditorComponent implements OnInit, OnChanges {
   @Input() isSaving = false;
   @Input() disabled = false;
   @Input() isBulkMode = false;
+  @Input() currency = 'EUR';
 
 
   @Output() save = new EventEmitter<UpdateSeatDto>();

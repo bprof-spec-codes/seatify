@@ -27,7 +27,7 @@
 
                         <span class="sector-item__content">
                             <span class="sector-item__name">{{ sector.name }}</span>
-                            <span class="sector-item__price">{{ sector.basePrice | number:'1.0-0' }} Ft</span>
+                            <span class="sector-item__price">{{ sector.basePrice | price:currency }}</span>
                         </span>
                     </button>
 

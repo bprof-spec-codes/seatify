@@ -27,6 +27,7 @@ export interface EffectiveSeatMap {
   context: 'auditorium' | 'event' | 'occurrence';
   eventId: string | null;
   occurrenceId: string | null;
+  currency: string;
   seats: EffectiveSeat[];
 }
 

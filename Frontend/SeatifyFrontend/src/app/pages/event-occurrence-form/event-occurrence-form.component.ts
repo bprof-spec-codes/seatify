@@ -45,6 +45,16 @@ export class EventOccurrenceFormComponent implements OnInit {
     });
   }
 
+  get inheritedCurrency(): string {
+    if (this.event?.currency) return this.event.currency;
+    
+    const selectedAudId = this.occurrenceForm.get('auditoriumId')?.value;
+    const selectedAud = this.auditoriums.find(a => a.id === selectedAudId);
+    if (selectedAud?.currency) return selectedAud.currency;
+    
+    return 'EUR';
+  }
+
   ngOnInit(): void {
     this.eventId = this.route.snapshot.paramMap.get('eventId') || '';
     this.occurrenceId = this.route.snapshot.paramMap.get('id');
