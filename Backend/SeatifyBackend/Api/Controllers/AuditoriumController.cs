@@ -1,4 +1,4 @@
-﻿using Entities.Dtos.Auditorium;
+using Entities.Dtos.Auditorium;
 using Logic.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -97,6 +97,13 @@ namespace Api.Controllers
             }
 
             return NoContent();
+        }
+
+        [HttpGet("auditoriums/{auditoriumId}/has-bookings")]
+        public async Task<ActionResult<bool>> HasBookings(string auditoriumId, CancellationToken ct)
+        {
+            var hasBookings = await _auditoriumService.HasBookingsAsync(auditoriumId, ct);
+            return Ok(hasBookings);
         }
     }
 }

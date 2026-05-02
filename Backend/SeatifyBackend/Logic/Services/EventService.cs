@@ -18,6 +18,7 @@ namespace Logic.Services
         Task<List<Entities.Dtos.Event.EventViewDto>> GetByUserIdAsync(string userId, CancellationToken ct);
         Task<List<Entities.Dtos.EventOccurrence.EventOccurrenceViewDto>> GetOccurrencesByEventIdAsync(string eventId, CancellationToken ct);
         Task<Entities.Dtos.Event.EventViewDto?> GetBySlugAsync(string slug, CancellationToken ct);
+        Task<bool> HasBookingsAsync(string eventId, CancellationToken ct);
     }
 
     public class EventService : IEventService
@@ -352,6 +353,13 @@ namespace Logic.Services
         private static List<Entities.Dtos.Event.EventViewDto> MapToViewDto(List<Event> events)
         {
             return events.Select(e => MapToViewDto(e)).ToList();
+        }
+
+        public async Task<bool> HasBookingsAsync(string eventId, CancellationToken ct)
+        {
+            return await _dbContext.Reservations
+                .Include(r => r.EventOccurrence)
+                .AnyAsync(r => r.EventOccurrence.EventId == eventId && r.Status == "Confirmed", ct);
         }
     }
 }

@@ -171,5 +171,12 @@ namespace Api.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+        [HttpGet("{id}/has-bookings")]
+        public async Task<ActionResult<bool>> HasBookings(string id, CancellationToken ct)
+        {
+            var hasBookings = await _eventService.HasBookingsAsync(id, ct);
+            return Ok(hasBookings);
+        }
     }
 }
