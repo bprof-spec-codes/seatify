@@ -292,10 +292,12 @@ namespace Logic.Services
             return await _dbContext.EventOccurrences
                 .Where(eo => eo.EventId == eventId)
                 .Include(eo => eo.Event)
+                    .ThenInclude(e => e.Appearance)
                 .Include(eo => eo.Venue)
                 .Include(eo => eo.Auditorium)
                 .OrderBy(eo => eo.StartsAtUtc)
-                .Select(eo => new Entities.Dtos.EventOccurrence.EventOccurrenceViewDto
+                .ToListAsync(ct)
+                .ContinueWith(t => t.Result.Select(eo => new Entities.Dtos.EventOccurrence.EventOccurrenceViewDto
                 {
                     Id = eo.Id,
                     EventId = eo.EventId,
@@ -306,9 +308,9 @@ namespace Logic.Services
                     BookingOpenAtUtc = eo.BookingOpenAtUtc,
                     BookingCloseAtUtc = eo.BookingCloseAtUtc,
                     CurrencyOverride = eo.CurrencyOverride,
+                    EffectiveCurrency = Logic.Helper.CurrencyHelper.ResolveCurrency(eo),
                     Status = eo.Status
-                })
-                .ToListAsync(ct);
+                }).ToList());
         }
 
         public async Task<Entities.Dtos.Event.EventViewDto?> GetBySlugAsync(string slug, CancellationToken ct)

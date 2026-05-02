@@ -72,10 +72,7 @@ export class PublicBookingMapComponent implements OnInit, OnDestroy {
 
     const stateOcc = this.stateService.getEventOccurrence();
     if (stateOcc && stateOcc.id === occurrenceId) {
-      this.currency = stateOcc.currencyOverride 
-                      || stateOcc.event?.currency 
-                      || stateOcc.auditorium?.currency 
-                      || 'EUR';
+      this.currency = stateOcc.effectiveCurrency;
       this.loadData(stateOcc);
     } else {
       // Fetch specifically if state is not ready (normal for direct links)
@@ -83,10 +80,7 @@ export class PublicBookingMapComponent implements OnInit, OnDestroy {
         this.eventService.getOccurrenceById(occurrenceId).subscribe({
           next: (occ) => {
             this.stateService.setEventOccurrence(occ);
-            this.currency = occ.currencyOverride 
-                            || occ.event?.currency 
-                            || occ.auditorium?.currency 
-                            || 'EUR';
+            this.currency = occ.effectiveCurrency;
             this.loadData(occ);
           },
           error: (err) => {
@@ -120,6 +114,7 @@ export class PublicBookingMapComponent implements OnInit, OnDestroy {
             }).subscribe({
               next: ({ seatMap, reservations, sectors }) => {
                 this.sectors = sectors;
+                this.currency = seatMap.currency || 'EUR';
                 this.buildGrid(seatMap, reservations);
                 this.calculatePriceCategories();
                 this.isLoading = false;

@@ -2,6 +2,7 @@ using Data;
 using Entities.Dtos.EventOccurrence;
 using Entities.Dtos.Reservation;
 using Entities.Models;
+using Logic.Helper;
 using Logic.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -79,6 +80,7 @@ namespace Logic.Services
                 DoorsOpenAtUtc = occurrence.DoorsOpenAtUtc,
                 CurrencyOverride = occurrence.CurrencyOverride,
                 Status = occurrence.Status,
+                EffectiveCurrency = CurrencyHelper.ResolveCurrency(occurrence),
 
                 Event = occurrence.Event != null ? new EventOccurrenceEventDto
                 {
@@ -100,7 +102,8 @@ namespace Logic.Services
                 Auditorium = occurrence.Auditorium != null ? new EventOccurrenceAuditoriumDto
                 {
                     Id = occurrence.Auditorium.Id,
-                    Name = occurrence.Auditorium.Name
+                    Name = occurrence.Auditorium.Name,
+                    Currency = occurrence.Auditorium.Currency
                 } : null!
             };
         }

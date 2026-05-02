@@ -33,6 +33,7 @@ import { PublicBookingLayoutComponent } from './pages/public-booking-layout/publ
 import { PublicBookingMapComponent } from './pages/public-booking-map/public-booking-map.component';
 import { PublicBookingCheckoutComponent } from './pages/public-booking-checkout/public-booking-checkout.component';
 import { PublicBookingSuccessComponent } from './pages/public-booking-success/public-booking-success.component';
+import { PricePipe } from './pipes/price.pipe';
 
 @NgModule({
   declarations: [
@@ -63,6 +64,7 @@ import { PublicBookingSuccessComponent } from './pages/public-booking-success/pu
     PublicBookingMapComponent,
     PublicBookingCheckoutComponent,
     PublicBookingSuccessComponent,
+    PricePipe,
   ],
   imports: [
     BrowserModule,

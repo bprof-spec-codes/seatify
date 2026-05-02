@@ -3,6 +3,7 @@ using Entities.Dtos.Bookings;
 using Entities.Dtos.Exceptions;
 using Entities.Dtos.Reservation;
 using Entities.Models;
+using Logic.Helper;
 using Logic.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -210,10 +211,7 @@ namespace Logic.Services
             }
 
             var totalPrice = reservationSeats.Sum(rs => rs.FinalPrice);
-            var currency = eventOccurrence.CurrencyOverride 
-                           ?? eventOccurrence.Event.Appearance?.Currency 
-                           ?? eventOccurrence.Auditorium?.Currency 
-                           ?? "HUF";
+            var currency = CurrencyHelper.ResolveCurrency(eventOccurrence);
 
             // Generate PDF
             var pdfTickets = new List<PdfTicketItem>();

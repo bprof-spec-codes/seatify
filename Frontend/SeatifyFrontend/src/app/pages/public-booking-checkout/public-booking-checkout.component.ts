@@ -45,10 +45,7 @@ export class PublicBookingCheckoutComponent implements OnInit, OnDestroy {
     this.totalPrice = this.stateService.getTotalPrice();
 
     if (this.occ) {
-      this.currency = this.occ.currencyOverride 
-                      || this.occ.event?.currency 
-                      || this.occ.auditorium?.currency 
-                      || 'EUR';
+      this.currency = this.occ.effectiveCurrency;
     }
 
     if (!this.occ || this.selectedSeats.length === 0) {
@@ -57,10 +54,7 @@ export class PublicBookingCheckoutComponent implements OnInit, OnDestroy {
       if (occurrenceId && !this.occ) {
         this.eventService.getOccurrenceById(occurrenceId).subscribe(occ => {
           this.occ = occ;
-          this.currency = occ.currencyOverride 
-                          || occ.event?.currency 
-                          || occ.auditorium?.currency 
-                          || 'EUR';
+          this.currency = occ.effectiveCurrency;
           this.stateService.setEventOccurrence(occ);
           if (this.selectedSeats.length === 0) {
              this.router.navigate(['../'], { relativeTo: this.route });

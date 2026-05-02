@@ -47,7 +47,7 @@
               </div>
               <div class="col-6 mb-3">
                 <div class="label text-muted small uppercase fw-bold">PRICE</div>
-                <div class="value fw-bold">{{ ticket.price | number:'1.0-0' }} {{ result.currency }}</div>
+                <div class="value fw-bold">{{ ticket.price | price:result.currency }}</div>
               </div>
             </div>
           </div>

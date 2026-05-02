@@ -286,6 +286,7 @@
             [isSaving]="isSavingSeat" 
             [disabled]="!hasSelection"
             [isBulkMode]="isBulkSelection"
+            [currency]="currentCurrency"
             (save)="isBulkSelection ? bulkUpdateSeats($event) : saveSeat($event)">
           </app-seat-editor>
         </div>
@@ -301,6 +302,7 @@
             [editingSectorId]="editingSectorId" 
             [isUpdatingSector]="isUpdatingSector"
             [isDeletingSector]="isDeletingSector" 
+            [currency]="currentCurrency"
             (applySector)="applySectorToSelectedSeats($event)"
             (createClicked)="openCreateSectorForm()" 
             (createCancelled)="closeCreateSectorForm()"
