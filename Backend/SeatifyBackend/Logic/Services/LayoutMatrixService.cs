@@ -1,4 +1,4 @@
-﻿using Data;
+using Data;
 using Entities.Dtos.LayoutMatrix;
 using Entities.Models;
 using Logic.Helper;
@@ -94,6 +94,7 @@ namespace Logic.Services
             var entity = await _ctx.LayoutMatrices
                 .AsNoTracking()
                 .Include(lm => lm.Seats)
+                .Include(lm => lm.Auditorium)
                 .FirstOrDefaultAsync(lm => lm.Id == id, ct);
 
             if (entity == null)
@@ -101,12 +102,14 @@ namespace Logic.Services
                 return null;
             }
 
-            entity.Seats = entity.Seats
+            var dto = _dtoProvider.Mapper.Map<LayoutMatrixSeatMapDto>(entity);
+            dto.Currency = CurrencyHelper.ResolveCurrency((EventOccurrence?)null, entity.Auditorium);
+            dto.Seats = dto.Seats
                 .OrderBy(s => s.Row)
                 .ThenBy(s => s.Column)
                 .ToList();
 
-            return _dtoProvider.Mapper.Map<LayoutMatrixSeatMapDto>(entity);
+            return dto;
         }
 
         public async Task<LayoutMatrixViewDto?> UpdateAsync(string id, LayoutMatrixUpdateDto dto, CancellationToken ct)

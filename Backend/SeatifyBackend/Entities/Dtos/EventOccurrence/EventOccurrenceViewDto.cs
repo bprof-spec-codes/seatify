@@ -14,6 +14,7 @@ namespace Entities.Dtos.EventOccurrence
         public DateTime? DoorsOpenAtUtc { get; set; }
         public string? CurrencyOverride { get; set; }
         public string Status { get; set; } = string.Empty;
+        public string EffectiveCurrency { get; set; } = "EUR";
         public EventOccurrenceEventDto Event { get; set; } = null!;
         public EventOccurrenceVenueDto Venue { get; set; } = null!;
         public EventOccurrenceAuditoriumDto Auditorium { get; set; } = null!;
@@ -40,5 +41,6 @@ namespace Entities.Dtos.EventOccurrence
     {
         public string Id { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
+        public string? Currency { get; set; }
     }
 }
