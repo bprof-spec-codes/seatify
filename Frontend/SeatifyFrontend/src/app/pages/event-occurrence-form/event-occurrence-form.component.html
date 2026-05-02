@@ -84,6 +84,20 @@
             <input type="datetime-local" class="form-control" formControlName="bookingCloseAt">
           </div>
         </div>
+
+        <div class="mt-3 pt-3 border-top">
+          <label class="form-label fw-semibold" for="currencyOverride">Currency Override for this Date</label>
+          <input 
+            type="text" 
+            id="currencyOverride"
+            class="form-control" 
+            placeholder="e.g. HUF (Leave empty to use event or auditorium default)"
+            formControlName="currencyOverride"
+          >
+          <div class="form-text small">
+            This is the highest priority override. If empty, it will fall back to Event override, then Auditorium default.
+          </div>
+        </div>
       </div>
     </div>
 

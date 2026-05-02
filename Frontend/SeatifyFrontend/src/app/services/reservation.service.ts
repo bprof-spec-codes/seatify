@@ -1,21 +1,52 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { delay } from 'rxjs/operators';
-import { ReservationRequest, Reservation } from '../models/booking.model';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
+
+export interface BookingCheckoutRequest {
+  eventOccurrenceId: string;
+  seatIds: string[];
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  bookingSessionId?: string;
+}
+
+export interface BookingCheckoutResponse {
+  bookingId: string;
+  eventId: string;
+  seats: string[];
+  totalPrice: number;
+  qrCodeBase64: string;
+}
+
+export interface ReservationSeatView {
+  seatId: string;
+  finalPrice: number;
+}
+
+export interface ReservationView {
+  id: string;
+  customerName: string;
+  customerEmail: string;
+  status: string;
+  createdAtUtc: string;
+  reservedSeats: ReservationSeatView[];
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class ReservationService {
+  private apiUrl = `${environment.baseApiUrl}/api`;
 
-  constructor() { }
+  constructor(private http: HttpClient) { }
 
-  // Mock method to create reservation
-  createReservation(request: ReservationRequest): Observable<Reservation> {
-    const mockReservation: Reservation = {
-      id: 'res_' + Math.random().toString(36).substring(7),
-      status: 'Confirmed'
-    };
-    return of(mockReservation).pipe(delay(1000));
+  checkoutReservation(request: BookingCheckoutRequest): Observable<BookingCheckoutResponse> {
+    return this.http.post<BookingCheckoutResponse>(`${this.apiUrl}/bookings/checkout`, request);
+  }
+
+  getReservationsForOccurrence(occurrenceId: string): Observable<ReservationView[]> {
+    return this.http.get<ReservationView[]>(`${this.apiUrl}/by-event-occurrences/${occurrenceId}/reservations`);
   }
 }

@@ -4,11 +4,6 @@ using Entities.Dtos.Reservation;
 using Entities.Models;
 using Logic.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Logic.Services
 {
@@ -33,6 +28,7 @@ namespace Logic.Services
                 BookingOpenAtUtc = createDto.BookingOpenAtUtc,
                 BookingCloseAtUtc = createDto.BookingCloseAtUtc,
                 DoorsOpenAtUtc = createDto.DoorsOpenAtUtc,
+                CurrencyOverride = createDto.CurrencyOverride,
                 Status = createDto.Status
             };
 
@@ -46,6 +42,7 @@ namespace Logic.Services
         {
             return _appDbContext.EventOccurrences
                 .Include(e => e.Event)
+                    .ThenInclude(e => e.Appearance)
                 .Include(e => e.Venue)
                 .Include(e => e.Auditorium)
                 .Where(e => e.EventId == eventId)
@@ -57,6 +54,7 @@ namespace Logic.Services
         {
             var occurrence = _appDbContext.EventOccurrences
                 .Include(e => e.Event)
+                    .ThenInclude(e => e.Appearance)
                 .Include(e => e.Venue)
                 .Include(e => e.Auditorium)
                 .FirstOrDefault(e => e.Id == id);
@@ -79,22 +77,27 @@ namespace Logic.Services
                 BookingOpenAtUtc = occurrence.BookingOpenAtUtc,
                 BookingCloseAtUtc = occurrence.BookingCloseAtUtc,
                 DoorsOpenAtUtc = occurrence.DoorsOpenAtUtc,
+                CurrencyOverride = occurrence.CurrencyOverride,
                 Status = occurrence.Status,
 
-                Event = occurrence.Event != null ? new EventViewDto
+                Event = occurrence.Event != null ? new EventOccurrenceEventDto
                 {
                     Id = occurrence.Event.Id,
                     Name = occurrence.Event.Name,
-                    Description = occurrence.Event.Description
+                    Description = occurrence.Event.Description,
+                    PrimaryColor = occurrence.Event.Appearance?.PrimaryColor ?? string.Empty,
+                    SecondaryColor = occurrence.Event.Appearance?.SecondaryColor ?? string.Empty,
+                    LogoImageUrl = occurrence.Event.Appearance?.LogoImageUrl ?? string.Empty,
+                    Currency = occurrence.Event.Appearance?.Currency
                 } : null!,
 
-                Venue = occurrence.Venue != null ? new VenueViewDto
+                Venue = occurrence.Venue != null ? new EventOccurrenceVenueDto
                 {
                     Id = occurrence.Venue.Id,
                     Name = occurrence.Venue.Name
                 } : null!,
 
-                Auditorium = occurrence.Auditorium != null ? new AuditoriumViewDto
+                Auditorium = occurrence.Auditorium != null ? new EventOccurrenceAuditoriumDto
                 {
                     Id = occurrence.Auditorium.Id,
                     Name = occurrence.Auditorium.Name
@@ -115,6 +118,7 @@ namespace Logic.Services
             occurrence.BookingOpenAtUtc = updateDto.BookingOpenAtUtc;
             occurrence.BookingCloseAtUtc = updateDto.BookingCloseAtUtc;
             occurrence.DoorsOpenAtUtc = updateDto.DoorsOpenAtUtc;
+            occurrence.CurrencyOverride = updateDto.CurrencyOverride;
             occurrence.Status = updateDto.Status;
             occurrence.UpdatedAtUtc = DateTime.UtcNow;
 

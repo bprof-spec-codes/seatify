@@ -3,6 +3,7 @@ using Entities.Dtos.Auditorium;
 using Entities.Dtos.BookingSession;
 using Entities.Dtos.Event;
 using Entities.Dtos.LayoutMatrix;
+using Entities.Dtos.Organizer;
 using Entities.Dtos.Seat;
 using Entities.Dtos.Venue;
 using Entities.Models;
@@ -60,6 +61,8 @@ public class DtoProvider
             cfg.CreateMap<Event, EventViewDto>();
             
             cfg.CreateMap<BookingSessionCreateDto, BookingSession>();
+
+            cfg.CreateMap<Organizer, OrganizerViewDto>();
         }, new LoggerFactory());
 
         Mapper = new Mapper(config);

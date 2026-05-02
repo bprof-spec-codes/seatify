@@ -39,6 +39,7 @@ namespace Logic.Services
 
             var seats = await _ctx.Seats
                 .AsNoTracking()
+                .Include(s => s.Sector)
                 .Where(s => s.MatrixId == matrixId)
                 .OrderBy(s => s.Row).ThenBy(s => s.Column)
                 .ToListAsync(ct);
@@ -53,10 +54,13 @@ namespace Logic.Services
 
             var eventOverrideMap = eventOverrides.ToDictionary(eo => eo.SeatId);
 
+            var sectors = await _ctx.Sectors.AsNoTracking().Where(s => s.AuditoriumId == matrix.AuditoriumId).ToListAsync(ct);
+            var sectorMap = sectors.ToDictionary(s => s.Id);
+
             var effectiveSeats = seats.Select(seat =>
             {
                 eventOverrideMap.TryGetValue(seat.Id, out var eo);
-                return MergeEventLevel(seat, eo);
+                return MergeEventLevel(seat, eo, sectorMap);
             }).ToList();
 
             return new EffectiveSeatMapDto
@@ -91,6 +95,7 @@ namespace Logic.Services
 
             var seats = await _ctx.Seats
                 .AsNoTracking()
+                .Include(s => s.Sector)
                 .Where(s => s.MatrixId == matrixId)
                 .OrderBy(s => s.Row).ThenBy(s => s.Column)
                 .ToListAsync(ct);
@@ -112,11 +117,14 @@ namespace Logic.Services
             var eventOverrideMap = eventOverrides.ToDictionary(eo => eo.SeatId);
             var occOverrideMap = occOverrides.ToDictionary(oo => oo.SeatId);
 
+            var sectors = await _ctx.Sectors.AsNoTracking().Where(s => s.AuditoriumId == matrix.AuditoriumId).ToListAsync(ct);
+            var sectorMap = sectors.ToDictionary(s => s.Id);
+
             var effectiveSeats = seats.Select(seat =>
             {
                 eventOverrideMap.TryGetValue(seat.Id, out var eo);
                 occOverrideMap.TryGetValue(seat.Id, out var oo);
-                return MergeOccurrenceLevel(seat, eo, oo);
+                return MergeOccurrenceLevel(seat, eo, oo, sectorMap);
             }).ToList();
 
             return new EffectiveSeatMapDto
@@ -132,9 +140,6 @@ namespace Logic.Services
             };
         }
 
-        // ──────────────────────────────────────────────────────────────────────────
-        // PATCH: Bulk upsert event override
-        // ──────────────────────────────────────────────────────────────────────────
         public async Task<BulkSeatOverrideResponseDto> BulkUpsertEventOverrideAsync(
             string eventId, BulkSeatOverrideDto dto, CancellationToken ct)
         {
@@ -217,9 +222,6 @@ namespace Logic.Services
             };
         }
 
-        // ──────────────────────────────────────────────────────────────────────────
-        // PATCH: Bulk upsert occurrence override
-        // ──────────────────────────────────────────────────────────────────────────
         public async Task<BulkSeatOverrideResponseDto> BulkUpsertOccurrenceOverrideAsync(
             string occurrenceId, BulkSeatOverrideDto dto, CancellationToken ct)
         {
@@ -299,12 +301,17 @@ namespace Logic.Services
             };
         }
 
-        // ──────────────────────────────────────────────────────────────────────────
-        // Privát segédmetódusok
-        // ──────────────────────────────────────────────────────────────────────────
-
-        private static EffectiveSeatDto MergeEventLevel(Seat seat, EventSeatOverride? eo)
+        private static EffectiveSeatDto MergeEventLevel(Seat seat, EventSeatOverride? eo, Dictionary<string, Sector> sectorMap)
         {
+            var effectiveSectorId = eo?.SectorId ?? seat.SectorId;
+            var effectivePriceOverride = eo?.PriceOverride ?? seat.PriceOverride;
+            
+            decimal finalPrice = 0;
+            if (effectivePriceOverride.HasValue) 
+                finalPrice = effectivePriceOverride.Value;
+            else if (effectiveSectorId != null && sectorMap.TryGetValue(effectiveSectorId, out var s))
+                finalPrice = s.BasePrice;
+
             return new EffectiveSeatDto
             {
                 SeatId = seat.Id,
@@ -312,9 +319,10 @@ namespace Logic.Services
                 Row = seat.Row,
                 Column = seat.Column,
                 SeatLabel = seat.SeatLabel,
-                SectorId = eo?.SectorId ?? seat.SectorId,
+                SectorId = effectiveSectorId,
                 SeatType = (eo?.SeatType ?? seat.SeatType).ToString(),
-                PriceOverride = eo?.PriceOverride ?? seat.PriceOverride,
+                PriceOverride = effectivePriceOverride,
+                FinalPrice = finalPrice,
                 SectorSource = eo?.SectorId != null ? "event" : "auditorium",
                 SeatTypeSource = eo?.SeatType != null ? "event" : "auditorium",
                 PriceSource = eo?.PriceOverride != null ? "event" : "auditorium"
@@ -322,11 +330,17 @@ namespace Logic.Services
         }
 
         private static EffectiveSeatDto MergeOccurrenceLevel(
-            Seat seat, EventSeatOverride? eo, OccurrenceSeatOverride? oo)
+            Seat seat, EventSeatOverride? eo, OccurrenceSeatOverride? oo, Dictionary<string, Sector> sectorMap)
         {
             var effectiveSectorId = oo?.SectorId ?? eo?.SectorId ?? seat.SectorId;
             var effectiveSeatType = (oo?.SeatType ?? eo?.SeatType ?? seat.SeatType).ToString();
-            var effectivePrice = oo?.PriceOverride ?? eo?.PriceOverride ?? seat.PriceOverride;
+            var effectivePriceOverride = oo?.PriceOverride ?? eo?.PriceOverride ?? seat.PriceOverride;
+
+            decimal finalPrice = 0;
+            if (effectivePriceOverride.HasValue) 
+                finalPrice = effectivePriceOverride.Value;
+            else if (effectiveSectorId != null && sectorMap.TryGetValue(effectiveSectorId, out var s))
+                finalPrice = s.BasePrice;
 
             return new EffectiveSeatDto
             {
@@ -337,7 +351,8 @@ namespace Logic.Services
                 SeatLabel = seat.SeatLabel,
                 SectorId = effectiveSectorId,
                 SeatType = effectiveSeatType,
-                PriceOverride = effectivePrice,
+                PriceOverride = effectivePriceOverride,
+                FinalPrice = finalPrice,
                 SectorSource = oo?.SectorId != null ? "occurrence" : (eo?.SectorId != null ? "event" : "auditorium"),
                 SeatTypeSource = oo?.SeatType != null ? "occurrence" : (eo?.SeatType != null ? "event" : "auditorium"),
                 PriceSource = oo?.PriceOverride != null ? "occurrence" : (eo?.PriceOverride != null ? "event" : "auditorium")

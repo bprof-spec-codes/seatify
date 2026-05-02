@@ -1,4 +1,4 @@
-﻿using Data;
+using Data;
 using Entities.Dtos.Auditorium;
 using Entities.Dtos.LayoutMatrix;
 using Entities.Models;
@@ -51,6 +51,7 @@ namespace Logic.Services
                 VenueId = venueId,
                 Name = dto.Name.Trim(),
                 Description = dto.Description?.Trim(),
+                Currency = string.IsNullOrWhiteSpace(dto.Currency) ? "HUF" : dto.Currency.Trim(),
                 CreatedAtUtc = DateTime.UtcNow,
                 UpdatedAtUtc = DateTime.UtcNow
             };
@@ -65,8 +66,9 @@ namespace Logic.Services
                 VenueId = auditorium.VenueId,
                 Name = auditorium.Name,
                 Description = auditorium.Description,
-                CreatedAtUtc = DateTime.UtcNow,
-                UpdatedAtUtc = DateTime.UtcNow
+                Currency = auditorium.Currency,
+                CreatedAtUtc = auditorium.CreatedAtUtc,
+                UpdatedAtUtc = auditorium.UpdatedAtUtc
             };
         }
 
@@ -95,6 +97,7 @@ namespace Logic.Services
                     VenueId = a.VenueId,
                     Name = a.Name,
                     Description = a.Description,
+                    Currency = a.Currency,
                     CreatedAtUtc = a.CreatedAtUtc,
                     UpdatedAtUtc = a.UpdatedAtUtc
                 })
@@ -112,6 +115,7 @@ namespace Logic.Services
                     VenueId = a.VenueId,
                     Name = a.Name,
                     Description = a.Description,
+                    Currency = a.Currency,
                     LayoutMatrices = a.LayoutMatrices.Select(lm => new LayoutMatrixViewDto
                     {
                         Id = lm.Id,
@@ -138,6 +142,7 @@ namespace Logic.Services
                     VenueId = a.VenueId,
                     Name = a.Name,
                     Description = a.Description,
+                    Currency = a.Currency,
                     CreatedAtUtc = a.CreatedAtUtc,
                     UpdatedAtUtc = a.UpdatedAtUtc
                 })
@@ -169,6 +174,7 @@ namespace Logic.Services
 
             auditorium.Name = dto.Name.Trim();
             auditorium.Description = dto.Description?.Trim();
+            auditorium.Currency = string.IsNullOrWhiteSpace(dto.Currency) ? "HUF" : dto.Currency.Trim();
             auditorium.UpdatedAtUtc = DateTime.UtcNow;
 
             await _ctx.SaveChangesAsync(ct);
@@ -179,6 +185,7 @@ namespace Logic.Services
                 VenueId = auditorium.VenueId,
                 Name = auditorium.Name,
                 Description = auditorium.Description,
+                Currency = auditorium.Currency,
                 CreatedAtUtc = auditorium.CreatedAtUtc,
                 UpdatedAtUtc = auditorium.UpdatedAtUtc
             };

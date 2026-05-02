@@ -2,6 +2,10 @@ export interface EventOccurrenceEvent {
   id: string;
   name: string;
   description: string;
+  primaryColor?: string;
+  secondaryColor?: string;
+  logoImageUrl?: string;
+  currency?: string;
 }
 
 export interface EventOccurrenceVenue {
@@ -12,6 +16,7 @@ export interface EventOccurrenceVenue {
 export interface EventOccurrenceAuditorium {
   id: string;
   name: string;
+  currency?: string;
 }
 
 export interface EventOccurrence {
@@ -24,6 +29,7 @@ export interface EventOccurrence {
   bookingOpenAtUtc: string;
   bookingCloseAtUtc: string;
   doorsOpenAtUtc?: string | null;
+  currencyOverride?: string;
   status: string;
   event?: EventOccurrenceEvent | null;
   venue?: EventOccurrenceVenue | null;

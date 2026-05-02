@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -17,6 +17,8 @@ namespace Entities.Dtos.Event
 
         [StringLength(100)]
         public string? Slug { get; set; }
+
+        public string? Currency { get; set; }
 
         [Required]
         public string Status { get; set; } = string.Empty;

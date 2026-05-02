@@ -16,7 +16,17 @@
       <div class="stats-label">Active Events</div>
     </div>
 
+    <div class="surface-card stats-card" style="cursor: pointer;" (click)="dashboardCheckinModal.openModal()">
+      <div class="stats-icon text-success">
+        <i class="bi bi-qr-code-scan"></i>
+      </div>
+      <div class="stats-value">Scan</div>
+      <div class="stats-label">Ticket Check-In</div>
+    </div>
+
     <div class="surface-card overview-panel top-panel"></div>
     <div class="surface-card overview-panel bottom-panel"></div>
   </div>
+
+  <app-checkin-modal #dashboardCheckinModal></app-checkin-modal>
 </section>

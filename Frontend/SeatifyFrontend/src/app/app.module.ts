@@ -25,7 +25,14 @@ import { OrganizerDashboardComponent } from './pages/organizer-dashboard/organiz
 import { AuditoriumFormComponent } from './pages/auditorium-form/auditorium-form.component';
 import { EventOccurrenceFormComponent } from './pages/event-occurrence-form/event-occurrence-form.component';
 import { EventFormComponent } from './pages/event-form/event-form.component';
-import { BookingSuccessComponent } from './pages/booking-success/booking-success.component';
+import { CheckinModalComponent } from './components/checkin-modal/checkin-modal.component';
+import { authInterceptor } from './interceptors/auth.interceptor';
+import { LoginPageComponent } from './pages/login-page/login-page.component';
+import { RegisterPageComponent } from './pages/register-page/register-page.component';
+import { PublicBookingLayoutComponent } from './pages/public-booking-layout/public-booking-layout.component';
+import { PublicBookingMapComponent } from './pages/public-booking-map/public-booking-map.component';
+import { PublicBookingCheckoutComponent } from './pages/public-booking-checkout/public-booking-checkout.component';
+import { PublicBookingSuccessComponent } from './pages/public-booking-success/public-booking-success.component';
 
 @NgModule({
   declarations: [
@@ -49,7 +56,13 @@ import { BookingSuccessComponent } from './pages/booking-success/booking-success
     AuditoriumFormComponent,
     EventOccurrenceFormComponent,
     EventFormComponent,
-    BookingSuccessComponent,
+    CheckinModalComponent,
+    LoginPageComponent,
+    RegisterPageComponent,
+    PublicBookingLayoutComponent,
+    PublicBookingMapComponent,
+    PublicBookingCheckoutComponent,
+    PublicBookingSuccessComponent,
   ],
   imports: [
     BrowserModule,
@@ -60,7 +73,7 @@ import { BookingSuccessComponent } from './pages/booking-success/booking-success
     FormsModule,
   ],
   providers: [
-    provideHttpClient(withInterceptors([]))
+    provideHttpClient(withInterceptors([authInterceptor]))
   ],
   bootstrap: [AppComponent]
 })

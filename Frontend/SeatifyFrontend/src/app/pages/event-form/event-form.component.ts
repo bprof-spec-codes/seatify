@@ -26,7 +26,8 @@ export class EventFormComponent implements OnInit {
       name: ['', [Validators.required, Validators.minLength(3)]],
       slug: ['', [Validators.required, Validators.pattern(/^[a-z0-9-]+$/)]],
       description: [''],
-      status: ['Published', Validators.required]
+      status: ['Published', Validators.required],
+      currency: ['']
     });
   }
 
@@ -47,7 +48,8 @@ export class EventFormComponent implements OnInit {
           name: event.name,
           slug: event.slug,
           description: event.description,
-          status: event.status
+          status: event.status,
+          currency: event.currency || ''
         });
         this.isLoading = false;
       },
@@ -73,6 +75,7 @@ export class EventFormComponent implements OnInit {
       slug: val.slug,
       description: val.description || '',
       status: val.status,
+      currency: val.currency || null,
       organizerId: 'org-id-01' // Matches seed data in backend
     };
 

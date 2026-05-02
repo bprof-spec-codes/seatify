@@ -16,6 +16,9 @@ public class Auditorium : IIdEntity
     [StringLength(500)]
     public string? Description { get; set; }
 
+    [StringLength(10)]
+    public string Currency { get; set; } = "HUF";
+
     public DateTime CreatedAtUtc { get; set; }
 
     public DateTime UpdatedAtUtc { get; set; }

@@ -3,6 +3,7 @@ export class Auditorium {
     venueId: string = '';
     name: string = '';
     description: string = '';
+    currency: string = 'HUF';
     // LayoutMatrices
     // Sectors
     createdAtUtc: Date = new Date();

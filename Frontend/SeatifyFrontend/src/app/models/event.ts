@@ -5,6 +5,7 @@ export interface SeatifyEvent {
   name: string;
   description: string;
   status: string;
+  currency?: string;
   createdAtUtc: string;
   updatedAtUtc: string;
 }
