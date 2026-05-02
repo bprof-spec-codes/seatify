@@ -30,6 +30,9 @@
           <button class="btn btn-primary w-100 py-2 fw-bold text-uppercase shadow-sm" (click)="validateManualCode()" [disabled]="processing">
             <span *ngIf="processing" class="spinner-border spinner-border-sm me-2"></span> Validate Ticket
           </button>
+          <div *ngIf="errorMessage" class="alert alert-danger mt-3 small py-2">
+            {{ errorMessage }}
+          </div>
         </div>
 
         <!-- Result View -->

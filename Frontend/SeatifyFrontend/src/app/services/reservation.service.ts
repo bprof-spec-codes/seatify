@@ -12,12 +12,22 @@ export interface BookingCheckoutRequest {
   bookingSessionId?: string;
 }
 
+export interface TicketItem {
+  ticketId: string;
+  seatId: string;
+  seatLabel: string;
+  qrCodeBase64: string;
+  price: number;
+}
+
 export interface BookingCheckoutResponse {
   bookingId: string;
   eventId: string;
-  seats: string[];
+  tickets: TicketItem[];
   totalPrice: number;
+  currency: string;
   qrCodeBase64: string;
+  pdfBase64: string;
 }
 
 export interface ReservationSeatView {

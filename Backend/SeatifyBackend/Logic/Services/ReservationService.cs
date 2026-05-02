@@ -17,14 +17,16 @@ namespace Logic.Services
     public class ReservationService: IReservationService
     {
         private readonly AppDbContext _context;
-        private readonly QrService _qrService;
+        private readonly IQrService _qrService;
         private readonly IEmailService _emailService;
+        private readonly IPdfService _pdfService;
 
-        public ReservationService(AppDbContext context, QrService qrService, IEmailService emailService)
+        public ReservationService(AppDbContext context, IQrService qrService, IEmailService emailService, IPdfService pdfService)
         {
             _context = context;
             _qrService = qrService;
             _emailService = emailService;
+            _pdfService = pdfService;
         }
 
         public bool CreateReservation(string eventOccurrenceId, ReservationCreateDto dto)
@@ -133,6 +135,7 @@ namespace Logic.Services
                 .Include(eo => eo.Event)
                     .ThenInclude(e => e.Appearance)
                 .Include(eo => eo.Auditorium)
+                .Include(eo => eo.Venue)
                 .FirstOrDefault(eo => eo.Id == request.EventOccurrenceId);
 
             if (eventOccurrence == null)
@@ -191,6 +194,7 @@ namespace Logic.Services
 
                 ticketDtos.Add(new TicketDto
                 {
+                    TicketId = rs.Id,
                     SeatId = rs.SeatId,
                     SeatLabel = seatLabel,
                     QrCodeBase64 = qrCode,
@@ -211,6 +215,42 @@ namespace Logic.Services
                            ?? eventOccurrence.Auditorium?.Currency 
                            ?? "HUF";
 
+            // Generate PDF
+            var pdfTickets = new List<PdfTicketItem>();
+            
+            foreach (var rs in reservationSeats)
+            {
+                var seat = _context.Seats.FirstOrDefault(s => s.Id == rs.SeatId);
+                var qrCode = _qrService.GenerateTicketQrCode(rs.Id);
+                
+                pdfTickets.Add(new PdfTicketItem
+                {
+                    SeatLabel = seat?.SeatLabel ?? rs.SeatId,
+                    Row = GetRowLabel(seat),
+                    SeatNumber = seat?.Column.ToString() ?? "-",
+                    Price = rs.FinalPrice,
+                    QrCodeBase64 = qrCode,
+                    ManualCode = rs.Id
+                });
+            }
+
+            byte[]? pdfFile = null;
+            try
+            {
+                pdfFile = _pdfService.GenerateTicketPdf(
+                    eventOccurrence.Event.Name,
+                    eventOccurrence.Venue?.Name ?? "Unknown Venue",
+                    eventOccurrence.Auditorium?.Name ?? "Unknown Auditorium",
+                    eventOccurrence.StartsAtUtc,
+                    pdfTickets,
+                    currency
+                );
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"PDF generation failed: {ex.Message}");
+            }
+
             // Send confirmation email
             try 
             {
@@ -221,7 +261,8 @@ namespace Logic.Services
                     eventOccurrence.StartsAtUtc,
                     emailTickets,
                     totalPrice,
-                    currency
+                    currency,
+                    pdfFile
                 );
             }
             catch(Exception ex)
@@ -236,6 +277,7 @@ namespace Logic.Services
             responseDto.TotalPrice = totalPrice;
             responseDto.Currency = currency;
             responseDto.QrCodeBase64 = _qrService.GenerateReservationQrCode(reservation.Id);
+            responseDto.PdfBase64 = pdfFile != null ? Convert.ToBase64String(pdfFile) : string.Empty;
 
             return responseDto;
         }
@@ -264,6 +306,36 @@ namespace Logic.Services
                 return seat.Sector.BasePrice;
 
             return 0;
+        }
+        private string GetRowLabel(Seat? seat)
+        {
+            if (seat == null) return "-";
+            
+            // If SeatLabel exists and contains a separator, try to extract the row part
+            if (!string.IsNullOrEmpty(seat.SeatLabel) && seat.SeatLabel.Contains('-'))
+            {
+                var parts = seat.SeatLabel.Split('-');
+                if (parts.Length > 0 && !int.TryParse(parts[0], out _))
+                {
+                    return parts[0]; // Returns 'A' if label is 'A-12'
+                }
+            }
+
+            // Fallback: If the user wants ABC rows but they are stored as ints
+            // We'll assume for now that if Row > 0, we can convert it to a letter
+            // A=1, B=2, ..., Z=26, AA=27 etc.
+            return IntToLetters(seat.Row);
+        }
+
+        private string IntToLetters(int value)
+        {
+            string result = string.Empty;
+            while (--value >= 0)
+            {
+                result = (char)('A' + value % 26) + result;
+                value /= 26;
+            }
+            return string.IsNullOrEmpty(result) ? "-" : result;
         }
     }
 }

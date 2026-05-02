@@ -103,7 +103,9 @@ namespace Api
             builder.Services.AddTransient<IResend, ResendClient>();
 
             builder.Services.AddScoped<ICheckInService, CheckInService>();
-            builder.Services.AddScoped<QrService>();
+            builder.Services.AddScoped<ICheckInService, CheckInService>();
+            builder.Services.AddScoped<IQrService, QrService>();
+            builder.Services.AddScoped<IPdfService, PdfService>();
             builder.Services.AddScoped<IAppearanceService, AppearanceService>();
 
             builder.Services.AddAuthentication(options =>

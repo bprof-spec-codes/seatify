@@ -19,7 +19,19 @@ namespace Logic.Services
 
         public async Task<CheckInResult> ValidateTicketAsync(string payload)
         {
-            var ticketId = payload; // Assuming payload is the ReservationSeat.Id for now
+            var ticketId = payload;
+
+            if (payload.StartsWith("Ticket:"))
+            {
+                ticketId = payload.Substring("Ticket:".Length);
+            }
+            else if (payload.StartsWith("Reservation:"))
+            {
+                // For now, we only support individual ticket check-in
+                // But we could potentially support checking in all tickets of a reservation here
+                ticketId = payload.Substring("Reservation:".Length);
+            }
+
             var result = new CheckInResult { TicketId = ticketId };
 
             var reservationSeat = await _context.ReservationSeats
@@ -28,7 +40,7 @@ namespace Logic.Services
                 .ThenInclude(e => e.Event)
                 .Include(rs => rs.Seat)
                 .ThenInclude(s => s.Sector)
-                .FirstOrDefaultAsync(rs => rs.Id == ticketId);
+                .FirstOrDefaultAsync(rs => rs.Id == ticketId || rs.Id.StartsWith(ticketId));
 
             if (reservationSeat == null)
             {
@@ -36,6 +48,8 @@ namespace Logic.Services
                 result.StatusMessage = "Ticket not found.";
                 return result;
             }
+
+            result.TicketId = reservationSeat.Id; // Use the actual full ID from DB
 
             result.Reservation = new ReservationInfo
             {
@@ -80,13 +94,14 @@ namespace Logic.Services
             
             if (result.Status == TicketStatus.Valid)
             {
-                var reservationSeat = await _context.ReservationSeats.FindAsync(ticketId);
+                var reservationSeat = await _context.ReservationSeats.FirstOrDefaultAsync(rs => rs.Id == result.TicketId || rs.Id.StartsWith(result.TicketId));
                 if (reservationSeat != null)
                 {
                     reservationSeat.IsCheckedIn = true;
                     reservationSeat.CheckInTimeUtc = DateTime.UtcNow;
                     await _context.SaveChangesAsync();
                     
+                    result.TicketId = reservationSeat.Id; // Ensure we return the full ID
                     result.StatusMessage = "Check-in successful.";
                 }
             }
