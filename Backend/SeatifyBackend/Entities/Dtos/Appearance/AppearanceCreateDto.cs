@@ -12,6 +12,7 @@ namespace Entities.Dtos.Appearance
         public string LogoImageUrl { get; set; } = string.Empty;
         public string BannerImageUrl { get; set; } = string.Empty;
         public string ThemePreset { get; set; } = "Default (Blue)";
+        public string FontFamily { get; set; } = "Inter";
         public bool IsDefault { get; set; } = false;
     }
 }

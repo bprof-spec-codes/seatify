@@ -14,6 +14,7 @@ namespace Entities.Dtos.Appearance
         public string LogoImageUrl { get; set; } = string.Empty;
         public string BannerImageUrl { get; set; } = string.Empty;
         public string ThemePreset { get; set; } = string.Empty;
+        public string FontFamily { get; set; } = "Inter";
         public bool IsDefault { get; set; }
         public DateTime CreatedAtUtc { get; set; }
         public DateTime UpdatedAtUtc { get; set; }

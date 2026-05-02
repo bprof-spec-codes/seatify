@@ -11,6 +11,7 @@ export interface Appearance {
   logoImageUrl: string;
   bannerImageUrl: string;
   themePreset: string;
+  fontFamily: string;
   isDefault: boolean;
   createdAtUtc: string;
   updatedAtUtc: string;
@@ -27,5 +28,6 @@ export interface AppearanceCreateRequest {
   logoImageUrl: string;
   bannerImageUrl: string;
   themePreset: string;
+  fontFamily: string;
   isDefault: boolean;
 }

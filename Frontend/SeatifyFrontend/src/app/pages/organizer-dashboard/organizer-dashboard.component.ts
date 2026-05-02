@@ -10,14 +10,14 @@ import { EventCard, EventCardOccurrence } from '../../models/event-card';
 import { SeatifyEvent } from '../../models/event';
 import { Venue } from '../../models/venue';
 
-type CardShape = 'soft' | 'solid' | 'glass';
-type DashboardDensity = 'comfortable' | 'compact';
+// Removed CardShape and DashboardDensity types
 
 interface AppearancePreset {
   id: string;
   name: string;
   description: string;
   icon: string;
+  fontFamily: string;
   primaryColor: string;
   accentColor: string;
   backgroundColor: string;
@@ -25,8 +25,6 @@ interface AppearancePreset {
   textColor: string;
   secondaryColor: string;
   bannerImageUrl: string;
-  cardShape: CardShape;
-  density: DashboardDensity;
 }
 
 interface DashboardStat {
@@ -69,15 +67,12 @@ export class OrganizerDashboardComponent implements OnInit, OnDestroy {
 
   appearance: AppearancePreset = this.getDefaultAppearance();
 
-  readonly cardShapeOptions: { value: CardShape; label: string }[] = [
-    { value: 'soft', label: 'Soft cards' },
-    { value: 'solid', label: 'Strong cards' },
-    { value: 'glass', label: 'Glass cards' }
-  ];
-
-  readonly densityOptions: { value: DashboardDensity; label: string }[] = [
-    { value: 'comfortable', label: 'Comfortable' },
-    { value: 'compact', label: 'Compact' }
+  readonly fontFamilyOptions: { value: string; label: string }[] = [
+    { value: 'Inter', label: 'Inter (Modern)' },
+    { value: 'Roboto', label: 'Roboto (Clean)' },
+    { value: 'Outfit', label: 'Outfit (Trendy)' },
+    { value: "'Playfair Display'", label: 'Playfair (Elegant)' },
+    { value: "'Fira Code'", label: 'Fira Code (Tech)' }
   ];
 
   savedAppearances: Appearance[] = [];
@@ -121,9 +116,7 @@ export class OrganizerDashboardComponent implements OnInit, OnDestroy {
     this.selectedAppearance = theme;
     this.appearance = {
       ...this.appearance,
-      ...theme,
-      cardShape: this.appearance.cardShape, // Preserve these UI-only settings
-      density: this.appearance.density
+      ...theme
     };
   }
 
@@ -132,6 +125,7 @@ export class OrganizerDashboardComponent implements OnInit, OnDestroy {
     
     const request: AppearanceCreateRequest = {
       name: 'New Custom Theme',
+      fontFamily: defaultTheme.fontFamily,
       primaryColor: defaultTheme.primaryColor,
       accentColor: defaultTheme.accentColor,
       backgroundColor: defaultTheme.backgroundColor,
@@ -174,6 +168,7 @@ export class OrganizerDashboardComponent implements OnInit, OnDestroy {
 
     const request: AppearanceCreateRequest = {
       name: this.appearance.name,
+      fontFamily: this.appearance.fontFamily,
       primaryColor: this.appearance.primaryColor,
       accentColor: this.appearance.accentColor,
       backgroundColor: this.appearance.backgroundColor,
@@ -349,9 +344,7 @@ export class OrganizerDashboardComponent implements OnInit, OnDestroy {
           this.selectedAppearance = defaultTheme;
           this.appearance = {
             ...this.getDefaultAppearance(),
-            ...defaultTheme,
-            cardShape: 'soft', // Default for now
-            density: 'comfortable'
+            ...defaultTheme
           };
         }
       }
@@ -364,15 +357,14 @@ export class OrganizerDashboardComponent implements OnInit, OnDestroy {
       name: 'Ocean Blue',
       description: 'Clean, bright theme for professional booking pages.',
       icon: 'bi-droplet-half',
+      fontFamily: 'Inter',
       primaryColor: '#3b82f6',
       accentColor: '#0ea5e9',
       backgroundColor: '#f1f5f9',
       surfaceColor: '#ffffff',
       textColor: '#0f172a',
       secondaryColor: '#64748b',
-      bannerImageUrl: '',
-      cardShape: 'soft',
-      density: 'comfortable'
+      bannerImageUrl: ''
     };
   }
 }

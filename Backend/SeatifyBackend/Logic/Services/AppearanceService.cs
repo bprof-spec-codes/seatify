@@ -63,6 +63,7 @@ namespace Logic.Services
                 LogoImageUrl = dto.LogoImageUrl,
                 BannerImageUrl = dto.BannerImageUrl,
                 ThemePreset = dto.ThemePreset,
+                FontFamily = dto.FontFamily,
                 IsDefault = dto.IsDefault,
                 CreatedAtUtc = DateTime.UtcNow,
                 UpdatedAtUtc = DateTime.UtcNow
@@ -96,6 +97,7 @@ namespace Logic.Services
             appearance.LogoImageUrl = dto.LogoImageUrl;
             appearance.BannerImageUrl = dto.BannerImageUrl;
             appearance.ThemePreset = dto.ThemePreset;
+            appearance.FontFamily = dto.FontFamily;
             appearance.IsDefault = dto.IsDefault;
             appearance.UpdatedAtUtc = DateTime.UtcNow;
 
@@ -162,6 +164,7 @@ namespace Logic.Services
                 LogoImageUrl = a.LogoImageUrl,
                 BannerImageUrl = a.BannerImageUrl,
                 ThemePreset = a.ThemePreset,
+                FontFamily = a.FontFamily,
                 IsDefault = a.IsDefault,
                 CreatedAtUtc = a.CreatedAtUtc,
                 UpdatedAtUtc = a.UpdatedAtUtc

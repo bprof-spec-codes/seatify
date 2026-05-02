@@ -28,7 +28,7 @@
           <span>Booking Page Preview</span>
        </div>
 
-       <div class="mini-booking-page" [style.--p-color]="appearance.primaryColor" [style.--s-color]="appearance.surfaceColor" [style.--b-color]="appearance.backgroundColor" [style.--t-color]="appearance.textColor">
+       <div class="mini-booking-page" [style.--font-family]="appearance.fontFamily" [style.--p-color]="appearance.primaryColor" [style.--s-color]="appearance.surfaceColor" [style.--b-color]="appearance.backgroundColor" [style.--t-color]="appearance.textColor">
           <div class="mini-nav">
              <div class="mini-logo"></div>
              <div class="mini-links"></div>
@@ -142,7 +142,7 @@
         </div>
       </div>
 
-      <div class="editor-grid">
+      <div class="editor-grid" [style.--font-family]="appearance.fontFamily">
         <label class="text-field w-100 mb-2">
           <span>Theme Name</span>
           <input
@@ -205,24 +205,12 @@
         </label>
 
         <label class="select-field">
-          <span>Card style</span>
+          <span>Typography</span>
           <select
-            [(ngModel)]="appearance.cardShape"
+            [(ngModel)]="appearance.fontFamily"
             (change)="updateAppearance()"
           >
-            <option *ngFor="let option of cardShapeOptions" [value]="option.value">
-              {{ option.label }}
-            </option>
-          </select>
-        </label>
-
-        <label class="select-field">
-          <span>Spacing</span>
-          <select
-            [(ngModel)]="appearance.density"
-            (change)="updateAppearance()"
-          >
-            <option *ngFor="let option of densityOptions" [value]="option.value">
+            <option *ngFor="let option of fontFamilyOptions" [value]="option.value">
               {{ option.label }}
             </option>
           </select>

@@ -137,6 +137,11 @@ namespace Logic.Services
                         ?? defaultAppearance?.ThemePreset 
                         ?? "Default",
                         
+                    FontFamily = occurrence.Appearance?.FontFamily 
+                        ?? occurrence.Event.Appearance?.FontFamily 
+                        ?? defaultAppearance?.FontFamily 
+                        ?? "Inter",
+                        
                     Currency = occurrence.Event.Currency
                 } : null!,
 

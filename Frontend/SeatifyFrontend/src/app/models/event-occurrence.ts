@@ -11,6 +11,7 @@ export interface EventOccurrenceEvent {
   logoImageUrl: string;
   bannerImageUrl: string;
   themePreset: string;
+  fontFamily: string;
   currency?: string;
 }
 

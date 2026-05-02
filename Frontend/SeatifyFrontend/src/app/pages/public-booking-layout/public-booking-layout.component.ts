@@ -9,7 +9,7 @@ import { EventOccurrence } from '../../models/event-occurrence';
   selector: 'app-public-booking-layout',
   standalone: false,
   template: `
-    <div class="public-layout" [style.--primary-color]="primaryColor" [style.--secondary-color]="secondaryColor" [style.--bg-color]="backgroundColor" [style.--text-color]="textColor" [style.--surface-color]="surfaceColor" [style.--accent-color]="accentColor">
+    <div class="public-layout" [style.--font-family]="fontFamily" [style.--primary-color]="primaryColor" [style.--secondary-color]="secondaryColor" [style.--bg-color]="backgroundColor" [style.--text-color]="textColor" [style.--surface-color]="surfaceColor" [style.--accent-color]="accentColor">
       <nav class="public-nav">
         <div class="container d-flex justify-content-between align-items-center">
           <div class="brand">
@@ -39,6 +39,7 @@ import { EventOccurrence } from '../../models/event-occurrence';
       min-height: 100vh
       background: var(--bg-color, #f8f9fa)
       color: var(--text-color, #2d3436)
+      font-family: var(--font-family, 'Inter')
       display: flex
       flex-direction: column
 
@@ -84,6 +85,7 @@ import { EventOccurrence } from '../../models/event-occurrence';
 })
 export class PublicBookingLayoutComponent implements OnInit {
   occurrence: EventOccurrence | null = null;
+  fontFamily = 'Inter';
   primaryColor = '#0984e3';
   secondaryColor = '#74b9ff';
   accentColor = '#0ea5e9';
@@ -120,10 +122,12 @@ export class PublicBookingLayoutComponent implements OnInit {
           this.textColor = occ.event.textColor;
           this.logoUrl = occ.event.logoImageUrl;
           this.bannerUrl = occ.event.bannerImageUrl;
+          this.fontFamily = occ.event.fontFamily || 'Inter';
         }
 
         if (themeId) {
           this.appearanceService.getById(themeId).subscribe(theme => {
+            this.fontFamily = theme.fontFamily || 'Inter';
             this.primaryColor = theme.primaryColor;
             this.secondaryColor = theme.secondaryColor;
             this.accentColor = theme.accentColor;
@@ -142,6 +146,7 @@ export class PublicBookingLayoutComponent implements OnInit {
 
   private applyTheme() {
     const host = document.documentElement;
+    host.style.setProperty('--font-family', this.fontFamily);
     host.style.setProperty('--primary-color', this.primaryColor);
     host.style.setProperty('--secondary-color', this.secondaryColor);
     host.style.setProperty('--accent-color', this.accentColor);

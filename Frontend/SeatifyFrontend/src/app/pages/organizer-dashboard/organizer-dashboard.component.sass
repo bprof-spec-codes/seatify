@@ -189,6 +189,7 @@
   display: flex
   flex-direction: column
   font-size: .6rem
+  font-family: var(--font-family, 'Inter')
 
   .mini-nav
     height: 20px
@@ -539,6 +540,7 @@
   align-items: center
   justify-content: center
   line-height: 1.1
+  font-family: var(--font-family, 'Inter')
 
   span
     position: relative
@@ -679,38 +681,6 @@
   color: var(--dashboard-accent)
   font-size: .78rem
   font-weight: 900
-
-.glass-dashboard
-  .hero-content,
-  .hero-preview-card,
-  .dashboard-card
-    background: color-mix(in srgb, var(--dashboard-surface) 74%, transparent)
-    backdrop-filter: blur(18px)
-    border-color: color-mix(in srgb, #ffffff 14%, var(--dashboard-primary))
-    box-shadow: 0 22px 60px rgba(0, 0, 0, .2)
-
-.solid-dashboard
-  .hero-content,
-  .hero-preview-card,
-  .dashboard-card
-    border-radius: 18px
-    box-shadow: 0 8px 24px rgba(15, 23, 42, .08)
-
-.compact-dashboard
-  padding: .9rem
-
-  .dashboard-hero
-    margin-bottom: 1rem
-
-  .hero-content,
-  .dashboard-card
-    padding: 1rem
-
-  .stat-card
-    min-height: 118px
-
-  .stat-value
-    font-size: 1.65rem
 
 @media (max-width: 1180px)
   .dashboard-hero
