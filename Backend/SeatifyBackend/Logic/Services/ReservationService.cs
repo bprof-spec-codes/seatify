@@ -207,7 +207,7 @@ namespace Logic.Services
 
             var totalPrice = reservationSeats.Sum(rs => rs.FinalPrice);
             var currency = eventOccurrence.CurrencyOverride 
-                           ?? eventOccurrence.Event.Appearance?.Currency 
+                           ?? eventOccurrence.Event.Currency 
                            ?? eventOccurrence.Auditorium?.Currency 
                            ?? "HUF";
 

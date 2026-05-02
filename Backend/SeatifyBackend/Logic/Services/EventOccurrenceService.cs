@@ -29,6 +29,7 @@ namespace Logic.Services
                 BookingCloseAtUtc = createDto.BookingCloseAtUtc,
                 DoorsOpenAtUtc = createDto.DoorsOpenAtUtc,
                 CurrencyOverride = createDto.CurrencyOverride,
+                AppearanceId = createDto.AppearanceId,
                 Status = createDto.Status
             };
 
@@ -41,6 +42,7 @@ namespace Logic.Services
         public List<EventOccurrenceViewDto> GetByEventId(string eventId)
         {
             return _appDbContext.EventOccurrences
+                .Include(e => e.Appearance)
                 .Include(e => e.Event)
                     .ThenInclude(e => e.Appearance)
                 .Include(e => e.Venue)
@@ -53,6 +55,7 @@ namespace Logic.Services
         public EventOccurrenceViewDto? GetById(string id)
         {
             var occurrence = _appDbContext.EventOccurrences
+                .Include(e => e.Appearance)
                 .Include(e => e.Event)
                     .ThenInclude(e => e.Appearance)
                 .Include(e => e.Venue)
@@ -66,6 +69,8 @@ namespace Logic.Services
 
         private EventOccurrenceViewDto MapToViewDto(EventOccurrence occurrence)
         {
+            var defaultAppearance = GetDefaultAppearance(occurrence.Event?.OrganizerId ?? string.Empty);
+            
             return new EventOccurrenceViewDto
             {
                 Id = occurrence.Id,
@@ -79,16 +84,60 @@ namespace Logic.Services
                 DoorsOpenAtUtc = occurrence.DoorsOpenAtUtc,
                 CurrencyOverride = occurrence.CurrencyOverride,
                 Status = occurrence.Status,
+                AppearanceId = occurrence.AppearanceId,
 
                 Event = occurrence.Event != null ? new EventOccurrenceEventDto
                 {
                     Id = occurrence.Event.Id,
                     Name = occurrence.Event.Name,
                     Description = occurrence.Event.Description,
-                    PrimaryColor = occurrence.Event.Appearance?.PrimaryColor ?? string.Empty,
-                    SecondaryColor = occurrence.Event.Appearance?.SecondaryColor ?? string.Empty,
-                    LogoImageUrl = occurrence.Event.Appearance?.LogoImageUrl ?? string.Empty,
-                    Currency = occurrence.Event.Appearance?.Currency
+                    
+                    PrimaryColor = occurrence.Appearance?.PrimaryColor 
+                        ?? occurrence.Event.Appearance?.PrimaryColor 
+                        ?? defaultAppearance?.PrimaryColor 
+                        ?? "#3b82f6",
+                        
+                    SecondaryColor = occurrence.Appearance?.SecondaryColor 
+                        ?? occurrence.Event.Appearance?.SecondaryColor 
+                        ?? defaultAppearance?.SecondaryColor 
+                        ?? "#64748b",
+                        
+                    AccentColor = occurrence.Appearance?.AccentColor 
+                        ?? occurrence.Event.Appearance?.AccentColor 
+                        ?? defaultAppearance?.AccentColor 
+                        ?? "#0ea5e9",
+                        
+                    BackgroundColor = occurrence.Appearance?.BackgroundColor 
+                        ?? occurrence.Event.Appearance?.BackgroundColor 
+                        ?? defaultAppearance?.BackgroundColor 
+                        ?? "#f1f5f9",
+                        
+                    SurfaceColor = occurrence.Appearance?.SurfaceColor 
+                        ?? occurrence.Event.Appearance?.SurfaceColor 
+                        ?? defaultAppearance?.SurfaceColor 
+                        ?? "#ffffff",
+                        
+                    TextColor = occurrence.Appearance?.TextColor 
+                        ?? occurrence.Event.Appearance?.TextColor 
+                        ?? defaultAppearance?.TextColor 
+                        ?? "#0f172a",
+                        
+                    LogoImageUrl = occurrence.Appearance?.LogoImageUrl 
+                        ?? occurrence.Event.Appearance?.LogoImageUrl 
+                        ?? defaultAppearance?.LogoImageUrl 
+                        ?? string.Empty,
+                        
+                    BannerImageUrl = occurrence.Appearance?.BannerImageUrl 
+                        ?? occurrence.Event.Appearance?.BannerImageUrl 
+                        ?? defaultAppearance?.BannerImageUrl 
+                        ?? string.Empty,
+                        
+                    ThemePreset = occurrence.Appearance?.ThemePreset 
+                        ?? occurrence.Event.Appearance?.ThemePreset 
+                        ?? defaultAppearance?.ThemePreset 
+                        ?? "Default",
+                        
+                    Currency = occurrence.Event.Currency
                 } : null!,
 
                 Venue = occurrence.Venue != null ? new EventOccurrenceVenueDto
@@ -105,6 +154,12 @@ namespace Logic.Services
             };
         }
 
+        private Appearance? GetDefaultAppearance(string organizerId)
+        {
+            return _appDbContext.Appearances
+                .FirstOrDefault(a => a.OrganizerId == organizerId && a.IsDefault);
+        }
+
         public bool Update(string id, EventOccurrenceCreateDto updateDto)
         {
             var occurrence = _appDbContext.EventOccurrences.FirstOrDefault(e => e.Id == id);
@@ -119,6 +174,7 @@ namespace Logic.Services
             occurrence.BookingCloseAtUtc = updateDto.BookingCloseAtUtc;
             occurrence.DoorsOpenAtUtc = updateDto.DoorsOpenAtUtc;
             occurrence.CurrencyOverride = updateDto.CurrencyOverride;
+            occurrence.AppearanceId = updateDto.AppearanceId;
             occurrence.Status = updateDto.Status;
             occurrence.UpdatedAtUtc = DateTime.UtcNow;
 

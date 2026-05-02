@@ -104,6 +104,7 @@ namespace Api
 
             builder.Services.AddScoped<ICheckInService, CheckInService>();
             builder.Services.AddScoped<QrService>();
+            builder.Services.AddScoped<IAppearanceService, AppearanceService>();
 
             builder.Services.AddAuthentication(options =>
             {
