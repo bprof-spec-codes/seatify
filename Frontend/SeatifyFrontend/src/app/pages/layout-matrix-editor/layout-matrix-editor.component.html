@@ -43,12 +43,12 @@
                 </button>
 
                 <div class="matrix-item-menu__dropdown" *ngIf="isMatrixMenuOpen(matrix)">
-                  <button type="button" class="matrix-item-menu__action" (click)="startEditMatrix(matrix)">
+                  <button type="button" class="matrix-item-menu__action" (click)="startEditMatrix(matrix)" [disabled]="hasBookings">
                     Edit
                   </button>
 
                   <button type="button" class="matrix-item-menu__action matrix-item-menu__action--danger"
-                    (click)="startDeleteMatrix(matrix)" [disabled]="isDeletingMatrix || isSavingMatrix">
+                    (click)="startDeleteMatrix(matrix)" [disabled]="isDeletingMatrix || isSavingMatrix || hasBookings">
                     Delete
                   </button>
                 </div>
@@ -70,7 +70,7 @@
         </ng-container>
 
         <ng-container *ngIf="!isCreateFormOpen; else createFormBlock">
-          <button type="button" class="matrix-add-button" (click)="openCreateForm()">
+          <button type="button" class="matrix-add-button" (click)="openCreateForm()" [disabled]="hasBookings">
             + New matrix
           </button>
         </ng-container>
@@ -94,6 +94,13 @@
             <span *ngIf="editorContext === 'auditorium'">Auditorium</span>
             <span *ngIf="editorContext === 'event'">Event override</span>
             <span *ngIf="editorContext === 'occurrence'">Date override</span>
+          </div>
+        </div>
+
+        <div *ngIf="hasBookings" class="alert alert-warning m-3 mb-0 d-flex align-items-center" role="alert">
+          <i class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" style="font-size: 1.25rem;"></i>
+          <div>
+            This layout is associated with confirmed bookings. Structural changes, seat overrides, and sector modifications are locked.
           </div>
         </div>
 
@@ -284,7 +291,7 @@
           <app-seat-editor 
             [cell]="isBulkSelection ? null : selectedCell" 
             [isSaving]="isSavingSeat" 
-            [disabled]="!hasSelection"
+            [disabled]="!hasSelection || hasBookings"
             [isBulkMode]="isBulkSelection"
             (save)="isBulkSelection ? bulkUpdateSeats($event) : saveSeat($event)">
           </app-seat-editor>
@@ -294,8 +301,8 @@
           <app-sector-editor 
             [sectors]="(sectors$ | async) ?? []" 
             [selectedSectorId]="isBulkSelection ? null : (selectedCell?.sectorId ?? null)"
-            [disabled]="isSavingSeat" 
-            [canAssign]="hasSelection"
+            [disabled]="isSavingSeat || hasBookings" 
+            [canAssign]="hasSelection && !hasBookings"
             [isCreateFormOpen]="isCreateSectorFormOpen" 
             [isCreatingSector]="isCreatingSector"
             [editingSectorId]="editingSectorId" 
