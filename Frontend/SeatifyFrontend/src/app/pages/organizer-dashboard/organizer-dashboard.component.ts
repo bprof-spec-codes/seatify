@@ -3,6 +3,9 @@ import { Router } from '@angular/router';
 import { catchError, forkJoin, of, Subject, takeUntil } from 'rxjs';
 import { EventService } from '../../services/event.service';
 import { VenueService } from '../../services/venue.service';
+import { AppearanceService } from '../../services/appearance.service';
+import { AuthService } from '../../services/auth.service';
+import { Appearance, AppearanceCreateRequest } from '../../models/appearance';
 import { EventCard, EventCardOccurrence } from '../../models/event-card';
 import { SeatifyEvent } from '../../models/event';
 import { Venue } from '../../models/venue';
@@ -20,6 +23,8 @@ interface AppearancePreset {
   backgroundColor: string;
   surfaceColor: string;
   textColor: string;
+  secondaryColor: string;
+  bannerImageUrl: string;
   cardShape: CardShape;
   density: DashboardDensity;
 }
@@ -62,63 +67,7 @@ export class OrganizerDashboardComponent implements OnInit, OnDestroy {
   upcomingEvents: UpcomingEventViewModel[] = [];
   stats: DashboardStat[] = [];
 
-  selectedPresetId = 'ocean';
   appearance: AppearancePreset = this.getDefaultAppearance();
-
-  readonly appearancePresets: AppearancePreset[] = [
-    {
-      id: 'ocean',
-      name: 'Ocean Blue',
-      description: 'Clean, bright dashboard for everyday organizer work.',
-      icon: 'bi-droplet-half',
-      primaryColor: '#3b82f6',
-      accentColor: '#0ea5e9',
-      backgroundColor: '#f1f5f9',
-      surfaceColor: '#ffffff',
-      textColor: '#0f172a',
-      cardShape: 'soft',
-      density: 'comfortable'
-    },
-    {
-      id: 'midnight',
-      name: 'Midnight Pro',
-      description: 'Dark, premium look for event control rooms.',
-      icon: 'bi-moon-stars',
-      primaryColor: '#8b5cf6',
-      accentColor: '#22d3ee',
-      backgroundColor: '#0f172a',
-      surfaceColor: '#1e293b',
-      textColor: '#f8fafc',
-      cardShape: 'glass',
-      density: 'comfortable'
-    },
-    {
-      id: 'forest',
-      name: 'Forest',
-      description: 'Calm green interface for venues and cultural events.',
-      icon: 'bi-tree',
-      primaryColor: '#10b981',
-      accentColor: '#84cc16',
-      backgroundColor: '#ecfdf5',
-      surfaceColor: '#ffffff',
-      textColor: '#064e3b',
-      cardShape: 'soft',
-      density: 'comfortable'
-    },
-    {
-      id: 'sunset',
-      name: 'Sunset',
-      description: 'Warmer colors for festivals, concerts and nightlife.',
-      icon: 'bi-sunset',
-      primaryColor: '#f97316',
-      accentColor: '#f43f5e',
-      backgroundColor: '#fff7ed',
-      surfaceColor: '#ffffff',
-      textColor: '#431407',
-      cardShape: 'solid',
-      density: 'compact'
-    }
-  ];
 
   readonly cardShapeOptions: { value: CardShape; label: string }[] = [
     { value: 'soft', label: 'Soft cards' },
@@ -131,17 +80,33 @@ export class OrganizerDashboardComponent implements OnInit, OnDestroy {
     { value: 'compact', label: 'Compact' }
   ];
 
+  savedAppearances: Appearance[] = [];
+  selectedAppearance: Appearance | null = null;
+
   private readonly destroy$ = new Subject<void>();
 
   constructor(
     private readonly eventService: EventService,
     private readonly venueService: VenueService,
+    private readonly appearanceService: AppearanceService,
+    private readonly authService: AuthService,
     private readonly router: Router
   ) {}
 
   ngOnInit(): void {
-    this.loadSavedAppearance();
-    this.loadDashboardData();
+    // For development, always force a fresh login to ensure token is valid after backend restarts
+    this.isLoading = true;
+    this.authService.loginAsDev().subscribe({
+      next: () => {
+        this.loadSavedAppearances();
+        this.loadDashboardData();
+      },
+      error: (err) => {
+        this.isLoading = false;
+        this.errorMessage = 'Authentication failed. Please log in manually.';
+        console.error('Dev login failed:', err);
+      }
+    });
   }
 
   ngOnDestroy(): void {
@@ -149,35 +114,114 @@ export class OrganizerDashboardComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  get appearanceStyles(): Record<string, string> {
-    return {
-      '--dashboard-primary': this.appearance.primaryColor,
-      '--dashboard-accent': this.appearance.accentColor,
-      '--dashboard-bg': this.appearance.backgroundColor,
-      '--dashboard-surface': this.appearance.surfaceColor,
-      '--dashboard-text': this.appearance.textColor
+
+
+
+  selectSavedTheme(theme: Appearance): void {
+    this.selectedAppearance = theme;
+    this.appearance = {
+      ...this.appearance,
+      ...theme,
+      cardShape: this.appearance.cardShape, // Preserve these UI-only settings
+      density: this.appearance.density
     };
   }
 
-  selectPreset(preset: AppearancePreset): void {
-    this.selectedPresetId = preset.id;
-    this.appearance = { ...preset };
-    this.saveAppearance();
+  createNewTheme(): void {
+    const defaultTheme = this.getDefaultAppearance();
+    
+    const request: AppearanceCreateRequest = {
+      name: 'New Custom Theme',
+      primaryColor: defaultTheme.primaryColor,
+      accentColor: defaultTheme.accentColor,
+      backgroundColor: defaultTheme.backgroundColor,
+      surfaceColor: defaultTheme.surfaceColor,
+      textColor: defaultTheme.textColor,
+      secondaryColor: defaultTheme.secondaryColor,
+      logoImageUrl: '',
+      bannerImageUrl: '',
+      themePreset: 'Custom',
+      isDefault: this.savedAppearances.length === 0
+    };
+
+    this.appearanceService.create(request).subscribe({
+      next: (newTheme) => {
+        this.savedAppearances.push(newTheme);
+        this.selectSavedTheme(newTheme);
+        this.loadSavedAppearances();
+      },
+      error: (err) => {
+        this.errorMessage = 'Failed to create new theme.';
+        console.error(err);
+      }
+    });
+  }
+
+  previewTheme(): void {
+    if (!this.selectedAppearance) return;
+    
+    // Use a seeded occurrence or the first available one as the mock context
+    const occId = this.upcomingEvents.length > 0 ? this.upcomingEvents[0].occurrence.id : 'occ-01';
+    
+    const url = this.router.serializeUrl(
+      this.router.createUrlTree(['/book', 'preview', occId], { queryParams: { themeId: this.selectedAppearance.id } })
+    );
+    window.open(url, '_blank');
   }
 
   updateAppearance(): void {
-    this.selectedPresetId = 'custom';
-    this.appearance = {
-      ...this.appearance,
-      id: 'custom',
-      name: 'Custom Theme'
+    if (!this.selectedAppearance) return;
+
+    const request: AppearanceCreateRequest = {
+      name: this.appearance.name,
+      primaryColor: this.appearance.primaryColor,
+      accentColor: this.appearance.accentColor,
+      backgroundColor: this.appearance.backgroundColor,
+      surfaceColor: this.appearance.surfaceColor,
+      textColor: this.appearance.textColor,
+      secondaryColor: this.appearance.secondaryColor,
+      logoImageUrl: this.selectedAppearance.logoImageUrl,
+      bannerImageUrl: this.appearance.bannerImageUrl,
+      themePreset: this.selectedAppearance.themePreset,
+      isDefault: this.selectedAppearance.isDefault
     };
 
-    this.saveAppearance();
+    this.appearanceService.update(this.selectedAppearance.id, request).subscribe({
+      next: (updated) => {
+        this.selectedAppearance = updated;
+        const index = this.savedAppearances.findIndex(a => a.id === updated.id);
+        if (index !== -1) this.savedAppearances[index] = updated;
+      },
+      error: (err) => {
+        this.errorMessage = 'Failed to update theme.';
+        console.error(err);
+      }
+    });
+  }
+
+  setThemeAsDefault(theme: Appearance): void {
+    this.appearanceService.setDefault(theme.id).subscribe({
+      next: () => this.loadSavedAppearances(),
+      error: (err) => {
+        this.errorMessage = 'Failed to set theme as default.';
+        console.error(err);
+      }
+    });
+  }
+
+  deleteTheme(theme: Appearance): void {
+    this.appearanceService.delete(theme.id).subscribe({
+      next: () => this.loadSavedAppearances(),
+      error: (err) => {
+        this.errorMessage = 'Failed to delete theme.';
+        console.error(err);
+      }
+    });
   }
 
   resetAppearance(): void {
-    this.selectPreset(this.getDefaultAppearance());
+    this.appearance = this.getDefaultAppearance();
+    this.selectedAppearance = null;
   }
 
   openCheckInModal(modal: { openModal: () => void }): void {
@@ -192,9 +236,6 @@ export class OrganizerDashboardComponent implements OnInit, OnDestroy {
     this.router.navigate(['/dashboard/venues']);
   }
 
-  trackByPresetId(index: number, preset: AppearancePreset): string {
-    return preset.id;
-  }
 
   trackByStatLabel(index: number, stat: DashboardStat): string {
     return stat.label;
@@ -298,43 +339,38 @@ export class OrganizerDashboardComponent implements OnInit, OnDestroy {
       .slice(0, 4);
   }
 
-  private loadSavedAppearance(): void {
-    const saved = localStorage.getItem(this.storageKey);
-
-    if (!saved) {
-      this.appearance = this.getDefaultAppearance();
-      this.selectedPresetId = this.appearance.id;
-      return;
-    }
-
-    try {
-      const parsed = JSON.parse(saved) as AppearancePreset;
-      this.appearance = {
-        ...this.getDefaultAppearance(),
-        ...parsed
-      };
-      this.selectedPresetId = parsed.id ?? 'custom';
-    } catch {
-      this.appearance = this.getDefaultAppearance();
-      this.selectedPresetId = this.appearance.id;
-    }
-  }
-
-  private saveAppearance(): void {
-    localStorage.setItem(this.storageKey, JSON.stringify(this.appearance));
+  private loadSavedAppearances(): void {
+    this.appearanceService.getMyAppearances().subscribe({
+      next: (apps) => {
+        console.log('Saved appearances loaded on Dashboard:', apps);
+        this.savedAppearances = apps;
+        const defaultTheme = apps.find(t => t.isDefault);
+        if (defaultTheme) {
+          this.selectedAppearance = defaultTheme;
+          this.appearance = {
+            ...this.getDefaultAppearance(),
+            ...defaultTheme,
+            cardShape: 'soft', // Default for now
+            density: 'comfortable'
+          };
+        }
+      }
+    });
   }
 
   private getDefaultAppearance(): AppearancePreset {
     return {
       id: 'ocean',
       name: 'Ocean Blue',
-      description: 'Clean, bright dashboard for everyday organizer work.',
+      description: 'Clean, bright theme for professional booking pages.',
       icon: 'bi-droplet-half',
       primaryColor: '#3b82f6',
       accentColor: '#0ea5e9',
       backgroundColor: '#f1f5f9',
       surfaceColor: '#ffffff',
       textColor: '#0f172a',
+      secondaryColor: '#64748b',
+      bannerImageUrl: '',
       cardShape: 'soft',
       density: 'comfortable'
     };

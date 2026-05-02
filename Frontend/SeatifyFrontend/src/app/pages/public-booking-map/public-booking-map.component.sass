@@ -9,9 +9,9 @@
   text-align: center
   h2
     font-weight: 800
-    color: var(--text-color, #2d3436)
+    color: var(--primary-color, #0984e3)
   .subtitle
-    color: #636e72
+    color: var(--secondary-color, #636e72)
 
 .stage-container
   display: flex
@@ -20,8 +20,8 @@
 
 .stage
   width: 50%
-  background: #dfe6e9
-  color: #636e72
+  background: color-mix(in srgb, var(--secondary-color, #636e72) 20%, transparent)
+  color: var(--secondary-color, #636e72)
   padding: 0.5rem
   text-align: center
   font-weight: 700
@@ -96,7 +96,7 @@
   display: flex
   align-items: center
   font-size: 0.9rem
-  color: #636e72
+  color: var(--secondary-color, #636e72)
   margin-bottom: 0.5rem
   
   .box
@@ -125,3 +125,16 @@
   to
     opacity: 1
     transform: translateY(0)
+
+.theme-checkout-btn
+  background-color: var(--primary-color)
+  color: var(--surface-color)
+  border: none
+  box-shadow: 0 4px 10px color-mix(in srgb, var(--primary-color) 30%, transparent)
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1)
+  
+  &:hover
+    background-color: var(--accent-color)
+    color: var(--surface-color)
+    transform: translateY(-2px)
+    box-shadow: 0 6px 15px color-mix(in srgb, var(--accent-color) 40%, transparent)

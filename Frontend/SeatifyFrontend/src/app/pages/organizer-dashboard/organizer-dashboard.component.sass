@@ -65,7 +65,7 @@
   line-height: .95
   font-weight: 800
   letter-spacing: -.055em
-  color: var(--dashboard-text)
+  color: var(--dashboard-primary)
 
 .page-subtitle
   max-width: 650px
@@ -111,6 +111,12 @@
 .secondary-action:hover,
 .text-button:hover
   transform: translateY(-2px)
+
+.btn-sm
+  min-height: 36px
+  padding: .45rem .85rem
+  font-size: .85rem
+  border-radius: 10px
 
 .hero-preview-card
   padding: 1.25rem
@@ -172,6 +178,79 @@
   height: 100%
   border-radius: inherit
   background: linear-gradient(90deg, var(--dashboard-primary), var(--dashboard-accent))
+
+.mini-booking-page
+  flex: 1
+  margin-top: .75rem
+  border-radius: 14px
+  overflow: hidden
+  background: var(--b-color, #f8f9fa)
+  border: 1px solid rgba(0,0,0,0.05)
+  display: flex
+  flex-direction: column
+  font-size: .6rem
+
+  .mini-nav
+    height: 20px
+    background: var(--s-color, #ffffff)
+    border-bottom: 1px solid rgba(0,0,0,0.05)
+    border-top: 2px solid var(--p-color, #0984e3)
+    display: flex
+    align-items: center
+    padding: 0 .5rem
+    justify-content: space-between
+
+    .mini-logo
+      width: 30px
+      height: 6px
+      background: var(--p-color, #3b82f6)
+      border-radius: 2px
+
+    .mini-links
+      width: 40px
+      height: 4px
+      background: color-mix(in srgb, var(--t-color) 30%, transparent)
+      border-radius: 2px
+
+  .mini-banner
+    height: 35px
+    background-size: cover
+    background-position: center
+    background-color: color-mix(in srgb, var(--p-color) 20%, transparent)
+
+  .mini-content
+    padding: .5rem
+    display: flex
+    flex-direction: column
+    gap: .4rem
+
+    .mini-title
+      width: 60%
+      height: 8px
+      background: var(--p-color, #0f172a)
+      border-radius: 2px
+
+    .mini-grid
+      display: grid
+      grid-template-columns: 1fr 1fr
+      gap: .3rem
+
+      .mini-item
+        height: 30px
+        background: var(--s-color, #ffffff)
+        border-radius: 4px
+        border: 1px solid rgba(0,0,0,0.05)
+
+    .mini-button
+      height: 18px
+      background: var(--p-color, #3b82f6)
+      color: #ffffff
+      display: flex
+      align-items: center
+      justify-content: center
+      border-radius: 4px
+      font-weight: 700
+      font-size: .5rem
 
 .dashboard-grid
   display: grid
@@ -305,6 +384,80 @@
   background: color-mix(in srgb, var(--dashboard-primary) 8%, var(--dashboard-surface))
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--dashboard-primary) 28%, transparent)
 
+.theme-list
+  display: flex
+  flex-direction: column
+  gap: .75rem
+
+.theme-list-item
+  display: flex
+  align-items: center
+  gap: 1rem
+  padding: 1rem
+  background: color-mix(in srgb, var(--dashboard-surface) 92%, #ffffff)
+  border: 1px solid color-mix(in srgb, var(--dashboard-primary) 12%, #e5e7eb)
+  border-radius: 18px
+  cursor: pointer
+  transition: all .2s ease
+
+  &:hover
+    background: color-mix(in srgb, var(--dashboard-surface) 96%, #ffffff)
+    border-color: var(--dashboard-primary)
+
+  &.active
+    border-color: var(--dashboard-primary)
+    background: color-mix(in srgb, var(--dashboard-primary) 6%, var(--dashboard-surface))
+
+  .theme-preview
+    width: 48px
+    height: 48px
+    border-radius: 12px
+    display: flex
+    flex-wrap: wrap
+    overflow: hidden
+    flex-shrink: 0
+
+    span
+      width: 50%
+      height: 50%
+
+  .theme-info
+    flex: 1
+    min-width: 0
+
+    h4
+      margin: 0
+      font-size: .95rem
+      font-weight: 800
+
+    p
+      margin: 0
+      font-size: .75rem
+      color: color-mix(in srgb, var(--dashboard-text) 54%, #94a3b8)
+
+  .default-badge
+    font-size: .65rem
+    font-weight: 900
+    text-transform: uppercase
+    padding: .25rem .5rem
+    background: var(--dashboard-primary)
+    color: #ffffff
+    border-radius: 6px
+    margin-right: .5rem
+
+.list-section-header
+  padding: .5rem 0
+  margin-bottom: .25rem
+
+.badge-outline
+  font-size: .65rem
+  font-weight: 800
+  padding: .2rem .5rem
+  border: 1px solid color-mix(in srgb, var(--dashboard-text) 20%, transparent)
+  color: color-mix(in srgb, var(--dashboard-text) 60%, #94a3b8)
+  border-radius: 6px
+  text-transform: uppercase
+
 .preset-icon
   width: 42px
   height: 42px
@@ -341,13 +494,83 @@
   margin-left: -5px
   box-shadow: 0 2px 8px rgba(15, 23, 42, .16)
 
+.theme-actions
+  display: flex
+  gap: .5rem
+  margin-left: auto
+
+.icon-button
+  background: transparent
+  border: 0
+  padding: .5rem
+  border-radius: 9px
+  color: var(--dashboard-primary)
+  cursor: pointer
+  transition: background .2s ease
+  display: flex
+  align-items: center
+  justify-content: center
+
+  &:hover
+    background: color-mix(in srgb, var(--dashboard-primary) 12%, transparent)
+
+  &.delete-btn
+    color: #ef4444
+    &:hover
+      background: #fee2e2
+
+.mt-4
+  margin-top: 2rem
+
 .editor-grid
   display: grid
   grid-template-columns: repeat(2, minmax(0, 1fr))
   gap: .85rem
 
-.color-field,
-.select-field
+.color-field
+  position: relative
+  height: 60px
+  border-radius: 14px
+  overflow: hidden
+  border: 1px solid color-mix(in srgb, var(--dashboard-primary) 15%, #cbd5e1)
+  cursor: pointer
+  display: flex
+  flex-direction: column
+  align-items: center
+  justify-content: center
+  line-height: 1.1
+
+  span
+    position: relative
+    z-index: 2
+    color: #ffffff
+    text-shadow: 0 1px 4px rgba(0,0,0,0.5)
+    font-weight: 900
+    pointer-events: none
+
+  small
+    position: relative
+    z-index: 2
+    color: rgba(255, 255, 255, 0.9)
+    text-shadow: 0 1px 3px rgba(0,0,0,0.6)
+    font-size: 0.65rem
+    font-weight: 600
+    pointer-events: none
+    text-align: center
+
+  input
+    position: absolute
+    top: -10px
+    left: -10px
+    width: calc(100% + 20px)
+    height: calc(100% + 20px)
+    border: 0
+    padding: 0
+    cursor: pointer
+    background: none
+
+.select-field,
+.text-field
   display: flex
   flex-direction: column
   gap: .45rem
@@ -355,21 +578,21 @@
   font-size: .82rem
   font-weight: 800
 
-.color-field input,
-.select-field select
+  select,
+  input
+    width: 100%
+    height: 44px
+    border-radius: 14px
+    border: 1px solid color-mix(in srgb, var(--dashboard-primary) 15%, #cbd5e1)
+    background: color-mix(in srgb, var(--dashboard-surface) 92%, #ffffff)
+    color: var(--dashboard-text)
+    padding: 0 .75rem
+
+.w-100
   width: 100%
-  height: 44px
-  border-radius: 14px
-  border: 1px solid color-mix(in srgb, var(--dashboard-primary) 15%, #cbd5e1)
-  background: color-mix(in srgb, var(--dashboard-surface) 92%, #ffffff)
-  color: var(--dashboard-text)
 
-.color-field input
-  padding: .25rem
-  cursor: pointer
-
-.select-field select
-  padding: 0 .75rem
+.mt-2
+  margin-top: .5rem
 
 .status-card
   display: inline-flex
