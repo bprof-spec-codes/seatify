@@ -15,6 +15,7 @@ export class EventFormComponent implements OnInit {
   eventId: string | null = null;
   isEditMode = false;
   isLoading = false;
+  hasBookings = false;
 
   constructor(
     private fb: FormBuilder,
@@ -51,6 +52,16 @@ export class EventFormComponent implements OnInit {
           status: event.status,
           currency: event.currency || ''
         });
+        
+        this.eventService.checkEventHasBookings(this.eventId!).subscribe(hasBookings => {
+          this.hasBookings = hasBookings;
+          if (hasBookings) {
+            this.eventForm.get('name')?.disable();
+            this.eventForm.get('slug')?.disable();
+            this.eventForm.get('currency')?.disable();
+          }
+        });
+
         this.isLoading = false;
       },
       error: (err) => {

@@ -18,6 +18,7 @@ export class AuditoriumFormComponent implements OnInit, OnDestroy {
   venueId!: string;
   editMode!: boolean;
   editMode$!: Observable<boolean>;
+  hasBookings = false;
   private unsubscribe$ = new Subject<void>();
 
   constructor(
@@ -89,6 +90,18 @@ export class AuditoriumFormComponent implements OnInit, OnDestroy {
         auditoriumDescription: this.auditorium.description,
         currency: this.auditorium.currency || 'HUF'
       });
+      
+      if (this.auditorium.id) {
+        this.auditoriumService.checkAuditoriumHasBookings(this.auditorium.id)
+          .pipe(takeUntil(this.unsubscribe$))
+          .subscribe(hasBookings => {
+            this.hasBookings = hasBookings;
+            if (hasBookings) {
+              this.auditoriumForm.get('auditoriumName')?.disable();
+              this.auditoriumForm.get('currency')?.disable();
+            }
+          });
+      }
     });
   }
 }

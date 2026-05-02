@@ -1,5 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 import { LayoutMatrixService } from '../../services/layout-matrix.service';
+import { EventService } from '../../services/event.service';
+import { AuditoriumService } from '../../services/auditorium.service';
 import { BehaviorSubject, catchError, Observable, of, switchMap, tap } from 'rxjs';
 import { CreateLayoutMatrixDto, LayoutMatrix } from '../../models/layout-matrix';
 import { ActivatedRoute } from '@angular/router';
@@ -38,6 +40,7 @@ export class LayoutMatrixEditorComponent implements OnInit {
   editorContext: 'auditorium' | 'event' | 'occurrence' = 'auditorium'
   contextEventId: string | null = null
   contextOccurrenceId: string | null = null
+  hasBookings = false
 
   gridRows = 0
   gridColumns = 0
@@ -93,6 +96,8 @@ export class LayoutMatrixEditorComponent implements OnInit {
     private sectorService: SectorService,
     private location: Location,
     private seatOverrideService: SeatOverrideService,
+    private eventService: EventService,
+    private auditoriumService: AuditoriumService
   ) { }
 
   ngOnInit(): void {
@@ -104,10 +109,22 @@ export class LayoutMatrixEditorComponent implements OnInit {
 
     if (this.contextOccurrenceId) {
       this.editorContext = 'occurrence';
+      this.eventService.checkOccurrenceHasBookings(this.contextOccurrenceId).subscribe(b => {
+        this.hasBookings = b;
+        this.cdr.markForCheck();
+      });
     } else if (this.contextEventId) {
       this.editorContext = 'event';
+      this.eventService.checkEventHasBookings(this.contextEventId).subscribe(b => {
+        this.hasBookings = b;
+        this.cdr.markForCheck();
+      });
     } else {
       this.editorContext = 'auditorium';
+      this.auditoriumService.checkAuditoriumHasBookings(this.auditoriumId).subscribe(b => {
+        this.hasBookings = b;
+        this.cdr.markForCheck();
+      });
     }
 
     this.matrices$ = this.matrixService.LayoutMatrix$

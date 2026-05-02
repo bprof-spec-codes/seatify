@@ -84,6 +84,12 @@ export class AuditoriumService {
     this.editAuditoriumSource.next(editAuditorium);
   }
 
+  checkAuditoriumHasBookings(auditoriumId: string): Observable<boolean> {
+    return this.http.get<boolean>(`${this.apiUrl}/${auditoriumId}/has-bookings`).pipe(
+      catchError(this.handleError)
+    );
+  }
+
   private handleError(error: HttpErrorResponse): Observable<never> {
     console.error('An error occurred: ', error.message);
     if (error.error) {
