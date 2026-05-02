@@ -17,16 +17,14 @@ public class QrService
         return GenerateQrCodeBase64(TICKET_QR_CODE_PREFIX + reservationSeatId);
     }
 
-    public byte[] GenerateQrCode(string text)
+    public string GenerateQrCodeBase64(string text)
     {
         using var qrGenerator = new QRCodeGenerator();
         using var qrData = qrGenerator.CreateQrCode(text, QRCodeGenerator.ECCLevel.Q);
         var pngQr = new PngByteQRCode(qrData);
-        return pngQr.GetGraphic(20);
-
-        //byte[] qrBytes = pngQr.GetGraphic(20);
+        byte[] qrBytes = pngQr.GetGraphic(20);
 
         // A byte tömb átalakítása Base64 stringgé
-        //return Convert.ToBase64String(qrBytes);
+        return Convert.ToBase64String(qrBytes);
     }
 }
