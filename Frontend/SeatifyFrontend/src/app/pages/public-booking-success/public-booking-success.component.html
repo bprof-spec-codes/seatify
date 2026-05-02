@@ -7,7 +7,7 @@
     <p class="status-msg">Your tickets have been sent to your email address.</p>
     <div class="header-actions mt-4">
       <button class="btn btn-primary btn-lg px-5 shadow-sm" (click)="printTickets()">
-        <i class="bi bi-printer me-2"></i> Print / Save as PDF
+        <i class="bi bi-file-earmark-pdf me-2"></i> Download Tickets (PDF)
       </button>
     </div>
   </div>
@@ -56,8 +56,8 @@
               <img [src]="'data:image/png;base64,' + ticket.qrCodeBase64" alt="Ticket QR" class="ticket-qr">
             </div>
             <div class="mt-3 text-center">
-              <span class="d-block small text-muted">SCAN AT ENTRANCE</span>
-              <span class="fw-mono small text-uppercase">{{ ticket.seatId | slice:0:10 }}</span>
+              <span class="d-block small text-muted">TICKET CODE</span>
+              <span class="fw-mono small text-uppercase">{{ ticket.ticketId | slice:0:8 }}</span>
             </div>
           </div>
         </div>

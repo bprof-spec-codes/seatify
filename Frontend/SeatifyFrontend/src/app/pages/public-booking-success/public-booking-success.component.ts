@@ -28,7 +28,22 @@ export class PublicBookingSuccessComponent implements OnInit {
   }
 
   printTickets(): void {
-    window.print();
+    if (this.result && this.result.pdfBase64) {
+      const byteCharacters = atob(this.result.pdfBase64);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: 'application/pdf' });
+      
+      const link = document.createElement('a');
+      link.href = window.URL.createObjectURL(blob);
+      link.download = `Seatify_Tickets_${this.result.bookingId.slice(0, 8)}.pdf`;
+      link.click();
+    } else {
+      window.print();
+    }
   }
 
   finish(): void {

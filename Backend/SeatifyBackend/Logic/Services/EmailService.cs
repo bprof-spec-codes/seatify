@@ -24,7 +24,8 @@ namespace Logic.Services
             DateTime eventTime,
             IEnumerable<EmailTicketItem> tickets,
             decimal totalPrice,
-            string currency)
+            string currency,
+            byte[]? pdfAttachment = null)
         {
             var message = new EmailMessage();
             message.From = "Seatify <confirmation@seatify.hu>";
@@ -34,8 +35,6 @@ namespace Logic.Services
             var eventTimeFormatted = eventTime.ToString("f");
             
             var ticketRowsHtml = new StringBuilder();
-            var qrSectionsHtml = new StringBuilder();
-
             foreach (var ticket in tickets)
             {
                 ticketRowsHtml.Append($@"
@@ -43,13 +42,6 @@ namespace Logic.Services
                     <td style='padding: 12px; border-bottom: 1px solid #e2e8f0; text-align: left;'>{ticket.SeatLabel}</td>
                     <td style='padding: 12px; border-bottom: 1px solid #e2e8f0; text-align: right;'>{ticket.Price:N0} {currency}</td>
                 </tr>");
-
-                qrSectionsHtml.Append($@"
-                <div class='qr-section'>
-                    <p style='margin-top:0; color: #4a5568;'><strong>Check-In QR Code: {ticket.SeatLabel}</strong></p>
-                    <img src='data:image/png;base64,{ticket.QrCodeBase64}' alt='QR Code for {ticket.SeatLabel}' />
-                    <p style='margin-bottom:0; font-size: 14px; color: #718096;'>Please present this code at the entrance for this seat.</p>
-                </div>");
             }
 
             message.HtmlBody = $@"
@@ -152,7 +144,7 @@ namespace Logic.Services
             </table>
 
             <h3>Your Tickets</h3>
-            {qrSectionsHtml}
+            <p>Your tickets are attached to this email as a PDF file. Please have it ready for scanning at the entrance.</p>
 
         </div>
         <div class='footer'>
@@ -161,6 +153,16 @@ namespace Logic.Services
     </div>
 </body>
 </html>";
+
+            if (pdfAttachment != null)
+            {
+                message.Attachments ??= new List<EmailAttachment>();
+                message.Attachments.Add(new EmailAttachment
+                {
+                    Filename = "Seatify_Tickets.pdf",
+                    Content = pdfAttachment
+                });
+            }
 
             await _resend.EmailSendAsync(message);
         }

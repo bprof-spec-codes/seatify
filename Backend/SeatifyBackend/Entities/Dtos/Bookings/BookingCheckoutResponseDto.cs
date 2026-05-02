@@ -14,10 +14,12 @@ namespace Entities.Dtos.Bookings
         public decimal TotalPrice { get; set; }
         public string Currency { get; set; } = "EUR";
         public string QrCodeBase64 { get; set; } = string.Empty;
+        public string PdfBase64 { get; set; } = string.Empty;
     }
 
     public class TicketDto
     {
+        public string TicketId { get; set; } = string.Empty;
         public string SeatId { get; set; } = string.Empty;
         public string SeatLabel { get; set; } = string.Empty;
         public string QrCodeBase64 { get; set; } = string.Empty;

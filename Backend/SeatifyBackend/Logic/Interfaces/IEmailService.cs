@@ -20,6 +20,7 @@ namespace Logic.Interfaces
             DateTime eventTime,
             IEnumerable<EmailTicketItem> tickets,
             decimal totalPrice,
-            string currency);
+            string currency,
+            byte[]? pdfAttachment = null);
     }
 }

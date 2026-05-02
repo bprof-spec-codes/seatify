@@ -1,8 +1,9 @@
+using Logic.Interfaces;
 using QRCoder;
 
 namespace Logic.Services
 {
-    public class QrService
+    public class QrService : IQrService
     {
         const string QR_CODE_PREFIX = "Reservation:";
         const string TICKET_QR_CODE_PREFIX = "Ticket:";
@@ -22,10 +23,11 @@ namespace Logic.Services
             using var qrGenerator = new QRCodeGenerator();
             using var qrData = qrGenerator.CreateQrCode(text, QRCodeGenerator.ECCLevel.Q);
             var pngQr = new PngByteQRCode(qrData);
-            byte[] qrBytes = pngQr.GetGraphic(20);
+            byte[] qrBytes = pngQr.GetGraphic(5);
 
             // A byte tömb átalakítása Base64 stringgé
             return Convert.ToBase64String(qrBytes);
         }
     }
 }
+
