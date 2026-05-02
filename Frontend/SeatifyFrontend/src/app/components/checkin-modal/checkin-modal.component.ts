@@ -13,6 +13,7 @@ export class CheckinModalComponent implements OnInit, OnDestroy {
   public manualTicketCode = '';
   public validationResult: CheckInResult | null = null;
   public processing = false;
+  public errorMessage: string | null = null;
   
   private html5QrcodeScanner!: Html5QrcodeScanner;
   public TicketStatus = TicketStatus;
@@ -35,6 +36,7 @@ export class CheckinModalComponent implements OnInit, OnDestroy {
   public openModal(): void {
     this.isVisible = true;
     this.validationResult = null;
+    this.errorMessage = null;
     this.manualTicketCode = '';
     this.inputMode = 'camera';
     this.initScanner();
@@ -91,9 +93,11 @@ export class CheckinModalComponent implements OnInit, OnDestroy {
       next: (res) => {
         this.validationResult = res;
         this.processing = false;
+        this.errorMessage = null;
       },
       error: (err) => {
         console.error(err);
+        this.errorMessage = "Validation failed. Please check the code or your internet connection.";
         this.processing = false;
       }
     });
@@ -117,6 +121,7 @@ export class CheckinModalComponent implements OnInit, OnDestroy {
 
   public resetScanner(): void {
     this.validationResult = null;
+    this.errorMessage = null;
     if (this.inputMode === 'camera') {
       this.initScanner();
     }
