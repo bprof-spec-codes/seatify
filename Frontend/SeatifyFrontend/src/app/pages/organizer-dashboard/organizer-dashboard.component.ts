@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Subject, takeUntil } from 'rxjs';
+import { filter, Subject, takeUntil } from 'rxjs';
 import { EventService } from '../../services/event.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-organizer-dashboard',
@@ -13,10 +14,12 @@ export class OrganizerDashboardComponent implements OnInit, OnDestroy {
 
   private readonly destroy$ = new Subject<void>();
 
-  constructor(private readonly eventService: EventService) {}
+  constructor(private readonly eventService: EventService, private authService: AuthService) {}
 
   ngOnInit(): void {
-    this.loadActiveEventsCount();
+    this.authService.currentUser$
+      .pipe(filter((u): u is NonNullable<typeof u> => !!u))
+      .subscribe(user => this.loadActiveEventsCount(user.organizerId));
   }
 
   ngOnDestroy(): void {
@@ -24,9 +27,9 @@ export class OrganizerDashboardComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  private loadActiveEventsCount(): void {
+  private loadActiveEventsCount(organizerId: any): void {
     this.eventService
-      .getActiveEventsCount()
+      .getActiveEventsCount(organizerId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (count) => {

@@ -52,8 +52,8 @@ export class EventService {
     return this.http.put(`${this.eventOccurrencesApiUrl}/${id}`, occurrence);
   }
 
-  getEventCards(): Observable<EventCard[]> {
-    return this.http.get<SeatifyEvent[]>(this.eventsApiUrl).pipe(
+  getEventCards(organizerId: string): Observable<EventCard[]> {
+    return this.http.get<SeatifyEvent[]>(`${this.eventsApiUrl}/organizers/${organizerId}`).pipe(
       switchMap(events => {
         if (!events?.length) {
           return of([]);
@@ -124,21 +124,21 @@ export class EventService {
     });
   }
 
-  getEvents(): Observable<SeatifyEvent[]> {
-    return this.http.get<SeatifyEvent[]>(this.eventsApiUrl).pipe(
+  getEvents(organizerId: any): Observable<SeatifyEvent[]> {
+    return this.http.get<SeatifyEvent[]>(`${this.eventsApiUrl}/organizers/${organizerId}`).pipe(
       map(events => events ?? []),
       catchError(error => this.handleFatalError(error))
     );
   }
 
-  getActiveEventsCount(): Observable<number> {
-    return this.getEvents().pipe(
+  getActiveEventsCount(organizerId: any): Observable<number> {
+    return this.getEvents(organizerId).pipe(
       map(events => events.filter(event => event.status === 'Published').length)
     );
   }
 
-  getAllEventsCount(): Observable<number> {
-    return this.getEvents().pipe(
+  getAllEventsCount(organizerId: any): Observable<number> {
+    return this.getEvents(organizerId).pipe(
       map(events => events.length)
     );
   }

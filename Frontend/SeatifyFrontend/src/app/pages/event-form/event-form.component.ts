@@ -3,6 +3,8 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EventService } from '../../services/event.service';
 import EventRequest from '../../models/event.request';
+import { AuthService } from '../../services/auth.service';
+import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-event-form',
@@ -15,12 +17,14 @@ export class EventFormComponent implements OnInit {
   eventId: string | null = null;
   isEditMode = false;
   isLoading = false;
+  organizerId: string = "";
 
   constructor(
     private fb: FormBuilder,
     private route: ActivatedRoute,
     private router: Router,
-    private eventService: EventService
+    private eventService: EventService,
+    private authService: AuthService
   ) {
     this.eventForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(3)]],
@@ -35,9 +39,9 @@ export class EventFormComponent implements OnInit {
     this.eventId = this.route.snapshot.paramMap.get('eventId');
     this.isEditMode = !!this.eventId;
 
-    if (this.isEditMode && this.eventId) {
-      this.loadEvent();
-    }
+    this.authService.currentUser$
+      .pipe(filter((u): u is NonNullable<typeof u> => !!u))
+      .subscribe(user => this.organizerId = user.organizerId);
   }
 
   loadEvent() {
@@ -76,7 +80,7 @@ export class EventFormComponent implements OnInit {
       description: val.description || '',
       status: val.status,
       currency: val.currency || null,
-      organizerId: 'org-id-01' // Matches seed data in backend
+      organizerId: this.organizerId
     };
 
     if (this.isEditMode && this.eventId) {

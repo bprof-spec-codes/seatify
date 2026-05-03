@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Entities.Dtos.Event;
 using Logic.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -82,15 +83,13 @@ namespace Api.Controllers
             }
         }
 
-        // GET /api/events/users/{userId}
-        [HttpGet("users/{userId}")]
-        public async Task<ActionResult<List<Entities.Dtos.Event.EventViewDto>>> GetByUserId(
-            string userId,
-            CancellationToken ct)
+        // GET /api/events/organizers/{organizerId}
+        [HttpGet("organizers/{organizerId}")]
+        public async Task<ActionResult<List<EventViewDto>>> GetEventsByOrganizerId(string organizerId, CancellationToken ct)
         {
             try
             {
-                var events = await _eventService.GetByUserIdAsync(userId, ct);
+                var events = await _eventService.GetByOrganizerIdAsync(organizerId, ct);
                 return Ok(events);
             }
             catch (ArgumentException ex)
@@ -105,6 +104,13 @@ namespace Api.Controllers
             [FromBody] EventCreateDto dto,
             CancellationToken ct)
         {
+            var organizerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrWhiteSpace(organizerId))
+            {
+                return Unauthorized(new { message = "Unauthorized operation!" });
+            }
+            
             try
             {
                 var created = await _eventService.CreateAsync(dto, ct);

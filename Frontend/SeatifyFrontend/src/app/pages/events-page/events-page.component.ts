@@ -1,9 +1,9 @@
-import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
-import { Subject, takeUntil } from 'rxjs';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { filter, Subject, takeUntil } from 'rxjs';
 import { Router } from '@angular/router';
 import { EventCard, EventCardOccurrence } from '../../models/event-card';
 import { EventService } from '../../services/event.service';
-import { CreateEventForm } from '../../models/event';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-events-page',
@@ -22,11 +22,14 @@ export class EventsPageComponent implements OnInit, OnDestroy {
 
   constructor(
     private readonly eventService: EventService,
-    private readonly router: Router
+    private readonly router: Router,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
-    this.loadEvents();
+    this.authService.currentUser$
+      .pipe(filter((u): u is NonNullable<typeof u> => !!u))
+      .subscribe(user => this.loadEvents(user.organizerId));
   }
 
   ngOnDestroy(): void {
@@ -34,13 +37,12 @@ export class EventsPageComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-
-  loadEvents(): void {
+  loadEvents(organizerId: any): void {
     this.isLoading = true;
     this.errorMessage = '';
 
     this.eventService
-      .getEventCards()
+      .getEventCards(organizerId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (events) => {

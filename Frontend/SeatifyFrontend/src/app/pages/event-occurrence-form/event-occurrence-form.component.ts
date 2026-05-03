@@ -7,6 +7,8 @@ import { AuditoriumService } from '../../services/auditorium.service';
 import { Venue } from '../../models/venue';
 import { Auditorium } from '../../models/auditorium';
 import { SeatifyEvent } from '../../models/event';
+import { AuthService } from '../../services/auth.service';
+import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-event-occurrence-form',
@@ -30,7 +32,8 @@ export class EventOccurrenceFormComponent implements OnInit {
     private router: Router,
     private eventService: EventService,
     private venueService: VenueService,
-    private auditoriumService: AuditoriumService
+    private auditoriumService: AuditoriumService,
+    private authService: AuthService
   ) {
     this.occurrenceForm = this.fb.group({
       venueId: ['', Validators.required],
@@ -50,17 +53,19 @@ export class EventOccurrenceFormComponent implements OnInit {
     this.occurrenceId = this.route.snapshot.paramMap.get('id');
     this.isEditMode = !!this.occurrenceId;
 
-    this.loadInitialData();
+    this.authService.currentUser$
+      .pipe(filter((u): u is NonNullable<typeof u> => !!u))
+      .subscribe(user => this.loadInitialData(user.organizerId));
   }
 
-  async loadInitialData() {
+  async loadInitialData(organizerId: any) {
     this.isLoading = true;
     try {
       // 1. Load Event name
       this.eventService.getEventById(this.eventId).subscribe(ev => this.event = ev);
 
       // 2. Load Venues
-      this.venueService.getVenuesByOrganizerId('org-id-01').subscribe(vn => {
+      this.venueService.getVenuesByOrganizerId(organizerId).subscribe(vn => {
         this.venues = vn;
         
         // 3. If Edit Mode, load occurrence and patch
