@@ -19,6 +19,7 @@ namespace Entities.Dtos.Event
         public string? Slug { get; set; }
 
         public string? Currency { get; set; }
+        public string? AppearanceId { get; set; }
 
         [Required]
         public string Status { get; set; } = string.Empty;

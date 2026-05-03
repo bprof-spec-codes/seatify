@@ -1,91 +1,732 @@
+@use '../../../variables' as *
+
 :host
   display: block
   width: 100%
 
 .dashboard-page
+  --dashboard-primary: #3b82f6
+  --dashboard-accent: #0ea5e9
+  --dashboard-bg: #f1f5f9
+  --dashboard-surface: #ffffff
+  --dashboard-text: #0f172a
   width: 100%
+  min-height: calc(100vh - 5rem)
+  padding: 1.25rem
+  border-radius: 30px
+  color: var(--dashboard-text)
+  background: radial-gradient(circle at top right, color-mix(in srgb, var(--dashboard-primary) 18%, transparent), transparent 34rem), linear-gradient(135deg, var(--dashboard-bg), color-mix(in srgb, var(--dashboard-bg) 86%, #ffffff))
+  transition: background .25s ease, color .25s ease
 
-.page-header
+.dashboard-hero
+  display: grid
+  grid-template-columns: minmax(0, 1fr) 340px
+  gap: 1.5rem
+  margin-bottom: 1.5rem
+  align-items: stretch
+
+.hero-content,
+.hero-preview-card,
+.dashboard-card
+  background: var(--dashboard-surface)
+  border: 1px solid color-mix(in srgb, var(--dashboard-primary) 14%, #e5e7eb)
+  border-radius: 26px
+  box-shadow: 0 18px 45px rgba(15, 23, 42, .08)
+
+.hero-content
+  padding: 2rem
+  overflow: hidden
+  position: relative
+
+.hero-content::after
+  content: ''
+  position: absolute
+  right: -90px
+  top: -90px
+  width: 220px
+  height: 220px
+  border-radius: 999px
+  background: color-mix(in srgb, var(--dashboard-accent) 18%, transparent)
+
+.eyebrow
+  display: inline-flex
+  align-items: center
+  gap: .4rem
+  margin-bottom: .55rem
+  color: var(--dashboard-primary)
+  font-size: .75rem
+  font-weight: 800
+  text-transform: uppercase
+  letter-spacing: .08em
+
+.page-title
+  margin: 0
+  font-size: clamp(2.1rem, 4vw, 4.4rem)
+  line-height: .95
+  font-weight: 800
+  letter-spacing: -.055em
+  color: var(--dashboard-primary)
+
+.page-subtitle
+  max-width: 650px
+  margin: 1rem 0 0
+  font-size: 1rem
+  color: color-mix(in srgb, var(--dashboard-text) 68%, #94a3b8)
+
+.hero-actions
+  display: flex
+  flex-wrap: wrap
+  gap: .75rem
+  margin-top: 1.5rem
+
+.primary-action,
+.secondary-action,
+.text-button
+  border: 0
+  cursor: pointer
+  transition: transform .2s ease, box-shadow .2s ease, background .2s ease
+
+.primary-action,
+.secondary-action
+  display: inline-flex
+  align-items: center
+  justify-content: center
+  gap: .55rem
+  min-height: 46px
+  padding: .75rem 1.1rem
+  border-radius: 14px
+  font-weight: 800
+
+.primary-action
+  background: linear-gradient(135deg, var(--dashboard-primary), var(--dashboard-accent))
+  color: #ffffff
+  box-shadow: 0 14px 28px color-mix(in srgb, var(--dashboard-primary) 24%, transparent)
+
+.secondary-action
+  background: color-mix(in srgb, var(--dashboard-primary) 9%, transparent)
+  color: var(--dashboard-primary)
+  border: 1px solid color-mix(in srgb, var(--dashboard-primary) 20%, transparent)
+
+.primary-action:hover,
+.secondary-action:hover,
+.text-button:hover
+  transform: translateY(-2px)
+
+.btn-sm
+  min-height: 36px
+  padding: .45rem .85rem
+  font-size: .85rem
+  border-radius: 10px
+
+.hero-preview-card
+  padding: 1.25rem
+  display: flex
+  flex-direction: column
+  justify-content: space-between
+  min-height: 230px
+  background:linear-gradient(145deg, color-mix(in srgb, var(--dashboard-primary) 18%, var(--dashboard-surface)), var(--dashboard-surface))
+
+.preview-topline
+  display: flex
+  align-items: center
+  gap: .5rem
+  color: color-mix(in srgb, var(--dashboard-text) 64%, #64748b)
+  font-size: .82rem
+  font-weight: 700
+
+.preview-dot
+  width: 10px
+  height: 10px
+  border-radius: 999px
+  background: var(--dashboard-accent)
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--dashboard-accent) 16%, transparent)
+
+.mini-event-card
+  display: flex
+  justify-content: space-between
+  gap: 1rem
+  align-items: flex-start
+  padding: 1rem
+  border-radius: 18px
+  background: color-mix(in srgb, var(--dashboard-surface) 82%, #ffffff)
+  border: 1px solid color-mix(in srgb, var(--dashboard-primary) 12%, transparent)
+
+.mini-label
+  margin: 0 0 .25rem
+  color: color-mix(in srgb, var(--dashboard-text) 56%, #94a3b8)
+  font-size: .78rem
+  font-weight: 700
+
+.mini-status
+  padding: .35rem .65rem
+  border-radius: 999px
+  background: color-mix(in srgb, var(--dashboard-accent) 15%, transparent)
+  color: var(--dashboard-accent)
+  font-size: .72rem
+  font-weight: 800
+
+.mini-progress
+  width: 100%
+  height: 10px
+  border-radius: 999px
+  background: color-mix(in srgb, var(--dashboard-text) 10%, transparent)
+  overflow: hidden
+
+.mini-progress span
+  display: block
+  width: 68%
+  height: 100%
+  border-radius: inherit
+  background: linear-gradient(90deg, var(--dashboard-primary), var(--dashboard-accent))
+
+.mini-booking-page
+  flex: 1
+  margin-top: .75rem
+  border-radius: 14px
+  overflow: hidden
+  background: var(--b-color, #f8f9fa)
+  border: 1px solid rgba(0,0,0,0.05)
+  display: flex
+  flex-direction: column
+  font-size: .6rem
+  font-family: var(--font-family, 'Inter')
+
+  .mini-nav
+    height: 20px
+    background: var(--s-color, #ffffff)
+    border-bottom: 1px solid rgba(0,0,0,0.05)
+    border-top: 2px solid var(--p-color, #0984e3)
+    display: flex
+    align-items: center
+    padding: 0 .5rem
+    justify-content: space-between
+
+    .mini-logo
+      width: 30px
+      height: 6px
+      background: var(--p-color, #3b82f6)
+      border-radius: 2px
+
+    .mini-links
+      width: 40px
+      height: 4px
+      background: color-mix(in srgb, var(--t-color) 30%, transparent)
+      border-radius: 2px
+
+  .mini-banner
+    height: 35px
+    background-size: cover
+    background-position: center
+    background-color: color-mix(in srgb, var(--p-color) 20%, transparent)
+
+  .mini-content
+    padding: .5rem
+    display: flex
+    flex-direction: column
+    gap: .4rem
+
+    .mini-title
+      width: 60%
+      height: 8px
+      background: var(--p-color, #0f172a)
+      border-radius: 2px
+
+    .mini-grid
+      display: grid
+      grid-template-columns: 1fr 1fr
+      gap: .3rem
+
+      .mini-item
+        height: 30px
+        background: var(--s-color, #ffffff)
+        border-radius: 4px
+        border: 1px solid rgba(0,0,0,0.05)
+
+    .mini-button
+      height: 18px
+      background: var(--p-color, #3b82f6)
+      color: #ffffff
+      display: flex
+      align-items: center
+      justify-content: center
+      border-radius: 4px
+      font-weight: 700
+      font-size: .5rem
+
+.dashboard-grid
+  display: grid
+  grid-template-columns: repeat(4, minmax(0, 1fr))
+  gap: 1rem
+
+.dashboard-card
+  padding: 1.25rem
+  color: var(--dashboard-text)
+  transition: transform .2s ease, box-shadow .2s ease, background .2s ease
+
+.stat-card
+  display: flex
+  align-items: center
+  gap: 1rem
+  min-height: 150px
+
+.clickable-card
+  cursor: pointer
+
+.clickable-card:hover,
+.preset-card:hover,
+.upcoming-item:hover
+  transform: translateY(-3px)
+
+.stat-icon
+  width: 52px
+  height: 52px
+  display: inline-flex
+  align-items: center
+  justify-content: center
+  border-radius: 17px
+  font-size: 1.35rem
+  color: #ffffff
+  flex: 0 0 auto
+
+.tone-primary
+  background: linear-gradient(135deg, var(--dashboard-primary), var(--dashboard-accent))
+
+.tone-success
+  background: linear-gradient(135deg, #10b981, #22c55e)
+
+.tone-warning
+  background: linear-gradient(135deg, #f97316, #f59e0b)
+
+.tone-info
+  background: linear-gradient(135deg, #06b6d4, #3b82f6)
+
+.stat-label,
+.stat-helper
+  margin: 0
+
+.stat-label
+  color: color-mix(in srgb, var(--dashboard-text) 58%, #94a3b8)
+  font-size: .82rem
+  font-weight: 800
+  text-transform: uppercase
+  letter-spacing: .05em
+
+.stat-value
+  display: block
+  margin: .2rem 0
+  font-size: 2rem
+  line-height: 1
+  font-weight: 900
+  color: var(--dashboard-text)
+
+.stat-helper
+  color: color-mix(in srgb, var(--dashboard-text) 56%, #94a3b8)
+  font-size: .86rem
+
+.appearance-panel
+  grid-column: span 2
+
+.editor-panel
+  grid-column: span 2
+
+.upcoming-panel
+  grid-column: span 4
+
+.panel-header
   display: flex
   justify-content: space-between
   align-items: flex-start
   gap: 1rem
-  margin-bottom: 1.75rem
+  margin-bottom: 1rem
 
-.page-title
+.panel-header h2
   margin: 0
-  font-size: 2.25rem
-  font-weight: 700
-  color: #0f172a
+  color: var(--dashboard-text)
+  font-size: 1.28rem
+  font-weight: 900
 
-.page-subtitle
-  margin: .45rem 0 0
-  font-size: 1rem
-  color: #64748b
+.panel-header p
+  margin: .35rem 0 0
+  color: color-mix(in srgb, var(--dashboard-text) 56%, #94a3b8)
+  font-size: .92rem
 
-.surface-card
-  background: #ffffff
-  border: 1px solid #e5e7eb
-  border-radius: 22px
-  box-shadow: 0 4px 18px rgba(15, 23, 42, 0.05)
+.text-button
+  background: transparent
+  color: var(--dashboard-primary)
+  font-weight: 900
+  padding: .45rem .65rem
+  border-radius: 999px
 
-.overview-grid
+.text-button:hover
+  background: color-mix(in srgb, var(--dashboard-primary) 10%, transparent)
+
+.preset-grid
   display: grid
-  grid-template-columns: 280px minmax(0, 1fr)
-  grid-template-rows: 198px 380px
-  gap: 1.25rem
+  grid-template-columns: repeat(2, minmax(0, 1fr))
+  gap: .8rem
 
-.stats-card
-  padding: 1.35rem
+.preset-card
+  display: grid
+  grid-template-columns: 42px minmax(0, 1fr) auto
+  align-items: center
+  gap: .75rem
+  width: 100%
+  padding: .9rem
+  border-radius: 18px
+  border: 1px solid color-mix(in srgb, var(--dashboard-primary) 12%, #e5e7eb)
+  background: color-mix(in srgb, var(--dashboard-surface) 92%, #ffffff)
+  text-align: left
+  cursor: pointer
+  color: var(--dashboard-text)
+  transition: transform .2s ease, border-color .2s ease, background .2s ease
+
+.preset-card.active
+  border-color: var(--dashboard-primary)
+  background: color-mix(in srgb, var(--dashboard-primary) 8%, var(--dashboard-surface))
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--dashboard-primary) 28%, transparent)
+
+.theme-list
   display: flex
   flex-direction: column
-  justify-content: center
-  align-items: flex-start
-  gap: .85rem
+  gap: .75rem
 
-.stats-icon
-  width: 46px
-  height: 46px
+.theme-list-item
+  display: flex
+  align-items: center
+  gap: 1rem
+  padding: 1rem
+  background: color-mix(in srgb, var(--dashboard-surface) 92%, #ffffff)
+  border: 1px solid color-mix(in srgb, var(--dashboard-primary) 12%, #e5e7eb)
+  border-radius: 18px
+  cursor: pointer
+  transition: all .2s ease
+
+  &:hover
+    background: color-mix(in srgb, var(--dashboard-surface) 96%, #ffffff)
+    border-color: var(--dashboard-primary)
+
+  &.active
+    border-color: var(--dashboard-primary)
+    background: color-mix(in srgb, var(--dashboard-primary) 6%, var(--dashboard-surface))
+
+  .theme-preview
+    width: 48px
+    height: 48px
+    border-radius: 12px
+    display: flex
+    flex-wrap: wrap
+    overflow: hidden
+    flex-shrink: 0
+
+    span
+      width: 50%
+      height: 50%
+
+  .theme-info
+    flex: 1
+    min-width: 0
+
+    h4
+      margin: 0
+      font-size: .95rem
+      font-weight: 800
+
+    p
+      margin: 0
+      font-size: .75rem
+      color: color-mix(in srgb, var(--dashboard-text) 54%, #94a3b8)
+
+  .default-badge
+    font-size: .65rem
+    font-weight: 900
+    text-transform: uppercase
+    padding: .25rem .5rem
+    background: var(--dashboard-primary)
+    color: #ffffff
+    border-radius: 6px
+    margin-right: .5rem
+
+.list-section-header
+  padding: .5rem 0
+  margin-bottom: .25rem
+
+.badge-outline
+  font-size: .65rem
+  font-weight: 800
+  padding: .2rem .5rem
+  border: 1px solid color-mix(in srgb, var(--dashboard-text) 20%, transparent)
+  color: color-mix(in srgb, var(--dashboard-text) 60%, #94a3b8)
+  border-radius: 6px
+  text-transform: uppercase
+
+.preset-icon
+  width: 42px
+  height: 42px
+  display: inline-flex
+  align-items: center
+  justify-content: center
   border-radius: 14px
-  background: #eff6ff
-  color: #3b82f6
+  background: color-mix(in srgb, var(--dashboard-primary) 12%, transparent)
+  color: var(--dashboard-primary)
+  font-size: 1.1rem
+
+.preset-content
+  min-width: 0
+  display: flex
+  flex-direction: column
+  gap: .15rem
+
+.preset-content strong
+  font-size: .95rem
+
+.preset-content small
+  color: color-mix(in srgb, var(--dashboard-text) 54%, #94a3b8)
+  line-height: 1.25
+
+.preset-colors
+  display: flex
+  align-items: center
+
+.preset-colors i
+  width: 18px
+  height: 18px
+  border-radius: 999px
+  border: 2px solid var(--dashboard-surface)
+  margin-left: -5px
+  box-shadow: 0 2px 8px rgba(15, 23, 42, .16)
+
+.theme-actions
+  display: flex
+  gap: .5rem
+  margin-left: auto
+
+.icon-button
+  background: transparent
+  border: 0
+  padding: .5rem
+  border-radius: 9px
+  color: var(--dashboard-primary)
+  cursor: pointer
+  transition: background .2s ease
   display: flex
   align-items: center
   justify-content: center
-  font-size: 1.2rem
 
-.stats-value
-  font-size: 2.2rem
-  font-weight: 700
-  color: #0f172a
+  &:hover:not(:disabled)
+    background: color-mix(in srgb, var(--dashboard-primary) 12%, transparent)
+
+  &:disabled
+    opacity: 0.4
+    cursor: not-allowed
+
+  &.delete-btn
+    color: #ef4444
+    &:hover:not(:disabled)
+      background: #fee2e2
+
+.mt-4
+  margin-top: 2rem
+
+.editor-grid
+  display: grid
+  grid-template-columns: repeat(2, minmax(0, 1fr))
+  gap: .85rem
+
+.color-field
+  position: relative
+  height: 60px
+  border-radius: 14px
+  overflow: hidden
+  border: 1px solid color-mix(in srgb, var(--dashboard-primary) 15%, #cbd5e1)
+  cursor: pointer
+  display: flex
+  flex-direction: column
+  align-items: center
+  justify-content: center
+  line-height: 1.1
+  font-family: var(--font-family, 'Inter')
+
+  span
+    position: relative
+    z-index: 2
+    color: #ffffff
+    text-shadow: 0 1px 4px rgba(0,0,0,0.5)
+    font-weight: 900
+    pointer-events: none
+
+  small
+    position: relative
+    z-index: 2
+    color: rgba(255, 255, 255, 0.9)
+    text-shadow: 0 1px 3px rgba(0,0,0,0.6)
+    font-size: 0.65rem
+    font-weight: 600
+    pointer-events: none
+    text-align: center
+
+  input
+    position: absolute
+    top: -10px
+    left: -10px
+    width: calc(100% + 20px)
+    height: calc(100% + 20px)
+    border: 0
+    padding: 0
+    cursor: pointer
+    background: none
+
+.select-field,
+.text-field
+  display: flex
+  flex-direction: column
+  gap: .45rem
+  color: color-mix(in srgb, var(--dashboard-text) 76%, #64748b)
+  font-size: .82rem
+  font-weight: 800
+
+  select,
+  input
+    width: 100%
+    height: 44px
+    border-radius: 14px
+    border: 1px solid color-mix(in srgb, var(--dashboard-primary) 15%, #cbd5e1)
+    background: color-mix(in srgb, var(--dashboard-surface) 92%, #ffffff)
+    color: var(--dashboard-text)
+    padding: 0 .75rem
+
+.w-100
+  width: 100%
+
+.mt-2
+  margin-top: .5rem
+
+.status-card
+  display: inline-flex
+  align-items: center
+  gap: .75rem
+  margin-bottom: 1rem
+
+.error-card
+  color: #b91c1c
+
+.empty-state
+  display: flex
+  align-items: center
+  gap: .85rem
+  padding: 1rem
+  border-radius: 18px
+  background: color-mix(in srgb, var(--dashboard-primary) 7%, transparent)
+  color: color-mix(in srgb, var(--dashboard-text) 66%, #64748b)
+
+.empty-state i
+  font-size: 1.5rem
+  color: var(--dashboard-primary)
+
+.empty-state strong,
+.empty-state p
+  display: block
+  margin: 0
+
+.upcoming-list
+  display: grid
+  grid-template-columns: repeat(2, minmax(0, 1fr))
+  gap: .8rem
+
+.upcoming-item
+  display: grid
+  grid-template-columns: 62px minmax(0, 1fr) auto
+  align-items: center
+  gap: .9rem
+  padding: .9rem
+  border-radius: 18px
+  background: color-mix(in srgb, var(--dashboard-primary) 6%, var(--dashboard-surface))
+  border: 1px solid color-mix(in srgb, var(--dashboard-primary) 12%, transparent)
+  transition: transform .2s ease
+
+.date-box
+  width: 58px
+  height: 58px
+  display: inline-flex
+  flex-direction: column
+  align-items: center
+  justify-content: center
+  border-radius: 18px
+  background: linear-gradient(135deg, var(--dashboard-primary), var(--dashboard-accent))
+  color: #ffffff
+
+.date-box strong
+  font-size: 1.35rem
   line-height: 1
 
-.stats-label
-  font-size: 1rem
-  color: #64748b
+.date-box span
+  font-size: .7rem
+  font-weight: 900
+  text-transform: uppercase
 
-.overview-panel
-  min-height: 100%
+.upcoming-info
+  min-width: 0
+  display: flex
+  flex-direction: column
+  gap: .2rem
 
-.top-panel
-  grid-column: 2 / 3
-  grid-row: 1 / 2
+.upcoming-info strong
+  overflow: hidden
+  text-overflow: ellipsis
+  white-space: nowrap
 
-.bottom-panel
-  grid-column: 1 / 3
-  grid-row: 2 / 3
+.upcoming-info span
+  color: color-mix(in srgb, var(--dashboard-text) 56%, #94a3b8)
+  font-size: .88rem
 
-@media (max-width: 1100px)
-  .overview-grid
+.time-chip
+  padding: .4rem .65rem
+  border-radius: 999px
+  background: color-mix(in srgb, var(--dashboard-accent) 12%, transparent)
+  color: var(--dashboard-accent)
+  font-size: .78rem
+  font-weight: 900
+
+@media (max-width: 1180px)
+  .dashboard-hero
     grid-template-columns: 1fr
-    grid-template-rows: auto auto auto
 
-  .top-panel
-    grid-column: auto
-    grid-row: auto
-    min-height: 220px
+  .dashboard-grid
+    grid-template-columns: repeat(2, minmax(0, 1fr))
 
-  .bottom-panel
-    grid-column: auto
-    grid-row: auto
-    min-height: 320px
+  .appearance-panel,
+  .editor-panel,
+  .upcoming-panel
+    grid-column: span 2
+
+@media (max-width: 760px)
+  .dashboard-page
+    padding: .75rem
+    border-radius: 20px
+
+  .dashboard-grid,
+  .preset-grid,
+  .editor-grid,
+  .upcoming-list
+    grid-template-columns: 1fr
+
+  .appearance-panel,
+  .editor-panel,
+  .upcoming-panel
+    grid-column: span 1
+
+  .hero-content
+    padding: 1.25rem
+
+  .hero-actions
+    flex-direction: column
+
+  .primary-action,
+  .secondary-action
+    width: 100%
+
+  .upcoming-item
+    grid-template-columns: 54px minmax(0, 1fr)
+
+  .time-chip
+    grid-column: 2 / 3
+    justify-self: flex-start

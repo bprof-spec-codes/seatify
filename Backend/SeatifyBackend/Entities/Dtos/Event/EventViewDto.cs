@@ -15,6 +15,7 @@ namespace Entities.Dtos.Event
         public string Description { get; set; } = string.Empty;
         public string Status { get; set; } = string.Empty;
         public string? Currency { get; set; }
+        public string? AppearanceId { get; set; }
 
         public DateTime CreatedAtUtc { get; set; }
         public DateTime UpdatedAtUtc { get; set; }
