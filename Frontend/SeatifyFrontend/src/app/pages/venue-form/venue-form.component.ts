@@ -1,9 +1,10 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Venue } from '../../models/venue';
-import { Observable, of, Subject, takeUntil } from 'rxjs';
+import { filter, Observable, of, Subject, takeUntil } from 'rxjs';
 import { VenueService } from '../../services/venue.service';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-venue-form',
@@ -17,13 +18,14 @@ export class VenueFormComponent implements OnInit, OnDestroy {
   venue$!: Observable<Venue>;
   editMode!: boolean;
   editMode$!: Observable<boolean>;
-  organizerId: string = "org-id-01"; // mock data
+  organizerId: string = "";
   private unsubscribe$ = new Subject<void>();
 
   constructor(
     private router: Router,
     private fb: FormBuilder,
-    private venueService: VenueService
+    private venueService: VenueService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -35,6 +37,10 @@ export class VenueFormComponent implements OnInit, OnDestroy {
     });
 
     let fetchInitiated = false;
+
+    this.authService.currentUser$
+      .pipe(filter((u): u is NonNullable<typeof u> => !!u))
+      .subscribe(user => this.organizerId = user.organizerId);
 
     // If venues is empty call the API once for the venues.
     this.venueService.venues$.pipe(takeUntil(this.unsubscribe$)).subscribe(venues => {
