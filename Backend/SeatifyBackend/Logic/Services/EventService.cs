@@ -15,7 +15,7 @@ namespace Logic.Services
         Task<bool> DeleteAsync(string eventId, CancellationToken ct);
 
         Task<List<Entities.Dtos.Event.EventViewDto>> GetPublicAsync(CancellationToken ct);
-        Task<List<Entities.Dtos.Event.EventViewDto>> GetByUserIdAsync(string userId, CancellationToken ct);
+        Task<List<Entities.Dtos.Event.EventViewDto>> GetByOrganizerIdAsync(string organizerId, CancellationToken ct);
         Task<List<Entities.Dtos.EventOccurrence.EventOccurrenceViewDto>> GetOccurrencesByEventIdAsync(string eventId, CancellationToken ct);
         Task<Entities.Dtos.Event.EventViewDto?> GetBySlugAsync(string slug, CancellationToken ct);
     }
@@ -51,13 +51,10 @@ namespace Logic.Services
                 throw new ArgumentException("Slug is required.");
             }
 
-            // Organizer létezés check
-            bool organizerExists = await _dbContext.Organizers
-                .AnyAsync(o => o.Id == dto.OrganizerId.Trim(), ct);
-
+            var organizerExists = await _dbContext.Organizers.AnyAsync(x => x.Id == dto.OrganizerId);
             if (!organizerExists)
             {
-                throw new ArgumentException("Organizer not found.");
+                throw new Exception("Organizer does not exist.");
             }
 
             // Slug uniqueness check
@@ -253,19 +250,19 @@ namespace Logic.Services
                 .ToListAsync(ct);
         }
 
-        public async Task<List<Entities.Dtos.Event.EventViewDto>> GetByUserIdAsync(string userId, CancellationToken ct)
+        public async Task<List<EventViewDto>> GetByOrganizerIdAsync(string organizerId, CancellationToken ct)
         {
-            if (string.IsNullOrWhiteSpace(userId))
+            if (string.IsNullOrWhiteSpace(organizerId))
             {
-                throw new ArgumentException("UserId is required.");
+                throw new ArgumentException("OrganizerId is required.");
             }
 
-            userId = userId.Trim();
+            organizerId = organizerId.Trim();
 
             return await _dbContext.Events
-                .Where(e => e.OrganizerId == userId)
+                .Where(e => e.OrganizerId == organizerId)
                 .OrderBy(e => e.Name)
-                .Select(e => new Entities.Dtos.Event.EventViewDto
+                .Select(e => new EventViewDto
                 {
                     Id = e.Id,
                     OrganizerId = e.OrganizerId,
