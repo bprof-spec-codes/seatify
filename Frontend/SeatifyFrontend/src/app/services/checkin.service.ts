@@ -47,7 +47,7 @@ export interface CheckInResult {
 })
 export class CheckInService {
 
-  private apiUrl = `${environment.baseApiUrl}/checkin`;
+  private apiUrl = `${environment.baseApiUrl}/api/checkin`;
 
   constructor(private http: HttpClient) { }
 
