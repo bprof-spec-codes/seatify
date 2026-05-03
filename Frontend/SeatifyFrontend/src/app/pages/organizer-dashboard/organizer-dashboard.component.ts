@@ -208,7 +208,7 @@ export class OrganizerDashboardComponent implements OnInit, OnDestroy {
     this.appearanceService.delete(theme.id).subscribe({
       next: () => this.loadSavedAppearances(),
       error: (err) => {
-        this.errorMessage = 'Failed to delete theme.';
+        this.errorMessage = err.error?.message || 'Failed to delete theme.';
         console.error(err);
       }
     });

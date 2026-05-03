@@ -54,9 +54,15 @@ namespace Api.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(string id, CancellationToken ct)
         {
-            var success = await _appearanceService.DeleteAsync(id, ct);
-            if (!success) return NotFound();
-            return NoContent();
+            var result = await _appearanceService.DeleteAsync(id, ct);
+            
+            return result switch
+            {
+                DeleteAppearanceResult.Success => NoContent(),
+                DeleteAppearanceResult.NotFound => NotFound(),
+                DeleteAppearanceResult.IsLastTheme => BadRequest(new { message = "You cannot delete the last theme." }),
+                _ => StatusCode(500)
+            };
         }
 
         [HttpPost("{id}/default")]

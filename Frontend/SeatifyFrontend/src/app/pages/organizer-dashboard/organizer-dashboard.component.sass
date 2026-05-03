@@ -512,12 +512,16 @@
   align-items: center
   justify-content: center
 
-  &:hover
+  &:hover:not(:disabled)
     background: color-mix(in srgb, var(--dashboard-primary) 12%, transparent)
+
+  &:disabled
+    opacity: 0.4
+    cursor: not-allowed
 
   &.delete-btn
     color: #ef4444
-    &:hover
+    &:hover:not(:disabled)
       background: #fee2e2
 
 .mt-4

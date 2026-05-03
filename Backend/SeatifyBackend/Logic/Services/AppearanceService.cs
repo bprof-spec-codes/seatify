@@ -5,13 +5,20 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Logic.Services
 {
+    public enum DeleteAppearanceResult
+    {
+        Success,
+        NotFound,
+        IsLastTheme
+    }
+
     public interface IAppearanceService
     {
         Task<List<AppearanceViewDto>> GetByOrganizerIdAsync(string organizerId, CancellationToken ct);
         Task<AppearanceViewDto?> GetByIdAsync(string id, CancellationToken ct);
         Task<AppearanceViewDto> CreateAsync(string organizerId, AppearanceCreateDto dto, CancellationToken ct);
         Task<AppearanceViewDto?> UpdateAsync(string id, AppearanceCreateDto dto, CancellationToken ct);
-        Task<bool> DeleteAsync(string id, CancellationToken ct);
+        Task<DeleteAppearanceResult> DeleteAsync(string id, CancellationToken ct);
         Task<bool> SetDefaultAsync(string organizerId, string id, CancellationToken ct);
     }
 
@@ -106,17 +113,61 @@ namespace Logic.Services
             return MapToViewDto(appearance);
         }
 
-        public async Task<bool> DeleteAsync(string id, CancellationToken ct)
+        public async Task<DeleteAppearanceResult> DeleteAsync(string id, CancellationToken ct)
         {
             var appearance = await _dbContext.Appearances
                 .FirstOrDefaultAsync(a => a.Id == id, ct);
 
-            if (appearance == null) return false;
+            if (appearance == null) return DeleteAppearanceResult.NotFound;
+
+            // Check if it's the last theme for this organizer
+            var otherThemes = await _dbContext.Appearances
+                .Where(a => a.OrganizerId == appearance.OrganizerId && a.Id != id)
+                .ToListAsync(ct);
+
+            if (!otherThemes.Any())
+            {
+                return DeleteAppearanceResult.IsLastTheme;
+            }
+
+            // Find a replacement theme
+            // Priority: The default theme among the remaining ones, otherwise the first one
+            var replacement = otherThemes.FirstOrDefault(a => a.IsDefault) ?? otherThemes.First();
+            var replacementId = replacement.Id;
+
+            // If we are deleting the default theme, we must promote the replacement to default
+            if (appearance.IsDefault)
+            {
+                replacement.IsDefault = true;
+                replacement.UpdatedAtUtc = DateTime.UtcNow;
+            }
+
+            // Migrated Events that use this theme to the replacement theme
+            var events = await _dbContext.Events
+                .Where(e => e.AppearanceId == id)
+                .ToListAsync(ct);
+            
+            foreach (var ev in events)
+            {
+                ev.AppearanceId = replacementId;
+                ev.UpdatedAtUtc = DateTime.UtcNow;
+            }
+
+            // Migrated EventOccurrences that use this theme to the replacement theme
+            var occurrences = await _dbContext.EventOccurrences
+                .Where(o => o.AppearanceId == id)
+                .ToListAsync(ct);
+
+            foreach (var occ in occurrences)
+            {
+                occ.AppearanceId = replacementId;
+                occ.UpdatedAtUtc = DateTime.UtcNow;
+            }
 
             _dbContext.Appearances.Remove(appearance);
             await _dbContext.SaveChangesAsync(ct);
 
-            return true;
+            return DeleteAppearanceResult.Success;
         }
 
         public async Task<bool> SetDefaultAsync(string organizerId, string id, CancellationToken ct)

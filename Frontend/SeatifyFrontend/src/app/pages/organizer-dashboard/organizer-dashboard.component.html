@@ -113,7 +113,7 @@
                <i class="bi bi-star"></i> Set Default
              </button>
              
-             <button type="button" class="icon-button delete-btn" (click)="deleteTheme(theme)" title="Delete theme">
+             <button type="button" class="icon-button delete-btn" (click)="deleteTheme(theme)" title="Delete theme" [disabled]="savedAppearances.length <= 1">
                <i class="bi bi-trash-fill"></i>
              </button>
           </div>
