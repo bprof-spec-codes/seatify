@@ -9,7 +9,7 @@ import * as THREE from 'three';
 
 @Component({
   selector: 'app-seat-map-display',
-  standalone: false,
+  standalone: true,
   templateUrl: './seat-map-display.component.html',
   styleUrls: ['./seat-map-display.component.sass']
 })
