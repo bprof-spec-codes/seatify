@@ -5,4 +5,5 @@ export default interface EventRequest {
   description: string;
   status: string;
   currency?: string;
+  appearanceId?: string;
 }

@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EventService } from '../../services/event.service';
+import { AppearanceService } from '../../services/appearance.service';
+import { Appearance } from '../../models/appearance';
 import EventRequest from '../../models/event.request';
 import { AuthService } from '../../services/auth.service';
 import { filter } from 'rxjs';
@@ -17,6 +19,7 @@ export class EventFormComponent implements OnInit {
   eventId: string | null = null;
   isEditMode = false;
   isLoading = false;
+  appearances: Appearance[] = [];
   organizerId: string = "";
 
   constructor(
@@ -24,14 +27,15 @@ export class EventFormComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private eventService: EventService,
-    private authService: AuthService
+    private appearanceService: AppearanceService
   ) {
     this.eventForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(3)]],
       slug: ['', [Validators.required, Validators.pattern(/^[a-z0-9-]+$/)]],
       description: [''],
       status: ['Published', Validators.required],
-      currency: ['']
+      currency: [''],
+      appearanceId: [null]
     });
   }
 
@@ -42,6 +46,11 @@ export class EventFormComponent implements OnInit {
     this.authService.currentUser$
       .pipe(filter((u): u is NonNullable<typeof u> => !!u))
       .subscribe(user => this.organizerId = user.organizerId);
+    this.loadAppearances();
+
+    if (this.isEditMode && this.eventId) {
+      this.loadEvent();
+    }
   }
 
   loadEvent() {
@@ -53,7 +62,8 @@ export class EventFormComponent implements OnInit {
           slug: event.slug,
           description: event.description,
           status: event.status,
-          currency: event.currency || ''
+          currency: event.currency || '',
+          appearanceId: event.appearanceId || null
         });
         this.isLoading = false;
       },
@@ -80,6 +90,7 @@ export class EventFormComponent implements OnInit {
       description: val.description || '',
       status: val.status,
       currency: val.currency || null,
+      appearanceId: val.appearanceId || null,
       organizerId: this.organizerId
     };
 
@@ -109,6 +120,16 @@ export class EventFormComponent implements OnInit {
         }
       });
     }
+  }
+
+  loadAppearances() {
+    this.appearanceService.getMyAppearances().subscribe({
+      next: (apps) => {
+        console.log('Appearances loaded in EventForm:', apps);
+        this.appearances = apps;
+      },
+      error: (err) => console.error('Failed to load appearances', err)
+    });
   }
 
   cancel() {

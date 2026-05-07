@@ -66,9 +66,9 @@
             </div>
             <div class="d-flex justify-content-between align-items-center mb-3">
               <span class="fw-bold">Total:</span>
-              <span class="h4 mb-0 fw-bolder text-primary">{{ totalPrice | number:'1.0-0' }} EUR</span>
+              <span class="h4 mb-0 fw-bolder" style="color: var(--primary-color, #0d6efd)">{{ totalPrice | number:'1.0-0' }} EUR</span>
             </div>
-            <button class="btn btn-primary w-100 py-2 fw-bold" (click)="proceedToCheckout()">
+            <button class="btn w-100 py-2 fw-bold theme-checkout-btn" (click)="proceedToCheckout()">
               Checkout
             </button>
           </div>

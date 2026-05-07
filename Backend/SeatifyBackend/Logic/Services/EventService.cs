@@ -74,14 +74,10 @@ namespace Logic.Services
                 Name = dto.Name.Trim(),
                 Description = dto.Description?.Trim() ?? string.Empty,
                 Status = dto.Status,
+                Currency = dto.Currency,
+                AppearanceId = dto.AppearanceId,
                 CreatedAtUtc = DateTime.UtcNow,
-                UpdatedAtUtc = DateTime.UtcNow,
-                Appearance = new EventAppearance
-                {
-                    Currency = dto.Currency,
-                    CreatedAtUtc = DateTime.UtcNow,
-                    UpdatedAtUtc = DateTime.UtcNow
-                }
+                UpdatedAtUtc = DateTime.UtcNow
             };
 
             _dbContext.Events.Add(entity);
@@ -102,7 +98,8 @@ namespace Logic.Services
                     Name = e.Name,
                     Description = e.Description,
                     Status = e.Status,
-                    Currency = e.Appearance != null ? e.Appearance.Currency : null,
+                    Currency = e.Currency,
+                    AppearanceId = e.AppearanceId,
                     CreatedAtUtc = e.CreatedAtUtc,
                     UpdatedAtUtc = e.UpdatedAtUtc
                 })
@@ -128,7 +125,8 @@ namespace Logic.Services
                     Name = e.Name,
                     Description = e.Description,
                     Status = e.Status,
-                    Currency = e.Appearance != null ? e.Appearance.Currency : null,
+                    Currency = e.Currency,
+                    AppearanceId = e.AppearanceId,
                     CreatedAtUtc = e.CreatedAtUtc,
                     UpdatedAtUtc = e.UpdatedAtUtc
                 })
@@ -184,23 +182,9 @@ namespace Logic.Services
             }
 
             entity.Status = dto.Status;
+            entity.Currency = dto.Currency;
+            entity.AppearanceId = dto.AppearanceId;
             entity.UpdatedAtUtc = DateTime.UtcNow;
-
-            if (entity.Appearance == null)
-            {
-                entity.Appearance = new EventAppearance
-                {
-                    EventId = entity.Id,
-                    Currency = dto.Currency,
-                    CreatedAtUtc = DateTime.UtcNow,
-                    UpdatedAtUtc = DateTime.UtcNow
-                };
-            }
-            else
-            {
-                entity.Appearance.Currency = dto.Currency;
-                entity.Appearance.UpdatedAtUtc = DateTime.UtcNow;
-            }
 
             await _dbContext.SaveChangesAsync(ct);
 
@@ -243,7 +227,8 @@ namespace Logic.Services
                     Name = e.Name,
                     Description = e.Description,
                     Status = e.Status,
-                    Currency = e.Appearance != null ? e.Appearance.Currency : null,
+                    Currency = e.Currency,
+                    AppearanceId = e.AppearanceId,
                     CreatedAtUtc = e.CreatedAtUtc,
                     UpdatedAtUtc = e.UpdatedAtUtc
                 })
@@ -270,7 +255,8 @@ namespace Logic.Services
                     Name = e.Name,
                     Description = e.Description,
                     Status = e.Status,
-                    Currency = e.Appearance != null ? e.Appearance.Currency : null,
+                    Currency = e.Currency,
+                    AppearanceId = e.AppearanceId,
                     CreatedAtUtc = e.CreatedAtUtc,
                     UpdatedAtUtc = e.UpdatedAtUtc
                 })
@@ -323,7 +309,8 @@ namespace Logic.Services
                     Name = e.Name,
                     Description = e.Description,
                     Status = e.Status,
-                    Currency = e.Appearance != null ? e.Appearance.Currency : null,
+                    Currency = e.Currency,
+                    AppearanceId = e.AppearanceId,
                     CreatedAtUtc = e.CreatedAtUtc,
                     UpdatedAtUtc = e.UpdatedAtUtc
                 })
@@ -340,7 +327,8 @@ namespace Logic.Services
                 Name = e.Name,
                 Description = e.Description,
                 Status = e.Status,
-                Currency = e.Appearance?.Currency,
+                Currency = e.Currency,
+                AppearanceId = e.AppearanceId,
                 CreatedAtUtc = e.CreatedAtUtc,
                 UpdatedAtUtc = e.UpdatedAtUtc
             };
