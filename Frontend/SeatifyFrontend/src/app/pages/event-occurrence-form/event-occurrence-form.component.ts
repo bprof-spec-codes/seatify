@@ -36,7 +36,7 @@ export class EventOccurrenceFormComponent implements OnInit {
     private eventService: EventService,
     private venueService: VenueService,
     private auditoriumService: AuditoriumService,
-    private authService: AuthService
+    private authService: AuthService,
     private appearanceService: AppearanceService
   ) {
     this.occurrenceForm = this.fb.group({
@@ -77,12 +77,12 @@ export class EventOccurrenceFormComponent implements OnInit {
       // 2. Load Venues
       this.venueService.getVenuesByOrganizerId(organizerId).subscribe(vn => {
         this.venues = vn;
-        
+
         // 3. If Edit Mode, load occurrence and patch
         if (this.isEditMode && this.occurrenceId) {
           this.eventService.getOccurrenceById(this.occurrenceId).subscribe(occ => {
             this.onVenueChange(occ.venueId, false); // Load auditoriums for the venue
-            
+
             this.occurrenceForm.patchValue({
               venueId: occ.venueId,
               auditoriumId: occ.auditoriumId,
@@ -113,7 +113,7 @@ export class EventOccurrenceFormComponent implements OnInit {
     if (resetAuditorium) {
       this.occurrenceForm.patchValue({ auditoriumId: '' });
     }
-    
+
     if (venueId) {
       this.auditoriumService.getAuditoriumsByVenueId(venueId).subscribe(auds => {
         this.auditoriums = auds;

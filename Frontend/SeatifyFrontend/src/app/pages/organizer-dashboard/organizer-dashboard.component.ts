@@ -1,7 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { filter, Subject, takeUntil } from 'rxjs';
 import { Router } from '@angular/router';
-import { catchError, forkJoin, of, Subject, takeUntil } from 'rxjs';
+import { catchError, filter, forkJoin, of, Subject, switchMap, take, takeUntil } from 'rxjs';
 import { EventService } from '../../services/event.service';
 import { VenueService } from '../../services/venue.service';
 import { AppearanceService } from '../../services/appearance.service';
@@ -10,8 +9,6 @@ import { Appearance, AppearanceCreateRequest } from '../../models/appearance';
 import { EventCard, EventCardOccurrence } from '../../models/event-card';
 import { SeatifyEvent } from '../../models/event';
 import { Venue } from '../../models/venue';
-
-// Removed CardShape and DashboardDensity types
 
 interface AppearancePreset {
   id: string;
@@ -51,7 +48,6 @@ interface UpcomingEventViewModel {
   styleUrls: ['./organizer-dashboard.component.sass']
 })
 export class OrganizerDashboardComponent implements OnInit, OnDestroy {
-  readonly organizerId = 'org-id-01';
   readonly storageKey = 'seatify-organizer-dashboard-appearance';
 
   isLoading = false;
@@ -81,25 +77,58 @@ export class OrganizerDashboardComponent implements OnInit, OnDestroy {
 
   private readonly destroy$ = new Subject<void>();
 
-  constructor(private readonly eventService: EventService, private authService: AuthService) {}
+  constructor(
+    private readonly eventService: EventService,
+    private readonly venueService: VenueService,
+    private readonly appearanceService: AppearanceService,
+    private readonly authService: AuthService,
+    private readonly router: Router
+  ) { }
 
   ngOnInit(): void {
-    this.authService.currentUser$
-      .pipe(filter((u): u is NonNullable<typeof u> => !!u))
-      .subscribe(user => this.loadActiveEventsCount(user.organizerId));
-    // For development, always force a fresh login to ensure token is valid after backend restarts
     this.isLoading = true;
-    this.authService.loginAsDev().subscribe({
-      next: () => {
-        this.loadSavedAppearances();
-        this.loadDashboardData();
-      },
-      error: (err) => {
-        this.isLoading = false;
-        this.errorMessage = 'Authentication failed. Please log in manually.';
-        console.error('Dev login failed:', err);
-      }
-    });
+    this.errorMessage = '';
+
+    //this.authService
+    //  .loginAsDev()
+    //  .pipe(
+    //    switchMap(() =>
+    //      this.authService.currentUser$.pipe(
+    //        filter((user): user is NonNullable<typeof user> => !!user),
+    //        take(1)
+    //      )
+    //    ),
+    //    takeUntil(this.destroy$)
+    //  )
+    //  .subscribe({
+    //    next: (user) => {
+    //      this.loadSavedAppearances();
+    //      this.loadDashboardData(user.organizerId);
+    //    },
+    //    error: (err) => {
+    //      this.isLoading = false;
+    //      this.errorMessage = 'Authentication failed. Please log in manually.';
+    //      console.error('Dev login failed:', err);
+    //    }
+    //  });
+
+    this.authService.currentUser$
+      .pipe(
+        filter((user): user is NonNullable<typeof user> => !!user),
+        take(1),
+        takeUntil(this.destroy$)
+      )
+      .subscribe({
+        next: user => {
+          this.loadSavedAppearances();
+          this.loadDashboardData(user.organizerId);
+        },
+        error: err => {
+          this.isLoading = false;
+          this.errorMessage = 'Authentication failed. Please log in manually.';
+          console.error(err);
+        }
+      });
   }
 
   ngOnDestroy(): void {
@@ -107,11 +136,9 @@ export class OrganizerDashboardComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-
-
-
   selectSavedTheme(theme: Appearance): void {
     this.selectedAppearance = theme;
+
     this.appearance = {
       ...this.appearance,
       ...theme
@@ -120,7 +147,7 @@ export class OrganizerDashboardComponent implements OnInit, OnDestroy {
 
   createNewTheme(): void {
     const defaultTheme = this.getDefaultAppearance();
-    
+
     const request: AppearanceCreateRequest = {
       name: 'New Custom Theme',
       fontFamily: defaultTheme.fontFamily,
@@ -136,33 +163,47 @@ export class OrganizerDashboardComponent implements OnInit, OnDestroy {
       isDefault: this.savedAppearances.length === 0
     };
 
-    this.appearanceService.create(request).subscribe({
-      next: (newTheme) => {
-        this.savedAppearances.push(newTheme);
-        this.selectSavedTheme(newTheme);
-        this.loadSavedAppearances();
-      },
-      error: (err) => {
-        this.errorMessage = 'Failed to create new theme.';
-        console.error(err);
-      }
-    });
+    this.appearanceService
+      .create(request)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (newTheme) => {
+          this.savedAppearances.push(newTheme);
+          this.selectSavedTheme(newTheme);
+          this.loadSavedAppearances();
+        },
+        error: (err) => {
+          this.errorMessage = 'Failed to create new theme.';
+          console.error(err);
+        }
+      });
   }
 
   previewTheme(): void {
-    if (!this.selectedAppearance) return;
-    
-    // Use a seeded occurrence or the first available one as the mock context
-    const occId = this.upcomingEvents.length > 0 ? this.upcomingEvents[0].occurrence.id : 'occ-01';
-    
+    if (!this.selectedAppearance) {
+      return;
+    }
+
+    const occurrenceId =
+      this.upcomingEvents.length > 0
+        ? this.upcomingEvents[0].occurrence.id
+        : 'occ-01';
+
     const url = this.router.serializeUrl(
-      this.router.createUrlTree(['/book', 'preview', occId], { queryParams: { themeId: this.selectedAppearance.id } })
+      this.router.createUrlTree(['/book', 'preview', occurrenceId], {
+        queryParams: {
+          themeId: this.selectedAppearance.id
+        }
+      })
     );
+
     window.open(url, '_blank');
   }
 
   updateAppearance(): void {
-    if (!this.selectedAppearance) return;
+    if (!this.selectedAppearance) {
+      return;
+    }
 
     const request: AppearanceCreateRequest = {
       name: this.appearance.name,
@@ -179,37 +220,63 @@ export class OrganizerDashboardComponent implements OnInit, OnDestroy {
       isDefault: this.selectedAppearance.isDefault
     };
 
-    this.appearanceService.update(this.selectedAppearance.id, request).subscribe({
-      next: (updated) => {
-        this.selectedAppearance = updated;
-        const index = this.savedAppearances.findIndex(a => a.id === updated.id);
-        if (index !== -1) this.savedAppearances[index] = updated;
-      },
-      error: (err) => {
-        this.errorMessage = 'Failed to update theme.';
-        console.error(err);
-      }
-    });
+    this.appearanceService
+      .update(this.selectedAppearance.id, request)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (updated) => {
+          this.selectedAppearance = updated;
+
+          const index = this.savedAppearances.findIndex(
+            (appearance) => appearance.id === updated.id
+          );
+
+          if (index !== -1) {
+            this.savedAppearances[index] = updated;
+          }
+
+          this.appearance = {
+            ...this.getDefaultAppearance(),
+            ...updated
+          };
+        },
+        error: (err) => {
+          this.errorMessage = 'Failed to update theme.';
+          console.error(err);
+        }
+      });
   }
 
   setThemeAsDefault(theme: Appearance): void {
-    this.appearanceService.setDefault(theme.id).subscribe({
-      next: () => this.loadSavedAppearances(),
-      error: (err) => {
-        this.errorMessage = 'Failed to set theme as default.';
-        console.error(err);
-      }
-    });
+    this.appearanceService
+      .setDefault(theme.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => this.loadSavedAppearances(),
+        error: (err) => {
+          this.errorMessage = 'Failed to set theme as default.';
+          console.error(err);
+        }
+      });
   }
 
   deleteTheme(theme: Appearance): void {
-    this.appearanceService.delete(theme.id).subscribe({
-      next: () => this.loadSavedAppearances(),
-      error: (err) => {
-        this.errorMessage = err.error?.message || 'Failed to delete theme.';
-        console.error(err);
-      }
-    });
+    this.appearanceService
+      .delete(theme.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          if (this.selectedAppearance?.id === theme.id) {
+            this.resetAppearance();
+          }
+
+          this.loadSavedAppearances();
+        },
+        error: (err) => {
+          this.errorMessage = err.error?.message || 'Failed to delete theme.';
+          console.error(err);
+        }
+      });
   }
 
   resetAppearance(): void {
@@ -229,7 +296,6 @@ export class OrganizerDashboardComponent implements OnInit, OnDestroy {
     this.router.navigate(['/dashboard/venues']);
   }
 
-
   trackByStatLabel(index: number, stat: DashboardStat): string {
     return stat.label;
   }
@@ -238,31 +304,35 @@ export class OrganizerDashboardComponent implements OnInit, OnDestroy {
     return `${item.eventId}-${item.occurrence.id}`;
   }
 
-  private loadDashboardData(): void {
+  private loadDashboardData(organizerId: string): void {
     this.isLoading = true;
     this.errorMessage = '';
 
     forkJoin({
-      events: this.eventService.getEvents().pipe(
+      events: this.eventService.getEvents(organizerId).pipe(
         catchError(() => of([] as SeatifyEvent[]))
       ),
-      eventCards: this.eventService.getEventCards().pipe(
+      eventCards: this.eventService.getEventCards(organizerId).pipe(
         catchError(() => of([] as EventCard[]))
       ),
-      venues: this.venueService.getVenuesByOrganizerId(this.organizerId).pipe(
+      venues: this.venueService.getVenuesByOrganizerId(organizerId).pipe(
         catchError(() => of([] as Venue[]))
       )
     })
-  private loadActiveEventsCount(organizerId: any): void {
-    this.eventService
-      .getActiveEventsCount(organizerId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: ({ events, eventCards, venues }) => {
-          this.activeEventsCount = events.filter(event => event.status === 'Published').length;
-          this.draftEventsCount = events.filter(event => event.status === 'Draft').length;
+          this.activeEventsCount = events.filter(
+            (event) => event.status === 'Published'
+          ).length;
+
+          this.draftEventsCount = events.filter(
+            (event) => event.status === 'Draft'
+          ).length;
+
           this.allEventsCount = events.length;
           this.venuesCount = venues.length;
+
           this.auditoriumCount = venues.reduce(
             (sum, venue) => sum + (venue.auditoriums?.length ?? 0),
             0
@@ -270,12 +340,14 @@ export class OrganizerDashboardComponent implements OnInit, OnDestroy {
 
           this.upcomingEvents = this.buildUpcomingEvents(eventCards);
           this.stats = this.buildStats();
+
           this.isLoading = false;
         },
-        error: () => {
+        error: (err) => {
           this.errorMessage = 'Dashboard data could not be loaded.';
           this.stats = this.buildStats();
           this.isLoading = false;
+          console.error(err);
         }
       });
   }
@@ -285,7 +357,8 @@ export class OrganizerDashboardComponent implements OnInit, OnDestroy {
       {
         label: 'Active Events',
         value: this.activeEventsCount,
-        helper: `${this.draftEventsCount} draft event${this.draftEventsCount === 1 ? '' : 's'}`,
+        helper: `${this.draftEventsCount} draft event${this.draftEventsCount === 1 ? '' : 's'
+          }`,
         icon: 'bi-calendar-event',
         tone: 'primary'
       },
@@ -299,7 +372,8 @@ export class OrganizerDashboardComponent implements OnInit, OnDestroy {
       {
         label: 'Venues',
         value: this.venuesCount,
-        helper: `${this.auditoriumCount} auditorium${this.auditoriumCount === 1 ? '' : 's'}`,
+        helper: `${this.auditoriumCount} auditorium${this.auditoriumCount === 1 ? '' : 's'
+          }`,
         icon: 'bi-building',
         tone: 'success'
       },
@@ -317,10 +391,13 @@ export class OrganizerDashboardComponent implements OnInit, OnDestroy {
     const now = new Date().getTime();
 
     return eventCards
-      .flatMap(event =>
-        event.occurrences
-          .filter(occurrence => new Date(occurrence.startsAtUtc).getTime() >= now)
-          .map(occurrence => ({
+      .flatMap((event) =>
+        (event.occurrences ?? [])
+          .filter(
+            (occurrence) =>
+              new Date(occurrence.startsAtUtc).getTime() >= now
+          )
+          .map((occurrence) => ({
             eventId: event.id,
             title: event.title,
             venueName: event.venueName,
@@ -328,28 +405,37 @@ export class OrganizerDashboardComponent implements OnInit, OnDestroy {
             occurrence
           }))
       )
-      .sort((a, b) =>
-        new Date(a.occurrence.startsAtUtc).getTime() -
-        new Date(b.occurrence.startsAtUtc).getTime()
+      .sort(
+        (a, b) =>
+          new Date(a.occurrence.startsAtUtc).getTime() -
+          new Date(b.occurrence.startsAtUtc).getTime()
       )
       .slice(0, 4);
   }
 
   private loadSavedAppearances(): void {
-    this.appearanceService.getMyAppearances().subscribe({
-      next: (apps) => {
-        console.log('Saved appearances loaded on Dashboard:', apps);
-        this.savedAppearances = apps;
-        const defaultTheme = apps.find(t => t.isDefault);
-        if (defaultTheme) {
-          this.selectedAppearance = defaultTheme;
-          this.appearance = {
-            ...this.getDefaultAppearance(),
-            ...defaultTheme
-          };
+    this.appearanceService
+      .getMyAppearances()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (appearances) => {
+          this.savedAppearances = appearances;
+
+          const defaultTheme = appearances.find((theme) => theme.isDefault);
+
+          if (defaultTheme) {
+            this.selectedAppearance = defaultTheme;
+            this.appearance = {
+              ...this.getDefaultAppearance(),
+              ...defaultTheme
+            };
+          }
+        },
+        error: (err) => {
+          this.errorMessage = 'Saved themes could not be loaded.';
+          console.error(err);
         }
-      }
-    });
+      });
   }
 
   private getDefaultAppearance(): AppearancePreset {
