@@ -37,9 +37,7 @@ import { PublicBookingSuccessComponent } from './pages/public-booking-success/pu
 @NgModule({
   declarations: [
     AppComponent,
-    LandingPageComponent,
     FooterComponent,
-    SeatMapDisplayComponent,
     VenueDashboardComponent,
     ConfirmMessageComponent,
     AuditoriumDashboardComponent,
