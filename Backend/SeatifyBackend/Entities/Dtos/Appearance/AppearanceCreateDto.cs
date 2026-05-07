@@ -1,37 +1,18 @@
-using System.ComponentModel.DataAnnotations;
-using Entities.Helpers;
-
-namespace Entities.Models
+namespace Entities.Dtos.Appearance
 {
-    public class Appearance : IIdEntity
+    public class AppearanceCreateDto
     {
-        [Key]
-        public string Id { get; set; } = Guid.NewGuid().ToString();
-
-        public string OrganizerId { get; set; } = string.Empty;
-        public Organizer Organizer { get; set; } = null!;
-
-        public string Name { get; set; } = "New Theme";
-
+        public string Name { get; set; } = string.Empty;
         public string PrimaryColor { get; set; } = string.Empty;
         public string AccentColor { get; set; } = string.Empty;
         public string BackgroundColor { get; set; } = string.Empty;
         public string SurfaceColor { get; set; } = string.Empty;
         public string TextColor { get; set; } = string.Empty;
         public string SecondaryColor { get; set; } = string.Empty;
-        
         public string LogoImageUrl { get; set; } = string.Empty;
-        
         public string BannerImageUrl { get; set; } = string.Empty;
-        
         public string ThemePreset { get; set; } = "Default (Blue)";
-        
         public string FontFamily { get; set; } = "Inter";
-
         public bool IsDefault { get; set; } = false;
-
-        public DateTime CreatedAtUtc { get; set; }
-
-        public DateTime UpdatedAtUtc { get; set; }
     }
 }

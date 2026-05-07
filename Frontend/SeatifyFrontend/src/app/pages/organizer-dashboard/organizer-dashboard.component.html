@@ -1,31 +1,282 @@
 <section class="dashboard-page">
-  <header class="page-header">
-    <div>
+  <header class="dashboard-hero">
+    <div class="hero-content">
+      <span class="eyebrow">Organizer workspace</span>
+
       <h1 class="page-title">Dashboard</h1>
-      <p class="page-subtitle">Overview of your ticketing platform</p>
+
+      <p class="page-subtitle">
+        Manage events, venues, ticket check-in and the dashboard appearance from one place.
+      </p>
+
+      <div class="hero-actions">
+        <button type="button" class="primary-action" (click)="goToEvents()">
+          <i class="bi bi-calendar-plus"></i>
+          Manage Events
+        </button>
+
+        <button type="button" class="secondary-action" (click)="goToVenues()">
+          <i class="bi bi-building"></i>
+          Manage Venues
+        </button>
+      </div>
     </div>
+
+    <article class="hero-preview-card">
+       <div class="preview-topline">
+          <span class="preview-dot"></span>
+          <span>Booking Page Preview</span>
+       </div>
+
+       <div class="mini-booking-page" [style.--font-family]="appearance.fontFamily" [style.--p-color]="appearance.primaryColor" [style.--s-color]="appearance.surfaceColor" [style.--b-color]="appearance.backgroundColor" [style.--t-color]="appearance.textColor">
+          <div class="mini-nav">
+             <div class="mini-logo"></div>
+             <div class="mini-links"></div>
+          </div>
+          <div class="mini-banner" *ngIf="appearance.bannerImageUrl" [style.background-image]="'url(' + appearance.bannerImageUrl + ')'"></div>
+          <div class="mini-content">
+             <div class="mini-title"></div>
+             <div class="mini-grid">
+                <div class="mini-item"></div>
+                <div class="mini-item"></div>
+             </div>
+             <div class="mini-button">Select Tickets</div>
+          </div>
+       </div>
+    </article>
   </header>
 
-  <div class="overview-grid">
-    <div class="surface-card stats-card">
-      <div class="stats-icon">
-        <i class="bi bi-calendar-event"></i>
+  <div class="status-card dashboard-card" *ngIf="isLoading">
+    <div class="spinner-border spinner-border-sm" role="status"></div>
+    <span>Loading organizer dashboard...</span>
+  </div>
+
+  <div class="status-card dashboard-card error-card" *ngIf="!isLoading && errorMessage">
+    <i class="bi bi-exclamation-triangle"></i>
+    <span>{{ errorMessage }}</span>
+  </div>
+
+  <div class="dashboard-grid" *ngIf="!isLoading">
+    <article
+      class="dashboard-card stat-card"
+      *ngFor="let stat of stats; trackBy: trackByStatLabel"
+      [class.clickable-card]="stat.label === 'Check-In'"
+      (click)="stat.label === 'Check-In' ? openCheckInModal(dashboardCheckinModal) : null"
+    >
+      <div class="stat-icon" [class]="'stat-icon tone-' + stat.tone">
+        <i class="bi" [ngClass]="stat.icon"></i>
       </div>
 
-      <div class="stats-value">{{ activeEventsCount }}</div>
-      <div class="stats-label">Active Events</div>
-    </div>
-
-    <div class="surface-card stats-card" style="cursor: pointer;" (click)="dashboardCheckinModal.openModal()">
-      <div class="stats-icon text-success">
-        <i class="bi bi-qr-code-scan"></i>
+      <div>
+        <p class="stat-label">{{ stat.label }}</p>
+        <strong class="stat-value">{{ stat.value }}</strong>
+        <p class="stat-helper">{{ stat.helper }}</p>
       </div>
-      <div class="stats-value">Scan</div>
-      <div class="stats-label">Ticket Check-In</div>
-    </div>
+    </article>
 
-    <div class="surface-card overview-panel top-panel"></div>
-    <div class="surface-card overview-panel bottom-panel"></div>
+    <article class="dashboard-card appearance-panel">
+      <div class="panel-header">
+        <div>
+          <span class="eyebrow">Booking Interface Theme Hub</span>
+          <h2>Manage public themes</h2>
+          <p>These themes will be applied to the booking pages your ticket buyers see.</p>
+        </div>
+      </div>
+
+      <div class="theme-list">
+        <div class="list-section-header">
+           <span class="eyebrow">Your Themes</span>
+        </div>
+
+        <div
+          class="theme-list-item"
+          *ngFor="let theme of savedAppearances"
+          [class.active]="selectedAppearance?.id === theme.id"
+          (click)="selectSavedTheme(theme)"
+        >
+          <div class="theme-preview">
+            <span [style.background]="theme.primaryColor"></span>
+            <span [style.background]="theme.accentColor"></span>
+            <span [style.background]="theme.backgroundColor"></span>
+            <span [style.background]="theme.surfaceColor"></span>
+          </div>
+          
+          <div class="theme-info">
+            <h4>{{ theme.name }}</h4>
+            <p>{{ theme.isDefault ? 'Primary Default Theme' : 'Custom Theme' }}</p>
+          </div>
+
+          <span class="default-badge" *ngIf="theme.isDefault">Default</span>
+
+          <div class="theme-actions" (click)="$event.stopPropagation()">
+             <button type="button" class="secondary-action btn-sm me-2" (click)="setThemeAsDefault(theme)" *ngIf="!theme.isDefault">
+               <i class="bi bi-star"></i> Set Default
+             </button>
+             
+             <button type="button" class="icon-button delete-btn" (click)="deleteTheme(theme)" title="Delete theme" [disabled]="savedAppearances.length <= 1">
+               <i class="bi bi-trash-fill"></i>
+             </button>
+          </div>
+        </div>
+
+        <div class="empty-state mt-3" *ngIf="savedAppearances.length === 0">
+           <i class="bi bi-info-circle"></i>
+           <div>
+             <strong>No themes found</strong>
+             <p>Create a new theme to get started.</p>
+           </div>
+        </div>
+
+        <button type="button" class="secondary-action w-100 mt-3" (click)="createNewTheme()">
+           <i class="bi bi-plus-lg"></i> Create New Theme
+        </button>
+      </div>
+    </article>
+
+    <article class="dashboard-card editor-panel">
+      <div class="panel-header">
+        <div>
+          <span class="eyebrow">Appearance editor</span>
+          <h2>Customize current theme</h2>
+          <p>Changes are saved automatically to the selected theme.</p>
+        </div>
+      </div>
+
+      <div class="editor-grid" [style.--font-family]="appearance.fontFamily">
+        <label class="text-field w-100 mb-2">
+          <span>Theme Name</span>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="appearance.name"
+            (change)="updateAppearance()"
+            placeholder="e.g. My Premium Theme"
+          >
+        </label>
+
+        <label class="color-field" [style.background]="appearance.primaryColor">
+          <span>Primary</span>
+          <small>Buttons, Headers</small>
+          <input
+            type="color"
+            [(ngModel)]="appearance.primaryColor"
+            (change)="updateAppearance()"
+          >
+        </label>
+
+        <label class="color-field" [style.background]="appearance.accentColor">
+          <span>Accent</span>
+          <small>Hover effects, Selection</small>
+          <input
+            type="color"
+            [(ngModel)]="appearance.accentColor"
+            (change)="updateAppearance()"
+          >
+        </label>
+
+        <label class="color-field" [style.background]="appearance.backgroundColor">
+          <span>Background</span>
+          <small>Main page background</small>
+          <input
+            type="color"
+            [(ngModel)]="appearance.backgroundColor"
+            (change)="updateAppearance()"
+          >
+        </label>
+
+        <label class="color-field" [style.background]="appearance.surfaceColor">
+          <span>Surface</span>
+          <small>Cards, Navigation</small>
+          <input
+            type="color"
+            [(ngModel)]="appearance.surfaceColor"
+            (change)="updateAppearance()"
+          >
+        </label>
+
+        <label class="color-field" [style.background]="appearance.secondaryColor">
+          <span>Secondary</span>
+          <small>Stage, Muted text</small>
+          <input
+            type="color"
+            [(ngModel)]="appearance.secondaryColor"
+            (change)="updateAppearance()"
+          >
+        </label>
+
+        <label class="select-field">
+          <span>Typography</span>
+          <select
+            [(ngModel)]="appearance.fontFamily"
+            (change)="updateAppearance()"
+          >
+            <option *ngFor="let option of fontFamilyOptions" [value]="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+        </label>
+
+        <label class="text-field w-100 mt-2">
+          <span>Banner Image URL</span>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="appearance.bannerImageUrl"
+            (change)="updateAppearance()"
+            placeholder="https://example.com/banner.jpg"
+          >
+        </label>
+
+        <button type="button" class="secondary-action w-100 mt-4" (click)="previewTheme()" *ngIf="selectedAppearance">
+           <i class="bi bi-box-arrow-up-right"></i> Booking Page Preview
+        </button>
+      </div>
+    </article>
+
+    <article class="dashboard-card upcoming-panel">
+      <div class="panel-header">
+        <div>
+          <span class="eyebrow">Schedule</span>
+          <h2>Upcoming events</h2>
+          <p>The next dates from your published event catalog.</p>
+        </div>
+      </div>
+
+      <div class="empty-state" *ngIf="upcomingEvents.length === 0">
+        <i class="bi bi-calendar-x"></i>
+
+        <div>
+          <strong>No upcoming dates</strong>
+          <p>Create an occurrence for an event to see it here.</p>
+        </div>
+      </div>
+
+      <div class="upcoming-list" *ngIf="upcomingEvents.length > 0">
+        <div
+          class="upcoming-item"
+          *ngFor="let item of upcomingEvents; trackBy: trackByUpcomingEvent"
+        >
+          <div class="date-box">
+            <strong>{{ item.occurrence.startsAtUtc | date:'dd' }}</strong>
+            <span>{{ item.occurrence.startsAtUtc | date:'MMM' }}</span>
+          </div>
+
+          <div class="upcoming-info">
+            <strong>{{ item.title }}</strong>
+            <span>
+              {{ item.venueName }}
+              <ng-container *ngIf="item.auditoriumName">
+                · {{ item.auditoriumName }}
+              </ng-container>
+            </span>
+          </div>
+
+          <span class="time-chip">
+            {{ item.occurrence.startsAtUtc | date:'HH:mm' }}
+          </span>
+        </div>
+      </div>
+    </article>
   </div>
 
   <app-checkin-modal #dashboardCheckinModal></app-checkin-modal>
