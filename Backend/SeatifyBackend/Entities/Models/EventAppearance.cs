@@ -3,14 +3,13 @@ using Entities.Helpers;
 
 namespace Entities.Models
 {
-    public class Appearance : IIdEntity
+    public class EventAppearance : IIdEntity
     {
         [Key]
         public string Id { get; set; } = Guid.NewGuid().ToString();
 
-        public string OrganizerId { get; set; } = string.Empty;
-
-        public Organizer Organizer { get; set; } = null!;
+        public string EventId { get; set; } = string.Empty;
+        public Event Event { get; set; } = null!;
 
         public string PrimaryColor { get; set; } = string.Empty;
         
@@ -22,7 +21,7 @@ namespace Entities.Models
         
         public string ThemePreset { get; set; } = "Default (Blue)";
 
-        public bool IsDefault { get; set; } = false;
+        public string? Currency { get; set; }
 
         public DateTime CreatedAtUtc { get; set; }
 

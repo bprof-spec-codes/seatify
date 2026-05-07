@@ -2,16 +2,9 @@ export interface EventOccurrenceEvent {
   id: string;
   name: string;
   description: string;
-  primaryColor: string;
-  secondaryColor: string;
-  accentColor: string;
-  backgroundColor: string;
-  surfaceColor: string;
-  textColor: string;
-  logoImageUrl: string;
-  bannerImageUrl: string;
-  themePreset: string;
-  fontFamily: string;
+  primaryColor?: string;
+  secondaryColor?: string;
+  logoImageUrl?: string;
   currency?: string;
 }
 
@@ -39,7 +32,6 @@ export interface EventOccurrence {
   currencyOverride?: string;
   status: string;
   effectiveCurrency: string;
-  appearanceId?: string | null;
   event?: EventOccurrenceEvent | null;
   venue?: EventOccurrenceVenue | null;
   auditorium?: EventOccurrenceAuditorium | null;

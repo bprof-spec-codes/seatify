@@ -15,6 +15,7 @@ namespace Data
         public DbSet<Seat> Seats => Set<Seat>();
         public DbSet<Organizer> Organizers => Set<Organizer>();
         public DbSet<Appearance> Appearances => Set<Appearance>();
+        public DbSet<EventAppearance> EventAppearances => Set<EventAppearance>();
         public DbSet<Reservation> Reservations => Set<Reservation>();
         public DbSet<ReservationSeat> ReservationSeats => Set<ReservationSeat>();
         public DbSet<EventSeatOverride> EventSeatOverrides => Set<EventSeatOverride>();
@@ -125,18 +126,11 @@ namespace Data
                 .OnDelete(DeleteBehavior.Cascade);
 
             // event appearance
-            modelBuilder.Entity<Event>()
-                .HasOne(e => e.Appearance)
-                .WithMany()
-                .HasForeignKey(e => e.AppearanceId)
-                .OnDelete(DeleteBehavior.SetNull);
-
-            // event occurrence appearance
-            modelBuilder.Entity<EventOccurrence>()
-                .HasOne(eo => eo.Appearance)
-                .WithMany()
-                .HasForeignKey(eo => eo.AppearanceId)
-                .OnDelete(DeleteBehavior.SetNull);
+            modelBuilder.Entity<EventAppearance>()
+                .HasOne(ea => ea.Event)
+                .WithOne(e => e.Appearance)
+                .HasForeignKey<EventAppearance>(ea => ea.EventId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // Reservation
             modelBuilder.Entity<Reservation>()
