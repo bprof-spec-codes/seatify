@@ -86,6 +86,24 @@
         </div>
 
         <div class="mt-3 pt-3 border-top">
+          <label class="form-label fw-semibold" for="appearance">Theme Override for this Date</label>
+          <div class="d-flex gap-2">
+            <select id="appearance" class="form-select" formControlName="appearanceId">
+              <option [ngValue]="null">Follow Event Theme</option>
+              <option *ngFor="let app of appearances" [value]="app.id">
+                {{ app.name }} {{ app.isDefault ? '(Default)' : '' }}
+              </option>
+            </select>
+            <button type="button" class="btn btn-outline-primary btn-sm text-nowrap" routerLink="/dashboard">
+              <i class="bi bi-palette me-1"></i> Manage Themes
+            </button>
+          </div>
+          <div class="form-text small">
+            If set, this theme will override the event-level theme for this specific date.
+          </div>
+        </div>
+
+        <div class="mt-3">
           <label class="form-label fw-semibold" for="currencyOverride">Currency Override for this Date</label>
           <input 
             type="text" 

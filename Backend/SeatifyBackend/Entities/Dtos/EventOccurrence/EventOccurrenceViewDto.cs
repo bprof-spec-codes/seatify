@@ -15,6 +15,7 @@ namespace Entities.Dtos.EventOccurrence
         public string? CurrencyOverride { get; set; }
         public string Status { get; set; } = string.Empty;
         public string EffectiveCurrency { get; set; } = "EUR";
+        public string? AppearanceId { get; set; }
         public EventOccurrenceEventDto Event { get; set; } = null!;
         public EventOccurrenceVenueDto Venue { get; set; } = null!;
         public EventOccurrenceAuditoriumDto Auditorium { get; set; } = null!;
@@ -27,7 +28,14 @@ namespace Entities.Dtos.EventOccurrence
         public string Description { get; set; } = string.Empty;
         public string PrimaryColor { get; set; } = string.Empty;
         public string SecondaryColor { get; set; } = string.Empty;
+        public string AccentColor { get; set; } = string.Empty;
+        public string BackgroundColor { get; set; } = string.Empty;
+        public string SurfaceColor { get; set; } = string.Empty;
+        public string TextColor { get; set; } = string.Empty;
         public string LogoImageUrl { get; set; } = string.Empty;
+        public string BannerImageUrl { get; set; } = string.Empty;
+        public string ThemePreset { get; set; } = string.Empty;
+        public string FontFamily { get; set; } = string.Empty;
         public string? Currency { get; set; }
     }
 
