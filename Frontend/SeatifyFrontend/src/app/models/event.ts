@@ -6,7 +6,6 @@ export interface SeatifyEvent {
   description: string;
   status: string;
   currency?: string;
-  appearanceId?: string | null;
   createdAtUtc: string;
   updatedAtUtc: string;
 }

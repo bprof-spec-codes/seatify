@@ -77,10 +77,14 @@ namespace Logic.Services
                 Name = dto.Name.Trim(),
                 Description = dto.Description?.Trim() ?? string.Empty,
                 Status = dto.Status,
-                Currency = dto.Currency,
-                AppearanceId = dto.AppearanceId,
                 CreatedAtUtc = DateTime.UtcNow,
-                UpdatedAtUtc = DateTime.UtcNow
+                UpdatedAtUtc = DateTime.UtcNow,
+                Appearance = new EventAppearance
+                {
+                    Currency = dto.Currency,
+                    CreatedAtUtc = DateTime.UtcNow,
+                    UpdatedAtUtc = DateTime.UtcNow
+                }
             };
 
             _dbContext.Events.Add(entity);
@@ -101,8 +105,7 @@ namespace Logic.Services
                     Name = e.Name,
                     Description = e.Description,
                     Status = e.Status,
-                    Currency = e.Currency,
-                    AppearanceId = e.AppearanceId,
+                    Currency = e.Appearance != null ? e.Appearance.Currency : null,
                     CreatedAtUtc = e.CreatedAtUtc,
                     UpdatedAtUtc = e.UpdatedAtUtc
                 })
@@ -128,8 +131,7 @@ namespace Logic.Services
                     Name = e.Name,
                     Description = e.Description,
                     Status = e.Status,
-                    Currency = e.Currency,
-                    AppearanceId = e.AppearanceId,
+                    Currency = e.Appearance != null ? e.Appearance.Currency : null,
                     CreatedAtUtc = e.CreatedAtUtc,
                     UpdatedAtUtc = e.UpdatedAtUtc
                 })
@@ -185,9 +187,23 @@ namespace Logic.Services
             }
 
             entity.Status = dto.Status;
-            entity.Currency = dto.Currency;
-            entity.AppearanceId = dto.AppearanceId;
             entity.UpdatedAtUtc = DateTime.UtcNow;
+
+            if (entity.Appearance == null)
+            {
+                entity.Appearance = new EventAppearance
+                {
+                    EventId = entity.Id,
+                    Currency = dto.Currency,
+                    CreatedAtUtc = DateTime.UtcNow,
+                    UpdatedAtUtc = DateTime.UtcNow
+                };
+            }
+            else
+            {
+                entity.Appearance.Currency = dto.Currency;
+                entity.Appearance.UpdatedAtUtc = DateTime.UtcNow;
+            }
 
             await _dbContext.SaveChangesAsync(ct);
 
@@ -230,8 +246,7 @@ namespace Logic.Services
                     Name = e.Name,
                     Description = e.Description,
                     Status = e.Status,
-                    Currency = e.Currency,
-                    AppearanceId = e.AppearanceId,
+                    Currency = e.Appearance != null ? e.Appearance.Currency : null,
                     CreatedAtUtc = e.CreatedAtUtc,
                     UpdatedAtUtc = e.UpdatedAtUtc
                 })
@@ -258,8 +273,7 @@ namespace Logic.Services
                     Name = e.Name,
                     Description = e.Description,
                     Status = e.Status,
-                    Currency = e.Currency,
-                    AppearanceId = e.AppearanceId,
+                    Currency = e.Appearance != null ? e.Appearance.Currency : null,
                     CreatedAtUtc = e.CreatedAtUtc,
                     UpdatedAtUtc = e.UpdatedAtUtc
                 })
@@ -306,15 +320,8 @@ namespace Logic.Services
                     Description = eo.Event.Description,
                     PrimaryColor = eo.Event.Appearance?.PrimaryColor ?? string.Empty,
                     SecondaryColor = eo.Event.Appearance?.SecondaryColor ?? string.Empty,
-                    AccentColor = eo.Event.Appearance?.AccentColor ?? string.Empty,
-                    BackgroundColor = eo.Event.Appearance?.BackgroundColor ?? string.Empty,
-                    SurfaceColor = eo.Event.Appearance?.SurfaceColor ?? string.Empty,
-                    TextColor = eo.Event.Appearance?.TextColor ?? string.Empty,
                     LogoImageUrl = eo.Event.Appearance?.LogoImageUrl ?? string.Empty,
-                    BannerImageUrl = eo.Event.Appearance?.BannerImageUrl ?? string.Empty,
-                    ThemePreset = eo.Event.Appearance?.ThemePreset ?? string.Empty,
-                    FontFamily = eo.Event.Appearance?.FontFamily ?? string.Empty,
-                    Currency = eo.Event.Currency
+                    Currency = eo.Event.Appearance?.Currency
                 } : null!,
 
                 Venue = eo.Venue != null ? new EventOccurrenceVenueDto
@@ -347,8 +354,7 @@ namespace Logic.Services
                     Name = e.Name,
                     Description = e.Description,
                     Status = e.Status,
-                    Currency = e.Currency,
-                    AppearanceId = e.AppearanceId,
+                    Currency = e.Appearance != null ? e.Appearance.Currency : null,
                     CreatedAtUtc = e.CreatedAtUtc,
                     UpdatedAtUtc = e.UpdatedAtUtc
                 })
@@ -365,8 +371,7 @@ namespace Logic.Services
                 Name = e.Name,
                 Description = e.Description,
                 Status = e.Status,
-                Currency = e.Currency,
-                AppearanceId = e.AppearanceId,
+                Currency = e.Appearance?.Currency,
                 CreatedAtUtc = e.CreatedAtUtc,
                 UpdatedAtUtc = e.UpdatedAtUtc
             };
