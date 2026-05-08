@@ -256,7 +256,8 @@ namespace Logic.Services
                     eventOccurrence.Auditorium?.Name ?? "Unknown Auditorium",
                     eventOccurrence.StartsAtUtc,
                     pdfTickets,
-                    currency
+                    currency,
+                    eventOccurrence.Event.Appearance?.PrimaryColor
                 );
             }
             catch (Exception ex)
