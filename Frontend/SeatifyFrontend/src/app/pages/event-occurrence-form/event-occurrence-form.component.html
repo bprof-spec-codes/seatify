@@ -9,6 +9,13 @@
     </div>
   </div>
 
+  <div *ngIf="hasBookings" class="alert alert-warning d-flex align-items-center" role="alert">
+    <i class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" style="font-size: 1.5rem;"></i>
+    <div>
+      This event date already has confirmed bookings. The venue, auditorium, and start/end times are locked and cannot be changed.
+    </div>
+  </div>
+
   <form [formGroup]="occurrenceForm" (ngSubmit)="onSubmit()">
     <!-- Location Section -->
     <div class="card mb-4 shadow-sm">
@@ -17,7 +24,7 @@
         
         <div class="row">
           <div class="col-md-6 mb-3">
-            <label class="form-label fw-semibold">Venue *</label>
+            <label class="form-label fw-semibold">Venue * <i *ngIf="hasBookings" class="bi bi-lock-fill text-muted ms-1" title="Locked due to existing bookings"></i></label>
             <select class="form-select" formControlName="venueId" (change)="onVenueChange($any($event.target).value)">
               <option value="" disabled>Select a venue</option>
               <option *ngFor="let venue of venues" [value]="venue.id">{{ venue.name }}</option>
@@ -28,7 +35,7 @@
           </div>
 
           <div class="col-md-6 mb-3">
-            <label class="form-label fw-semibold">Auditorium *</label>
+            <label class="form-label fw-semibold">Auditorium * <i *ngIf="hasBookings" class="bi bi-lock-fill text-muted ms-1" title="Locked due to existing bookings"></i></label>
             <select class="form-select" formControlName="auditoriumId">
               <option value="" disabled>{{ auditoriums.length ? 'Select an auditorium' : 'First select a venue' }}</option>
               <option *ngFor="let aud of auditoriums" [value]="aud.id">{{ aud.name }}</option>
@@ -48,11 +55,11 @@
         
         <div class="row mb-3">
           <div class="col-md-6 mb-3">
-            <label class="form-label fw-semibold">Start Date & Time *</label>
+            <label class="form-label fw-semibold">Start Date & Time * <i *ngIf="hasBookings" class="bi bi-lock-fill text-muted ms-1" title="Locked due to existing bookings"></i></label>
             <input type="datetime-local" class="form-control" formControlName="startsAt">
           </div>
           <div class="col-md-6 mb-3">
-            <label class="form-label fw-semibold">End Date & Time *</label>
+            <label class="form-label fw-semibold">End Date & Time * <i *ngIf="hasBookings" class="bi bi-lock-fill text-muted ms-1" title="Locked due to existing bookings"></i></label>
             <input type="datetime-local" class="form-control" formControlName="endsAt">
           </div>
         </div>

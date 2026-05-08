@@ -48,6 +48,7 @@ namespace Logic.Services
                     .ThenInclude(e => e.Appearance)
                 .Include(e => e.Venue)
                 .Include(e => e.Auditorium)
+                .Include(e => e.Reservations)
                 .Where(e => e.EventId == eventId)
                 .Select(e => MapToViewDto(e))
                 .ToList();
@@ -61,6 +62,7 @@ namespace Logic.Services
                     .ThenInclude(e => e.Appearance)
                 .Include(e => e.Venue)
                 .Include(e => e.Auditorium)
+                .Include(e => e.Reservations)
                 .FirstOrDefault(e => e.Id == id);
 
             if (occurrence == null) return null;
@@ -85,6 +87,7 @@ namespace Logic.Services
                 DoorsOpenAtUtc = occurrence.DoorsOpenAtUtc,
                 CurrencyOverride = occurrence.CurrencyOverride,
                 Status = occurrence.Status,
+                HasBookings = occurrence.Reservations != null && occurrence.Reservations.Any(r => r.Status == "Confirmed"),
                 EffectiveCurrency = CurrencyHelper.ResolveCurrency(occurrence),
                 AppearanceId = occurrence.AppearanceId,
 
@@ -226,6 +229,12 @@ namespace Logic.Services
                     }).ToList()
                 })
                 .ToList();
+        }
+
+        public bool HasBookings(string id)
+        {
+            return _appDbContext.Reservations
+                .Any(r => r.EventOccurrenceId == id && r.Status == "Confirmed");
         }
     }
 }

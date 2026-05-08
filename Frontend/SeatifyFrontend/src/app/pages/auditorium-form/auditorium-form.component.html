@@ -10,6 +10,13 @@
   </header>
 
   <main class="surface-card">
+    <div *ngIf="hasBookings" class="alert alert-warning d-flex align-items-center mb-4" role="alert">
+      <i class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" style="font-size: 1.5rem;"></i>
+      <div>
+        This auditorium is currently used by event dates with confirmed bookings. The name and currency are locked and cannot be changed.
+      </div>
+    </div>
+
     <form [formGroup]="auditoriumForm" (ngSubmit)="onSubmit()">
       <div class="card-section">
         <h2 class="section-title">
@@ -19,7 +26,7 @@
 
         <div class="form-fields">
           <div class="form-field">
-            <label for="auditoriumName">Auditorium Name*</label>
+            <label for="auditoriumName">Auditorium Name* <i *ngIf="hasBookings" class="bi bi-lock-fill text-muted ms-1" title="Locked due to existing bookings"></i></label>
             <input 
               type="text" 
               id="auditoriumName" 
@@ -46,7 +53,7 @@
           </div>
 
           <div class="form-field">
-            <label for="currency">Currency (e.g. HUF, EUR, USD)*</label>
+            <label for="currency">Currency (e.g. HUF, EUR, USD)* <i *ngIf="hasBookings" class="bi bi-lock-fill text-muted ms-1" title="Locked due to existing bookings"></i></label>
             <input 
               type="text" 
               id="currency" 

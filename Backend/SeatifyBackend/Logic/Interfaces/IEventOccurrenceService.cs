@@ -16,5 +16,6 @@ namespace Logic.Interfaces
         public bool Update(string id, EventOccurrenceCreateDto updateDto);
         public bool Delete(string id);
         public List<ReservationViewDto> GetReservations(string id);
+        public bool HasBookings(string id);
     }
 }

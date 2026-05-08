@@ -25,6 +25,7 @@ export class EventOccurrenceFormComponent implements OnInit {
   auditoriums: Auditorium[] = [];
   isEditMode = false;
   isLoading = true;
+  hasBookings = false;
   appearances: Appearance[] = [];
 
   constructor(
@@ -103,6 +104,14 @@ export class EventOccurrenceFormComponent implements OnInit {
 
             if (occ.doorsOpenAtUtc) {
               this.occurrenceForm.get('doorsOpenAt')?.enable();
+            }
+
+            if (occ.hasBookings) {
+              this.hasBookings = true;
+              this.occurrenceForm.get('venueId')?.disable();
+              this.occurrenceForm.get('auditoriumId')?.disable();
+              this.occurrenceForm.get('startsAt')?.disable();
+              this.occurrenceForm.get('endsAt')?.disable();
             }
           });
         }

@@ -40,6 +40,16 @@ export class EventService {
     return this.http.get<SeatifyEvent>(`${this.apiUrl}/events/public/slug/${slug}`);
   }
 
+  checkEventHasBookings(eventId: string): Observable<boolean> {
+    return this.http.get<boolean>(`${this.eventsApiUrl}/${eventId}/has-bookings`);
+  }
+
+  checkOccurrenceHasBookings(occurrenceId: string): Observable<boolean> {
+    return this.getOccurrenceById(occurrenceId).pipe(
+      map(occ => !!occ.hasBookings)
+    );
+  }
+
   getOccurrenceById(id: string): Observable<EventOccurrence> {
     return this.http.get<EventOccurrence>(`${this.eventOccurrencesApiUrl}/${id}`);
   }

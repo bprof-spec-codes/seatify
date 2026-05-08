@@ -43,4 +43,5 @@ export interface EventOccurrence {
   event?: EventOccurrenceEvent | null;
   venue?: EventOccurrenceVenue | null;
   auditorium?: EventOccurrenceAuditorium | null;
+  hasBookings?: boolean;
 }

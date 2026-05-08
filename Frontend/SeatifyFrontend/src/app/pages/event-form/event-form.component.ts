@@ -17,6 +17,7 @@ export class EventFormComponent implements OnInit {
   eventId: string | null = null;
   isEditMode = false;
   isLoading = false;
+  hasBookings = false;
   appearances: Appearance[] = [];
 
   /** Unique currencies from all associated auditoriums */
@@ -69,6 +70,16 @@ export class EventFormComponent implements OnInit {
           currency: event.currency || '',
           appearanceId: event.appearanceId || null
         });
+        
+        this.eventService.checkEventHasBookings(this.eventId!).subscribe(hasBookings => {
+          this.hasBookings = hasBookings;
+          if (hasBookings) {
+            this.eventForm.get('name')?.disable();
+            this.eventForm.get('slug')?.disable();
+            this.eventForm.get('currency')?.disable();
+          }
+        });
+
         this.isLoading = false;
 
         // Load occurrences to determine the auditorium's inherited currency
@@ -109,7 +120,7 @@ export class EventFormComponent implements OnInit {
     }
 
     this.isLoading = true;
-    const val = this.eventForm.value;
+    const val = this.eventForm.getRawValue();
     const payload: EventRequest = {
       name: val.name,
       slug: val.slug,

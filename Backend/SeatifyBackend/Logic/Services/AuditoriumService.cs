@@ -14,6 +14,7 @@ namespace Logic.Services
         Task<AuditoriumViewDto?> UpdateAsync(string auditoriumId, AuditoriumCreateDto dto, CancellationToken ct);
         Task<bool> DeleteAsync(string auditoriumId, CancellationToken ct);
         Task<IReadOnlyList<AuditoriumViewDto>> GetAllAsync(CancellationToken ct);
+        Task<bool> HasBookingsAsync(string auditoriumId, CancellationToken ct);
     }
 
     public class AuditoriumService : IAuditoriumService
@@ -189,6 +190,13 @@ namespace Logic.Services
                 CreatedAtUtc = auditorium.CreatedAtUtc,
                 UpdatedAtUtc = auditorium.UpdatedAtUtc
             };
+        }
+
+        public async Task<bool> HasBookingsAsync(string auditoriumId, CancellationToken ct)
+        {
+            return await _ctx.Reservations
+                .Include(r => r.EventOccurrence)
+                .AnyAsync(r => r.EventOccurrence.AuditoriumId == auditoriumId && r.Status == "Confirmed", ct);
         }
     }
 }
