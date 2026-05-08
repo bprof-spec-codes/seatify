@@ -324,7 +324,7 @@ namespace Tests
             string seatId = "Seat_1";
             string audId = "Aud_1";
 
-            var ev = new Event { Id = eventId, Name = "Test Event", Appearance = new Appearance { Currency = "USD" } };
+            var ev = new Event { Id = eventId, Name = "Test Event", Currency = "USD", Appearance = new Appearance() };
             var aud = new Auditorium { Id = audId, Name = "Main Hall" };
 
             var occ = new EventOccurrence
