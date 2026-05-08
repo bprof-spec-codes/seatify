@@ -144,3 +144,7 @@ docker-compose.override.yml
 *.swp
 *.pid
 *.seed
+
+# Local ASP.NET Core settings
+**/appsettings.Development.json
+**/appsettings.Local.json
