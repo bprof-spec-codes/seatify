@@ -11,8 +11,8 @@ namespace Logic.Helper
                 if (!string.IsNullOrWhiteSpace(occurrence.CurrencyOverride))
                     return occurrence.CurrencyOverride;
 
-                if (occurrence.Event?.Appearance != null && !string.IsNullOrWhiteSpace(occurrence.Event.Appearance.Currency))
-                    return occurrence.Event.Appearance.Currency;
+                if (occurrence.Event != null && !string.IsNullOrWhiteSpace(occurrence.Event.Currency))
+                    return occurrence.Event.Currency;
 
                 if (occurrence.Auditorium != null && !string.IsNullOrWhiteSpace(occurrence.Auditorium.Currency))
                     return occurrence.Auditorium.Currency;
@@ -26,8 +26,8 @@ namespace Logic.Helper
 
         public static string ResolveCurrency(Event? eventEntity, Auditorium? auditorium = null)
         {
-            if (eventEntity?.Appearance != null && !string.IsNullOrWhiteSpace(eventEntity.Appearance.Currency))
-                return eventEntity.Appearance.Currency;
+            if (eventEntity != null && !string.IsNullOrWhiteSpace(eventEntity.Currency))
+                return eventEntity.Currency;
 
             if (auditorium != null && !string.IsNullOrWhiteSpace(auditorium.Currency))
                 return auditorium.Currency;
