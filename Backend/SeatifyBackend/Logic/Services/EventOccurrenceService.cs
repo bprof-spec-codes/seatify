@@ -139,6 +139,14 @@ namespace Logic.Services
 
         public List<ReservationViewDto> GetReservations(string id)
         {
+            var occurrence = _appDbContext.EventOccurrences
+                .Include(eo => eo.Event)
+                    .ThenInclude(e => e.Appearance)
+                .Include(eo => eo.Auditorium)
+                .FirstOrDefault(eo => eo.Id == id);
+
+            string currency = CurrencyHelper.ResolveCurrency(occurrence);
+
             return _appDbContext.Reservations
                 .Include(r => r.ReservationSeats)
                 .Where(r => r.EventOccurrenceId == id)
@@ -148,6 +156,7 @@ namespace Logic.Services
                     CustomerName = res.CustomerName,
                     CustomerEmail = res.CustomerEmail,
                     Status = res.Status,
+                    Currency = currency,
                     CreatedAtUtc = res.CreatedAtUtc,
                     ReservedSeats = res.ReservationSeats.Select(rs => new ReservationSeatViewDto
                     {

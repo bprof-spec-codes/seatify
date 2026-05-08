@@ -60,6 +60,11 @@ namespace Logic.Services
         {
             var res = _context.Reservations
                 .Include(r => r.ReservationSeats)
+                .Include(r => r.EventOccurrence)
+                    .ThenInclude(eo => eo.Event)
+                        .ThenInclude(e => e.Appearance)
+                .Include(r => r.EventOccurrence)
+                    .ThenInclude(eo => eo.Auditorium)
                 .FirstOrDefault(r => r.Id == id);
 
             if (res == null) return null;
@@ -70,6 +75,7 @@ namespace Logic.Services
                 CustomerName = res.CustomerName,
                 CustomerEmail = res.CustomerEmail,
                 Status = res.Status,
+                Currency = CurrencyHelper.ResolveCurrency(res.EventOccurrence),
                 CreatedAtUtc = res.CreatedAtUtc,
                 ReservedSeats = res.ReservationSeats.Select(rs => new ReservationSeatViewDto
                 {
@@ -81,6 +87,14 @@ namespace Logic.Services
 
         public List<ReservationViewDto> GetByOccurrenceId(string eventOccurrenceId)
         {
+            var occurrence = _context.EventOccurrences
+                .Include(eo => eo.Event)
+                    .ThenInclude(e => e.Appearance)
+                .Include(eo => eo.Auditorium)
+                .FirstOrDefault(eo => eo.Id == eventOccurrenceId);
+
+            string currency = CurrencyHelper.ResolveCurrency(occurrence);
+
             return _context.Reservations
                 .Include(r => r.ReservationSeats)
                 .Where(r => r.EventOccurrenceId == eventOccurrenceId)
@@ -90,6 +104,7 @@ namespace Logic.Services
                     CustomerName = res.CustomerName,
                     CustomerEmail = res.CustomerEmail,
                     Status = res.Status,
+                    Currency = currency,
                     CreatedAtUtc = res.CreatedAtUtc,
                     ReservedSeats = res.ReservationSeats.Select(rs => new ReservationSeatViewDto
                     {

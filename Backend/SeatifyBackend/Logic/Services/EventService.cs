@@ -307,9 +307,34 @@ namespace Logic.Services
                     EndsAtUtc = eo.EndsAtUtc,
                     BookingOpenAtUtc = eo.BookingOpenAtUtc,
                     BookingCloseAtUtc = eo.BookingCloseAtUtc,
+                    DoorsOpenAtUtc = eo.DoorsOpenAtUtc,
                     CurrencyOverride = eo.CurrencyOverride,
                     EffectiveCurrency = Logic.Helper.CurrencyHelper.ResolveCurrency(eo),
-                    Status = eo.Status
+                    Status = eo.Status,
+
+                    Event = eo.Event != null ? new EventOccurrenceEventDto
+                    {
+                        Id = eo.Event.Id,
+                        Name = eo.Event.Name,
+                        Description = eo.Event.Description,
+                        PrimaryColor = eo.Event.Appearance?.PrimaryColor ?? string.Empty,
+                        SecondaryColor = eo.Event.Appearance?.SecondaryColor ?? string.Empty,
+                        LogoImageUrl = eo.Event.Appearance?.LogoImageUrl ?? string.Empty,
+                        Currency = eo.Event.Appearance?.Currency
+                    } : null!,
+
+                    Venue = eo.Venue != null ? new EventOccurrenceVenueDto
+                    {
+                        Id = eo.Venue.Id,
+                        Name = eo.Venue.Name
+                    } : null!,
+
+                    Auditorium = eo.Auditorium != null ? new EventOccurrenceAuditoriumDto
+                    {
+                        Id = eo.Auditorium.Id,
+                        Name = eo.Auditorium.Name,
+                        Currency = eo.Auditorium.Currency
+                    } : null!
                 }).ToList());
         }
 

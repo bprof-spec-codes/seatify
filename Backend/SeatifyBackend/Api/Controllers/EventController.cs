@@ -67,7 +67,7 @@ namespace Api.Controllers
 
         // GET /api/events/{eventId}/eventdates
         [HttpGet("{eventId}/eventdates")]
-        public async Task<ActionResult<List<Entities.Dtos.Event.EventViewDto>>> GetEventDates(
+        public async Task<ActionResult<List<Entities.Dtos.EventOccurrence.EventOccurrenceViewDto>>> GetEventDates(
             string eventId,
             CancellationToken ct)
         {
