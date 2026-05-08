@@ -14,6 +14,7 @@ export class CheckinModalComponent implements OnInit, OnDestroy {
   public validationResult: CheckInResult | null = null;
   public processing = false;
   public errorMessage: string | null = null;
+  public isCheckedIn = false;
   
   private html5QrcodeScanner!: Html5QrcodeScanner;
   public TicketStatus = TicketStatus;
@@ -110,6 +111,9 @@ export class CheckinModalComponent implements OnInit, OnDestroy {
         next: (res) => {
           this.validationResult = res;
           this.processing = false;
+          if (res.statusMessage === 'Check-in successful.') {
+            this.isCheckedIn = true;
+          }
         },
         error: (err) => {
           console.error(err);
@@ -122,6 +126,7 @@ export class CheckinModalComponent implements OnInit, OnDestroy {
   public resetScanner(): void {
     this.validationResult = null;
     this.errorMessage = null;
+    this.isCheckedIn = false;
     if (this.inputMode === 'camera') {
       this.initScanner();
     }
