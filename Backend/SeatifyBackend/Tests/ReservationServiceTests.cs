@@ -1,4 +1,4 @@
-﻿using Data;
+using Data;
 using Entities.Dtos.Bookings;
 using Entities.Dtos.Exceptions;
 using Entities.Dtos.Reservation;
@@ -20,6 +20,7 @@ namespace Tests
         private AppDbContext _context;
         private Mock<QrService> _mockQrService;
         private Mock<IEmailService> _mockEmailService;
+        private Mock<IPdfService> _mockPdfService;
         private ReservationService _reservationService;
 
         [SetUp]
@@ -34,8 +35,9 @@ namespace Tests
 
             _mockQrService = new Mock<QrService>();
             _mockEmailService = new Mock<IEmailService>();
-
-            _reservationService = new ReservationService(_context, _mockQrService.Object, _mockEmailService.Object);
+            _mockPdfService = new Mock<IPdfService>();
+            
+            _reservationService = new ReservationService(_context, _mockQrService.Object, _mockEmailService.Object, _mockPdfService.Object);
         }
 
         [TearDown]
@@ -322,7 +324,7 @@ namespace Tests
             string seatId = "Seat_1";
             string audId = "Aud_1";
 
-            var ev = new Event { Id = eventId, Name = "Test Event", Appearance = new EventAppearance { Currency = "USD" } };
+            var ev = new Event { Id = eventId, Name = "Test Event", Appearance = new Appearance { Currency = "USD" } };
             var aud = new Auditorium { Id = audId, Name = "Main Hall" };
 
             var occ = new EventOccurrence
@@ -379,7 +381,8 @@ namespace Tests
                 It.IsAny<DateTime>(),
                 It.Is<IEnumerable<EmailTicketItem>>(t => t.Count() == 1 && t.First().Price == 1000m),
                 1000m,
-                "USD"
+                "USD",
+                It.IsAny<byte[]>()
             ), Times.Once);
 
             // Verify database state
