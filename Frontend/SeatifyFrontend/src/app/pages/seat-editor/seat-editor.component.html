@@ -19,7 +19,7 @@
         </div>
 
         <div class="form-section">
-            <label for="priceOverride">Price override</label>
+            <label for="priceOverride">Price override ({{ currency }})</label>
             <input id="priceOverride" type="number" min="0" placeholder="Inherited" formControlName="priceOverride" />
 
             <div class="field-error" *ngIf="priceOverrideControl?.touched && priceOverrideControl?.invalid">

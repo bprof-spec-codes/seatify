@@ -38,6 +38,7 @@ export interface EventOccurrence {
   doorsOpenAtUtc?: string | null;
   currencyOverride?: string;
   status: string;
+  effectiveCurrency: string;
   appearanceId?: string | null;
   event?: EventOccurrenceEvent | null;
   venue?: EventOccurrenceVenue | null;

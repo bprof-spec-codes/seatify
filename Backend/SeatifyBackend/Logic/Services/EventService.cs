@@ -275,26 +275,61 @@ namespace Logic.Services
 
             eventId = eventId.Trim();
 
-            return await _dbContext.EventOccurrences
+            var occurrences = await _dbContext.EventOccurrences
                 .Where(eo => eo.EventId == eventId)
                 .Include(eo => eo.Event)
+                    .ThenInclude(e => e.Appearance)
                 .Include(eo => eo.Venue)
                 .Include(eo => eo.Auditorium)
                 .OrderBy(eo => eo.StartsAtUtc)
-                .Select(eo => new Entities.Dtos.EventOccurrence.EventOccurrenceViewDto
-                {
-                    Id = eo.Id,
-                    EventId = eo.EventId,
-                    VenueId = eo.VenueId,
-                    AuditoriumId = eo.AuditoriumId,
-                    StartsAtUtc = eo.StartsAtUtc,
-                    EndsAtUtc = eo.EndsAtUtc,
-                    BookingOpenAtUtc = eo.BookingOpenAtUtc,
-                    BookingCloseAtUtc = eo.BookingCloseAtUtc,
-                    CurrencyOverride = eo.CurrencyOverride,
-                    Status = eo.Status
-                })
                 .ToListAsync(ct);
+
+            return occurrences.Select(eo => new Entities.Dtos.EventOccurrence.EventOccurrenceViewDto
+            {
+                Id = eo.Id,
+                EventId = eo.EventId,
+                VenueId = eo.VenueId,
+                AuditoriumId = eo.AuditoriumId,
+                StartsAtUtc = eo.StartsAtUtc,
+                EndsAtUtc = eo.EndsAtUtc,
+                BookingOpenAtUtc = eo.BookingOpenAtUtc,
+                BookingCloseAtUtc = eo.BookingCloseAtUtc,
+                DoorsOpenAtUtc = eo.DoorsOpenAtUtc,
+                CurrencyOverride = eo.CurrencyOverride,
+                EffectiveCurrency = Logic.Helper.CurrencyHelper.ResolveCurrency(eo),
+                Status = eo.Status,
+
+                Event = eo.Event != null ? new EventOccurrenceEventDto
+                {
+                    Id = eo.Event.Id,
+                    Name = eo.Event.Name,
+                    Description = eo.Event.Description,
+                    PrimaryColor = eo.Event.Appearance?.PrimaryColor ?? string.Empty,
+                    SecondaryColor = eo.Event.Appearance?.SecondaryColor ?? string.Empty,
+                    AccentColor = eo.Event.Appearance?.AccentColor ?? string.Empty,
+                    BackgroundColor = eo.Event.Appearance?.BackgroundColor ?? string.Empty,
+                    SurfaceColor = eo.Event.Appearance?.SurfaceColor ?? string.Empty,
+                    TextColor = eo.Event.Appearance?.TextColor ?? string.Empty,
+                    LogoImageUrl = eo.Event.Appearance?.LogoImageUrl ?? string.Empty,
+                    BannerImageUrl = eo.Event.Appearance?.BannerImageUrl ?? string.Empty,
+                    ThemePreset = eo.Event.Appearance?.ThemePreset ?? string.Empty,
+                    FontFamily = eo.Event.Appearance?.FontFamily ?? string.Empty,
+                    Currency = eo.Event.Currency
+                } : null!,
+
+                Venue = eo.Venue != null ? new EventOccurrenceVenueDto
+                {
+                    Id = eo.Venue.Id,
+                    Name = eo.Venue.Name
+                } : null!,
+
+                Auditorium = eo.Auditorium != null ? new EventOccurrenceAuditoriumDto
+                {
+                    Id = eo.Auditorium.Id,
+                    Name = eo.Auditorium.Name,
+                    Currency = eo.Auditorium.Currency
+                } : null!
+            }).ToList();
         }
 
         public async Task<Entities.Dtos.Event.EventViewDto?> GetBySlugAsync(string slug, CancellationToken ct)

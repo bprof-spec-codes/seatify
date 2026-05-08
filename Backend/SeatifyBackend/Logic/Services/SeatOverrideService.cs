@@ -1,6 +1,7 @@
 using Data;
 using Entities.Dtos.SeatOverride;
 using Entities.Models;
+using Logic.Helper;
 using Microsoft.EntityFrameworkCore;
 
 namespace Logic.Services
@@ -34,8 +35,18 @@ namespace Logic.Services
 
             if (matrix == null) return null;
 
-            var eventExists = await _ctx.Events.AnyAsync(e => e.Id == eventId, ct);
-            if (!eventExists) return null;
+            var eventEntity = await _ctx.Events
+                .AsNoTracking()
+                .Include(e => e.Appearance)
+                .FirstOrDefaultAsync(e => e.Id == eventId, ct);
+
+            if (eventEntity == null) return null;
+
+            var auditorium = await _ctx.Auditoriums
+                .AsNoTracking()
+                .FirstOrDefaultAsync(a => a.Id == matrix.AuditoriumId, ct);
+
+            string effectiveCurrency = CurrencyHelper.ResolveCurrency(eventEntity, auditorium);
 
             var seats = await _ctx.Seats
                 .AsNoTracking()
@@ -71,6 +82,7 @@ namespace Logic.Services
                 Columns = matrix.Columns,
                 Context = "event",
                 EventId = eventId,
+                Currency = effectiveCurrency,
                 Seats = effectiveSeats
             };
         }
@@ -89,9 +101,14 @@ namespace Logic.Services
 
             var occurrence = await _ctx.EventOccurrences
                 .AsNoTracking()
+                .Include(o => o.Event)
+                    .ThenInclude(e => e.Appearance)
+                .Include(o => o.Auditorium)
                 .FirstOrDefaultAsync(o => o.Id == occurrenceId, ct);
 
             if (occurrence == null) return null;
+
+            string effectiveCurrency = CurrencyHelper.ResolveCurrency(occurrence);
 
             var seats = await _ctx.Seats
                 .AsNoTracking()
@@ -136,6 +153,7 @@ namespace Logic.Services
                 Context = "occurrence",
                 EventId = occurrence.EventId,
                 OccurrenceId = occurrenceId,
+                Currency = effectiveCurrency,
                 Seats = effectiveSeats
             };
         }

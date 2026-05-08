@@ -31,9 +31,29 @@
   font-weight: 700
   letter-spacing: 0.5px
   transition: all 0.3s ease
+  background-color: var(--primary-color, #0984e3)
+  border-color: var(--primary-color, #0984e3)
+  color: #fff
   &:hover:not(:disabled)
     transform: translateY(-2px)
-    box-shadow: 0 8px 20px rgba(9, 132, 227, 0.3)
+    background-color: var(--accent-color, #0ea5e9)
+    border-color: var(--accent-color, #0ea5e9)
+    box-shadow: 0 8px 20px color-mix(in srgb, var(--primary-color) 30%, transparent)
+
+.text-primary
+  color: var(--primary-color, #0984e3) !important
+
+.btn-primary
+  background-color: var(--primary-color, #0984e3) !important
+  border-color: var(--primary-color, #0984e3) !important
+  &:hover, &:focus, &:active
+    background-color: var(--accent-color, #0ea5e9) !important
+    border-color: var(--accent-color, #0ea5e9) !important
+
+.btn-link
+  color: var(--primary-color, #0984e3) !important
+  &:hover
+    color: var(--accent-color, #0ea5e9) !important
 
 .summary-card
   border: none

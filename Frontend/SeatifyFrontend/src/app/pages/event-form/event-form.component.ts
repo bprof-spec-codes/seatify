@@ -19,6 +19,16 @@ export class EventFormComponent implements OnInit {
   isLoading = false;
   appearances: Appearance[] = [];
 
+  /** Unique currencies from all associated auditoriums */
+  auditoriumCurrencies: string[] = [];
+
+  /** Display string for inherited currency info */
+  get inheritedCurrencyLabel(): string {
+    if (this.auditoriumCurrencies.length === 0) return 'EUR (default)';
+    const unique = [...new Set(this.auditoriumCurrencies)];
+    return unique.join(' / ');
+  }
+
   constructor(
     private fb: FormBuilder,
     private route: ActivatedRoute,
@@ -60,6 +70,9 @@ export class EventFormComponent implements OnInit {
           appearanceId: event.appearanceId || null
         });
         this.isLoading = false;
+
+        // Load occurrences to determine the auditorium's inherited currency
+        this.loadAuditoriumCurrency();
       },
       error: (err) => {
         console.error('Failed to load event', err);
@@ -67,6 +80,25 @@ export class EventFormComponent implements OnInit {
         alert('Failed to load event details.');
         this.router.navigate(['/dashboard/events']);
       }
+    });
+  }
+
+  /** Loads all occurrences' auditoriums to show the full inherited currency picture */
+  loadAuditoriumCurrency() {
+    if (!this.eventId) return;
+
+    this.eventService.getOccurrencesByEventId(this.eventId).subscribe({
+      next: (occurrences) => {
+        if (!occurrences || occurrences.length === 0) return;
+
+        // Collect all unique auditorium currencies from all occurrences
+        const currencies = occurrences
+          .map(occ => occ.auditorium?.currency)
+          .filter((c): c is string => !!c);
+
+        this.auditoriumCurrencies = [...new Set(currencies)];
+      },
+      error: () => { /* keep empty = default EUR shown */ }
     });
   }
 

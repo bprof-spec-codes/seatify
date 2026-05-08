@@ -51,7 +51,7 @@ namespace Logic.Services
                 VenueId = venueId,
                 Name = dto.Name.Trim(),
                 Description = dto.Description?.Trim(),
-                Currency = string.IsNullOrWhiteSpace(dto.Currency) ? "HUF" : dto.Currency.Trim(),
+                Currency = string.IsNullOrWhiteSpace(dto.Currency) ? "EUR" : dto.Currency.Trim(),
                 CreatedAtUtc = DateTime.UtcNow,
                 UpdatedAtUtc = DateTime.UtcNow
             };
@@ -174,7 +174,7 @@ namespace Logic.Services
 
             auditorium.Name = dto.Name.Trim();
             auditorium.Description = dto.Description?.Trim();
-            auditorium.Currency = string.IsNullOrWhiteSpace(dto.Currency) ? "HUF" : dto.Currency.Trim();
+            auditorium.Currency = string.IsNullOrWhiteSpace(dto.Currency) ? "EUR" : dto.Currency.Trim();
             auditorium.UpdatedAtUtc = DateTime.UtcNow;
 
             await _ctx.SaveChangesAsync(ct);

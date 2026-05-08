@@ -41,6 +41,7 @@ export class LayoutMatrixEditorComponent implements OnInit {
 
   gridRows = 0
   gridColumns = 0
+  currentCurrency: string = 'EUR'
 
   isCreateFormOpen = false
   isCreatingMatrix = false
@@ -132,9 +133,11 @@ export class LayoutMatrixEditorComponent implements OnInit {
           this.gridCells = []
           this.gridRows = 0
           this.gridColumns = 0
+          this.currentCurrency = 'EUR'
         } else {
           this.gridRows = seatMap.rows
           this.gridColumns = seatMap.columns
+          this.currentCurrency = seatMap.currency || 'EUR'
           this.gridCells = this.buildGridCellsFromSeatMap(seatMap)
 
           setTimeout(() => {

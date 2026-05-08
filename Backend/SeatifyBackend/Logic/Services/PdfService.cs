@@ -21,8 +21,14 @@ namespace Logic.Services
             string auditoriumName,
             DateTime eventTime,
             IEnumerable<PdfTicketItem> tickets,
-            string currency)
+            string currency,
+            string? mainColor = null)
         {
+            var hexColor = mainColor ?? "#0984e3";
+            if (!hexColor.StartsWith("#")) hexColor = "#" + hexColor;
+            
+            var themeColor = Color.FromHex(hexColor);
+
             var document = Document.Create(container =>
             {
                 container.Page(page =>
@@ -36,7 +42,7 @@ namespace Logic.Services
                     {
                         row.RelativeItem().Column(col =>
                         {
-                            col.Item().Text(eventName).FontSize(24).SemiBold().FontColor(Colors.Blue.Medium);
+                            col.Item().Text(eventName).FontSize(24).SemiBold().FontColor(themeColor);
                             col.Item().Text($"{venueName} - {auditoriumName}").FontSize(14).Medium();
                             col.Item().Text(eventTime.ToString("f")).FontSize(12).Italic();
                         });
@@ -51,7 +57,7 @@ namespace Logic.Services
                                 row.RelativeItem().Column(ticketCol =>
                                 {
                                     // Event info on each ticket
-                                    ticketCol.Item().Text(eventName).FontSize(14).SemiBold().FontColor(Colors.Blue.Medium);
+                                    ticketCol.Item().Text(eventName).FontSize(14).SemiBold().FontColor(themeColor);
                                     ticketCol.Item().Text($"{venueName} - {auditoriumName}").FontSize(10).Medium();
                                     ticketCol.Item().Text(eventTime.ToString("f")).FontSize(9).Italic().FontColor(Colors.Grey.Medium);
                                     

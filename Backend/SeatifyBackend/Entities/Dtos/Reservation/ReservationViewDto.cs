@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,6 +12,7 @@ namespace Entities.Dtos.Reservation
         public string CustomerName { get; set; } = string.Empty;
         public string CustomerEmail { get; set; } = string.Empty;
         public string Status { get; set; } = string.Empty;
+        public string Currency { get; set; } = "EUR";
         public DateTime CreatedAtUtc { get; set; }
         public List<ReservationSeatViewDto> ReservedSeats { get; set; } = new();
     }

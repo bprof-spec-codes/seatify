@@ -2,6 +2,7 @@ using Data;
 using Entities.Dtos.EventOccurrence;
 using Entities.Dtos.Reservation;
 using Entities.Models;
+using Logic.Helper;
 using Logic.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -84,6 +85,7 @@ namespace Logic.Services
                 DoorsOpenAtUtc = occurrence.DoorsOpenAtUtc,
                 CurrencyOverride = occurrence.CurrencyOverride,
                 Status = occurrence.Status,
+                EffectiveCurrency = CurrencyHelper.ResolveCurrency(occurrence),
                 AppearanceId = occurrence.AppearanceId,
 
                 Event = occurrence.Event != null ? new EventOccurrenceEventDto
@@ -154,7 +156,8 @@ namespace Logic.Services
                 Auditorium = occurrence.Auditorium != null ? new EventOccurrenceAuditoriumDto
                 {
                     Id = occurrence.Auditorium.Id,
-                    Name = occurrence.Auditorium.Name
+                    Name = occurrence.Auditorium.Name,
+                    Currency = occurrence.Auditorium.Currency
                 } : null!
             };
         }
@@ -197,6 +200,14 @@ namespace Logic.Services
 
         public List<ReservationViewDto> GetReservations(string id)
         {
+            var occurrence = _appDbContext.EventOccurrences
+                .Include(eo => eo.Event)
+                    .ThenInclude(e => e.Appearance)
+                .Include(eo => eo.Auditorium)
+                .FirstOrDefault(eo => eo.Id == id);
+
+            string currency = CurrencyHelper.ResolveCurrency(occurrence);
+
             return _appDbContext.Reservations
                 .Include(r => r.ReservationSeats)
                 .Where(r => r.EventOccurrenceId == id)
@@ -206,6 +217,7 @@ namespace Logic.Services
                     CustomerName = res.CustomerName,
                     CustomerEmail = res.CustomerEmail,
                     Status = res.Status,
+                    Currency = currency,
                     CreatedAtUtc = res.CreatedAtUtc,
                     ReservedSeats = res.ReservationSeats.Select(rs => new ReservationSeatViewDto
                     {

@@ -10,7 +10,8 @@ namespace Logic.Interfaces
             string auditoriumName,
             DateTime eventTime,
             IEnumerable<PdfTicketItem> tickets,
-            string currency);
+            string currency,
+            string? mainColor = null);
     }
 
     public class PdfTicketItem
