@@ -9,6 +9,8 @@ import { Appearance } from '../../models/appearance';
 import { Venue } from '../../models/venue';
 import { Auditorium } from '../../models/auditorium';
 import { SeatifyEvent } from '../../models/event';
+import { AuthService } from '../../services/auth.service';
+import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-event-occurrence-form',
@@ -35,6 +37,7 @@ export class EventOccurrenceFormComponent implements OnInit {
     private eventService: EventService,
     private venueService: VenueService,
     private auditoriumService: AuditoriumService,
+    private authService: AuthService,
     private appearanceService: AppearanceService
   ) {
     this.occurrenceForm = this.fb.group({
@@ -66,10 +69,12 @@ export class EventOccurrenceFormComponent implements OnInit {
     this.occurrenceId = this.route.snapshot.paramMap.get('id');
     this.isEditMode = !!this.occurrenceId;
 
-    this.loadInitialData();
+    this.authService.currentUser$
+      .pipe(filter((u): u is NonNullable<typeof u> => !!u))
+      .subscribe(user => this.loadInitialData(user.organizerId));
   }
 
-  async loadInitialData() {
+  async loadInitialData(organizerId: any) {
     this.isLoading = true;
     try {
       // 1. Load Event name
@@ -81,14 +86,14 @@ export class EventOccurrenceFormComponent implements OnInit {
       });
 
       // 2. Load Venues
-      this.venueService.getVenuesByOrganizerId('org-id-01').subscribe(vn => {
+      this.venueService.getVenuesByOrganizerId(organizerId).subscribe(vn => {
         this.venues = vn;
-        
+
         // 3. If Edit Mode, load occurrence and patch
         if (this.isEditMode && this.occurrenceId) {
           this.eventService.getOccurrenceById(this.occurrenceId).subscribe(occ => {
             this.onVenueChange(occ.venueId, false); // Load auditoriums for the venue
-            
+
             this.occurrenceForm.patchValue({
               venueId: occ.venueId,
               auditoriumId: occ.auditoriumId,
@@ -127,7 +132,7 @@ export class EventOccurrenceFormComponent implements OnInit {
     if (resetAuditorium) {
       this.occurrenceForm.patchValue({ auditoriumId: '' });
     }
-    
+
     if (venueId) {
       this.auditoriumService.getAuditoriumsByVenueId(venueId).subscribe(auds => {
         this.auditoriums = auds;

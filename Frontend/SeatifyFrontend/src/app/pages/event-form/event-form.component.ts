@@ -5,6 +5,8 @@ import { EventService } from '../../services/event.service';
 import { AppearanceService } from '../../services/appearance.service';
 import { Appearance } from '../../models/appearance';
 import EventRequest from '../../models/event.request';
+import { AuthService } from '../../services/auth.service';
+import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-event-form',
@@ -19,6 +21,7 @@ export class EventFormComponent implements OnInit {
   isLoading = false;
   hasBookings = false;
   appearances: Appearance[] = [];
+  organizerId: string = "";
 
   /** Unique currencies from all associated auditoriums */
   auditoriumCurrencies: string[] = [];
@@ -35,7 +38,8 @@ export class EventFormComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private eventService: EventService,
-    private appearanceService: AppearanceService
+    private appearanceService: AppearanceService,
+    private authService: AuthService
   ) {
     this.eventForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(3)]],
@@ -51,6 +55,9 @@ export class EventFormComponent implements OnInit {
     this.eventId = this.route.snapshot.paramMap.get('eventId');
     this.isEditMode = !!this.eventId;
 
+    this.authService.currentUser$
+      .pipe(filter((u): u is NonNullable<typeof u> => !!u))
+      .subscribe(user => this.organizerId = user.organizerId);
     this.loadAppearances();
 
     if (this.isEditMode && this.eventId) {
@@ -128,7 +135,7 @@ export class EventFormComponent implements OnInit {
       status: val.status,
       currency: val.currency || null,
       appearanceId: val.appearanceId || null,
-      organizerId: 'org-id-01' // Matches seed data in backend
+      organizerId: this.organizerId
     };
 
     if (this.isEditMode && this.eventId) {
