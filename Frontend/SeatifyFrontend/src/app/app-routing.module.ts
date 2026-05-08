@@ -18,16 +18,21 @@ import { PublicBookingLayoutComponent } from './pages/public-booking-layout/publ
 import { PublicBookingMapComponent } from './pages/public-booking-map/public-booking-map.component';
 import { PublicBookingCheckoutComponent } from './pages/public-booking-checkout/public-booking-checkout.component';
 import { PublicBookingSuccessComponent } from './pages/public-booking-success/public-booking-success.component';
+import { authGuard } from './guards/auth.guard';
+import { guestGuard } from './guards/guest.guard';
 
 export const routes: Routes = [
   { path: '', component: LandingPageComponent },
   { path: 'landingpage', component: LandingPageComponent },
-  { path: 'login', component: LoginPageComponent},
-  { path: 'register', component: RegisterPageComponent },
+
+  { path: 'login', component: LoginPageComponent, canActivate: [guestGuard] },
+  { path: 'register', component: RegisterPageComponent, canActivate: [guestGuard] },
 
   {
     path: 'dashboard',
     component: OrganizerLayoutComponent,
+    canActivate: [authGuard],
+    canActivateChild: [authGuard],
     children: [
       { path: '', component: OrganizerDashboardComponent },
       { path: 'venues', component: VenueDashboardComponent },
@@ -43,6 +48,7 @@ export const routes: Routes = [
   },
 
   { path: 'checkout', component: CheckoutComponent },
+
   {
     path: 'book/:slug/:occurrenceId',
     component: PublicBookingLayoutComponent,
@@ -52,7 +58,13 @@ export const routes: Routes = [
       { path: 'success', component: PublicBookingSuccessComponent }
     ]
   },
-  { path: 'layout-matrix/:auditoriumId/editor', component: LayoutMatrixEditorComponent },
+
+  {
+    path: 'layout-matrix/:auditoriumId/editor',
+    component: LayoutMatrixEditorComponent,
+    canActivate: [authGuard]
+  },
+
   { path: '**', redirectTo: '' },
 ];
 
