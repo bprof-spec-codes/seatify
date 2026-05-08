@@ -2,9 +2,16 @@ export interface EventOccurrenceEvent {
   id: string;
   name: string;
   description: string;
-  primaryColor?: string;
-  secondaryColor?: string;
-  logoImageUrl?: string;
+  primaryColor: string;
+  secondaryColor: string;
+  accentColor: string;
+  backgroundColor: string;
+  surfaceColor: string;
+  textColor: string;
+  logoImageUrl: string;
+  bannerImageUrl: string;
+  themePreset: string;
+  fontFamily: string;
   currency?: string;
 }
 
