@@ -38,9 +38,7 @@ import { PricePipe } from './pipes/price.pipe';
 @NgModule({
   declarations: [
     AppComponent,
-    LandingPageComponent,
     FooterComponent,
-    SeatMapDisplayComponent,
     VenueDashboardComponent,
     ConfirmMessageComponent,
     AuditoriumDashboardComponent,

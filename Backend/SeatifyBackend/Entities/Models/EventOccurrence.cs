@@ -35,6 +35,9 @@ namespace Entities.Models
         public virtual Auditorium Auditorium { get; set; } = null!;
         public virtual List<Reservation> Reservations { get; set; } = new();
 
+        public string? AppearanceId { get; set; }
+        public virtual Appearance? Appearance { get; set; }
+
         // TODO: BookingSession
 
     }
