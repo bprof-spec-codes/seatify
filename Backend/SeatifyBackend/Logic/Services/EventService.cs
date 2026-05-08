@@ -306,8 +306,15 @@ namespace Logic.Services
                     Description = eo.Event.Description,
                     PrimaryColor = eo.Event.Appearance?.PrimaryColor ?? string.Empty,
                     SecondaryColor = eo.Event.Appearance?.SecondaryColor ?? string.Empty,
+                    AccentColor = eo.Event.Appearance?.AccentColor ?? string.Empty,
+                    BackgroundColor = eo.Event.Appearance?.BackgroundColor ?? string.Empty,
+                    SurfaceColor = eo.Event.Appearance?.SurfaceColor ?? string.Empty,
+                    TextColor = eo.Event.Appearance?.TextColor ?? string.Empty,
                     LogoImageUrl = eo.Event.Appearance?.LogoImageUrl ?? string.Empty,
-                    Currency = eo.Event.Appearance?.Currency
+                    BannerImageUrl = eo.Event.Appearance?.BannerImageUrl ?? string.Empty,
+                    ThemePreset = eo.Event.Appearance?.ThemePreset ?? string.Empty,
+                    FontFamily = eo.Event.Appearance?.FontFamily ?? string.Empty,
+                    Currency = eo.Event.Currency
                 } : null!,
 
                 Venue = eo.Venue != null ? new EventOccurrenceVenueDto
