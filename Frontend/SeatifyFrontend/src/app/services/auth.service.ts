@@ -10,7 +10,8 @@ import { AuthResponse, CurrentUser, LoginRequest, RegisterRequest } from '../mod
 export class AuthService {
   private readonly apiUrl = `${environment.baseApiUrl}/api/auth`;
   private readonly tokenKey = 'seatify_token';
-  private readonly currentUserKey = 'seatify_current_user';
+  private readonly currentUserKey = 'seatify_current_user'
+  private readonly expiresAtKey = 'seatify_expires_at'
 
   private currentUserSubject = new BehaviorSubject<CurrentUser | null>(this.getStoredUser());
   public currentUser$ = this.currentUserSubject.asObservable();
@@ -49,9 +50,10 @@ export class AuthService {
   }
 
   logout(): void {
-    localStorage.removeItem(this.tokenKey);
-    localStorage.removeItem(this.currentUserKey);
-    this.currentUserSubject.next(null);
+    localStorage.removeItem(this.tokenKey)
+    localStorage.removeItem(this.currentUserKey)
+    localStorage.removeItem(this.expiresAtKey)
+    this.currentUserSubject.next(null)
   }
 
   getToken(): string | null {
@@ -59,7 +61,18 @@ export class AuthService {
   }
 
   isLoggedIn(): boolean {
-    return !!this.getToken();
+    const token = this.getToken()
+
+    if (!token) {
+      return false
+    }
+
+    if (this.isTokenExpired()) {
+      this.logout()
+      return false
+    }
+
+    return true
   }
 
   getCurrentUserSnapshot(): CurrentUser | null {
@@ -67,16 +80,17 @@ export class AuthService {
   }
 
   private storeAuth(response: AuthResponse): void {
-    localStorage.setItem(this.tokenKey, response.token);
+    localStorage.setItem(this.tokenKey, response.token)
+    localStorage.setItem(this.expiresAtKey, response.expiresAtUtc)
 
     const user: CurrentUser = {
       organizerId: response.organizerId,
       email: response.email,
       name: response.name
-    };
+    }
 
-    localStorage.setItem(this.currentUserKey, JSON.stringify(user));
-    this.currentUserSubject.next(user);
+    localStorage.setItem(this.currentUserKey, JSON.stringify(user))
+    this.currentUserSubject.next(user)
   }
 
   private getStoredUser(): CurrentUser | null {
@@ -103,5 +117,21 @@ export class AuthService {
       'Unexpected error occurred.';
 
     return throwError(() => new Error(message));
+  }
+
+  private isTokenExpired(): boolean {
+    const rawExpiresAt = localStorage.getItem(this.expiresAtKey)
+
+    if (!rawExpiresAt) {
+      return false
+    }
+
+    const expiresAt = new Date(rawExpiresAt).getTime()
+
+    if (Number.isNaN(expiresAt)) {
+      return true
+    }
+
+    return expiresAt <= Date.now()
   }
 }
