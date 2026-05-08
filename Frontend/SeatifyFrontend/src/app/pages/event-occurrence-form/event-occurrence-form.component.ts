@@ -4,6 +4,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { EventService } from '../../services/event.service';
 import { VenueService } from '../../services/venue.service';
 import { AuditoriumService } from '../../services/auditorium.service';
+import { AppearanceService } from '../../services/appearance.service';
+import { Appearance } from '../../models/appearance';
 import { Venue } from '../../models/venue';
 import { Auditorium } from '../../models/auditorium';
 import { SeatifyEvent } from '../../models/event';
@@ -24,6 +26,7 @@ export class EventOccurrenceFormComponent implements OnInit {
   isEditMode = false;
   isLoading = true;
   hasBookings = false;
+  appearances: Appearance[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -31,7 +34,8 @@ export class EventOccurrenceFormComponent implements OnInit {
     private router: Router,
     private eventService: EventService,
     private venueService: VenueService,
-    private auditoriumService: AuditoriumService
+    private auditoriumService: AuditoriumService,
+    private appearanceService: AppearanceService
   ) {
     this.occurrenceForm = this.fb.group({
       venueId: ['', Validators.required],
@@ -42,8 +46,19 @@ export class EventOccurrenceFormComponent implements OnInit {
       bookingCloseAt: ['', Validators.required],
       hasDoorsOpenTime: [false],
       doorsOpenAt: [{ value: '', disabled: true }],
-      currencyOverride: ['']
+      currencyOverride: [''],
+      appearanceId: [null]
     });
+  }
+
+  get inheritedCurrency(): string {
+    if (this.event?.currency) return this.event.currency;
+    
+    const selectedAudId = this.occurrenceForm.get('auditoriumId')?.value;
+    const selectedAud = this.auditoriums.find(a => a.id === selectedAudId);
+    if (selectedAud?.currency) return selectedAud.currency;
+    
+    return 'EUR';
   }
 
   ngOnInit(): void {
@@ -59,6 +74,11 @@ export class EventOccurrenceFormComponent implements OnInit {
     try {
       // 1. Load Event name
       this.eventService.getEventById(this.eventId).subscribe(ev => this.event = ev);
+
+      this.appearanceService.getMyAppearances().subscribe(apps => {
+        console.log('Appearances loaded in OccForm:', apps);
+        this.appearances = apps;
+      });
 
       // 2. Load Venues
       this.venueService.getVenuesByOrganizerId('org-id-01').subscribe(vn => {
@@ -78,7 +98,8 @@ export class EventOccurrenceFormComponent implements OnInit {
               bookingCloseAt: this.formatDateForInput(occ.bookingCloseAtUtc),
               hasDoorsOpenTime: !!occ.doorsOpenAtUtc,
               doorsOpenAt: occ.doorsOpenAtUtc ? this.formatDateForInput(occ.doorsOpenAtUtc) : '',
-              currencyOverride: occ.currencyOverride || ''
+              currencyOverride: occ.currencyOverride || '',
+              appearanceId: occ.appearanceId || null
             });
 
             if (occ.doorsOpenAtUtc) {
@@ -150,6 +171,7 @@ export class EventOccurrenceFormComponent implements OnInit {
       bookingCloseAtUtc: new Date(val.bookingCloseAt).toISOString(),
       doorsOpenAtUtc: val.hasDoorsOpenTime && val.doorsOpenAt ? new Date(val.doorsOpenAt).toISOString() : null,
       currencyOverride: val.currencyOverride || null,
+      appearanceId: val.appearanceId || null,
       status: 'Published'
     };
 

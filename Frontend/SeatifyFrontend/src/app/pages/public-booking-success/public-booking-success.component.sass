@@ -9,12 +9,25 @@
   
   .success-icon
     font-size: 5.5rem
-    color: #00b894
+    color: var(--primary-color, #00b894)
     margin-bottom: 1rem
+
+.btn-primary
+  background-color: var(--primary-color, #0984e3) !important
+  border-color: var(--primary-color, #0984e3) !important
+  &:hover, &:focus, &:active
+    background-color: var(--accent-color, #0ea5e9) !important
+    border-color: var(--accent-color, #0ea5e9) !important
+
+.bg-primary
+  background-color: var(--primary-color, #0984e3) !important
+
+.text-primary
+  color: var(--primary-color, #0984e3) !important
     
   h1
     font-weight: 900
-    color: var(--text-color, #2d3436)
+    color: var(--primary-color, #2d3436)
     letter-spacing: -1px
   
   .status-msg

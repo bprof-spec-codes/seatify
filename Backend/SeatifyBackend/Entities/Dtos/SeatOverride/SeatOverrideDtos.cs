@@ -36,6 +36,7 @@ namespace Entities.Dtos.SeatOverride
         public string Context { get; set; } = string.Empty; // "auditorium" | "event" | "occurrence"
         public string? EventId { get; set; }
         public string? OccurrenceId { get; set; }
+        public string? Currency { get; set; }
         public List<EffectiveSeatDto> Seats { get; set; } = new();
     }
 

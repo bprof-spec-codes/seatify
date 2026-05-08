@@ -90,7 +90,7 @@ export class EventService {
     );
   }
 
-  private getOccurrencesByEventId(eventId: string): Observable<EventOccurrence[]> {
+  getOccurrencesByEventId(eventId: string): Observable<EventOccurrence[]> {
     return this.http
       .get<EventOccurrence[]>(`${this.eventOccurrencesApiUrl}/by-event/${eventId}`)
       .pipe(

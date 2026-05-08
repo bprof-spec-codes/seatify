@@ -13,7 +13,7 @@ public class AuditoriumViewDto
 
     public string? Description { get; set; } = string.Empty;
     
-    public string Currency { get; set; } = "HUF";
+    public string Currency { get; set; } = "EUR";
 
     public List<LayoutMatrixViewDto> LayoutMatrices { get; set; } = new();
 
