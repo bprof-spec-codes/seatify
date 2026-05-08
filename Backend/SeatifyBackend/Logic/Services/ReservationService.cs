@@ -150,6 +150,7 @@ namespace Logic.Services
             EventOccurrence eventOccurrence = _context.EventOccurrences
                 .Include(eo => eo.Event)
                     .ThenInclude(e => e.Appearance)
+                .Include(eo => eo.Appearance)
                 .Include(eo => eo.Auditorium)
                 .Include(eo => eo.Venue)
                 .FirstOrDefault(eo => eo.Id == request.EventOccurrenceId);
@@ -257,7 +258,7 @@ namespace Logic.Services
                     eventOccurrence.StartsAtUtc,
                     pdfTickets,
                     currency,
-                    eventOccurrence.Event.Appearance?.PrimaryColor
+                    eventOccurrence.Appearance?.PrimaryColor ?? eventOccurrence.Event.Appearance?.PrimaryColor
                 );
             }
             catch (Exception ex)
