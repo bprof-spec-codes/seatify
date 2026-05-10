@@ -335,6 +335,82 @@ namespace Logic.Services
             };
         }
 
+        public async Task<BulkSeatUpdateResponseDto> BulkUpdateLabelsAsync(BulkSeatLabelUpdateDto dto, CancellationToken ct)
+        {
+            if (dto == null || dto.Items == null || !dto.Items.Any())
+            {
+                throw new ArgumentException("At least one seat label item must be provided.");
+            }
+
+            var normalizedItems = dto.Items
+                .Where(item => !string.IsNullOrWhiteSpace(item.SeatId))
+                .GroupBy(item => item.SeatId.Trim())
+                .Select(group => group.Last())
+                .ToList();
+
+            if (normalizedItems.Count == 0)
+            {
+                throw new ArgumentException("At least one valid SeatId must be provided.");
+            }
+
+            var seatIds = normalizedItems
+                .Select(item => item.SeatId.Trim())
+                .Distinct()
+                .ToList();
+
+            var seatsToUpdate = await _dbContext.Seats
+                .Where(seat => seatIds.Contains(seat.Id))
+                .ToListAsync(ct);
+
+            if (seatsToUpdate.Count != seatIds.Count)
+            {
+                var foundIds = seatsToUpdate.Select(seat => seat.Id).ToList();
+                var missingIds = seatIds.Except(foundIds).ToList();
+                var missingIdsText = string.Join(", ", missingIds);
+
+                throw new ArgumentException($"Some seats were not found: {missingIdsText}");
+            }
+
+            var distinctMatrixIds = seatsToUpdate
+                .Select(seat => seat.MatrixId)
+                .Distinct()
+                .ToList();
+
+            if (distinctMatrixIds.Count > 1)
+            {
+                throw new ArgumentException("All selected seats must belong to the same layout matrix.");
+            }
+
+            var labelBySeatId = normalizedItems.ToDictionary(
+                item => item.SeatId.Trim(),
+                item => string.IsNullOrWhiteSpace(item.SeatLabel)
+                    ? null
+                    : item.SeatLabel.Trim()
+            );
+
+            var updatedIds = new List<string>();
+
+            foreach (var seat in seatsToUpdate)
+            {
+                if (!labelBySeatId.ContainsKey(seat.Id))
+                {
+                    continue;
+                }
+
+                seat.SeatLabel = labelBySeatId[seat.Id];
+                seat.UpdatedAtUtc = DateTime.UtcNow;
+                updatedIds.Add(seat.Id);
+            }
+
+            await _dbContext.SaveChangesAsync(ct);
+
+            return new BulkSeatUpdateResponseDto
+            {
+                UpdatedCount = updatedIds.Count,
+                UpdatedSeatIds = updatedIds
+            };
+        }
+
         public async Task<SeatViewDto?> UpdateAsync(string seatId, SeatUpdateDto dto, CancellationToken ct)
         {
             if (string.IsNullOrWhiteSpace(seatId))
