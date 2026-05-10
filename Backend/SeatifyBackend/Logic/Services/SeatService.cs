@@ -17,6 +17,7 @@ namespace Logic.Services
         Task<SeatViewDto?> UpdateAsync(string seatId, SeatUpdateDto dto, CancellationToken ct);
         Task<bool> DeleteAsync(string seatId, CancellationToken ct);
         Task<BulkSeatUpdateResponseDto> BulkUpdateAsync(BulkSeatUpdateDto dto, CancellationToken ct);
+        Task<BulkSeatUpdateResponseDto> BulkUpdateLabelsAsync(BulkSeatLabelUpdateDto dto, CancellationToken ct);
         SeatMapDto GetSeatMap(string eventOccurrenceId);
         SeatAvailabilityResponseDto GetSeatAvailability(SeatAvailabilityRequestDto seatAvailabilityRequestDto);
     }
