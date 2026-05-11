@@ -60,11 +60,11 @@ namespace Data
                 .HasOne(e => e.Auditorium)
                 .WithMany(a => a.EventOccurrences)
                 .HasForeignKey(e => e.AuditoriumId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<EventOccurrence>()
                 .HasOne(e => e.Venue)
-                .WithMany()
+                .WithMany(v => v.EventOccurrences)
                 .HasForeignKey(e => e.VenueId)
                 .OnDelete(DeleteBehavior.NoAction);
 

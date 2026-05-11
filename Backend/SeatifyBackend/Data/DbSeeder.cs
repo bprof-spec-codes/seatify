@@ -1,5 +1,6 @@
 using Entities.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace Data
 {
@@ -7,8 +8,14 @@ namespace Data
     {
         public static void Seed(AppDbContext ctx)
         {
-            ctx.Database.EnsureDeleted();
-            ctx.Database.EnsureCreated();
+            if (ctx.Database.IsRelational())
+            {
+                ctx.Database.Migrate();
+            }
+            else
+            {
+                ctx.Database.EnsureCreated();
+            }
 
             if (!ctx.Organizers.Any())
             {
