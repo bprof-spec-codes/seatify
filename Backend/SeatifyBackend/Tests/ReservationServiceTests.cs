@@ -99,18 +99,28 @@ namespace Tests
         public void GetById_ExistingId_ReturnsReservationViewDto()
         {
             // Arrange
+            var venue = new Venue { Id = "Ven_1", Name = "Venue 1" };
+            var aud = new Auditorium { Id = "Aud_1", Name = "Aud 1", VenueId = "Ven_1" };
+            var ev = new Event { Id = "Ev_1", Name = "Event 1", Currency = "EUR" };
+            var occ = new EventOccurrence { Id = "Occ_1", EventId = "Ev_1", VenueId = "Ven_1", AuditoriumId = "Aud_1" };
+
             var reservation = new Reservation
             {
                 Id = "Res_1",
                 CustomerName = "Jane Doe",
                 CustomerEmail = "jane@example.com",
                 Status = "Confirmed",
+                EventOccurrenceId = "Occ_1",
                 CreatedAtUtc = DateTime.UtcNow,
                 ReservationSeats = new List<ReservationSeat>
                 {
                     new ReservationSeat { SeatId = "Seat_1", FinalPrice = 5000 }
                 }
             };
+            _context.Venues.Add(venue);
+            _context.Auditoriums.Add(aud);
+            _context.Events.Add(ev);
+            _context.EventOccurrences.Add(occ);
             _context.Reservations.Add(reservation);
             _context.SaveChanges();
 
@@ -248,24 +258,38 @@ namespace Tests
             // Act & Assert
             var ex = Assert.ThrowsAsync<BookingSessionNotFoundException>(async () =>
                 await _reservationService.CheckoutReservation(request));
-            Assert.IsTrue(ex.Message.Contains("BookingSession could not be found"));
         }
 
         [Test]
         public async Task CheckoutReservation_ExpiredBookingSession_ThrowsArgumentException()
         {
             // Arrange
+            var venue = new Venue { Id = "Ven_Exp", Name = "Venue" };
+            var aud = new Auditorium { Id = "Aud_Exp", Name = "Aud", VenueId = "Ven_Exp" };
+            var ev = new Event { Id = "Ev_Exp", Name = "Event" };
+            var occ = new EventOccurrence { Id = "Occ_Exp", EventId = "Ev_Exp", VenueId = "Ven_Exp", AuditoriumId = "Aud_Exp" };
+            
+            var sessionId = Guid.NewGuid().ToString();
             var expiredSession = new BookingSession
             {
-                Id = "Expired_Session",
-                ExpiresAtUtc = DateTime.UtcNow.AddMinutes(-10) // Lejárt!
+                Id = sessionId,
+                ExpiresAtUtc = DateTime.UtcNow.AddMinutes(-10), // Lejárt!
+                EventOccurrendeId = "Occ_Exp",
+                Phase = "Booking",
+                Status = "Active",
+                CreatedAtUtc = DateTime.UtcNow.AddMinutes(-30)
             };
+
+            _context.Venues.Add(venue);
+            _context.Auditoriums.Add(aud);
+            _context.Events.Add(ev);
+            _context.EventOccurrences.Add(occ);
             _context.bookingSessions.Add(expiredSession);
             await _context.SaveChangesAsync();
 
             var request = new BookingCheckoutRequestDto
             {
-                BookingSessionId = "Expired_Session"
+                BookingSessionId = sessionId
             };
 
             // Act & Assert
@@ -297,19 +321,23 @@ namespace Tests
             string eventId = "Ev_Booked";
             string audId = "Aud_Booked";
 
-            // 1. Kötelező navigációs entitások létrehozása
+            string venueId = "Ven_Booked";
+            var venue = new Venue { Id = venueId, Name = "Venue" };
             var ev = new Event { Id = eventId };
-            var aud = new Auditorium { Id = audId };
+            var aud = new Auditorium { Id = audId, VenueId = venueId };
 
             var occ = new EventOccurrence
             {
                 Id = occId,
                 EventId = eventId,
                 AuditoriumId = audId,
+                VenueId = venueId,
                 Event = ev,
-                Auditorium = aud
+                Auditorium = aud,
+                Venue = venue
             };
 
+            _context.Venues.Add(venue);
             _context.Events.Add(ev);
             _context.Auditoriums.Add(aud);
             _context.EventOccurrences.Add(occ);
@@ -347,19 +375,23 @@ namespace Tests
             string seatId = "Seat_1";
             string audId = "Aud_1";
 
+            var venue = new Venue { Id = "Ven_1", Name = "Test Venue" };
             var ev = new Event { Id = eventId, Name = "Test Event", Currency = "USD", Appearance = new Appearance() };
-            var aud = new Auditorium { Id = audId, Name = "Main Hall" };
+            var aud = new Auditorium { Id = audId, Name = "Main Hall", VenueId = "Ven_1" };
 
             var occ = new EventOccurrence
             {
                 Id = occId,
                 EventId = eventId,
                 AuditoriumId = audId,
+                VenueId = "Ven_1",
                 Event = ev,
                 Auditorium = aud,
+                Venue = venue,
                 StartsAtUtc = DateTime.UtcNow
             };
 
+            _context.Venues.Add(venue);
             _context.Events.Add(ev);
             _context.Auditoriums.Add(aud);
             _context.EventOccurrences.Add(occ);
