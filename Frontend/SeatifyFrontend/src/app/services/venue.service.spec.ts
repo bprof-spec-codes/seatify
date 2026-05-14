@@ -27,7 +27,7 @@ describe('VenueService', () => {
   });
 
   describe('getVenueById', () => {
-    it('kellene hívnia a GET metódust és frissítenie a venuesSource-t', () => {
+    it('should call the GET method and update the venuesSource', () => {
       const mockVenue: Venue = { 
         id: '1', name: 'Test Venue', city: 'Budapest', 
         postalCode: '1011', addressLine: 'Fő utca 1', 
@@ -49,7 +49,7 @@ describe('VenueService', () => {
   });
 
   describe('createVenue', () => {
-    it('kellene küldenie egy POST kérést és hozzáadnia az új helyszínt a listához', () => {
+    it('should send a POST request and add the new venue to the list', () => {
       const newVenue: Venue = { id: '2', name: 'New Venue' } as Venue;
 
       service.createVenue(newVenue).subscribe(venue => {
@@ -67,7 +67,7 @@ describe('VenueService', () => {
   });
 
   describe('updateVenue', () => {
-    it('kellene küldenie egy PUT kérést és frissítenie a meglévő helyszínt', () => {
+    it('should send a PUT request and update the existing venue', () => {
       const initialVenue: Venue = { id: '1', name: 'Old Name' } as Venue;
       const updatedVenue: Venue = { id: '1', name: 'Updated Name' } as Venue;
 
@@ -86,7 +86,7 @@ describe('VenueService', () => {
   });
 
   describe('deleteVenueById', () => {
-    it('kellene küldenie egy DELETE kérést és eltávolítania a helyszínt a listából', () => {
+    it('should send a DELETE request and remove the venue from the list', () => {
       const venueToDelete: Venue = { id: '3', name: 'Delete Me' } as Venue;
       (service as any).venuesSource.next([venueToDelete]);
 
@@ -103,7 +103,7 @@ describe('VenueService', () => {
   });
 
   describe('Hiba kezelés', () => {
-    it('vissza kellene adnia egy hibaüzenetet, ha a szerver hibát küld', () => {
+    it('should return an error message if the server sends an error', () => {
       service.getVenueById('err').subscribe({
         next: () => fail('Sikerágra futott hiba helyett'),
         error: (error) => {
