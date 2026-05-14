@@ -15,9 +15,10 @@ namespace Logic.Services
         Task<bool> DeleteAsync(string eventId, CancellationToken ct);
 
         Task<List<Entities.Dtos.Event.EventViewDto>> GetPublicAsync(CancellationToken ct);
-        Task<List<Entities.Dtos.Event.EventViewDto>> GetByUserIdAsync(string userId, CancellationToken ct);
+        Task<List<Entities.Dtos.Event.EventViewDto>> GetByOrganizerIdAsync(string organizerId, CancellationToken ct);
         Task<List<Entities.Dtos.EventOccurrence.EventOccurrenceViewDto>> GetOccurrencesByEventIdAsync(string eventId, CancellationToken ct);
         Task<Entities.Dtos.Event.EventViewDto?> GetBySlugAsync(string slug, CancellationToken ct);
+        Task<bool> HasBookingsAsync(string eventId, CancellationToken ct);
     }
 
     public class EventService : IEventService
@@ -51,13 +52,10 @@ namespace Logic.Services
                 throw new ArgumentException("Slug is required.");
             }
 
-            // Organizer létezés check
-            bool organizerExists = await _dbContext.Organizers
-                .AnyAsync(o => o.Id == dto.OrganizerId.Trim(), ct);
-
+            var organizerExists = await _dbContext.Organizers.AnyAsync(x => x.Id == dto.OrganizerId);
             if (!organizerExists)
             {
-                throw new ArgumentException("Organizer not found.");
+                throw new Exception("Organizer does not exist.");
             }
 
             // Slug uniqueness check
@@ -77,14 +75,10 @@ namespace Logic.Services
                 Name = dto.Name.Trim(),
                 Description = dto.Description?.Trim() ?? string.Empty,
                 Status = dto.Status,
+                Currency = dto.Currency,
+                AppearanceId = dto.AppearanceId,
                 CreatedAtUtc = DateTime.UtcNow,
-                UpdatedAtUtc = DateTime.UtcNow,
-                Appearance = new EventAppearance
-                {
-                    Currency = dto.Currency,
-                    CreatedAtUtc = DateTime.UtcNow,
-                    UpdatedAtUtc = DateTime.UtcNow
-                }
+                UpdatedAtUtc = DateTime.UtcNow
             };
 
             _dbContext.Events.Add(entity);
@@ -105,7 +99,8 @@ namespace Logic.Services
                     Name = e.Name,
                     Description = e.Description,
                     Status = e.Status,
-                    Currency = e.Appearance != null ? e.Appearance.Currency : null,
+                    Currency = e.Currency,
+                    AppearanceId = e.AppearanceId,
                     CreatedAtUtc = e.CreatedAtUtc,
                     UpdatedAtUtc = e.UpdatedAtUtc
                 })
@@ -131,7 +126,8 @@ namespace Logic.Services
                     Name = e.Name,
                     Description = e.Description,
                     Status = e.Status,
-                    Currency = e.Appearance != null ? e.Appearance.Currency : null,
+                    Currency = e.Currency,
+                    AppearanceId = e.AppearanceId,
                     CreatedAtUtc = e.CreatedAtUtc,
                     UpdatedAtUtc = e.UpdatedAtUtc
                 })
@@ -187,23 +183,9 @@ namespace Logic.Services
             }
 
             entity.Status = dto.Status;
+            entity.Currency = dto.Currency;
+            entity.AppearanceId = dto.AppearanceId;
             entity.UpdatedAtUtc = DateTime.UtcNow;
-
-            if (entity.Appearance == null)
-            {
-                entity.Appearance = new EventAppearance
-                {
-                    EventId = entity.Id,
-                    Currency = dto.Currency,
-                    CreatedAtUtc = DateTime.UtcNow,
-                    UpdatedAtUtc = DateTime.UtcNow
-                };
-            }
-            else
-            {
-                entity.Appearance.Currency = dto.Currency;
-                entity.Appearance.UpdatedAtUtc = DateTime.UtcNow;
-            }
 
             await _dbContext.SaveChangesAsync(ct);
 
@@ -246,26 +228,27 @@ namespace Logic.Services
                     Name = e.Name,
                     Description = e.Description,
                     Status = e.Status,
-                    Currency = e.Appearance != null ? e.Appearance.Currency : null,
+                    Currency = e.Currency,
+                    AppearanceId = e.AppearanceId,
                     CreatedAtUtc = e.CreatedAtUtc,
                     UpdatedAtUtc = e.UpdatedAtUtc
                 })
                 .ToListAsync(ct);
         }
 
-        public async Task<List<Entities.Dtos.Event.EventViewDto>> GetByUserIdAsync(string userId, CancellationToken ct)
+        public async Task<List<EventViewDto>> GetByOrganizerIdAsync(string organizerId, CancellationToken ct)
         {
-            if (string.IsNullOrWhiteSpace(userId))
+            if (string.IsNullOrWhiteSpace(organizerId))
             {
-                throw new ArgumentException("UserId is required.");
+                throw new ArgumentException("OrganizerId is required.");
             }
 
-            userId = userId.Trim();
+            organizerId = organizerId.Trim();
 
             return await _dbContext.Events
-                .Where(e => e.OrganizerId == userId)
+                .Where(e => e.OrganizerId == organizerId)
                 .OrderBy(e => e.Name)
-                .Select(e => new Entities.Dtos.Event.EventViewDto
+                .Select(e => new EventViewDto
                 {
                     Id = e.Id,
                     OrganizerId = e.OrganizerId,
@@ -273,7 +256,8 @@ namespace Logic.Services
                     Name = e.Name,
                     Description = e.Description,
                     Status = e.Status,
-                    Currency = e.Appearance != null ? e.Appearance.Currency : null,
+                    Currency = e.Currency,
+                    AppearanceId = e.AppearanceId,
                     CreatedAtUtc = e.CreatedAtUtc,
                     UpdatedAtUtc = e.UpdatedAtUtc
                 })
@@ -289,26 +273,61 @@ namespace Logic.Services
 
             eventId = eventId.Trim();
 
-            return await _dbContext.EventOccurrences
+            var occurrences = await _dbContext.EventOccurrences
                 .Where(eo => eo.EventId == eventId)
                 .Include(eo => eo.Event)
+                    .ThenInclude(e => e.Appearance)
                 .Include(eo => eo.Venue)
                 .Include(eo => eo.Auditorium)
                 .OrderBy(eo => eo.StartsAtUtc)
-                .Select(eo => new Entities.Dtos.EventOccurrence.EventOccurrenceViewDto
-                {
-                    Id = eo.Id,
-                    EventId = eo.EventId,
-                    VenueId = eo.VenueId,
-                    AuditoriumId = eo.AuditoriumId,
-                    StartsAtUtc = eo.StartsAtUtc,
-                    EndsAtUtc = eo.EndsAtUtc,
-                    BookingOpenAtUtc = eo.BookingOpenAtUtc,
-                    BookingCloseAtUtc = eo.BookingCloseAtUtc,
-                    CurrencyOverride = eo.CurrencyOverride,
-                    Status = eo.Status
-                })
                 .ToListAsync(ct);
+
+            return occurrences.Select(eo => new Entities.Dtos.EventOccurrence.EventOccurrenceViewDto
+            {
+                Id = eo.Id,
+                EventId = eo.EventId,
+                VenueId = eo.VenueId,
+                AuditoriumId = eo.AuditoriumId,
+                StartsAtUtc = eo.StartsAtUtc,
+                EndsAtUtc = eo.EndsAtUtc,
+                BookingOpenAtUtc = eo.BookingOpenAtUtc,
+                BookingCloseAtUtc = eo.BookingCloseAtUtc,
+                DoorsOpenAtUtc = eo.DoorsOpenAtUtc,
+                CurrencyOverride = eo.CurrencyOverride,
+                EffectiveCurrency = Logic.Helper.CurrencyHelper.ResolveCurrency(eo),
+                Status = eo.Status,
+
+                Event = eo.Event != null ? new EventOccurrenceEventDto
+                {
+                    Id = eo.Event.Id,
+                    Name = eo.Event.Name,
+                    Description = eo.Event.Description,
+                    PrimaryColor = eo.Event.Appearance?.PrimaryColor ?? string.Empty,
+                    SecondaryColor = eo.Event.Appearance?.SecondaryColor ?? string.Empty,
+                    AccentColor = eo.Event.Appearance?.AccentColor ?? string.Empty,
+                    BackgroundColor = eo.Event.Appearance?.BackgroundColor ?? string.Empty,
+                    SurfaceColor = eo.Event.Appearance?.SurfaceColor ?? string.Empty,
+                    TextColor = eo.Event.Appearance?.TextColor ?? string.Empty,
+                    LogoImageUrl = eo.Event.Appearance?.LogoImageUrl ?? string.Empty,
+                    BannerImageUrl = eo.Event.Appearance?.BannerImageUrl ?? string.Empty,
+                    ThemePreset = eo.Event.Appearance?.ThemePreset ?? string.Empty,
+                    FontFamily = eo.Event.Appearance?.FontFamily ?? string.Empty,
+                    Currency = eo.Event.Currency
+                } : null!,
+
+                Venue = eo.Venue != null ? new EventOccurrenceVenueDto
+                {
+                    Id = eo.Venue.Id,
+                    Name = eo.Venue.Name
+                } : null!,
+
+                Auditorium = eo.Auditorium != null ? new EventOccurrenceAuditoriumDto
+                {
+                    Id = eo.Auditorium.Id,
+                    Name = eo.Auditorium.Name,
+                    Currency = eo.Auditorium.Currency
+                } : null!
+            }).ToList();
         }
 
         public async Task<Entities.Dtos.Event.EventViewDto?> GetBySlugAsync(string slug, CancellationToken ct)
@@ -326,7 +345,8 @@ namespace Logic.Services
                     Name = e.Name,
                     Description = e.Description,
                     Status = e.Status,
-                    Currency = e.Appearance != null ? e.Appearance.Currency : null,
+                    Currency = e.Currency,
+                    AppearanceId = e.AppearanceId,
                     CreatedAtUtc = e.CreatedAtUtc,
                     UpdatedAtUtc = e.UpdatedAtUtc
                 })
@@ -343,7 +363,8 @@ namespace Logic.Services
                 Name = e.Name,
                 Description = e.Description,
                 Status = e.Status,
-                Currency = e.Appearance?.Currency,
+                Currency = e.Currency,
+                AppearanceId = e.AppearanceId,
                 CreatedAtUtc = e.CreatedAtUtc,
                 UpdatedAtUtc = e.UpdatedAtUtc
             };
@@ -352,6 +373,13 @@ namespace Logic.Services
         private static List<Entities.Dtos.Event.EventViewDto> MapToViewDto(List<Event> events)
         {
             return events.Select(e => MapToViewDto(e)).ToList();
+        }
+
+        public async Task<bool> HasBookingsAsync(string eventId, CancellationToken ct)
+        {
+            return await _dbContext.Reservations
+                .Include(r => r.EventOccurrence)
+                .AnyAsync(r => r.EventOccurrence.EventId == eventId && r.Status == "Confirmed", ct);
         }
     }
 }

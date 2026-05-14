@@ -18,6 +18,7 @@ export class AuditoriumFormComponent implements OnInit, OnDestroy {
   venueId!: string;
   editMode!: boolean;
   editMode$!: Observable<boolean>;
+  hasBookings = false;
   private unsubscribe$ = new Subject<void>();
 
   constructor(
@@ -34,7 +35,7 @@ export class AuditoriumFormComponent implements OnInit, OnDestroy {
     this.auditoriumForm = this.fb.group({
       auditoriumName: ['', [Validators.required, Validators.maxLength(100)]],
       auditoriumDescription: ['', [Validators.maxLength(500)]],
-      currency: ['HUF', [Validators.required, Validators.maxLength(10)]]
+      currency: ['EUR', [Validators.required, Validators.maxLength(10)]]
     });
 
     this.auditoriumService.editMode$.pipe(takeUntil(this.unsubscribe$)).subscribe(editMode => {
@@ -87,8 +88,20 @@ export class AuditoriumFormComponent implements OnInit, OnDestroy {
       this.auditoriumForm.patchValue({
         auditoriumName: this.auditorium.name,
         auditoriumDescription: this.auditorium.description,
-        currency: this.auditorium.currency || 'HUF'
+        currency: this.auditorium.currency || 'EUR'
       });
+      
+      if (this.auditorium.id) {
+        this.auditoriumService.checkAuditoriumHasBookings(this.auditorium.id)
+          .pipe(takeUntil(this.unsubscribe$))
+          .subscribe(hasBookings => {
+            this.hasBookings = hasBookings;
+            if (hasBookings) {
+              this.auditoriumForm.get('auditoriumName')?.disable();
+              this.auditoriumForm.get('currency')?.disable();
+            }
+          });
+      }
     });
   }
 }

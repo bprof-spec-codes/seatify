@@ -23,6 +23,7 @@ export class SectorEditorComponent {
   @Input() canAssign = false;
 
   @Input() isDeletingSector = false;
+  @Input() currency = 'EUR';
 
   @Output() applySector = new EventEmitter<string | null>();
 

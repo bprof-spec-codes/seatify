@@ -14,6 +14,7 @@ namespace Logic.Services
         Task<AuditoriumViewDto?> UpdateAsync(string auditoriumId, AuditoriumCreateDto dto, CancellationToken ct);
         Task<bool> DeleteAsync(string auditoriumId, CancellationToken ct);
         Task<IReadOnlyList<AuditoriumViewDto>> GetAllAsync(CancellationToken ct);
+        Task<bool> HasBookingsAsync(string auditoriumId, CancellationToken ct);
     }
 
     public class AuditoriumService : IAuditoriumService
@@ -51,7 +52,7 @@ namespace Logic.Services
                 VenueId = venueId,
                 Name = dto.Name.Trim(),
                 Description = dto.Description?.Trim(),
-                Currency = string.IsNullOrWhiteSpace(dto.Currency) ? "HUF" : dto.Currency.Trim(),
+                Currency = string.IsNullOrWhiteSpace(dto.Currency) ? "EUR" : dto.Currency.Trim(),
                 CreatedAtUtc = DateTime.UtcNow,
                 UpdatedAtUtc = DateTime.UtcNow
             };
@@ -174,7 +175,7 @@ namespace Logic.Services
 
             auditorium.Name = dto.Name.Trim();
             auditorium.Description = dto.Description?.Trim();
-            auditorium.Currency = string.IsNullOrWhiteSpace(dto.Currency) ? "HUF" : dto.Currency.Trim();
+            auditorium.Currency = string.IsNullOrWhiteSpace(dto.Currency) ? "EUR" : dto.Currency.Trim();
             auditorium.UpdatedAtUtc = DateTime.UtcNow;
 
             await _ctx.SaveChangesAsync(ct);
@@ -189,6 +190,13 @@ namespace Logic.Services
                 CreatedAtUtc = auditorium.CreatedAtUtc,
                 UpdatedAtUtc = auditorium.UpdatedAtUtc
             };
+        }
+
+        public async Task<bool> HasBookingsAsync(string auditoriumId, CancellationToken ct)
+        {
+            return await _ctx.Reservations
+                .Include(r => r.EventOccurrence)
+                .AnyAsync(r => r.EventOccurrence.AuditoriumId == auditoriumId && r.Status == "Confirmed", ct);
         }
     }
 }

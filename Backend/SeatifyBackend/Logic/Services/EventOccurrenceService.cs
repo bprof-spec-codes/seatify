@@ -2,6 +2,7 @@ using Data;
 using Entities.Dtos.EventOccurrence;
 using Entities.Dtos.Reservation;
 using Entities.Models;
+using Logic.Helper;
 using Logic.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -29,6 +30,7 @@ namespace Logic.Services
                 BookingCloseAtUtc = createDto.BookingCloseAtUtc,
                 DoorsOpenAtUtc = createDto.DoorsOpenAtUtc,
                 CurrencyOverride = createDto.CurrencyOverride,
+                AppearanceId = createDto.AppearanceId,
                 Status = createDto.Status
             };
 
@@ -41,10 +43,12 @@ namespace Logic.Services
         public List<EventOccurrenceViewDto> GetByEventId(string eventId)
         {
             return _appDbContext.EventOccurrences
+                .Include(e => e.Appearance)
                 .Include(e => e.Event)
                     .ThenInclude(e => e.Appearance)
                 .Include(e => e.Venue)
                 .Include(e => e.Auditorium)
+                .Include(e => e.Reservations)
                 .Where(e => e.EventId == eventId)
                 .Select(e => MapToViewDto(e))
                 .ToList();
@@ -53,10 +57,12 @@ namespace Logic.Services
         public EventOccurrenceViewDto? GetById(string id)
         {
             var occurrence = _appDbContext.EventOccurrences
+                .Include(e => e.Appearance)
                 .Include(e => e.Event)
                     .ThenInclude(e => e.Appearance)
                 .Include(e => e.Venue)
                 .Include(e => e.Auditorium)
+                .Include(e => e.Reservations)
                 .FirstOrDefault(e => e.Id == id);
 
             if (occurrence == null) return null;
@@ -66,6 +72,8 @@ namespace Logic.Services
 
         private EventOccurrenceViewDto MapToViewDto(EventOccurrence occurrence)
         {
+            var defaultAppearance = GetDefaultAppearance(occurrence.Event?.OrganizerId ?? string.Empty);
+            
             return new EventOccurrenceViewDto
             {
                 Id = occurrence.Id,
@@ -79,16 +87,67 @@ namespace Logic.Services
                 DoorsOpenAtUtc = occurrence.DoorsOpenAtUtc,
                 CurrencyOverride = occurrence.CurrencyOverride,
                 Status = occurrence.Status,
+                HasBookings = occurrence.Reservations != null && occurrence.Reservations.Any(r => r.Status == "Confirmed"),
+                EffectiveCurrency = CurrencyHelper.ResolveCurrency(occurrence),
+                AppearanceId = occurrence.AppearanceId,
 
                 Event = occurrence.Event != null ? new EventOccurrenceEventDto
                 {
                     Id = occurrence.Event.Id,
                     Name = occurrence.Event.Name,
                     Description = occurrence.Event.Description,
-                    PrimaryColor = occurrence.Event.Appearance?.PrimaryColor ?? string.Empty,
-                    SecondaryColor = occurrence.Event.Appearance?.SecondaryColor ?? string.Empty,
-                    LogoImageUrl = occurrence.Event.Appearance?.LogoImageUrl ?? string.Empty,
-                    Currency = occurrence.Event.Appearance?.Currency
+                    
+                    PrimaryColor = occurrence.Appearance?.PrimaryColor 
+                        ?? occurrence.Event.Appearance?.PrimaryColor 
+                        ?? defaultAppearance?.PrimaryColor 
+                        ?? "#3b82f6",
+                        
+                    SecondaryColor = occurrence.Appearance?.SecondaryColor 
+                        ?? occurrence.Event.Appearance?.SecondaryColor 
+                        ?? defaultAppearance?.SecondaryColor 
+                        ?? "#64748b",
+                        
+                    AccentColor = occurrence.Appearance?.AccentColor 
+                        ?? occurrence.Event.Appearance?.AccentColor 
+                        ?? defaultAppearance?.AccentColor 
+                        ?? "#0ea5e9",
+                        
+                    BackgroundColor = occurrence.Appearance?.BackgroundColor 
+                        ?? occurrence.Event.Appearance?.BackgroundColor 
+                        ?? defaultAppearance?.BackgroundColor 
+                        ?? "#f1f5f9",
+                        
+                    SurfaceColor = occurrence.Appearance?.SurfaceColor 
+                        ?? occurrence.Event.Appearance?.SurfaceColor 
+                        ?? defaultAppearance?.SurfaceColor 
+                        ?? "#ffffff",
+                        
+                    TextColor = occurrence.Appearance?.TextColor 
+                        ?? occurrence.Event.Appearance?.TextColor 
+                        ?? defaultAppearance?.TextColor 
+                        ?? "#0f172a",
+                        
+                    LogoImageUrl = occurrence.Appearance?.LogoImageUrl 
+                        ?? occurrence.Event.Appearance?.LogoImageUrl 
+                        ?? defaultAppearance?.LogoImageUrl 
+                        ?? string.Empty,
+                        
+                    BannerImageUrl = occurrence.Appearance?.BannerImageUrl 
+                        ?? occurrence.Event.Appearance?.BannerImageUrl 
+                        ?? defaultAppearance?.BannerImageUrl 
+                        ?? string.Empty,
+                        
+                    ThemePreset = occurrence.Appearance?.ThemePreset 
+                        ?? occurrence.Event.Appearance?.ThemePreset 
+                        ?? defaultAppearance?.ThemePreset 
+                        ?? "Default",
+                        
+                    FontFamily = occurrence.Appearance?.FontFamily 
+                        ?? occurrence.Event.Appearance?.FontFamily 
+                        ?? defaultAppearance?.FontFamily 
+                        ?? "Inter",
+                        
+                    Currency = occurrence.Event.Currency
                 } : null!,
 
                 Venue = occurrence.Venue != null ? new EventOccurrenceVenueDto
@@ -100,9 +159,16 @@ namespace Logic.Services
                 Auditorium = occurrence.Auditorium != null ? new EventOccurrenceAuditoriumDto
                 {
                     Id = occurrence.Auditorium.Id,
-                    Name = occurrence.Auditorium.Name
+                    Name = occurrence.Auditorium.Name,
+                    Currency = occurrence.Auditorium.Currency
                 } : null!
             };
+        }
+
+        private Appearance? GetDefaultAppearance(string organizerId)
+        {
+            return _appDbContext.Appearances
+                .FirstOrDefault(a => a.OrganizerId == organizerId && a.IsDefault);
         }
 
         public bool Update(string id, EventOccurrenceCreateDto updateDto)
@@ -119,6 +185,7 @@ namespace Logic.Services
             occurrence.BookingCloseAtUtc = updateDto.BookingCloseAtUtc;
             occurrence.DoorsOpenAtUtc = updateDto.DoorsOpenAtUtc;
             occurrence.CurrencyOverride = updateDto.CurrencyOverride;
+            occurrence.AppearanceId = updateDto.AppearanceId;
             occurrence.Status = updateDto.Status;
             occurrence.UpdatedAtUtc = DateTime.UtcNow;
 
@@ -136,6 +203,14 @@ namespace Logic.Services
 
         public List<ReservationViewDto> GetReservations(string id)
         {
+            var occurrence = _appDbContext.EventOccurrences
+                .Include(eo => eo.Event)
+                    .ThenInclude(e => e.Appearance)
+                .Include(eo => eo.Auditorium)
+                .FirstOrDefault(eo => eo.Id == id);
+
+            string currency = CurrencyHelper.ResolveCurrency(occurrence);
+
             return _appDbContext.Reservations
                 .Include(r => r.ReservationSeats)
                 .Where(r => r.EventOccurrenceId == id)
@@ -145,6 +220,7 @@ namespace Logic.Services
                     CustomerName = res.CustomerName,
                     CustomerEmail = res.CustomerEmail,
                     Status = res.Status,
+                    Currency = currency,
                     CreatedAtUtc = res.CreatedAtUtc,
                     ReservedSeats = res.ReservationSeats.Select(rs => new ReservationSeatViewDto
                     {
@@ -153,6 +229,12 @@ namespace Logic.Services
                     }).ToList()
                 })
                 .ToList();
+        }
+
+        public bool HasBookings(string id)
+        {
+            return _appDbContext.Reservations
+                .Any(r => r.EventOccurrenceId == id && r.Status == "Confirmed");
         }
     }
 }

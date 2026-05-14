@@ -3,6 +3,7 @@ using Entities.Dtos.Exceptions;
 using Entities.Dtos.Seat;
 using Entities.Dtos.SeatMap;
 using Entities.Models;
+using Logic.Helper;
 using Microsoft.EntityFrameworkCore;
 
 namespace Logic.Services
@@ -414,12 +415,17 @@ namespace Logic.Services
 
             var eventOccurrence = _dbContext.EventOccurrences
                 .AsNoTracking()
+                .Include(e => e.Event)
+                    .ThenInclude(ev => ev.Appearance)
+                .Include(e => e.Auditorium)
                 .FirstOrDefault(e => e.Id == eventOccurrenceId);
 
             if (eventOccurrence == null)
             {
                 throw new EventNotFoundException("Invalid eventOccurrenceId: " + eventOccurrenceId);
             }
+
+            var effectiveCurrency = CurrencyHelper.ResolveCurrency(eventOccurrence);
 
             var matrixIds = _dbContext.LayoutMatrices
                 .AsNoTracking()
@@ -521,6 +527,7 @@ namespace Logic.Services
 
             return new SeatMapDto
             {
+                currency = effectiveCurrency,
                 sectors = sectors.OrderBy(x => x).ToList(),
                 seats = seatDetails
             };

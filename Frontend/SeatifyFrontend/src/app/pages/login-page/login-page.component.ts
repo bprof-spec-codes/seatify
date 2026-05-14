@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
@@ -17,7 +17,8 @@ export class LoginPageComponent {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -37,7 +38,7 @@ export class LoginPageComponent {
     this.authService.login(this.loginForm.getRawValue()).subscribe({
       next: () => {
         this.isSubmitting = false
-        this.router.navigate(['/dashboard'])
+        this.router.navigateByUrl(this.getReturnUrl())
       },
       error: (err: Error) => {
         this.isSubmitting = false
@@ -53,7 +54,7 @@ export class LoginPageComponent {
     this.authService.loginAsDev().subscribe({
       next: () => {
         this.isSubmitting = false
-        this.router.navigate(['/dashboard'])
+        this.router.navigateByUrl(this.getReturnUrl())
       },
       error: (err: Error) => {
         this.isSubmitting = false
@@ -64,5 +65,9 @@ export class LoginPageComponent {
 
   get f() {
     return this.loginForm.controls
+  }
+
+  private getReturnUrl(): string {
+    return this.route.snapshot.queryParamMap.get('returnUrl') || '/dashboard'
   }
 }

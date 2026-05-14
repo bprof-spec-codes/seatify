@@ -11,11 +11,13 @@ namespace Entities.Models
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public string Status { get; set; } = "Published";
+        public string? Currency { get; set; }
         public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAtUtc { get; set; } = DateTime.UtcNow;
 
         public virtual List<EventOccurrence> EventOccurrences { get; set; } = new();
-
-        public virtual EventAppearance? Appearance { get; set; }
+        
+        public string? AppearanceId { get; set; }
+        public virtual Appearance? Appearance { get; set; }
     }
 }

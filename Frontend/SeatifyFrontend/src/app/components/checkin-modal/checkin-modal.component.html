@@ -46,11 +46,11 @@
                }">
                <i class="bi" 
                   [ngClass]="{
-                    'bi-check-circle-fill': validationResult.status === TicketStatus.Valid,
+                    'bi-check-circle-fill': validationResult.status === TicketStatus.Valid || isCheckedIn,
                     'bi-exclamation-triangle-fill': validationResult.status === TicketStatus.AlreadyUsed,
                     'bi-x-circle-fill': validationResult.status === TicketStatus.Invalid
                   }"></i>
-             {{ validationResult.statusMessage }}
+             {{ isCheckedIn ? 'Check-in successful.' : validationResult.statusMessage }}
           </div>
 
           <div class="ticket-details text-start" *ngIf="validationResult.status !== TicketStatus.Invalid">
@@ -84,13 +84,18 @@
 
           <!-- Actions -->
           <div class="d-flex gap-2 mt-4">
-            <button class="btn btn-outline-secondary w-50 fw-bold" (click)="resetScanner()">Scan Next</button>
+            <button class="btn fw-bold" 
+                    [ngClass]="(validationResult.status === TicketStatus.Valid && !isCheckedIn) ? 'btn-outline-secondary w-50' : 'btn-primary w-100 py-3 fs-5 shadow'"
+                    (click)="resetScanner()">
+              <i class="bi bi-qr-code-scan me-2"></i> Scan Next
+            </button>
             
             <button class="btn btn-success w-50 fw-bold" 
-                    *ngIf="validationResult.status === TicketStatus.Valid" 
+                    *ngIf="validationResult.status === TicketStatus.Valid && !isCheckedIn" 
                     (click)="confirmCheckIn()" 
                     [disabled]="processing">
-              <span *ngIf="processing" class="spinner-border spinner-border-sm me-2"></span> Confirm Check-In
+              <span *ngIf="processing" class="spinner-border spinner-border-sm me-2"></span>
+              <i class="bi bi-check2-circle me-2"></i> Confirm Check-In
             </button>
           </div>
         </div>

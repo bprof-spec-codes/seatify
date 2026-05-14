@@ -4,9 +4,13 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { EventService } from '../../services/event.service';
 import { VenueService } from '../../services/venue.service';
 import { AuditoriumService } from '../../services/auditorium.service';
+import { AppearanceService } from '../../services/appearance.service';
+import { Appearance } from '../../models/appearance';
 import { Venue } from '../../models/venue';
 import { Auditorium } from '../../models/auditorium';
 import { SeatifyEvent } from '../../models/event';
+import { AuthService } from '../../services/auth.service';
+import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-event-occurrence-form',
@@ -23,6 +27,8 @@ export class EventOccurrenceFormComponent implements OnInit {
   auditoriums: Auditorium[] = [];
   isEditMode = false;
   isLoading = true;
+  hasBookings = false;
+  appearances: Appearance[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -30,7 +36,9 @@ export class EventOccurrenceFormComponent implements OnInit {
     private router: Router,
     private eventService: EventService,
     private venueService: VenueService,
-    private auditoriumService: AuditoriumService
+    private auditoriumService: AuditoriumService,
+    private authService: AuthService,
+    private appearanceService: AppearanceService
   ) {
     this.occurrenceForm = this.fb.group({
       venueId: ['', Validators.required],
@@ -41,8 +49,19 @@ export class EventOccurrenceFormComponent implements OnInit {
       bookingCloseAt: ['', Validators.required],
       hasDoorsOpenTime: [false],
       doorsOpenAt: [{ value: '', disabled: true }],
-      currencyOverride: ['']
+      currencyOverride: [''],
+      appearanceId: [null]
     });
+  }
+
+  get inheritedCurrency(): string {
+    if (this.event?.currency) return this.event.currency;
+    
+    const selectedAudId = this.occurrenceForm.get('auditoriumId')?.value;
+    const selectedAud = this.auditoriums.find(a => a.id === selectedAudId);
+    if (selectedAud?.currency) return selectedAud.currency;
+    
+    return 'EUR';
   }
 
   ngOnInit(): void {
@@ -50,24 +69,31 @@ export class EventOccurrenceFormComponent implements OnInit {
     this.occurrenceId = this.route.snapshot.paramMap.get('id');
     this.isEditMode = !!this.occurrenceId;
 
-    this.loadInitialData();
+    this.authService.currentUser$
+      .pipe(filter((u): u is NonNullable<typeof u> => !!u))
+      .subscribe(user => this.loadInitialData(user.organizerId));
   }
 
-  async loadInitialData() {
+  async loadInitialData(organizerId: any) {
     this.isLoading = true;
     try {
       // 1. Load Event name
       this.eventService.getEventById(this.eventId).subscribe(ev => this.event = ev);
 
+      this.appearanceService.getMyAppearances().subscribe(apps => {
+        console.log('Appearances loaded in OccForm:', apps);
+        this.appearances = apps;
+      });
+
       // 2. Load Venues
-      this.venueService.getVenuesByOrganizerId('org-id-01').subscribe(vn => {
+      this.venueService.getVenuesByOrganizerId(organizerId).subscribe(vn => {
         this.venues = vn;
-        
+
         // 3. If Edit Mode, load occurrence and patch
         if (this.isEditMode && this.occurrenceId) {
           this.eventService.getOccurrenceById(this.occurrenceId).subscribe(occ => {
             this.onVenueChange(occ.venueId, false); // Load auditoriums for the venue
-            
+
             this.occurrenceForm.patchValue({
               venueId: occ.venueId,
               auditoriumId: occ.auditoriumId,
@@ -77,11 +103,20 @@ export class EventOccurrenceFormComponent implements OnInit {
               bookingCloseAt: this.formatDateForInput(occ.bookingCloseAtUtc),
               hasDoorsOpenTime: !!occ.doorsOpenAtUtc,
               doorsOpenAt: occ.doorsOpenAtUtc ? this.formatDateForInput(occ.doorsOpenAtUtc) : '',
-              currencyOverride: occ.currencyOverride || ''
+              currencyOverride: occ.currencyOverride || '',
+              appearanceId: occ.appearanceId || null
             });
 
             if (occ.doorsOpenAtUtc) {
               this.occurrenceForm.get('doorsOpenAt')?.enable();
+            }
+
+            if (occ.hasBookings) {
+              this.hasBookings = true;
+              this.occurrenceForm.get('venueId')?.disable();
+              this.occurrenceForm.get('auditoriumId')?.disable();
+              this.occurrenceForm.get('startsAt')?.disable();
+              this.occurrenceForm.get('endsAt')?.disable();
             }
           });
         }
@@ -97,7 +132,7 @@ export class EventOccurrenceFormComponent implements OnInit {
     if (resetAuditorium) {
       this.occurrenceForm.patchValue({ auditoriumId: '' });
     }
-    
+
     if (venueId) {
       this.auditoriumService.getAuditoriumsByVenueId(venueId).subscribe(auds => {
         this.auditoriums = auds;
@@ -141,6 +176,7 @@ export class EventOccurrenceFormComponent implements OnInit {
       bookingCloseAtUtc: new Date(val.bookingCloseAt).toISOString(),
       doorsOpenAtUtc: val.hasDoorsOpenTime && val.doorsOpenAt ? new Date(val.doorsOpenAt).toISOString() : null,
       currencyOverride: val.currencyOverride || null,
+      appearanceId: val.appearanceId || null,
       status: 'Published'
     };
 

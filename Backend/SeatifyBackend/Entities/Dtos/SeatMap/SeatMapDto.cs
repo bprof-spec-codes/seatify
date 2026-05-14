@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +8,7 @@ namespace Entities.Dtos.SeatMap
 {
     public class SeatMapDto
     {
+        public string currency { get; set; } = "EUR";
         public List<string> sectors { get; set; }
         public List<SeatDetailsDto> seats { get; set; }
     }

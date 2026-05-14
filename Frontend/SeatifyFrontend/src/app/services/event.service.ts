@@ -40,6 +40,16 @@ export class EventService {
     return this.http.get<SeatifyEvent>(`${this.apiUrl}/events/public/slug/${slug}`);
   }
 
+  checkEventHasBookings(eventId: string): Observable<boolean> {
+    return this.http.get<boolean>(`${this.eventsApiUrl}/${eventId}/has-bookings`);
+  }
+
+  checkOccurrenceHasBookings(occurrenceId: string): Observable<boolean> {
+    return this.getOccurrenceById(occurrenceId).pipe(
+      map(occ => !!occ.hasBookings)
+    );
+  }
+
   getOccurrenceById(id: string): Observable<EventOccurrence> {
     return this.http.get<EventOccurrence>(`${this.eventOccurrencesApiUrl}/${id}`);
   }
@@ -52,8 +62,8 @@ export class EventService {
     return this.http.put(`${this.eventOccurrencesApiUrl}/${id}`, occurrence);
   }
 
-  getEventCards(): Observable<EventCard[]> {
-    return this.http.get<SeatifyEvent[]>(this.eventsApiUrl).pipe(
+  getEventCards(organizerId: string): Observable<EventCard[]> {
+    return this.http.get<SeatifyEvent[]>(`${this.eventsApiUrl}/organizers/${organizerId}`).pipe(
       switchMap(events => {
         if (!events?.length) {
           return of([]);
@@ -80,7 +90,7 @@ export class EventService {
     );
   }
 
-  private getOccurrencesByEventId(eventId: string): Observable<EventOccurrence[]> {
+  getOccurrencesByEventId(eventId: string): Observable<EventOccurrence[]> {
     return this.http
       .get<EventOccurrence[]>(`${this.eventOccurrencesApiUrl}/by-event/${eventId}`)
       .pipe(
@@ -124,21 +134,21 @@ export class EventService {
     });
   }
 
-  getEvents(): Observable<SeatifyEvent[]> {
-    return this.http.get<SeatifyEvent[]>(this.eventsApiUrl).pipe(
+  getEvents(organizerId: any): Observable<SeatifyEvent[]> {
+    return this.http.get<SeatifyEvent[]>(`${this.eventsApiUrl}/organizers/${organizerId}`).pipe(
       map(events => events ?? []),
       catchError(error => this.handleFatalError(error))
     );
   }
 
-  getActiveEventsCount(): Observable<number> {
-    return this.getEvents().pipe(
+  getActiveEventsCount(organizerId: any): Observable<number> {
+    return this.getEvents(organizerId).pipe(
       map(events => events.filter(event => event.status === 'Published').length)
     );
   }
 
-  getAllEventsCount(): Observable<number> {
-    return this.getEvents().pipe(
+  getAllEventsCount(organizerId: any): Observable<number> {
+    return this.getEvents(organizerId).pipe(
       map(events => events.length)
     );
   }

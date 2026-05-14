@@ -70,6 +70,20 @@ namespace Api.Controllers
                 return BadRequest(new { message = ModelState });
             }
 
+            // Guard: block structural changes when confirmed bookings exist
+            if (_service.HasBookings(id))
+            {
+                var current = _service.GetById(id);
+                if (current != null && (
+                    current.AuditoriumId != updateDto.AuditoriumId ||
+                    current.VenueId != updateDto.VenueId ||
+                    current.StartsAtUtc != updateDto.StartsAtUtc ||
+                    current.EndsAtUtc != updateDto.EndsAtUtc))
+                {
+                    return Conflict(new { message = "Cannot change venue, auditorium, or event dates because confirmed bookings already exist for this occurrence." });
+                }
+            }
+
             var isUpdated = _service.Update(id, updateDto);
             if (!isUpdated)
             {

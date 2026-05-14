@@ -1,8 +1,9 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { VenueService } from '../../services/venue.service';
-import { Observable, of, Subject, takeUntil } from 'rxjs';
+import { distinctUntilChanged, map, Observable, of, Subject, switchMap, takeUntil, tap } from 'rxjs';
 import { Venue } from '../../models/venue';
 import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-venue-dashboard',
@@ -15,30 +16,35 @@ export class VenueDashboardComponent implements OnInit, OnDestroy {
   venues!: Venue[];
   showModal: boolean = false;
   selectedVenue!: Venue;
-  organizerId: string = "org-id-01"; // mock data
+  organizerId: string | null = "";
   isVenuesCalled!: boolean;
   private unsubscribe$ = new Subject<void>();
 
-  constructor(private venueService: VenueService, private router: Router) {}
+  constructor(private venueService: VenueService, private router: Router, private authService: AuthService) {}
 
   ngOnInit(): void {
-    let fetchInitiated = false;
-
-    this.venueService.venues$.pipe(takeUntil(this.unsubscribe$)).subscribe(venues => {
-      // If venues already stored don't call the API again.
-      if (venues.length > 0)
-      {
-        this.venues = venues;
-        this.venues$ = of(venues);
-        this.isVenuesCalled = true;
-        fetchInitiated = false;
-      }
-      // If venues is empty call the API once for the venues.
-      else if (venues.length === 0 && !fetchInitiated)
-      {
-        fetchInitiated = true;
+    this.authService.currentUser$
+    .pipe(
+      takeUntil(this.unsubscribe$),
+      map(user => user?.organizerId ?? null),
+      distinctUntilChanged(),
+      tap(organizerId => {
+        this.organizerId = organizerId;
+        this.venues = [];
+        this.venues$ = of([]);
+        this.isVenuesCalled = false;
+      }),
+      switchMap(organizerId => {
+        if (!organizerId) return of([] as Venue[]);
         this.fetchVenues();
-      }
+        return this.venueService.venues$;
+      })
+    )
+    .subscribe(venues => {
+      if (!venues) return;
+      this.venues = venues;
+      this.venues$ = of(venues);
+      this.isVenuesCalled = venues.length > 0;
     });
   }
 
@@ -85,7 +91,7 @@ export class VenueDashboardComponent implements OnInit, OnDestroy {
   }
 
   private fetchVenues(): void {
-    this.venueService.getVenuesByOrganizerId(this.organizerId).pipe(takeUntil(this.unsubscribe$)).subscribe(fetchedVenues => {
+    this.venueService.getVenuesByOrganizerId(this.organizerId ?? "").pipe(takeUntil(this.unsubscribe$)).subscribe(fetchedVenues => {
       this.venues = fetchedVenues;
       this.venues$ = of(fetchedVenues);
       this.isVenuesCalled = true;
