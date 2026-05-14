@@ -145,6 +145,11 @@ namespace Logic.Services
                 {
                     throw new BookingSessionNotFoundException($"BookingSession could not be found with this id: {request.BookingSessionId}");
                 }
+                
+                if(bookingSession.ExpiresAtUtc < DateTime.UtcNow)
+                {
+                    throw new ArgumentException("Booking session has expired.");
+                }
             }
 
             EventOccurrence eventOccurrence = _context.EventOccurrences
