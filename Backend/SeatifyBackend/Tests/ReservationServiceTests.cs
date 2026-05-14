@@ -252,6 +252,29 @@ namespace Tests
         }
 
         [Test]
+        public async Task CheckoutReservation_ExpiredBookingSession_ThrowsArgumentException()
+        {
+            // Arrange
+            var expiredSession = new BookingSession
+            {
+                Id = "Expired_Session",
+                ExpiresAtUtc = DateTime.UtcNow.AddMinutes(-10) // Lejárt!
+            };
+            _context.bookingSessions.Add(expiredSession);
+            await _context.SaveChangesAsync();
+
+            var request = new BookingCheckoutRequestDto
+            {
+                BookingSessionId = "Expired_Session"
+            };
+
+            // Act & Assert
+            var ex = Assert.ThrowsAsync<ArgumentException>(async () =>
+                await _reservationService.CheckoutReservation(request));
+            Assert.IsTrue(ex.Message.Contains("expired"));
+        }
+
+        [Test]
         public void CheckoutReservation_InvalidEventOccurrenceId_ThrowsException()
         {
             // Arrange
