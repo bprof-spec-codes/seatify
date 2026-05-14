@@ -28,7 +28,7 @@ namespace Logic.Services
             var pngQr = new PngByteQRCode(qrData);
             byte[] qrBytes = pngQr.GetGraphic(20);
 
-            // A byte tömb átalakítása Base64 stringgé
+            // Convert byte array to Base64 string
             return Convert.ToBase64String(qrBytes);
         }
     }
