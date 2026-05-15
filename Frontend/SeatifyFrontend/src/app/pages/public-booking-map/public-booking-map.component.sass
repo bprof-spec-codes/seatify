@@ -1,6 +1,30 @@
 .map-container
   animation: fadeIn 0.5s ease-in-out
 
+.session-banner
+  background: color-mix(in srgb, var(--primary-color, #0984e3) 10%, #ffffff)
+  border: 1px solid color-mix(in srgb, var(--primary-color, #0984e3) 30%, #ffffff)
+  border-radius: 12px
+  padding: 0.75rem 1rem
+  margin-bottom: 1.5rem
+  display: flex
+  align-items: center
+  justify-content: space-between
+  flex-wrap: wrap
+  gap: 0.5rem
+
+.session-text
+  font-weight: 700
+  color: var(--primary-color, #0984e3)
+
+.session-time
+  font-variant-numeric: tabular-nums
+
+.session-note
+  font-size: 0.9rem
+  color: #b45309
+  font-weight: 600
+
 .map-card
   border: none
   border-radius: 16px
@@ -72,6 +96,12 @@
     &:hover
       transform: none
 
+  &.is-held
+    cursor: not-allowed
+    color: #1f2937
+    &:hover
+      transform: none
+
   &.is-selected
     color: #ffffff
     transform: scale(1.1)
@@ -107,6 +137,8 @@
       background: var(--primary-color)
     &.occupied
       background: #b2bec3
+    &.held
+      background: #f59e0b
     &.aisle
       border: 1px dashed #b2bec3
 
