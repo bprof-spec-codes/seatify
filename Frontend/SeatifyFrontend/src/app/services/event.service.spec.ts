@@ -1,9 +1,11 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { EventService } from './event.service';
 import { HttpErrorResponse } from '@angular/common/http';
+
+import { EventService } from './event.service';
+import { ConfigService } from './config.service';
+
 import { EventOccurrence } from '../models/event-occurrence';
-import { environment } from '../../environments/environment';
 import { SeatifyEvent } from '../models/event';
 import EventRequest from '../models/event.request';
 import EventResponse from '../models/event.response';
@@ -11,15 +13,30 @@ import EventResponse from '../models/event.response';
 describe('EventService', () => {
   let service: EventService;
   let httpMock: HttpTestingController;
-  const apiUrl = `${environment.baseApiUrl}/api`;
+
+  const configServiceMock = {
+    cfg: {
+      baseApiUrl: 'http://localhost:5141'
+    },
+    apiBaseUrl: 'http://localhost:5141'
+  };
+
+  const apiUrl = `${configServiceMock.cfg.baseApiUrl}/api`;
   const eventsApi = `${apiUrl}/events`;
   const occurrencesApi = `${apiUrl}/event-occurrences`;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
-      providers: [EventService]
+      providers: [
+        EventService,
+        {
+          provide: ConfigService,
+          useValue: configServiceMock
+        }
+      ]
     });
+
     service = TestBed.inject(EventService);
     httpMock = TestBed.inject(HttpTestingController);
   });
@@ -40,6 +57,7 @@ describe('EventService', () => {
     const req = httpMock.expectOne(`${apiUrl}/upload`);
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toBeTruthy();
+
     req.flush(mockResp);
   });
 
@@ -51,6 +69,7 @@ describe('EventService', () => {
       description: 'Desc',
       status: 'Draft'
     };
+
     const resp: EventResponse = {
       id: 'e1',
       organizerId: 'org1',
@@ -62,11 +81,14 @@ describe('EventService', () => {
       updatedAtUtc: new Date().toISOString()
     };
 
-    service.createEvent(reqBody).subscribe(r => expect(r).toEqual(resp));
+    service.createEvent(reqBody).subscribe(r => {
+      expect(r).toEqual(resp);
+    });
 
-    const req = httpMock.expectOne(`${eventsApi}`);
+    const req = httpMock.expectOne(eventsApi);
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual(reqBody);
+
     req.flush(resp);
   });
 
@@ -78,6 +100,7 @@ describe('EventService', () => {
       description: 'Desc',
       status: 'Published'
     };
+
     const resp: EventResponse = {
       id: 'e1',
       organizerId: 'org1',
@@ -89,15 +112,19 @@ describe('EventService', () => {
       updatedAtUtc: new Date().toISOString()
     };
 
-    service.updateEvent(reqBody, 'e1').subscribe(r => expect(r).toEqual(resp));
+    service.updateEvent(reqBody, 'e1').subscribe(r => {
+      expect(r).toEqual(resp);
+    });
 
     const req = httpMock.expectOne(`${eventsApi}/e1`);
     expect(req.request.method).toBe('PUT');
+    expect(req.request.body).toEqual(reqBody);
+
     req.flush(resp);
   });
 
   it('getEventById should GET event', () => {
-    const e: SeatifyEvent = {
+    const event: SeatifyEvent = {
       id: 'e1',
       organizerId: 'org1',
       slug: 's',
@@ -108,15 +135,18 @@ describe('EventService', () => {
       updatedAtUtc: new Date().toISOString()
     };
 
-    service.getEventById('e1').subscribe(res => expect(res).toEqual(e));
+    service.getEventById('e1').subscribe(res => {
+      expect(res).toEqual(event);
+    });
 
-    const req = httpMock.expectOne(`${apiUrl}/events/e1`);
+    const req = httpMock.expectOne(`${eventsApi}/e1`);
     expect(req.request.method).toBe('GET');
-    req.flush(e);
+
+    req.flush(event);
   });
 
   it('getEventBySlug should GET public slug endpoint', () => {
-    const e: SeatifyEvent = {
+    const event: SeatifyEvent = {
       id: 'e1',
       organizerId: 'org1',
       slug: 'myslug',
@@ -127,18 +157,24 @@ describe('EventService', () => {
       updatedAtUtc: new Date().toISOString()
     };
 
-    service.getEventBySlug('myslug').subscribe(res => expect(res).toEqual(e));
+    service.getEventBySlug('myslug').subscribe(res => {
+      expect(res).toEqual(event);
+    });
 
-    const req = httpMock.expectOne(`${apiUrl}/events/public/slug/myslug`);
+    const req = httpMock.expectOne(`${eventsApi}/public/slug/myslug`);
     expect(req.request.method).toBe('GET');
-    req.flush(e);
+
+    req.flush(event);
   });
 
   it('checkEventHasBookings should GET boolean', () => {
-    service.checkEventHasBookings('e1').subscribe(res => expect(res).toBeTrue());
+    service.checkEventHasBookings('e1').subscribe(res => {
+      expect(res).toBeTrue();
+    });
 
     const req = httpMock.expectOne(`${eventsApi}/e1/has-bookings`);
     expect(req.request.method).toBe('GET');
+
     req.flush(true);
   });
 
@@ -157,87 +193,144 @@ describe('EventService', () => {
       hasBookings: true
     };
 
-    service.checkOccurrenceHasBookings('o1').subscribe(res => expect(res).toBeTrue());
+    service.checkOccurrenceHasBookings('o1').subscribe(res => {
+      expect(res).toBeTrue();
+    });
 
     const req = httpMock.expectOne(`${occurrencesApi}/o1`);
     expect(req.request.method).toBe('GET');
+
     req.flush(occ);
   });
 
   it('getOccurrencesByEventId should return occurrences or [] on null', () => {
-    const occs: EventOccurrence[] = [{
-      id: 'o1',
-      eventId: 'e1',
-      venueId: 'v1',
-      auditoriumId: 'a1',
-      startsAtUtc: '2026-01-01T00:00:00Z',
-      endsAtUtc: '2026-01-01T02:00:00Z',
-      bookingOpenAtUtc: '2025-12-01T00:00:00Z',
-      bookingCloseAtUtc: '2025-12-31T00:00:00Z',
-      status: 'Scheduled',
-      effectiveCurrency: 'USD'
-    }];
+    const occs: EventOccurrence[] = [
+      {
+        id: 'o1',
+        eventId: 'e1',
+        venueId: 'v1',
+        auditoriumId: 'a1',
+        startsAtUtc: '2026-01-01T00:00:00Z',
+        endsAtUtc: '2026-01-01T02:00:00Z',
+        bookingOpenAtUtc: '2025-12-01T00:00:00Z',
+        bookingCloseAtUtc: '2025-12-31T00:00:00Z',
+        status: 'Scheduled',
+        effectiveCurrency: 'USD'
+      }
+    ];
 
-    service.getOccurrencesByEventId('e1').subscribe(res => expect(res).toEqual(occs));
+    service.getOccurrencesByEventId('e1').subscribe(res => {
+      expect(res).toEqual(occs);
+    });
 
     const req = httpMock.expectOne(`${occurrencesApi}/by-event/e1`);
     expect(req.request.method).toBe('GET');
+
     req.flush(occs);
 
-    service.getOccurrencesByEventId('e2').subscribe(res => expect(res).toEqual([]));
+    service.getOccurrencesByEventId('e2').subscribe(res => {
+      expect(res).toEqual([]);
+    });
+
     const req2 = httpMock.expectOne(`${occurrencesApi}/by-event/e2`);
+    expect(req2.request.method).toBe('GET');
+
     req2.flush(null);
   });
 
   it('createOccurrence and updateOccurrence should POST/PUT', () => {
     const partial = { eventId: 'e1' };
 
-    service.createOccurrence(partial).subscribe(res => expect(res).toEqual({ ok: true }));
-    const r1 = httpMock.expectOne(`${occurrencesApi}`);
+    service.createOccurrence(partial).subscribe(res => {
+      expect(res).toEqual({ ok: true });
+    });
+
+    const r1 = httpMock.expectOne(occurrencesApi);
     expect(r1.request.method).toBe('POST');
+    expect(r1.request.body).toEqual(partial);
+
     r1.flush({ ok: true });
 
-    service.updateOccurrence('o1', partial).subscribe(res => expect(res).toEqual({ ok: true }));
+    service.updateOccurrence('o1', partial).subscribe(res => {
+      expect(res).toEqual({ ok: true });
+    });
+
     const r2 = httpMock.expectOne(`${occurrencesApi}/o1`);
     expect(r2.request.method).toBe('PUT');
+    expect(r2.request.body).toEqual(partial);
+
     r2.flush({ ok: true });
   });
 
   it('getEventCards should return sorted EventCard[] and handle empty events', (done) => {
     const events: SeatifyEvent[] = [
-      { id: 'e1', organizerId: 'org1', slug: 's1', name: 'Name1', description: 'd1', status: 'Published', createdAtUtc: '', updatedAtUtc: '' },
-      { id: 'e2', organizerId: 'org1', slug: 's2', name: 'Name2', description: 'd2', status: 'Draft', createdAtUtc: '', updatedAtUtc: '' }
+      {
+        id: 'e1',
+        organizerId: 'org1',
+        slug: 's1',
+        name: 'Name1',
+        description: 'd1',
+        status: 'Published',
+        createdAtUtc: '',
+        updatedAtUtc: ''
+      },
+      {
+        id: 'e2',
+        organizerId: 'org1',
+        slug: 's2',
+        name: 'Name2',
+        description: 'd2',
+        status: 'Draft',
+        createdAtUtc: '',
+        updatedAtUtc: ''
+      }
     ];
 
-    const occsE1: EventOccurrence[] = [{
-      id: 'o1',
-      eventId: 'e1',
-      venueId: 'v1',
-      auditoriumId: 'a1',
-      startsAtUtc: '2026-06-01T10:00:00Z',
-      endsAtUtc: '2026-06-01T12:00:00Z',
-      bookingOpenAtUtc: '',
-      bookingCloseAtUtc: '',
-      status: 'Scheduled',
-      effectiveCurrency: 'USD',
-      venue: { id: 'v1', name: 'Venue 1' },
-      auditorium: { id: 'a1', name: 'Aud 1' }
-    }];
+    const occsE1: EventOccurrence[] = [
+      {
+        id: 'o1',
+        eventId: 'e1',
+        venueId: 'v1',
+        auditoriumId: 'a1',
+        startsAtUtc: '2026-06-01T10:00:00Z',
+        endsAtUtc: '2026-06-01T12:00:00Z',
+        bookingOpenAtUtc: '',
+        bookingCloseAtUtc: '',
+        status: 'Scheduled',
+        effectiveCurrency: 'USD',
+        venue: {
+          id: 'v1',
+          name: 'Venue 1'
+        },
+        auditorium: {
+          id: 'a1',
+          name: 'Aud 1'
+        }
+      }
+    ];
 
-    const occsE2: EventOccurrence[] = [{
-      id: 'o2',
-      eventId: 'e2',
-      venueId: 'v1',
-      auditoriumId: 'a2',
-      startsAtUtc: '2026-05-01T10:00:00Z',
-      endsAtUtc: '2026-05-01T12:00:00Z',
-      bookingOpenAtUtc: '',
-      bookingCloseAtUtc: '',
-      status: 'Scheduled',
-      effectiveCurrency: 'USD',
-      venue: { id: 'v1', name: 'Venue 1' },
-      auditorium: { id: 'a2', name: 'Aud 2' }
-    }];
+    const occsE2: EventOccurrence[] = [
+      {
+        id: 'o2',
+        eventId: 'e2',
+        venueId: 'v1',
+        auditoriumId: 'a2',
+        startsAtUtc: '2026-05-01T10:00:00Z',
+        endsAtUtc: '2026-05-01T12:00:00Z',
+        bookingOpenAtUtc: '',
+        bookingCloseAtUtc: '',
+        status: 'Scheduled',
+        effectiveCurrency: 'USD',
+        venue: {
+          id: 'v1',
+          name: 'Venue 1'
+        },
+        auditorium: {
+          id: 'a2',
+          name: 'Aud 2'
+        }
+      }
+    ];
 
     service.getEventCards('org1').subscribe(cards => {
       expect(Array.isArray(cards)).toBeTrue();
@@ -251,14 +344,17 @@ describe('EventService', () => {
 
     const reqEvents = httpMock.expectOne(`${eventsApi}/organizers/org1`);
     expect(reqEvents.request.method).toBe('GET');
+
     reqEvents.flush(events);
 
     const reqOccsE1 = httpMock.expectOne(`${occurrencesApi}/by-event/e1`);
     expect(reqOccsE1.request.method).toBe('GET');
+
     reqOccsE1.flush(occsE1);
 
     const reqOccsE2 = httpMock.expectOne(`${occurrencesApi}/by-event/e2`);
     expect(reqOccsE2.request.method).toBe('GET');
+
     reqOccsE2.flush(occsE2);
   });
 
@@ -269,12 +365,23 @@ describe('EventService', () => {
     });
 
     const req = httpMock.expectOne(`${eventsApi}/organizers/org-empty`);
+    expect(req.request.method).toBe('GET');
+
     req.flush([]);
   });
 
   it('getEventCards should handle occurrence fetch error and still produce card with no occurrences', (done) => {
     const events: SeatifyEvent[] = [
-      { id: 'e1', organizerId: 'org1', slug: 's1', name: 'Name1', description: 'd1', status: 'Published', createdAtUtc: '', updatedAtUtc: '' }
+      {
+        id: 'e1',
+        organizerId: 'org1',
+        slug: 's1',
+        name: 'Name1',
+        description: 'd1',
+        status: 'Published',
+        createdAtUtc: '',
+        updatedAtUtc: ''
+      }
     ];
 
     service.getEventCards('org1').subscribe(cards => {
@@ -285,10 +392,17 @@ describe('EventService', () => {
     });
 
     const reqEvents = httpMock.expectOne(`${eventsApi}/organizers/org1`);
+    expect(reqEvents.request.method).toBe('GET');
+
     reqEvents.flush(events);
 
     const reqOcc = httpMock.expectOne(`${occurrencesApi}/by-event/e1`);
-    reqOcc.flush('error', { status: 500, statusText: 'Server Error' });
+    expect(reqOcc.request.method).toBe('GET');
+
+    reqOcc.flush('error', {
+      status: 500,
+      statusText: 'Server Error'
+    });
   });
 
   it('getEvents should map null to [] and propagate fatal errors via handleFatalError', (done) => {
@@ -297,6 +411,8 @@ describe('EventService', () => {
     });
 
     const req = httpMock.expectOne(`${eventsApi}/organizers/org1`);
+    expect(req.request.method).toBe('GET');
+
     req.flush(null);
 
     service.getEvents('org2').subscribe({
@@ -308,34 +424,82 @@ describe('EventService', () => {
     });
 
     const req2 = httpMock.expectOne(`${eventsApi}/organizers/org2`);
-    req2.flush('fail', { status: 500, statusText: 'Server Error' });
+    expect(req2.request.method).toBe('GET');
+
+    req2.flush('fail', {
+      status: 500,
+      statusText: 'Server Error'
+    });
   });
 
   it('getActiveEventsCount and getAllEventsCount should compute counts', () => {
     const events: SeatifyEvent[] = [
-      { id: 'e1', organizerId: 'org1', slug: 's1', name: 'n1', description: '', status: 'Published', createdAtUtc: '', updatedAtUtc: '' },
-      { id: 'e2', organizerId: 'org1', slug: 's2', name: 'n2', description: '', status: 'Draft', createdAtUtc: '', updatedAtUtc: '' },
-      { id: 'e3', organizerId: 'org1', slug: 's3', name: 'n3', description: '', status: 'Published', createdAtUtc: '', updatedAtUtc: '' }
+      {
+        id: 'e1',
+        organizerId: 'org1',
+        slug: 's1',
+        name: 'n1',
+        description: '',
+        status: 'Published',
+        createdAtUtc: '',
+        updatedAtUtc: ''
+      },
+      {
+        id: 'e2',
+        organizerId: 'org1',
+        slug: 's2',
+        name: 'n2',
+        description: '',
+        status: 'Draft',
+        createdAtUtc: '',
+        updatedAtUtc: ''
+      },
+      {
+        id: 'e3',
+        organizerId: 'org1',
+        slug: 's3',
+        name: 'n3',
+        description: '',
+        status: 'Published',
+        createdAtUtc: '',
+        updatedAtUtc: ''
+      }
     ];
 
-    service.getActiveEventsCount('org1').subscribe(count => expect(count).toBe(2));
-    service.getAllEventsCount('org1').subscribe(count => expect(count).toBe(3));
+    service.getActiveEventsCount('org1').subscribe(count => {
+      expect(count).toBe(2);
+    });
+
+    service.getAllEventsCount('org1').subscribe(count => {
+      expect(count).toBe(3);
+    });
 
     const reqs = httpMock.match(`${eventsApi}/organizers/org1`);
+
     expect(reqs.length).toBe(2);
-    reqs.forEach(r => r.flush(events));
+
+    reqs.forEach(req => {
+      expect(req.request.method).toBe('GET');
+      req.flush(events);
+    });
   });
 
   it('handleFatalError logs and throws Error', () => {
-    const err = new HttpErrorResponse({ status: 500, statusText: 'Err' });
+    const err = new HttpErrorResponse({
+      status: 500,
+      statusText: 'Err'
+    });
+
     let thrown = false;
+
     (service as any).handleFatalError(err).subscribe({
       next: () => fail('should not next'),
-      error: (e: any) => {
+      error: (e: unknown) => {
         expect(e).toBeTruthy();
         thrown = true;
       }
     });
+
     expect(thrown).toBeTrue();
   });
 });
