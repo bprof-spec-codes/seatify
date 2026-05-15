@@ -34,3 +34,13 @@ jobs:
           tags: |
             ${{ secrets.DOCKER_HUB_USERNAME }}/seatify-backend:latest
             ${{ secrets.DOCKER_HUB_USERNAME }}/seatify-backend:${{ github.sha }}
+
+      - name: Deploy on server
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: seatify.hu
+          username: root
+          key: ${{ secrets.SSH_KEY }}
+          passphrase: ${{ secrets.SSH_PASS }}
+          script: |
+            ./backend_refresh.sh
