@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { BookingSessionService } from '../../services/booking-session.service';
 import { ReservationService } from '../../services/reservation.service';
@@ -27,7 +27,8 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private bookingService: BookingSessionService,
     private reservationService: ReservationService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {
     this.checkoutForm = this.fb.group({
       fullName: ['', [Validators.required, Validators.minLength(3)]],
@@ -37,8 +38,22 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    // Hardcoded session for demo/development
-    this.loadSession('bs_001');
+    const sessionId = this.resolveSessionId();
+    if (!sessionId) {
+      this.isLoading = false;
+      this.errorMessage = 'Missing booking session ID. Please start a new booking.';
+      return;
+    }
+
+    this.loadSession(sessionId);
+  }
+
+  private resolveSessionId(): string | null {
+    const paramSessionId = this.route.snapshot.paramMap.get('sessionId');
+    const querySessionId = this.route.snapshot.queryParamMap.get('sessionId');
+    const queryBookingSessionId = this.route.snapshot.queryParamMap.get('bookingSessionId');
+
+    return paramSessionId || querySessionId || queryBookingSessionId;
   }
   
   loadSession(sessionId: string): void {
