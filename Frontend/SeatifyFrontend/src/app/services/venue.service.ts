@@ -1,6 +1,7 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, catchError, Observable, tap, throwError } from 'rxjs';
+
 import { Venue } from '../models/venue';
 import { Auditorium } from '../models/auditorium';
 import { environment } from '../../environments/environment';
@@ -10,8 +11,6 @@ import { ConfigService } from './config.service';
   providedIn: 'root'
 })
 export class VenueService {
-  private apiUrl = `${environment.baseApiUrl}/api/venues`;
-
   private readonly venuesPath = '/api/venues';
 
   private venuesSource = new BehaviorSubject<Venue[]>([]);
@@ -28,17 +27,24 @@ export class VenueService {
     private configService: ConfigService
   ) { }
 
+  private get baseApiUrl(): string {
+    const configuredBaseUrl = this.configService?.cfg?.baseApiUrl;
+    const fallbackBaseUrl = environment.baseApiUrl;
+
+    return (configuredBaseUrl || fallbackBaseUrl || '').replace(/\/$/, '');
+  }
+
   private api(path: string): string {
-    return `${this.configService.cfg.baseApiUrl}${path}`;
+    return `${this.baseApiUrl}${path}`;
   }
 
   getVenueById(venueId: string): Observable<Venue> {
     return this.http.get<Venue>(`${this.api(this.venuesPath)}/${venueId}`).pipe(
       tap(venue => {
         const currentVenues = this.venuesSource.getValue();
+
         if (!currentVenues.find(v => v.id === venue.id)) {
-          currentVenues.push(venue);
-          this.venuesSource.next([...currentVenues]);
+          this.venuesSource.next([...currentVenues, venue]);
         }
       }),
       catchError(this.handleError)
@@ -46,7 +52,9 @@ export class VenueService {
   }
 
   loadVenuesByOrganizerId(organizerId: string): void {
-    this.http.get<Venue[]>(`${this.api(this.venuesPath)}/organizers/${organizerId}`).subscribe(venues => {
+    this.http.get<Venue[]>(`${this.api(this.venuesPath)}/organizers/${organizerId}`).pipe(
+      catchError(this.handleError)
+    ).subscribe(venues => {
       this.venuesSource.next(venues);
     });
   }
@@ -72,11 +80,14 @@ export class VenueService {
     return this.http.put<Venue>(`${this.api(this.venuesPath)}/${venue.id}`, venue).pipe(
       tap(updatedVenue => {
         const venues = this.venuesSource.getValue();
-        const index = venues.findIndex(v => v.id === updatedVenue.id);
-        if (index !== -1) {
-          venues[index] = { ...venues[index], ...updatedVenue };
-          this.venuesSource.next([...venues]);
-        }
+
+        const updatedVenues = venues.map(existingVenue =>
+          existingVenue.id === updatedVenue.id
+            ? { ...existingVenue, ...updatedVenue }
+            : existingVenue
+        );
+
+        this.venuesSource.next(updatedVenues);
       }),
       catchError(this.handleError)
     );
@@ -85,58 +96,64 @@ export class VenueService {
   deleteVenueById(venueId: string): Observable<void> {
     return this.http.delete<void>(`${this.api(this.venuesPath)}/${venueId}`).pipe(
       tap(() => {
-        const venues = this.venuesSource.getValue().filter(v => v.id !== venueId);
-        this.venuesSource.next(venues);
+        const updatedVenues = this.venuesSource.getValue().filter(v => v.id !== venueId);
+        this.venuesSource.next(updatedVenues);
       }),
       catchError(this.handleError)
     );
   }
 
   removeAuditoriumFromVenue(venueId: string, auditoriumId: string): void {
-    const currentVenues = this.venuesSource.value;
+    const currentVenues = this.venuesSource.getValue();
 
     const updatedVenues = currentVenues.map(venue => {
-      if (venue.id === venueId) {
-        return { ...venue, auditoriums: venue.auditoriums.filter(a => a.id !== auditoriumId) };
+      if (venue.id !== venueId) {
+        return venue;
       }
-      return venue;
+
+      return {
+        ...venue,
+        auditoriums: venue.auditoriums.filter(a => a.id !== auditoriumId)
+      };
     });
 
     this.venuesSource.next(updatedVenues);
   }
 
   addAuditoriumToVenue(venueId: string, auditorium: Auditorium): void {
-    const currentVenues = this.venuesSource.value;
+    const currentVenues = this.venuesSource.getValue();
 
     const updatedVenues = currentVenues.map(venue => {
-      if (venue.id === venueId) {
-        return { ...venue, auditoriums: [...venue.auditoriums, auditorium] };
+      if (venue.id !== venueId) {
+        return venue;
       }
-      return venue;
+
+      return {
+        ...venue,
+        auditoriums: [...venue.auditoriums, auditorium]
+      };
     });
 
     this.venuesSource.next(updatedVenues);
   }
 
   updateAuditoriumInVenue(venueId: string, updatedAuditorium: Auditorium): void {
-    const currentVenues = this.venuesSource.value;
+    const currentVenues = this.venuesSource.getValue();
 
     const updatedVenues = currentVenues.map(venue => {
-      if (venue.id === venueId) {
-        return {
-          ...venue,
-          auditoriums: venue.auditoriums.map(a => a.id === updatedAuditorium.id ? updatedAuditorium : a)
-        };
+      if (venue.id !== venueId) {
+        return venue;
       }
-      return venue;
+
+      return {
+        ...venue,
+        auditoriums: venue.auditoriums.map(a =>
+          a.id === updatedAuditorium.id ? updatedAuditorium : a
+        )
+      };
     });
 
     this.venuesSource.next(updatedVenues);
-  }
-
-  private handleError(error: HttpErrorResponse): Observable<never> {
-    console.error('An error occurred: ', error.message);
-    return throwError(() => new Error('Something went wrong; please try again later.'));
   }
 
   getEditMode(): Observable<boolean> {
@@ -153,5 +170,10 @@ export class VenueService {
 
   setEditVenue(editVenue: Venue): void {
     this.editVenueSource.next(editVenue);
+  }
+
+  private handleError(error: HttpErrorResponse): Observable<never> {
+    console.error('An error occurred:', error.message);
+    return throwError(() => new Error('Something went wrong; please try again later.'));
   }
 }
