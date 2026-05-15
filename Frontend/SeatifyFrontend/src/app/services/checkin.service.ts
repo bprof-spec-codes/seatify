@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { ConfigService } from './config.service';
 
 export interface CheckInValidateRequest {
   payload: string;
@@ -49,13 +50,22 @@ export class CheckInService {
 
   private apiUrl = `${environment.baseApiUrl}/api/checkin`;
 
-  constructor(private http: HttpClient) { }
+  private readonly checkInPath = '/api/checkin';
+
+  constructor(
+    private http: HttpClient,
+    private configService: ConfigService
+  ) { }
+
+  private api(path: string): string {
+    return `${this.configService.cfg.baseApiUrl}${path}`;
+  }
 
   validateTicket(payload: string): Observable<CheckInResult> {
-    return this.http.post<CheckInResult>(`${this.apiUrl}/validate`, { payload });
+    return this.http.post<CheckInResult>(`${this.api(this.checkInPath)}/validate`, { payload });
   }
 
   confirmCheckIn(ticketId: string): Observable<CheckInResult> {
-    return this.http.post<CheckInResult>(`${this.apiUrl}/confirm`, { ticketId });
+    return this.http.post<CheckInResult>(`${this.api(this.checkInPath)}/confirm`, { ticketId });
   }
 }

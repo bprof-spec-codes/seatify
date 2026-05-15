@@ -3,6 +3,7 @@ import { Auditorium } from '../models/auditorium';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, catchError, Observable, tap, throwError } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { ConfigService } from './config.service';
 
 @Injectable({
   providedIn: 'root'
@@ -10,6 +11,10 @@ import { environment } from '../../environments/environment';
 export class AuditoriumService {
   private apiUrl = `${environment.baseApiUrl}/api/auditoriums`;
   private venuesApiUrl = `${environment.baseApiUrl}/api/venues`;
+
+  private readonly auditoriumsPath = '/api/auditoriums';
+  private readonly venuesPath = '/api/venues';
+
   private auditoriumsSource$ = new BehaviorSubject<Auditorium[]>([]);
   auditoriums$ = this.auditoriumsSource$.asObservable();
 
@@ -19,22 +24,29 @@ export class AuditoriumService {
   private editAuditoriumSource = new BehaviorSubject<Auditorium>(new Auditorium());
   editAuditorium$ = this.editAuditoriumSource.asObservable();
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private configService: ConfigService
+  ) { }
+
+  private api(path: string): string {
+    return `${this.configService.cfg.baseApiUrl}${path}`;
+  }
 
   getAuditoriumById(auditoriumId: string): Observable<Auditorium> {
-    return this.http.get<Auditorium>(`${this.apiUrl}/${auditoriumId}`).pipe(
+    return this.http.get<Auditorium>(`${this.api(this.auditoriumsPath)}/${auditoriumId}`).pipe(
       catchError(this.handleError)
     );
   }
 
   getAuditoriumsByVenueId(venueId: string): Observable<Auditorium[]> {
-    return this.http.get<Auditorium[]>(`${this.venuesApiUrl}/${venueId}/auditoriums`).pipe(
+    return this.http.get<Auditorium[]>(`${this.api(this.venuesPath)}/${venueId}/auditoriums`).pipe(
       catchError(this.handleError)
     );
   }
 
   createAuditorium(venueId: string, auditorium: Auditorium): Observable<Auditorium> {
-    return this.http.post<Auditorium>(`${this.venuesApiUrl}/${venueId}/auditoriums`, auditorium).pipe(
+    return this.http.post<Auditorium>(`${this.api(this.venuesPath)}/${venueId}/auditoriums`, auditorium).pipe(
       tap(newAuditorium => {
         const updatedAuditoriums = [...this.auditoriumsSource$.getValue(), newAuditorium];
         this.auditoriumsSource$.next(updatedAuditoriums);
@@ -44,7 +56,7 @@ export class AuditoriumService {
   }
 
   updateAuditorium(auditorium: Auditorium): Observable<Auditorium> {
-    return this.http.put<Auditorium>(`${this.apiUrl}/${auditorium.id}`, auditorium).pipe(
+    return this.http.put<Auditorium>(`${this.api(this.auditoriumsPath)}/${auditorium.id}`, auditorium).pipe(
       tap(updatedAuditorium => {
         const auditoriums = this.auditoriumsSource$.getValue();
         const index = auditoriums.findIndex(a => a.id === updatedAuditorium.id);
@@ -58,7 +70,7 @@ export class AuditoriumService {
   }
 
   deleteAuditoriumById(auditoriumId: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${auditoriumId}`).pipe(
+    return this.http.delete<void>(`${this.api(this.auditoriumsPath)}/${auditoriumId}`).pipe(
       tap(() => {
         const currentAuditoriums = this.auditoriumsSource$.getValue();
         const updatedAuditoriums = currentAuditoriums.filter(a => a.id !== auditoriumId);
@@ -85,7 +97,7 @@ export class AuditoriumService {
   }
 
   checkAuditoriumHasBookings(auditoriumId: string): Observable<boolean> {
-    return this.http.get<boolean>(`${this.apiUrl}/${auditoriumId}/has-bookings`).pipe(
+    return this.http.get<boolean>(`${this.api(this.auditoriumsPath)}/${auditoriumId}/has-bookings`).pipe(
       catchError(this.handleError)
     );
   }
@@ -93,7 +105,7 @@ export class AuditoriumService {
   private handleError(error: HttpErrorResponse): Observable<never> {
     console.error('An error occurred: ', error.message);
     if (error.error) {
-        console.error('Detailed error from backend: ', error.error);
+      console.error('Detailed error from backend: ', error.error);
     }
     return throwError(() => new Error('Something went wrong; please try again later.'));
   }

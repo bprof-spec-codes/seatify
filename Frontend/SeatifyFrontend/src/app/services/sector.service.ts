@@ -4,19 +4,30 @@ import { environment } from '../../environments/environment';
 import { catchError, map, Observable, tap, throwError } from 'rxjs';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { CreateUpdateSectorDto, Sector, SectorViewDto } from '../models/sector';
+import { ConfigService } from './config.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SectorService {
   private apiUrl = `${environment.baseApiUrl}/api`
+
+  private readonly sectorPath = '/api';
+
   private sectorSource = new BehaviorSubject<Sector[]>([])
   sector$ = this.sectorSource.asObservable()
 
-  constructor(private http: HttpClient) { }
+  constructor(
+    private http: HttpClient,
+    private configService: ConfigService
+  ) { }
+
+  private api(path: string): string {
+    return `${this.configService.cfg.baseApiUrl}${path}`;
+  }
 
   getSectorsByAuditoriumId(auditoriumId: string): Observable<Sector[]> {
-    return this.http.get<Sector[]>(`${this.apiUrl}/auditoriums/${auditoriumId}/sectors`).pipe(
+    return this.http.get<Sector[]>(`${this.api(this.sectorPath)}/auditoriums/${auditoriumId}/sectors`).pipe(
       map(sectors => sectors.map(Sector => this.mapSectorDates(Sector))),
       tap(sectors => this.sectorSource.next(sectors)),
       catchError(this.handleError)
@@ -24,14 +35,14 @@ export class SectorService {
   }
 
   getSectorById(id: string): Observable<Sector> {
-    return this.http.get<SectorViewDto>(`${this.apiUrl}/sectors/${id}`).pipe(
+    return this.http.get<SectorViewDto>(`${this.api(this.sectorPath)}/sectors/${id}`).pipe(
       map(sector => this.mapSector(sector)),
       catchError(this.handleError)
     )
   }
 
   createSector(auditoriumId: string, dto: CreateUpdateSectorDto): Observable<Sector> {
-    return this.http.post<SectorViewDto>(`${this.apiUrl}/auditoriums/${auditoriumId}/sectors`, dto).pipe(
+    return this.http.post<SectorViewDto>(`${this.api(this.sectorPath)}/auditoriums/${auditoriumId}/sectors`, dto).pipe(
       map(sector => this.mapSector(sector)),
       tap(createdSector => {
         const current = this.sectorSource.value
@@ -42,7 +53,7 @@ export class SectorService {
   }
 
   updateSector(id: string, dto: CreateUpdateSectorDto): Observable<Sector> {
-    return this.http.put<SectorViewDto>(`${this.apiUrl}/sectors/${id}`, dto).pipe(
+    return this.http.put<SectorViewDto>(`${this.api(this.sectorPath)}/sectors/${id}`, dto).pipe(
       map(sector => this.mapSector(sector)),
       tap(updatedSector => {
         const updated = this.sectorSource.value.map(sector =>
@@ -55,7 +66,7 @@ export class SectorService {
   }
 
   deleteSector(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/sectors/${id}`).pipe(
+    return this.http.delete<void>(`${this.api(this.sectorPath)}/sectors/${id}`).pipe(
       tap(() => {
         const filtered = this.sectorSource.value.filter(sector => sector.id !== id)
         this.sectorSource.next(filtered)
