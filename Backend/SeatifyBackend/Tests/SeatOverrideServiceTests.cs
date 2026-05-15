@@ -1,4 +1,4 @@
-﻿using Data;
+using Data;
 using Entities.Dtos.SeatOverride;
 using Entities.Models;
 using Logic.Services;
@@ -173,17 +173,19 @@ namespace Tests
         {
             // Arrange
             _context.LayoutMatrices.Add(new LayoutMatrix { Id = "Mat1", AuditoriumId = "Aud1" });
+            _context.Venues.Add(new Venue { Id = "Ven1" });
+            _context.Auditoriums.Add(new Auditorium { Id = "Aud1", VenueId = "Ven1" });
             _context.Sectors.Add(new Sector { Id = "Sec1", AuditoriumId = "Aud1", BasePrice = 1000m });
             _context.Seats.Add(new Seat { Id = "Seat1", MatrixId = "Mat1", SectorId = "Sec1", PriceOverride = 2000m });
 
             _context.Events.Add(new Event { Id = "Ev1" });
-            _context.EventOccurrences.Add(new EventOccurrence { Id = "Occ1", EventId = "Ev1" });
+            _context.EventOccurrences.Add(new EventOccurrence { Id = "Occ1", EventId = "Ev1", VenueId = "Ven1", AuditoriumId = "Aud1" });
 
             // Event override sets price to 3000
-            _context.EventSeatOverrides.Add(new EventSeatOverride { EventId = "Ev1", SeatId = "Seat1", PriceOverride = 3000m });
+            _context.EventSeatOverrides.Add(new EventSeatOverride { Id = "EO1", EventId = "Ev1", SeatId = "Seat1", PriceOverride = 3000m });
 
             // Occurrence override sets price to 5000 (Should be the highest priority)
-            _context.OccurrenceSeatOverrides.Add(new OccurrenceSeatOverride { OccurrenceId = "Occ1", SeatId = "Seat1", PriceOverride = 5000m });
+            _context.OccurrenceSeatOverrides.Add(new OccurrenceSeatOverride { Id = "OO1", OccurrenceId = "Occ1", SeatId = "Seat1", PriceOverride = 5000m });
 
             await _context.SaveChangesAsync();
 
