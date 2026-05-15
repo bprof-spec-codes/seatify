@@ -4,6 +4,7 @@ import { delay } from 'rxjs/operators';
 import { BookingSession } from '../models/booking.model';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../environments/environment';
+import { ConfigService } from './config.service';
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +12,16 @@ import { environment } from '../../environments/environment';
 export class BookingSessionService {
   private apiUrl = `${environment.baseApiUrl}/api/bookings`;
 
-  constructor(private http: HttpClient) { }
+  private readonly bookingPath = '/api/bookings';
+
+  constructor(
+    private http: HttpClient,
+    private configService: ConfigService
+  ) { }
+
+  private api(path: string): string {
+    return `${this.configService.cfg.baseApiUrl}${path}`;
+  }
 
   // Mock method to get the current booking session for checkout
   getActiveSession(sessionId: string): Observable<BookingSession> {
@@ -34,10 +44,9 @@ export class BookingSessionService {
     return of(void 0).pipe(delay(500));
   }
 
-  createBookingSession()
-  {
+  createBookingSession() {
     // mock: { status: "asd" } <- null-al nem működik
-    return this.http.post(`${this.apiUrl}/checkout`, { status: "asd" }, {
+    return this.http.post(`${this.api(this.bookingPath)}/checkout`, { status: "asd" }, {
       responseType: 'blob',
       headers: new HttpHeaders({ 'Accept': 'image/png' })
     });
