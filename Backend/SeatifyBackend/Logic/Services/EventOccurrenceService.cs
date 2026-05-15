@@ -42,7 +42,8 @@ namespace Logic.Services
 
         public List<EventOccurrenceViewDto> GetByEventId(string eventId)
         {
-            return _appDbContext.EventOccurrences
+            var occurrences = _appDbContext.EventOccurrences
+                .AsNoTracking()
                 .Include(e => e.Appearance)
                 .Include(e => e.Event)
                     .ThenInclude(e => e.Appearance)
@@ -50,7 +51,10 @@ namespace Logic.Services
                 .Include(e => e.Auditorium)
                 .Include(e => e.Reservations)
                 .Where(e => e.EventId == eventId)
-                .Select(e => MapToViewDto(e))
+                .ToList();
+
+            return occurrences
+                .Select(MapToViewDto)
                 .ToList();
         }
 
@@ -73,7 +77,7 @@ namespace Logic.Services
         private EventOccurrenceViewDto MapToViewDto(EventOccurrence occurrence)
         {
             var defaultAppearance = GetDefaultAppearance(occurrence.Event?.OrganizerId ?? string.Empty);
-            
+
             return new EventOccurrenceViewDto
             {
                 Id = occurrence.Id,
@@ -96,57 +100,57 @@ namespace Logic.Services
                     Id = occurrence.Event.Id,
                     Name = occurrence.Event.Name,
                     Description = occurrence.Event.Description,
-                    
-                    PrimaryColor = occurrence.Appearance?.PrimaryColor 
-                        ?? occurrence.Event.Appearance?.PrimaryColor 
-                        ?? defaultAppearance?.PrimaryColor 
+
+                    PrimaryColor = occurrence.Appearance?.PrimaryColor
+                        ?? occurrence.Event.Appearance?.PrimaryColor
+                        ?? defaultAppearance?.PrimaryColor
                         ?? "#3b82f6",
-                        
-                    SecondaryColor = occurrence.Appearance?.SecondaryColor 
-                        ?? occurrence.Event.Appearance?.SecondaryColor 
-                        ?? defaultAppearance?.SecondaryColor 
+
+                    SecondaryColor = occurrence.Appearance?.SecondaryColor
+                        ?? occurrence.Event.Appearance?.SecondaryColor
+                        ?? defaultAppearance?.SecondaryColor
                         ?? "#64748b",
-                        
-                    AccentColor = occurrence.Appearance?.AccentColor 
-                        ?? occurrence.Event.Appearance?.AccentColor 
-                        ?? defaultAppearance?.AccentColor 
+
+                    AccentColor = occurrence.Appearance?.AccentColor
+                        ?? occurrence.Event.Appearance?.AccentColor
+                        ?? defaultAppearance?.AccentColor
                         ?? "#0ea5e9",
-                        
-                    BackgroundColor = occurrence.Appearance?.BackgroundColor 
-                        ?? occurrence.Event.Appearance?.BackgroundColor 
-                        ?? defaultAppearance?.BackgroundColor 
+
+                    BackgroundColor = occurrence.Appearance?.BackgroundColor
+                        ?? occurrence.Event.Appearance?.BackgroundColor
+                        ?? defaultAppearance?.BackgroundColor
                         ?? "#f1f5f9",
-                        
-                    SurfaceColor = occurrence.Appearance?.SurfaceColor 
-                        ?? occurrence.Event.Appearance?.SurfaceColor 
-                        ?? defaultAppearance?.SurfaceColor 
+
+                    SurfaceColor = occurrence.Appearance?.SurfaceColor
+                        ?? occurrence.Event.Appearance?.SurfaceColor
+                        ?? defaultAppearance?.SurfaceColor
                         ?? "#ffffff",
-                        
-                    TextColor = occurrence.Appearance?.TextColor 
-                        ?? occurrence.Event.Appearance?.TextColor 
-                        ?? defaultAppearance?.TextColor 
+
+                    TextColor = occurrence.Appearance?.TextColor
+                        ?? occurrence.Event.Appearance?.TextColor
+                        ?? defaultAppearance?.TextColor
                         ?? "#0f172a",
-                        
-                    LogoImageUrl = occurrence.Appearance?.LogoImageUrl 
-                        ?? occurrence.Event.Appearance?.LogoImageUrl 
-                        ?? defaultAppearance?.LogoImageUrl 
+
+                    LogoImageUrl = occurrence.Appearance?.LogoImageUrl
+                        ?? occurrence.Event.Appearance?.LogoImageUrl
+                        ?? defaultAppearance?.LogoImageUrl
                         ?? string.Empty,
-                        
-                    BannerImageUrl = occurrence.Appearance?.BannerImageUrl 
-                        ?? occurrence.Event.Appearance?.BannerImageUrl 
-                        ?? defaultAppearance?.BannerImageUrl 
+
+                    BannerImageUrl = occurrence.Appearance?.BannerImageUrl
+                        ?? occurrence.Event.Appearance?.BannerImageUrl
+                        ?? defaultAppearance?.BannerImageUrl
                         ?? string.Empty,
-                        
-                    ThemePreset = occurrence.Appearance?.ThemePreset 
-                        ?? occurrence.Event.Appearance?.ThemePreset 
-                        ?? defaultAppearance?.ThemePreset 
+
+                    ThemePreset = occurrence.Appearance?.ThemePreset
+                        ?? occurrence.Event.Appearance?.ThemePreset
+                        ?? defaultAppearance?.ThemePreset
                         ?? "Default",
-                        
-                    FontFamily = occurrence.Appearance?.FontFamily 
-                        ?? occurrence.Event.Appearance?.FontFamily 
-                        ?? defaultAppearance?.FontFamily 
+
+                    FontFamily = occurrence.Appearance?.FontFamily
+                        ?? occurrence.Event.Appearance?.FontFamily
+                        ?? defaultAppearance?.FontFamily
                         ?? "Inter",
-                        
+
                     Currency = occurrence.Event.Currency
                 } : null!,
 

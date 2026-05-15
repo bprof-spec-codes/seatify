@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { ConfigService } from './config.service';
 
 export interface BookingCheckoutRequest {
   eventOccurrenceId: string;
@@ -50,13 +51,22 @@ export interface ReservationView {
 export class ReservationService {
   private apiUrl = `${environment.baseApiUrl}/api`;
 
-  constructor(private http: HttpClient) { }
+  private readonly reservationPath = '/api';
+
+  constructor(
+    private http: HttpClient,
+    private configService: ConfigService
+  ) { }
+
+  private api(path: string): string {
+    return `${this.configService.cfg.baseApiUrl}${path}`;
+  }
 
   checkoutReservation(request: BookingCheckoutRequest): Observable<BookingCheckoutResponse> {
-    return this.http.post<BookingCheckoutResponse>(`${this.apiUrl}/bookings/checkout`, request);
+    return this.http.post<BookingCheckoutResponse>(`${this.api(this.reservationPath)}/bookings/checkout`, request);
   }
 
   getReservationsForOccurrence(occurrenceId: string): Observable<ReservationView[]> {
-    return this.http.get<ReservationView[]>(`${this.apiUrl}/by-event-occurrences/${occurrenceId}/reservations`);
+    return this.http.get<ReservationView[]>(`${this.api(this.reservationPath)}/by-event-occurrences/${occurrenceId}/reservations`);
   }
 }

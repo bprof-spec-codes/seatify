@@ -4,12 +4,16 @@ import { SeatMap } from '../models/seat-map';
 import { environment } from '../../environments/environment';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BulkSeatUpdateDto, Seat, UpdateSeatDto } from '../models/seat';
+import { ConfigService } from './config.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SeatService {
   private apiUrl = `${environment.baseApiUrl}/api`
+
+  private readonly seatPath = '/api';
+
   private seatMapSource = new BehaviorSubject<SeatMap | null>(null)
   seatMap$ = this.seatMapSource.asObservable()
 
@@ -17,10 +21,16 @@ export class SeatService {
   seat$ = this.seatSource.asObservable()
 
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient,
+    private configService: ConfigService
+  ) { }
+
+  private api(path: string): string {
+    return `${this.configService.cfg.baseApiUrl}${path}`;
+  }
 
   getSeatMapByMatrixId(matrixId: string): Observable<SeatMap> {
-    return this.http.get<SeatMap>(`${this.apiUrl}/layout-matrices/${matrixId}/seat-map`).pipe(
+    return this.http.get<SeatMap>(`${this.api(this.seatPath)}/layout-matrices/${matrixId}/seat-map`).pipe(
       map(seatMap => this.mapSeatMapDates(seatMap)),
       tap(seatMap => this.seatMapSource.next(seatMap)),
       catchError(this.handleError)
@@ -28,9 +38,9 @@ export class SeatService {
   }
 
   updateSeat(seatId: string, dto: UpdateSeatDto): Observable<Seat> {
-    return this.http.put<Seat>(`${this.apiUrl}/seats/${seatId}`, dto).pipe(
+    return this.http.put<Seat>(`${this.api(this.seatPath)}/seats/${seatId}`, dto).pipe(
       map(updatedSeat => this.mapSeatDates(updatedSeat)),
-      tap(updatedSeat =>{
+      tap(updatedSeat => {
         const currentSeat = this.seatSource.getValue();
         if (currentSeat && currentSeat.id === seatId) {
           this.seatSource.next(updatedSeat);
@@ -41,7 +51,7 @@ export class SeatService {
   }
 
   bulkUpdateSeats(dto: BulkSeatUpdateDto): Observable<any> {
-    return this.http.patch<any>(`${this.apiUrl}/seats/bulk`, dto).pipe(
+    return this.http.patch<any>(`${this.api(this.seatPath)}/seats/bulk`, dto).pipe(
       catchError(this.handleError)
     )
   }

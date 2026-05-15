@@ -1,12 +1,12 @@
-name: Build and Push Backend Docker Image
+name: Build and Push Frontend Docker Image
 
 on:
   push:
     branches:
       - develop
     paths:
-      - "Backend/SeatifyBackend/**"
-      - ".github/workflows/test-backend.yml"
+      - "Frontend/SeatifyFrontend/**"
+      - ".github/workflows/test-frontend.yml"
 
 jobs:
   build:
@@ -25,16 +25,16 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build and push backend image
+      - name: Build and push frontend image
         uses: docker/build-push-action@v6
         with:
-          context: ./Backend/SeatifyBackend
-          file: ./Backend/SeatifyBackend/Api/Dockerfile
+          context: ./Frontend/SeatifyFrontend
+          file: ./Frontend/SeatifyFrontend/Dockerfile
           push: true
           tags: |
-            ${{ secrets.DOCKER_HUB_USERNAME }}/seatify-backend-test:develop
-            ${{ secrets.DOCKER_HUB_USERNAME }}/seatify-backend-test:${{ github.sha }}
-
+            ${{ secrets.DOCKER_HUB_USERNAME }}/seatify-frontend-test:develop
+            ${{ secrets.DOCKER_HUB_USERNAME }}/seatify-frontend-test:${{ github.sha }}
+            
       - name: Deploy on server (atomic symlink switch + systemd restart)
         uses: appleboy/ssh-action@v1.2.0
         with:
@@ -43,4 +43,4 @@ jobs:
           key: ${{secrets.SSH_KEY}}
           passphrase: ${{secrets.SSH_PASS}}
           script: |
-            ./test_backend_refresh.sh
+            ./test_frontend_refresh.sh
