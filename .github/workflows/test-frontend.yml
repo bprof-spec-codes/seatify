@@ -34,3 +34,13 @@ jobs:
           tags: |
             ${{ secrets.DOCKER_HUB_USERNAME }}/seatify-frontend-test:develop
             ${{ secrets.DOCKER_HUB_USERNAME }}/seatify-frontend-test:${{ github.sha }}
+            
+      - name: Deploy on server (atomic symlink switch + systemd restart)
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: seatify.hu
+          username: root
+          key: ${{secrets.SSH_KEY}}
+          passphrase: ${{secrets.SSH_PASS}}
+          script: |
+            ./test_frontend_refresh.sh
