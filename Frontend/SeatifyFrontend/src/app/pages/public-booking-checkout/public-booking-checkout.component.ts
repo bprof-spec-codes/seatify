@@ -66,6 +66,7 @@ export class PublicBookingCheckoutComponent implements OnInit, OnDestroy {
           this.selectedSeats = session.holds.map(hold => ({
             seatId: hold.seatId,
             seatLabel: hold.seatLabel || hold.seatId,
+            rowLabel: hold.rowLabel || hold.seatId,
             price: hold.basePrice
           }));
           this.totalPrice = this.selectedSeats.reduce((sum, seat) => sum + seat.price, 0);

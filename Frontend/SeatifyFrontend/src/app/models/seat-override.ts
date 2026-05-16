@@ -6,6 +6,7 @@ export interface EffectiveSeat {
   row: number;
   column: number;
   seatLabel: string | null;
+  rowLabel: string | null;
 
   // Effektív értékek
   sectorId: string | null;
