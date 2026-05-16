@@ -11,6 +11,7 @@ import { Auditorium } from '../../models/auditorium';
 import { SeatifyEvent } from '../../models/event';
 import { AuthService } from '../../services/auth.service';
 import { filter } from 'rxjs';
+import { EventOccurrence } from '../../models/event-occurrence';
 
 @Component({
   selector: 'app-event-occurrence-form',
@@ -160,6 +161,14 @@ export class EventOccurrenceFormComponent implements OnInit {
     return date.toISOString().slice(0, 16);
   }
 
+  toUtcIso(datetimeLocal?: string): string | undefined {
+    if (!datetimeLocal) return undefined;
+    const [date, time = '00:00:00'] = datetimeLocal.split('T');
+    const [y, m, d] = date.split('-').map(Number);
+    const [hh, mm, ss = '00'] = time.split(':');
+    return new Date(Date.UTC(y, m - 1, Number(d), Number(hh), Number(mm), Number(ss))).toISOString();
+  }
+
   onSubmit() {
     if (this.occurrenceForm.invalid) {
       this.occurrenceForm.markAllAsTouched();
@@ -167,17 +176,17 @@ export class EventOccurrenceFormComponent implements OnInit {
     }
 
     const val = this.occurrenceForm.getRawValue();
-    const payload = {
+    const payload: Partial<EventOccurrence> = {
       eventId: this.eventId,
       venueId: val.venueId,
       auditoriumId: val.auditoriumId,
-      startsAtUtc: new Date(val.startsAt).toISOString(),
-      endsAtUtc: new Date(val.endsAt).toISOString(),
-      bookingOpenAtUtc: new Date(val.bookingOpenAt).toISOString(),
-      bookingCloseAtUtc: new Date(val.bookingCloseAt).toISOString(),
-      doorsOpenAtUtc: val.hasDoorsOpenTime && val.doorsOpenAt ? new Date(val.doorsOpenAt).toISOString() : null,
-      currencyOverride: val.currencyOverride || null,
-      appearanceId: val.appearanceId || null,
+      startsAtUtc: this.toUtcIso(val.startsAt),
+      endsAtUtc: this.toUtcIso(val.endsAt),
+      bookingOpenAtUtc: this.toUtcIso(val.bookingOpenAt),
+      bookingCloseAtUtc: this.toUtcIso(val.bookingCloseAt),
+      doorsOpenAtUtc: val.hasDoorsOpenTime ? this.toUtcIso(val.doorsOpenAt) : undefined,
+      currencyOverride: val.currencyOverride || undefined,
+      appearanceId: val.appearanceId || undefined,
       status: 'Published'
     };
 
