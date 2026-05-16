@@ -160,6 +160,11 @@ namespace Logic.Services
                 .Include(eo => eo.Venue)
                 .FirstOrDefault(eo => eo.Id == request.EventOccurrenceId);
 
+            if (!(DateTime.UtcNow > eventOccurrence.BookingOpenAtUtc && DateTime.UtcNow < eventOccurrence.BookingCloseAtUtc))
+            {
+                throw new ArgumentException("Currently there is no booking period for this event occurence.");
+            }
+
             if (eventOccurrence == null)
             {
                 throw new EventOccurrenceNotFoundException($"EventOccurrence could not be found with this id: {request.EventOccurrenceId}");

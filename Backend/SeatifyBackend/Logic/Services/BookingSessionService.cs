@@ -29,6 +29,11 @@ namespace Logic.Services
                 throw new KeyNotFoundException($"EventOccurrence not found: {dto.EventOccurrenceId}");
             }
 
+            if (!(DateTime.UtcNow > occurrence.BookingOpenAtUtc && DateTime.UtcNow < occurrence.BookingCloseAtUtc))
+            {
+                throw new ArgumentException("Currently there is no booking period for this event occurence.");
+            }
+
             var now = DateTime.UtcNow;
             var session = new BookingSession
             {
