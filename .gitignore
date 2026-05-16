@@ -30,6 +30,7 @@ bld/
 *.tlog
 *.tmp
 *.temp
+*.lscache
 
 #######################################
 # Rider / JetBrains

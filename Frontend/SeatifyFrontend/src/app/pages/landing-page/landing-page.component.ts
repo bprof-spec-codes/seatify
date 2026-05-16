@@ -3,7 +3,6 @@ import { AuthService } from '../../services/auth.service';
 import { Router} from '@angular/router';
 import { SeatMapDisplayComponent } from '../../helpers/seat-map-display/seat-map-display.component';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-landing-page',

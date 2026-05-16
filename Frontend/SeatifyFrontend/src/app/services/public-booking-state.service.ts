@@ -18,6 +18,9 @@ export class PublicBookingStateService {
   private eventOccurrenceSubject = new BehaviorSubject<EventOccurrence | null>(null);
   public eventOccurrence$: Observable<EventOccurrence | null> = this.eventOccurrenceSubject.asObservable();
 
+  private bookingSessionIdSubject = new BehaviorSubject<string | null>(null);
+  public bookingSessionId$: Observable<string | null> = this.bookingSessionIdSubject.asObservable();
+
   constructor() { }
 
   setEventOccurrence(occ: EventOccurrence): void {
@@ -40,8 +43,17 @@ export class PublicBookingStateService {
     return this.selectedSeatsSubject.value.reduce((sum, seat) => sum + seat.price, 0);
   }
 
+  setBookingSessionId(sessionId: string | null): void {
+    this.bookingSessionIdSubject.next(sessionId);
+  }
+
+  getBookingSessionId(): string | null {
+    return this.bookingSessionIdSubject.value;
+  }
+
   clearState(): void {
     this.selectedSeatsSubject.next([]);
     this.eventOccurrenceSubject.next(null);
+    this.bookingSessionIdSubject.next(null);
   }
 }

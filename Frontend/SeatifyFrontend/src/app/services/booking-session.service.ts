@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { delay } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 import { BookingSession } from '../models/booking.model';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { ConfigService } from './config.service';
 
@@ -10,7 +9,7 @@ import { ConfigService } from './config.service';
   providedIn: 'root'
 })
 export class BookingSessionService {
-  private apiUrl = `${environment.baseApiUrl}/api/bookings`;
+  private apiUrl = `${environment.baseApiUrl}/api/public/booking-sessions`;
 
   private readonly bookingPath = '/api/bookings';
 
@@ -23,32 +22,23 @@ export class BookingSessionService {
     return `${this.configService.cfg.baseApiUrl}${path}`;
   }
 
-  // Mock method to get the current booking session for checkout
   getActiveSession(sessionId: string): Observable<BookingSession> {
-    const mockSession: BookingSession = {
-      id: sessionId,
-      eventOccurrenceId: 'occ_001',
-      phase: 'Checkout',
-      status: 'Active',
-      expiresAtUtc: new Date(Date.now() + 10 * 60000).toISOString(),
-      holds: [
-        { id: 'hold_1', seatId: 'seat_A_12', rowLabel: 'A', seatLabel: '12', basePrice: 6500 },
-        { id: 'hold_2', seatId: 'seat_A_13', rowLabel: 'A', seatLabel: '13', basePrice: 6500 }
-      ]
-    };
-    return of(mockSession).pipe(delay(500));
+    return this.http.get<BookingSession>(`${this.apiUrl}/${sessionId}`);
   }
 
-  // Mock method to transition session to checkout
   checkout(sessionId: string): Observable<void> {
-    return of(void 0).pipe(delay(500));
+    return this.http.post<void>(`${this.apiUrl}/${sessionId}/checkout`, {});
   }
 
-  createBookingSession() {
-    // mock: { status: "asd" } <- null-al nem működik
-    return this.http.post(`${this.api(this.bookingPath)}/checkout`, { status: "asd" }, {
-      responseType: 'blob',
-      headers: new HttpHeaders({ 'Accept': 'image/png' })
-    });
+  createBookingSession(eventOccurrenceId: string): Observable<BookingSession> {
+    return this.http.post<BookingSession>(this.apiUrl, { eventOccurrenceId });
+  }
+
+  holdSeat(sessionId: string, seatId: string): Observable<BookingSession> {
+    return this.http.post<BookingSession>(`${this.apiUrl}/${sessionId}/holds`, { seatId });
+  }
+
+  releaseSeat(sessionId: string, seatId: string): Observable<BookingSession> {
+    return this.http.delete<BookingSession>(`${this.apiUrl}/${sessionId}/holds/${seatId}`);
   }
 }
