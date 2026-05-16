@@ -267,6 +267,14 @@ namespace Data
 
             if (!ctx.EventOccurrences.Any())
             {
+                static DateTime TruncateToMinutes(DateTime d)
+                {
+                    var utc = d.ToUniversalTime();
+                    return utc.AddTicks(-(utc.Ticks % TimeSpan.TicksPerMinute));
+                }
+
+                var now = DateTime.UtcNow;
+                
                 var occurrences = new List<EventOccurrence>
                 {
                     new EventOccurrence
@@ -275,13 +283,13 @@ namespace Data
                         EventId = "event-01",
                         VenueId = "ven-id-01",
                         AuditoriumId = "aud-id-01",
-                        StartsAtUtc = DateTime.UtcNow.AddDays(30),
-                        EndsAtUtc = DateTime.UtcNow.AddDays(30).AddHours(5),
-                        BookingOpenAtUtc = DateTime.UtcNow,
-                        BookingCloseAtUtc = DateTime.UtcNow.AddDays(30),
+                        StartsAtUtc = TruncateToMinutes(now.AddDays(30)),
+                        EndsAtUtc = TruncateToMinutes(now.AddDays(30).AddHours(5)),
+                        BookingOpenAtUtc = TruncateToMinutes(now),
+                        BookingCloseAtUtc = TruncateToMinutes(now.AddDays(30)),
                         Status = "Published",
-                        CreatedAtUtc = DateTime.UtcNow,
-                        UpdatedAtUtc = DateTime.UtcNow
+                        CreatedAtUtc = TruncateToMinutes(now),
+                        UpdatedAtUtc = TruncateToMinutes(now)
                     },
                     new EventOccurrence
                     {
@@ -289,13 +297,13 @@ namespace Data
                         EventId = "event-01",
                         VenueId = "ven-id-01",
                         AuditoriumId = "aud-id-02",
-                        StartsAtUtc = DateTime.UtcNow.AddDays(31),
-                        EndsAtUtc = DateTime.UtcNow.AddDays(31).AddHours(4),
-                        BookingOpenAtUtc = DateTime.UtcNow,
-                        BookingCloseAtUtc = DateTime.UtcNow.AddDays(31),
+                        StartsAtUtc = TruncateToMinutes(now.AddDays(31)),
+                        EndsAtUtc = TruncateToMinutes(now.AddDays(31).AddHours(4)),
+                        BookingOpenAtUtc = TruncateToMinutes(now),
+                        BookingCloseAtUtc = TruncateToMinutes(now.AddDays(31)),
                         Status = "Published",
-                        CreatedAtUtc = DateTime.UtcNow,
-                        UpdatedAtUtc = DateTime.UtcNow
+                        CreatedAtUtc = TruncateToMinutes(now),
+                        UpdatedAtUtc = TruncateToMinutes(now)
                     },
                     new EventOccurrence
                     {
@@ -303,13 +311,13 @@ namespace Data
                         EventId = "event-02",
                         VenueId = "ven-id-02",
                         AuditoriumId = "aud-id-03",
-                        StartsAtUtc = DateTime.UtcNow.AddDays(45),
-                        EndsAtUtc = DateTime.UtcNow.AddDays(45).AddHours(3),
-                        BookingOpenAtUtc = DateTime.UtcNow,
-                        BookingCloseAtUtc = DateTime.UtcNow.AddDays(45),
+                        StartsAtUtc = TruncateToMinutes(now.AddDays(45)),
+                        EndsAtUtc = TruncateToMinutes(now.AddDays(45).AddHours(3)),
+                        BookingOpenAtUtc = TruncateToMinutes(now),
+                        BookingCloseAtUtc = TruncateToMinutes(now.AddDays(45)),
                         Status = "Published",
-                        CreatedAtUtc = DateTime.UtcNow,
-                        UpdatedAtUtc = DateTime.UtcNow
+                        CreatedAtUtc = TruncateToMinutes(now),
+                        UpdatedAtUtc = TruncateToMinutes(now)
                     },
                     new EventOccurrence
                     {
@@ -317,13 +325,13 @@ namespace Data
                         EventId = "event-02",
                         VenueId = "ven-id-02",
                         AuditoriumId = "aud-id-04",
-                        StartsAtUtc = DateTime.UtcNow.AddDays(46),
-                        EndsAtUtc = DateTime.UtcNow.AddDays(46).AddHours(3),
-                        BookingOpenAtUtc = DateTime.UtcNow,
-                        BookingCloseAtUtc = DateTime.UtcNow.AddDays(46),
+                        StartsAtUtc = TruncateToMinutes(now.AddDays(46)),
+                        EndsAtUtc = TruncateToMinutes(now.AddDays(46).AddHours(3)),
+                        BookingOpenAtUtc = TruncateToMinutes(now),
+                        BookingCloseAtUtc = TruncateToMinutes(now.AddDays(46)),
                         Status = "Published",
-                        CreatedAtUtc = DateTime.UtcNow,
-                        UpdatedAtUtc = DateTime.UtcNow
+                        CreatedAtUtc = TruncateToMinutes(now),
+                        UpdatedAtUtc = TruncateToMinutes(now)
                     }
                 };
 
