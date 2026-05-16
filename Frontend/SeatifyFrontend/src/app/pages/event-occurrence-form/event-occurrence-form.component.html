@@ -12,7 +12,7 @@
   <div *ngIf="hasBookings" class="alert alert-warning d-flex align-items-center" role="alert">
     <i class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" style="font-size: 1.5rem;"></i>
     <div>
-      This event date already has confirmed bookings. The venue, auditorium, and start/end times are locked and cannot be changed.
+      This event date already has confirmed bookings. The venue, auditorium, currency and start/end times are locked and cannot be changed.
     </div>
   </div>
 
@@ -111,7 +111,7 @@
         </div>
 
         <div class="mt-3">
-          <label class="form-label fw-semibold" for="currencyOverride">Currency Override for this Date</label>
+          <label class="form-label fw-semibold" for="currencyOverride">Currency Override for this Date <i *ngIf="hasBookings" class="bi bi-lock-fill text-muted ms-1" title="Locked due to existing bookings"></i></label>
           <input 
             type="text" 
             id="currencyOverride"

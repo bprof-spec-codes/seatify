@@ -117,6 +117,7 @@ export class EventOccurrenceFormComponent implements OnInit {
               this.occurrenceForm.get('auditoriumId')?.disable();
               this.occurrenceForm.get('startsAt')?.disable();
               this.occurrenceForm.get('endsAt')?.disable();
+              this.occurrenceForm.get('currencyOverride')?.disable();
             }
           });
         }
