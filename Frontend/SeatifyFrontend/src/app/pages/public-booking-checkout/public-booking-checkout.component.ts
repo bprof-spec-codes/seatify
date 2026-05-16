@@ -115,9 +115,9 @@ export class PublicBookingCheckoutComponent implements OnInit, OnDestroy {
 
     const request = {
       eventOccurrenceId: this.session.eventOccurrenceId,
-      customerName: this.checkoutForm.value.fullName || null,
+      customerName: this.checkoutForm.value.fullName || "",
       customerEmail: this.checkoutForm.value.email,
-      customerPhone: this.checkoutForm.value.phone || null,
+      customerPhone: this.checkoutForm.value.phone || "",
       seatIds: this.session.holds.map(h => h.seatId),
       bookingSessionId: this.session.id
     };
