@@ -4,6 +4,22 @@ import { SeatMap } from '../models/seat-map';
 import { environment } from '../../environments/environment';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BulkSeatUpdateDto, Seat, UpdateSeatDto } from '../models/seat';
+import { EffectiveSeatMap } from '../models/seat-override';
+
+export interface PublicSeatMapSeat {
+  seatId: string;
+  row: number;
+  column: number;
+  price: number;
+  status: 'Available' | 'Reserved' | 'Booked';
+  sector: string;
+}
+
+export interface PublicSeatMapResponse {
+  currency: string;
+  sectors: string[];
+  seats: PublicSeatMapSeat[];
+}
 
 @Injectable({
   providedIn: 'root'
@@ -25,6 +41,11 @@ export class SeatService {
       tap(seatMap => this.seatMapSource.next(seatMap)),
       catchError(this.handleError)
     )
+  }
+
+  getPublicSeatMapByOccurrence(eventOccurrenceId: string): Observable<PublicSeatMapResponse> {
+    return this.http.get<PublicSeatMapResponse>(`${this.apiUrl}/public/events/${eventOccurrenceId}/seatmap`)
+      .pipe(catchError(this.handleError));
   }
 
   updateSeat(seatId: string, dto: UpdateSeatDto): Observable<Seat> {

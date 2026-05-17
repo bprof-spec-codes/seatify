@@ -144,7 +144,7 @@ namespace Logic.Services
                 return null;
             }
 
-            var hold = _ctx.seatHolds.FirstOrDefault(h => h.BookingSessionId == session.Id && h.SeatId == seatId);
+            var hold = _ctx.seatHolds.FirstOrDefault(h => h.BookingSessionId == session.Id && h.SeatId == seatId && h.Status == "Held");
             if (hold == null)
             {
                 return null;
@@ -179,7 +179,7 @@ namespace Logic.Services
         private BookingSessionViewDto BuildView(BookingSession session)
         {
             var holds = _ctx.seatHolds
-                .Where(h => h.BookingSessionId == session.Id)
+                .Where(h => h.BookingSessionId == session.Id && h.Status == "Held")
                 .ToList();
 
             var seatIds = holds.Select(h => h.SeatId).Distinct().ToList();

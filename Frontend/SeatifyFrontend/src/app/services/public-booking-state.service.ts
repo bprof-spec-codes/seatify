@@ -12,6 +12,8 @@ export interface SelectedSeat {
   providedIn: 'root'
 })
 export class PublicBookingStateService {
+  private readonly bookingSessionIdStorageKey = 'seatify.bookingSessionId';
+
   private selectedSeatsSubject = new BehaviorSubject<SelectedSeat[]>([]);
   public selectedSeats$: Observable<SelectedSeat[]> = this.selectedSeatsSubject.asObservable();
 
@@ -21,7 +23,9 @@ export class PublicBookingStateService {
   private bookingSessionIdSubject = new BehaviorSubject<string | null>(null);
   public bookingSessionId$: Observable<string | null> = this.bookingSessionIdSubject.asObservable();
 
-  constructor() { }
+  constructor() {
+    this.bookingSessionIdSubject.next(this.readStoredBookingSessionId());
+  }
 
   setEventOccurrence(occ: EventOccurrence): void {
     this.eventOccurrenceSubject.next(occ);
@@ -45,6 +49,7 @@ export class PublicBookingStateService {
 
   setBookingSessionId(sessionId: string | null): void {
     this.bookingSessionIdSubject.next(sessionId);
+    this.persistBookingSessionId(sessionId);
   }
 
   getBookingSessionId(): string | null {
@@ -55,5 +60,26 @@ export class PublicBookingStateService {
     this.selectedSeatsSubject.next([]);
     this.eventOccurrenceSubject.next(null);
     this.bookingSessionIdSubject.next(null);
+    this.persistBookingSessionId(null);
+  }
+
+  private readStoredBookingSessionId(): string | null {
+    try {
+      return window.sessionStorage.getItem(this.bookingSessionIdStorageKey);
+    } catch {
+      return null;
+    }
+  }
+
+  private persistBookingSessionId(sessionId: string | null): void {
+    try {
+      if (sessionId) {
+        window.sessionStorage.setItem(this.bookingSessionIdStorageKey, sessionId);
+      } else {
+        window.sessionStorage.removeItem(this.bookingSessionIdStorageKey);
+      }
+    } catch {
+      // ignore storage failures
+    }
   }
 }
