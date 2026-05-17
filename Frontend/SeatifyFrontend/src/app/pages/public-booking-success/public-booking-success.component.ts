@@ -12,6 +12,7 @@ export class PublicBookingSuccessComponent implements OnInit {
   result: any = null;
   occ: any = null;
   now = new Date();
+  errorMessage = '';
 
   constructor(
     private stateService: PublicBookingStateService,
@@ -21,9 +22,17 @@ export class PublicBookingSuccessComponent implements OnInit {
   ngOnInit(): void {
     this.result = (this.stateService as any).lastCheckoutResult;
     this.occ = this.stateService.getEventOccurrence();
-    
+
     if (!this.result) {
-      this.router.navigate(['/']);
+      this.result = this.readStoredJson('seatify.lastCheckoutResult');
+    }
+
+    if (!this.occ) {
+      this.occ = this.readStoredJson('seatify.lastBookingOccurrence');
+    }
+
+    if (!this.result) {
+      this.errorMessage = 'We could not find your booking details. Please check your email for tickets.';
     }
   }
 
@@ -41,13 +50,34 @@ export class PublicBookingSuccessComponent implements OnInit {
       link.href = window.URL.createObjectURL(blob);
       link.download = `Seatify_Tickets_${this.result.bookingId.slice(0, 8)}.pdf`;
       link.click();
+      this.clearStoredCheckout();
     } else {
       window.print();
+      this.clearStoredCheckout();
     }
   }
 
   finish(): void {
     this.stateService.clearState();
+    this.clearStoredCheckout();
     this.router.navigate(['/']);
+  }
+
+  private readStoredJson(key: string): any {
+    try {
+      const raw = window.sessionStorage.getItem(key);
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  }
+
+  private clearStoredCheckout(): void {
+    try {
+      window.sessionStorage.removeItem('seatify.lastCheckoutResult');
+      window.sessionStorage.removeItem('seatify.lastBookingOccurrence');
+    } catch {
+      // ignore storage failures
+    }
   }
 }
