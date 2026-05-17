@@ -1,4 +1,4 @@
-﻿using Data;
+using Data;
 using Entities.Dtos.LayoutMatrix;
 using Entities.Models;
 using Logic.Helper;
@@ -166,11 +166,14 @@ namespace Tests
         public async Task GetSeatMapByIdAsync_ExistingId_ReturnsOrderedSeats()
         {
             // Arrange
-            var matrix = new LayoutMatrix { Id = "LM-1", AuditoriumId = "Aud-1", Name = "Matrix" };
+            string audId = "Aud-Order";
+            await SeedAuditoriumAsync(audId);
+            
+            var matrix = new LayoutMatrix { Id = "LM-1", AuditoriumId = audId, Name = "Matrix" };
             // Add seats out of order
-            matrix.Seats.Add(new Seat { Row = 2, Column = 1, SeatLabel = "B1" });
-            matrix.Seats.Add(new Seat { Row = 1, Column = 2, SeatLabel = "A2" });
-            matrix.Seats.Add(new Seat { Row = 1, Column = 1, SeatLabel = "A1" });
+            matrix.Seats.Add(new Seat { Id = "S1", MatrixId = "LM-1", Row = 2, Column = 1, SeatLabel = "B1" });
+            matrix.Seats.Add(new Seat { Id = "S2", MatrixId = "LM-1", Row = 1, Column = 2, SeatLabel = "A2" });
+            matrix.Seats.Add(new Seat { Id = "S3", MatrixId = "LM-1", Row = 1, Column = 1, SeatLabel = "A1" });
 
             _dbContext.LayoutMatrices.Add(matrix);
             await _dbContext.SaveChangesAsync();

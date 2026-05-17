@@ -7,6 +7,7 @@ import { EventCard } from '../models/event-card';
 import { EventOccurrence } from '../models/event-occurrence';
 import EventRequest from '../models/event.request';
 import EventResponse from '../models/event.response';
+import { ConfigService } from './config.service';
 
 @Injectable({
   providedIn: 'root'
@@ -16,32 +17,42 @@ export class EventService {
   private readonly eventsApiUrl = `${this.apiUrl}/events`;
   private readonly eventOccurrencesApiUrl = `${this.apiUrl}/event-occurrences`;
 
-  constructor(private readonly http: HttpClient) {}
+  private readonly eventPath = '/api/events';
+  private readonly eventOccurrencesPath = '/api/event-occurrences';
+
+  constructor(
+    private readonly http: HttpClient,
+    private readonly configService: ConfigService
+  ) { }
+
+  private api(path: string): string {
+    return `${this.configService.cfg.baseApiUrl}${path}`;
+  }
 
   uploadImage(file: File): Observable<{ url: string }> {
     const formData = new FormData();
     formData.append('file', file);
-    return this.http.post<{ url: string }>(`${this.apiUrl}/upload`, formData);
+    return this.http.post<{ url: string }>(`${this.configService.apiBaseUrl}/api/upload`, formData);
   }
 
-  createEvent(eventrequest: EventRequest): Observable<EventResponse>{
-    return this.http.post<EventResponse>(`${this.eventsApiUrl}`, eventrequest);
+  createEvent(eventrequest: EventRequest): Observable<EventResponse> {
+    return this.http.post<EventResponse>(`${this.api(this.eventPath)}`, eventrequest);
   }
-  
-  updateEvent(eventrequest: EventRequest, id: string): Observable<EventResponse>{
-    return this.http.put<EventResponse>(`${this.eventsApiUrl}/${id}`, eventrequest);
+
+  updateEvent(eventrequest: EventRequest, id: string): Observable<EventResponse> {
+    return this.http.put<EventResponse>(`${this.api(this.eventPath)}/${id}`, eventrequest);
   }
 
   getEventById(id: string): Observable<SeatifyEvent> {
-    return this.http.get<SeatifyEvent>(`${this.apiUrl}/events/${id}`);
+    return this.http.get<SeatifyEvent>(`${this.api(this.eventPath)}/${id}`);
   }
 
   getEventBySlug(slug: string): Observable<SeatifyEvent> {
-    return this.http.get<SeatifyEvent>(`${this.apiUrl}/events/public/slug/${slug}`);
+    return this.http.get<SeatifyEvent>(`${this.api(this.eventPath)}/public/slug/${slug}`);
   }
 
   checkEventHasBookings(eventId: string): Observable<boolean> {
-    return this.http.get<boolean>(`${this.eventsApiUrl}/${eventId}/has-bookings`);
+    return this.http.get<boolean>(`${this.api(this.eventPath)}/${eventId}/has-bookings`);
   }
 
   checkOccurrenceHasBookings(occurrenceId: string): Observable<boolean> {
@@ -51,19 +62,19 @@ export class EventService {
   }
 
   getOccurrenceById(id: string): Observable<EventOccurrence> {
-    return this.http.get<EventOccurrence>(`${this.eventOccurrencesApiUrl}/${id}`);
+    return this.http.get<EventOccurrence>(`${this.api(this.eventOccurrencesPath)}/${id}`);
   }
 
   createOccurrence(occurrence: Partial<EventOccurrence>): Observable<any> {
-    return this.http.post(this.eventOccurrencesApiUrl, occurrence);
+    return this.http.post(this.api(this.eventOccurrencesPath), occurrence);
   }
 
   updateOccurrence(id: string, occurrence: Partial<EventOccurrence>): Observable<any> {
-    return this.http.put(`${this.eventOccurrencesApiUrl}/${id}`, occurrence);
+    return this.http.put(`${this.api(this.eventOccurrencesPath)}/${id}`, occurrence);
   }
 
   getEventCards(organizerId: string): Observable<EventCard[]> {
-    return this.http.get<SeatifyEvent[]>(`${this.eventsApiUrl}/organizers/${organizerId}`).pipe(
+    return this.http.get<SeatifyEvent[]>(`${this.api(this.eventPath)}/organizers/${organizerId}`).pipe(
       switchMap(events => {
         if (!events?.length) {
           return of([]);
@@ -92,7 +103,7 @@ export class EventService {
 
   getOccurrencesByEventId(eventId: string): Observable<EventOccurrence[]> {
     return this.http
-      .get<EventOccurrence[]>(`${this.eventOccurrencesApiUrl}/by-event/${eventId}`)
+      .get<EventOccurrence[]>(`${this.api(this.eventOccurrencesPath)}/by-event/${eventId}`)
       .pipe(
         map(occurrences => occurrences ?? []),
         catchError(() => of([]))
@@ -135,7 +146,7 @@ export class EventService {
   }
 
   getEvents(organizerId: any): Observable<SeatifyEvent[]> {
-    return this.http.get<SeatifyEvent[]>(`${this.eventsApiUrl}/organizers/${organizerId}`).pipe(
+    return this.http.get<SeatifyEvent[]>(`${this.api(this.eventPath)}/organizers/${organizerId}`).pipe(
       map(events => events ?? []),
       catchError(error => this.handleFatalError(error))
     );
