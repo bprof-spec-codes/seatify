@@ -268,6 +268,8 @@ namespace Tests
             var aud = new Auditorium { Id = "Aud_Exp", Name = "Aud", VenueId = "Ven_Exp" };
             var ev = new Event { Id = "Ev_Exp", Name = "Event" };
             var occ = new EventOccurrence { Id = "Occ_Exp", EventId = "Ev_Exp", VenueId = "Ven_Exp", AuditoriumId = "Aud_Exp" };
+            occ.BookingOpenAtUtc = DateTime.UtcNow.AddHours(-1);
+            occ.BookingCloseAtUtc = DateTime.UtcNow.AddHours(1);
             
             var sessionId = Guid.NewGuid().ToString();
             var expiredSession = new BookingSession
@@ -334,7 +336,9 @@ namespace Tests
                 VenueId = venueId,
                 Event = ev,
                 Auditorium = aud,
-                Venue = venue
+                Venue = venue,
+                BookingOpenAtUtc = DateTime.UtcNow.AddHours(-1),
+                BookingCloseAtUtc = DateTime.UtcNow.AddHours(1)
             };
 
             _context.Venues.Add(venue);
@@ -388,7 +392,9 @@ namespace Tests
                 Event = ev,
                 Auditorium = aud,
                 Venue = venue,
-                StartsAtUtc = DateTime.UtcNow
+                StartsAtUtc = DateTime.UtcNow,
+                BookingOpenAtUtc = DateTime.UtcNow.AddHours(-1),
+                BookingCloseAtUtc = DateTime.UtcNow.AddHours(1)
             };
 
             _context.Venues.Add(venue);
