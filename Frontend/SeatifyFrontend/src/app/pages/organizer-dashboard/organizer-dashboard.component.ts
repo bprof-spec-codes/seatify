@@ -146,11 +146,11 @@ export class OrganizerDashboardComponent implements OnInit, OnDestroy {
     };
   }
 
-  createNewTheme(): void {
+  createNewTheme(theme?: string): void {
     const defaultTheme = this.getDefaultAppearance();
 
     const request: AppearanceCreateRequest = {
-      name: 'New Custom Theme',
+      name: theme ?? 'New Custom Theme',
       fontFamily: defaultTheme.fontFamily,
       primaryColor: defaultTheme.primaryColor,
       accentColor: defaultTheme.accentColor,
@@ -420,6 +420,10 @@ export class OrganizerDashboardComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (appearances) => {
           this.savedAppearances = appearances;
+
+          if (this.savedAppearances.length === 0) {
+            this.createNewTheme('Default Theme');
+          }
 
           const defaultTheme = appearances.find((theme) => theme.isDefault);
 
