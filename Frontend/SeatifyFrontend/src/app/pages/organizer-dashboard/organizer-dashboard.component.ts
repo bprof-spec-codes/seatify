@@ -52,6 +52,7 @@ export class OrganizerDashboardComponent implements OnInit, OnDestroy {
 
   isLoading = false;
   errorMessage = '';
+  isBookingPagePreviewAvailable = false;
 
   activeEventsCount = 0;
   allEventsCount = 0;
@@ -184,20 +185,17 @@ export class OrganizerDashboardComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const occurrenceId =
-      this.upcomingEvents.length > 0
-        ? this.upcomingEvents[0].occurrence.id
-        : 'occ-01';
-
-    const url = this.router.serializeUrl(
+    if (this.isBookingPagePreviewAvailable) {
+      const occurrenceId = this.upcomingEvents[0].occurrence.id;
+      const url = this.router.serializeUrl(
       this.router.createUrlTree(['/book', 'preview', occurrenceId], {
         queryParams: {
           themeId: this.selectedAppearance.id
         }
-      })
-    );
+      }));
 
-    window.open(url, '_blank');
+      window.open(url, '_blank');
+    }
   }
 
   updateAppearance(): void {
@@ -340,6 +338,8 @@ export class OrganizerDashboardComponent implements OnInit, OnDestroy {
 
           this.upcomingEvents = this.buildUpcomingEvents(eventCards);
           this.stats = this.buildStats();
+
+          this.isBookingPagePreviewAvailable = this.upcomingEvents.length > 0 ? true : false;
 
           this.isLoading = false;
         },
