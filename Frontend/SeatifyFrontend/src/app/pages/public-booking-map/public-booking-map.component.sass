@@ -73,6 +73,7 @@
   align-items: center
   justify-content: center
   font-size: 0.65rem
+  position: relative
   border-radius: 4px
   cursor: default
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1)
@@ -86,6 +87,22 @@
       transform: scale(1.15)
       z-index: 10
       box-shadow: 0 4px 10px rgba(0,0,0,0.1)
+
+  &.is-accessible
+    border-color: #0ea5e9
+    box-shadow: inset 0 0 0 2px rgba(14, 165, 233, 0.35)
+
+    &::after
+      content: ''
+      position: absolute
+      inset: -4px
+      border: 2px solid #0ea5e9
+      border-radius: 7px
+      pointer-events: none
+      opacity: 0.65
+
+    &:hover
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1), inset 0 0 0 2px rgba(14, 165, 233, 0.45)
   
   &.is-aisle
     background: transparent !important
