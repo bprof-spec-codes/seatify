@@ -14,8 +14,6 @@ namespace Entities.Dtos.Reservation
         public string EventOccurrenceId { get; set; } = string.Empty;
 
         public List<ReservationSeatDto> Seats { get; set; } = new();
-
-        // TODO: later BookingSessionId
     }
     public class ReservationSeatDto
     {

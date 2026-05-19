@@ -464,7 +464,7 @@ namespace Logic.Services
 
             var holds = _dbContext.seatHolds
                 .AsNoTracking()
-                .Where(h => h.EventOccurrenceId == eventOccurrenceId)
+                .Where(h => h.EventOccurrenceId == eventOccurrenceId && h.Status == "Held")
                 .ToList();
 
             var eventOverrideMap = eventSeatOverrides.ToDictionary(x => x.SeatId, x => x);
@@ -611,7 +611,7 @@ namespace Logic.Services
                 .ToList();
 
             var heldSeatIds = _dbContext.seatHolds
-                .Where(h => h.EventOccurrenceId == eventOccurrenceId)
+                .Where(h => h.EventOccurrenceId == eventOccurrenceId && h.Status == "Held")
                 .Where(h => requestedSeatIds.Contains(h.SeatId))
                 .Select(h => h.SeatId)
                 .Distinct()
