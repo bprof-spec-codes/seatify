@@ -26,10 +26,16 @@
               <div class="col-md-6 mb-3">
                 <label class="form-label">Full Name (optional)</label>
                 <input type="text" class="form-control" formControlName="fullName" placeholder="e.g. John Doe">
+                <div class="text-danger small mt-1" *ngIf="f['fullName'].touched && f['fullName'].errors">
+                  If you give a name it must be at least 3 characters.
+                </div>
               </div>
               <div class="col-md-6 mb-3">
                 <label class="form-label">Phone Number (optional)</label>
                 <input type="tel" class="form-control" formControlName="phone" placeholder="+36 ...">
+                <div class="text-danger small mt-1" *ngIf="f['phone'].touched && f['phone'].errors">
+                  If you give a phone number it must be a valid (at least 7 numbers long) phone number.
+                </div>
               </div>
             </div>
 

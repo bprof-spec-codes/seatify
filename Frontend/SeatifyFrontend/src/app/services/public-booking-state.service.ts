@@ -5,6 +5,7 @@ import { EventOccurrence } from '../models/event-occurrence';
 export interface SelectedSeat {
   seatId: string;
   seatLabel: string;
+  rowLabel: string;
   price: number;
 }
 

@@ -41,6 +41,7 @@ namespace Entities.Dtos.CheckIn
         public string Section { get; set; } = string.Empty;
         public int Row { get; set; }
         public int Number { get; set; }
+        public string? SeatLabel { get; set; }
     }
 
     public class EventInfo

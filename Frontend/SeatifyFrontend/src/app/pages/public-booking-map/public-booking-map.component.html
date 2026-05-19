@@ -25,23 +25,32 @@
 
           <div class="grid-wrapper">
             <div class="seat-grid" [style.grid-template-columns]="'repeat(' + gridColumns + ', 1fr)'">
-              <div *ngFor="let cell of gridCells" 
-                   class="grid-cell"
-                   [class.is-seat]="cell.seatId && cell.seatType === 'Seat'"
-                   [class.is-aisle]="cell.seatType === 'Aisle'"
-                   [class.is-booked]="cell.isBooked"
-                   [class.is-held]="cell.isHeld"
-                   [class.is-selected]="cell.isSelected"
-                   [style.background]="cell.isSelected ? 'var(--primary-color)' : (cell.isBooked ? '#b2bec3' : (cell.isHeld ? '#f59e0b' : (cell.seatType === 'Seat' ? getSectorColor(cell.sectorId) : 'transparent')))"
-                   [style.border-color]="cell.isSelected ? 'var(--primary-color)' : '#dfe6e9'"
-                   (click)="toggleSeat(cell)"
-                   [title]="cell.isBooked ? 'Occupied' : (cell.isHeld ? 'Held by another session' : (cell.seatLabel || '') + (cell.price ? ' - ' + cell.price + ' ' + currency : ''))">
-                <span *ngIf="cell.seatId && cell.seatType === 'Seat' && !cell.isBooked && !cell.isHeld" class="seat-label">
+              <div *ngFor="let cell of gridCells"
+                  class="grid-cell"
+                  [class.is-seat]="isBookableSeat(cell)"
+                  [class.is-accessible]="isAccessibleSeat(cell)"
+                  [class.is-aisle]="cell.seatType === 'Aisle'"
+                  [class.is-booked]="cell.isBooked"
+                  [class.is-held]="cell.isHeld"
+                  [class.is-selected]="cell.isSelected"
+                  [style.background]="cell.isSelected ? 'var(--primary-color)' : (cell.isBooked ? '#b2bec3' : (cell.isHeld ? '#f59e0b' : (isBookableSeat(cell) ? getSectorColor(cell.sectorId) : 'transparent')))"
+                  [style.border-color]="cell.isSelected ? 'var(--primary-color)' : (isAccessibleSeat(cell) ? '#0ea5e9' : '#dfe6e9')"
+                  (click)="toggleSeat(cell)"
+                  [title]="cell.isBooked ? 'Occupied' : (cell.isHeld ? 'Held by another session' : (isAccessibleSeat(cell) ? 'Accessible seat - ' : '') + (cell.seatLabel || '') + (cell.price ? ' - ' + cell.price + ' ' + currency : ''))">
+
+                <span *ngIf="isBookableSeat(cell) && !cell.isBooked && (!cell.isHeld || cell.isOwnSessionHeld)" class="seat-label">
                   {{ cell.seatLabel }}
                 </span>
-                <span *ngIf="cell.seatId && cell.seatType === 'Seat' && !cell.isBooked && cell.isHeld && cell.isOwnSessionHeld" class="seat-label">
-                  {{ cell.seatLabel }}
+
+                <span
+                  *ngIf="isAccessibleSeat(cell) && !cell.isBooked"
+                  class="accessible-indicator"
+                  aria-label="Accessible seat"
+                  title="Accessible seat"
+                >
+                  <i class="bi bi-universal-access-circle"></i>
                 </span>
+
                 <i *ngIf="cell.isBooked" class="bi bi-x-lg"></i>
               </div>
             </div>
@@ -67,6 +76,12 @@
             <div class="legend-item"><span class="box selected me-2"></span> Selected</div>
             <div class="legend-item"><span class="box occupied me-2"></span> Occupied</div>
             <div class="legend-item"><span class="box held me-2"></span> Held</div>
+            <div class="legend-item">
+              <span class="box accessible me-2">
+                <i class="bi bi-universal-access-circle"></i>
+              </span>
+              Accessible seat
+            </div>
             <div class="legend-item"><span class="box aisle me-2"></span> Aisle</div>
           </div>
 
@@ -76,7 +91,7 @@
             <h4 class="h6 text-muted uppercase">Your Selection</h4>
             <div class="selected-items mb-3">
               <div *ngFor="let s of selectedSeats" class="small d-flex justify-content-between mb-1">
-                <span>Seat {{ s.seatLabel }}</span>
+                <span>Seat {{ s.rowLabel }}{{ s.seatLabel }}</span>
                 <span>{{ s.price | price:currency }}</span>
               </div>
             </div>

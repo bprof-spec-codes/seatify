@@ -227,9 +227,13 @@
           >
         </label>
 
-        <button type="button" class="secondary-action w-100 mt-4" (click)="previewTheme()" *ngIf="selectedAppearance">
+        <button type="button" class="secondary-action w-100 mt-4 preview-button" (click)="previewTheme()" *ngIf="selectedAppearance" [disabled]="!isBookingPagePreviewAvailable">
            <i class="bi bi-box-arrow-up-right"></i> Booking Page Preview
         </button>
+        <br>
+        <div class="field-error" *ngIf="selectedAppearance && !isBookingPagePreviewAvailable">
+            <span>There must be at least one upcoming event for the user.</span>
+        </div>
       </div>
     </article>
 

@@ -73,12 +73,16 @@ namespace Api.Controllers
             // Guard: block structural changes when confirmed bookings exist
             if (_service.HasBookings(id))
             {
+                static bool AlmostEqual(DateTime a, DateTime b, double maxSeconds = 1.0) =>
+                    Math.Abs((a.ToUniversalTime() - b.ToUniversalTime()).TotalSeconds) <= maxSeconds;
+
                 var current = _service.GetById(id);
                 if (current != null && (
-                    current.AuditoriumId != updateDto.AuditoriumId ||
-                    current.VenueId != updateDto.VenueId ||
-                    current.StartsAtUtc != updateDto.StartsAtUtc ||
-                    current.EndsAtUtc != updateDto.EndsAtUtc))
+                        current.AuditoriumId != updateDto.AuditoriumId ||
+                        current.VenueId != updateDto.VenueId ||
+                        current.CurrencyOverride != updateDto.CurrencyOverride ||
+                        !AlmostEqual(current.StartsAtUtc, updateDto.StartsAtUtc) ||
+                        !AlmostEqual(current.EndsAtUtc, updateDto.EndsAtUtc)))
                 {
                     return Conflict(new { message = "Cannot change venue, auditorium, or event dates because confirmed bookings already exist for this occurrence." });
                 }

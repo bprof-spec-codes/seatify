@@ -73,6 +73,7 @@
   align-items: center
   justify-content: center
   font-size: 0.65rem
+  position: relative
   border-radius: 4px
   cursor: default
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1)
@@ -86,6 +87,22 @@
       transform: scale(1.15)
       z-index: 10
       box-shadow: 0 4px 10px rgba(0,0,0,0.1)
+
+  &.is-accessible
+    border-color: #0ea5e9
+    box-shadow: inset 0 0 0 2px rgba(14, 165, 233, 0.35)
+
+    &::after
+      content: ''
+      position: absolute
+      inset: -4px
+      border: 2px solid #0ea5e9
+      border-radius: 7px
+      pointer-events: none
+      opacity: 0.65
+
+    &:hover
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1), inset 0 0 0 2px rgba(14, 165, 233, 0.45)
   
   &.is-aisle
     background: transparent !important
@@ -109,6 +126,29 @@
 
 .seat-label
   font-weight: 600
+  max-width: 80%
+  overflow: hidden
+  text-overflow: ellipsis
+  white-space: nowrap
+  pointer-events: none
+
+.accessible-indicator
+  position: absolute
+  right: -5px
+  bottom: -5px
+  width: 16px
+  height: 16px
+  border-radius: 50%
+  background: #0ea5e9
+  color: #ffffff
+  display: inline-flex
+  align-items: center
+  justify-content: center
+  font-size: 0.75rem
+  border: 2px solid #ffffff
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.25)
+  pointer-events: none
+  z-index: 2
 
 .sidebar-info
   border: none
@@ -139,6 +179,16 @@
       background: #b2bec3
     &.held
       background: #f59e0b
+
+    &.accessible
+      background: #0ea5e9
+      color: #ffffff
+      display: inline-flex
+      align-items: center
+      justify-content: center
+      font-size: 0.65rem
+      border: 1px solid #0ea5e9
+
     &.aisle
       border: 1px dashed #b2bec3
 

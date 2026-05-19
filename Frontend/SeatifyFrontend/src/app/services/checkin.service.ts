@@ -27,6 +27,7 @@ export interface SeatInfo {
   section: string;
   row: number;
   number: number;
+  seatLabel?: string;
 }
 
 export interface EventInfo {

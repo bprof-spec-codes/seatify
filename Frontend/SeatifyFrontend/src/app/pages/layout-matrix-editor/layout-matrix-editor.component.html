@@ -287,6 +287,139 @@
       </div>
 
       <div class="tool-stack">
+        <div class="tool-card label-tool-card">
+          <div class="label-tool-header">
+            <div>
+              <h3>Label Tools</h3>
+              <p>Generate custom seat labels for selected seats or the whole matrix.</p>
+            </div>
+
+            <button type="button" class="label-reset-button" (click)="resetSeatLabelTool()" [disabled]="hasBookings">
+              Reset
+            </button>
+          </div>
+
+          <div class="label-form-grid">
+            <label class="label-field">
+              <span>Apply to</span>
+              <select [(ngModel)]="seatLabelTool.target" [disabled]="hasBookings">
+                <option value="selected">Selected seats</option>
+                <option value="all">Whole matrix</option>
+              </select>
+            </label>
+
+            <label class="label-field">
+              <span>Pattern</span>
+              <select [(ngModel)]="seatLabelTool.pattern" [disabled]="hasBookings">
+                <option value="rowColumn">Row + Column</option>
+                <option value="columnRow">Column + Row</option>
+              </select>
+            </label>
+
+            <label class="label-field">
+              <span>Row format</span>
+              <select [(ngModel)]="seatLabelTool.rowFormat" [disabled]="hasBookings">
+                <option value="none">None</option>
+                <option value="arabic">Arabic: 1, 2, 3</option>
+                <option value="roman">Roman: I, II, III</option>
+                <option value="letters">Letters: A, B, C</option>
+                <option value="lowercaseLetters">Letters: a, b, c</option>
+              </select>
+            </label>
+
+            <label class="label-field">
+              <span>Row starts from</span>
+              <input type="text" [(ngModel)]="seatLabelTool.rowStart" placeholder="A" [disabled]="hasBookings">
+            </label>
+
+            <label class="label-field">
+              <span>Column format</span>
+              <select [(ngModel)]="seatLabelTool.columnFormat" [disabled]="hasBookings">
+                <option value="none">None</option>
+                <option value="arabic">Arabic: 1, 2, 3</option>
+                <option value="roman">Roman: I, II, III</option>
+                <option value="letters">Letters: A, B, C</option>
+                <option value="lowercaseLetters">Letters: a, b, c</option>
+              </select>
+            </label>
+
+            <label class="label-field">
+              <span>Column starts from</span>
+              <input type="text" [(ngModel)]="seatLabelTool.columnStart" placeholder="1" [disabled]="hasBookings">
+            </label>
+
+            <label class="label-field">
+              <span>Row direction</span>
+              <select [(ngModel)]="seatLabelTool.rowDirection" [disabled]="hasBookings">
+                <option value="normal">Top to bottom</option>
+                <option value="reverse">Bottom to top</option>
+              </select>
+            </label>
+
+            <label class="label-field">
+              <span>Column direction</span>
+              <select [(ngModel)]="seatLabelTool.columnDirection" [disabled]="hasBookings">
+                <option value="normal">Left to right</option>
+                <option value="reverse">Right to left</option>
+              </select>
+            </label>
+
+            <label class="label-field">
+              <span>Separator</span>
+              <select [(ngModel)]="seatLabelTool.separator" [disabled]="hasBookings">
+                <option value="dash">Dash: A-1</option>
+                <option value="space">Space: A 1</option>
+                <option value="dot">Dot: A.1</option>
+                <option value="none">None: A1</option>
+              </select>
+            </label>
+
+            <label class="label-field">
+              <span>Side prefix</span>
+              <select [(ngModel)]="seatLabelTool.sideMode" [disabled]="hasBookings">
+                <option value="none">None</option>
+                <option value="hungarian">Bal / Jobb</option>
+                <option value="english">Left / Right</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="label-preview-box">
+            <div class="label-preview-header">
+              <span>Preview</span>
+              <strong>{{ seatLabelTargetCount }} seats</strong>
+            </div>
+
+            <div class="label-preview-list" *ngIf="seatLabelPreviewItems.length > 0; else noLabelPreview">
+              <div class="label-preview-item" *ngFor="let item of seatLabelPreviewItems">
+                <span>{{ item.currentLabel || 'No label' }}</span>
+                <i class="bi bi-arrow-right"></i>
+                <strong>{{ item.nextLabel }}</strong>
+              </div>
+            </div>
+
+            <ng-template #noLabelPreview>
+              <p class="label-preview-empty">
+                Select seats or switch Apply to Whole matrix.
+              </p>
+            </ng-template>
+          </div>
+
+          <div class="label-error" *ngIf="seatLabelErrorMessage">
+            {{ seatLabelErrorMessage }}
+          </div>
+
+          <button
+            type="button"
+            class="label-apply-button"
+            [disabled]="hasBookings || isApplyingSeatLabels || seatLabelTargetCount === 0"
+            (click)="applyGeneratedSeatLabels()"
+          >
+            <span *ngIf="!isApplyingSeatLabels">Apply generated labels</span>
+            <span *ngIf="isApplyingSeatLabels">Saving labels...</span>
+          </button>
+        </div>
+
         <div class="tool-card">
           <app-seat-editor 
             [cell]="isBulkSelection ? null : selectedCell" 

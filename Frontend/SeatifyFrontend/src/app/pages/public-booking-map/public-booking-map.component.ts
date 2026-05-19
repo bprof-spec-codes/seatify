@@ -20,6 +20,7 @@ interface GridCell {
   column: number;
   seatId: string | null;
   seatLabel: string | null;
+  rowLabel: string | null;
   seatType: string;
   price: number;
   isBooked: boolean;
@@ -185,6 +186,7 @@ export class PublicBookingMapComponent implements OnInit, OnDestroy {
           column: c,
           seatId: seat?.seatId || null,
           seatLabel: seat?.seatLabel || null,
+          rowLabel: seat?.rowLabel || null,
           seatType: seat?.seatType || 'Aisle',
           price: seat?.finalPrice || 0,
           isBooked,
@@ -209,7 +211,7 @@ export class PublicBookingMapComponent implements OnInit, OnDestroy {
     });
 
     this.gridCells.forEach(c => {
-      if (c.seatId && c.seatType === 'Seat' && !categoriesMap.has(c.price)) {
+      if (this.isBookableSeat(c) && !categoriesMap.has(c.price)) {
         categoriesMap.set(c.price, { name: 'Special Price', color: '#636e72' });
       }
     });
@@ -256,8 +258,16 @@ export class PublicBookingMapComponent implements OnInit, OnDestroy {
     );
   }
 
+  isAccessibleSeat(cell: GridCell): boolean {
+    return cell.seatType === 'AccessibleSeat';
+  }
+
+  isBookableSeat(cell: GridCell): cell is GridCell & { seatId: string } {
+    return !!cell.seatId && (cell.seatType === 'Seat' || cell.seatType === 'AccessibleSeat');
+  }
+
   toggleSeat(cell: GridCell): void {
-    if (cell.isBooked || !cell.seatId || cell.seatType !== 'Seat') return;
+    if (cell.isBooked || !this.isBookableSeat(cell)) return;
     if (this.isHoldRequestInFlight || !this.occurrenceId) return;
 
     if (!cell.isSelected && cell.isHeld) return;
@@ -309,6 +319,7 @@ export class PublicBookingMapComponent implements OnInit, OnDestroy {
       .map(c => ({
         seatId: c.seatId!,
         seatLabel: c.seatLabel || c.seatId!,
+        rowLabel: c.rowLabel || c.seatId!,
         price: c.price
       }));
     
@@ -420,6 +431,7 @@ export class PublicBookingMapComponent implements OnInit, OnDestroy {
     this.selectedSeats = session.holds.map(hold => ({
       seatId: hold.seatId,
       seatLabel: hold.seatLabel || hold.seatId,
+      rowLabel: hold.rowLabel || hold.seatId,
       price: hold.basePrice
     }));
 
