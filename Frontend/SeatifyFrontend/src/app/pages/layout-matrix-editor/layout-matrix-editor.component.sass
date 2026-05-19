@@ -577,3 +577,163 @@ h1
 
         i
             color: $color-primary-600
+
+
+.label-tool-card
+    display: flex
+    flex-direction: column
+    gap: 14px
+
+.label-tool-header
+    display: flex
+    justify-content: space-between
+    align-items: flex-start
+    gap: 12px
+
+    h3
+        margin: 0
+        font-size: 15px
+        line-height: 22px
+        font-weight: 800
+        color: $color-dark-950
+
+    p
+        margin: 4px 0 0
+        font-size: 12px
+        line-height: 18px
+        color: $color-dark-600
+
+.label-reset-button
+    border: 0
+    background: $color-light-100
+    color: $color-dark-700
+    border-radius: 999px
+    padding: 6px 10px
+    font-size: 12px
+    font-weight: 800
+    cursor: pointer
+
+    &:hover:not(:disabled)
+        background: #eff6ff
+        color: #1d4ed8
+
+    &:disabled
+        opacity: .45
+        cursor: not-allowed
+
+.label-form-grid
+    display: grid
+    grid-template-columns: 1fr
+    gap: 10px
+
+.label-field
+    display: flex
+    flex-direction: column
+    gap: 5px
+
+    span
+        font-size: 12px
+        font-weight: 800
+        color: $color-dark-700
+
+    input,
+    select
+        width: 100%
+        min-height: 36px
+        border: 1px solid $color-light-200
+        border-radius: 10px
+        background: $color-light-50
+        color: $color-dark-900
+        padding: 0 10px
+        font-size: 13px
+        outline: none
+
+        &:focus
+            border-color: $color-primary-300
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, .1)
+
+        &:disabled
+            opacity: .6
+            cursor: not-allowed
+
+.label-preview-box
+    border: 1px solid $color-light-200
+    border-radius: 14px
+    background: $color-light-100
+    padding: 10px
+
+.label-preview-header
+    display: flex
+    justify-content: space-between
+    align-items: center
+    gap: 10px
+    margin-bottom: 8px
+    font-size: 12px
+    color: $color-dark-600
+
+    strong
+        color: $color-dark-950
+
+.label-preview-list
+    display: flex
+    flex-direction: column
+    gap: 6px
+
+.label-preview-item
+    display: grid
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr)
+    align-items: center
+    gap: 6px
+    font-size: 12px
+    color: $color-dark-600
+
+    span,
+    strong
+        overflow: hidden
+        text-overflow: ellipsis
+        white-space: nowrap
+
+    strong
+        color: $color-dark-950
+
+    i
+        color: $color-primary-500
+        font-size: 11px
+
+.label-preview-empty
+    margin: 0
+    color: $color-dark-500
+    font-size: 12px
+    line-height: 18px
+
+.label-error
+    border: 1px solid #fecaca
+    background: #fef2f2
+    color: #b91c1c
+    border-radius: 12px
+    padding: 8px 10px
+    font-size: 12px
+    line-height: 18px
+    font-weight: 700
+
+.label-apply-button
+    width: 100%
+    min-height: 40px
+    border: 0
+    border-radius: 12px
+    background: $color-primary-600
+    color: white
+    font-size: 13px
+    font-weight: 900
+    cursor: pointer
+    transition: .18s ease
+
+    &:hover:not(:disabled)
+        background: $color-primary-700
+        transform: translateY(-1px)
+
+    &:disabled
+        background: $color-light-300
+        color: $color-dark-500
+        cursor: not-allowed
+        transform: none

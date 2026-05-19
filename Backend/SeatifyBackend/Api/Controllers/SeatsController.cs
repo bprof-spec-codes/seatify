@@ -48,6 +48,20 @@ namespace Api.Controllers
             }
         }
 
+        [HttpPatch("seats/bulk-labels")]
+        public async Task<ActionResult<BulkSeatUpdateResponseDto>> BulkUpdateLabels([FromBody] BulkSeatLabelUpdateDto dto, CancellationToken ct)
+        {
+            try
+            {
+                var response = await _seatService.BulkUpdateLabelsAsync(dto, ct);
+                return Ok(response);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
         [HttpGet("seats")]
         public async Task<ActionResult<List<SeatViewDto>>> GetAll(CancellationToken ct)
         {

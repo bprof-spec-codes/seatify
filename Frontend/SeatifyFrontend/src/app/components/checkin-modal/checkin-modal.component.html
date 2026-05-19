@@ -61,18 +61,30 @@
             </div>
 
             <div class="row mb-3 pb-3 border-bottom text-center">
-              <div class="col-4 border-end">
-                <span class="text-muted d-block small fw-bold text-uppercase">Section</span>
-                <span class="fs-5 fw-bold text-primary">{{ validationResult.seat?.section || 'N/A' }}</span>
-              </div>
-              <div class="col-4 border-end">
-                <span class="text-muted d-block small fw-bold text-uppercase">Row</span>
-                <span class="fs-5 fw-bold text-primary">{{ validationResult.seat?.row || 'N/A' }}</span>
-              </div>
-              <div class="col-4">
-                <span class="text-muted d-block small fw-bold text-uppercase">Seat</span>
-                <span class="fs-5 fw-bold text-primary">{{ validationResult.seat?.number || 'N/A' }}</span>
-              </div>
+              <ng-container *ngIf="validationResult.seat?.seatLabel; else noLabel">
+                <div class="col-6 border-end">
+                  <span class="text-muted d-block small fw-bold text-uppercase">Section</span>
+                  <span class="fs-5 fw-bold text-primary">{{ validationResult.seat?.section || 'N/A' }}</span>
+                </div>
+                <div class="col-6">
+                  <span class="text-muted d-block small fw-bold text-uppercase">Seat</span>
+                  <span class="fs-5 fw-bold text-primary">{{ validationResult.seat?.seatLabel }}</span>
+                </div>
+              </ng-container>
+              <ng-template #noLabel>
+                <div class="col-4 border-end">
+                  <span class="text-muted d-block small fw-bold text-uppercase">Section</span>
+                  <span class="fs-5 fw-bold text-primary">{{ validationResult.seat?.section || 'N/A' }}</span>
+                </div>
+                <div class="col-4 border-end">
+                  <span class="text-muted d-block small fw-bold text-uppercase">Row</span>
+                  <span class="fs-5 fw-bold text-primary">{{ validationResult.seat?.row || 'N/A' }}</span>
+                </div>
+                <div class="col-4">
+                  <span class="text-muted d-block small fw-bold text-uppercase">Seat</span>
+                  <span class="fs-5 fw-bold text-primary">{{ validationResult.seat?.number || 'N/A' }}</span>
+                </div>
+              </ng-template>
             </div>
 
             <div class="mb-3">
