@@ -138,18 +138,30 @@ namespace Logic.Services
 
         public async Task<BookingCheckoutResponseDto> CheckoutReservation(BookingCheckoutRequestDto request)
         {
-            if(!string.IsNullOrEmpty(request.BookingSessionId))
+            if (request == null)
             {
-                BookingSession bookingSession = _context.bookingSessions.Find(request.BookingSessionId);
-                if(bookingSession == null)
+                throw new ArgumentException("Request is required.");
+            }
+
+            BookingSession? bookingSession = null;
+
+            if (!string.IsNullOrWhiteSpace(request.BookingSessionId))
+            {
+                bookingSession = _context.bookingSessions.Find(request.BookingSessionId);
+                if (bookingSession == null)
                 {
                     throw new BookingSessionNotFoundException($"BookingSession could not be found with this id: {request.BookingSessionId}");
                 }
-                
-                if(bookingSession.ExpiresAtUtc < DateTime.UtcNow)
+
+                if (bookingSession.ExpiresAtUtc < DateTime.UtcNow)
                 {
                     throw new ArgumentException("Booking session has expired.");
                 }
+            }
+
+            if (string.IsNullOrWhiteSpace(request.EventOccurrenceId))
+            {
+                throw new ArgumentException("EventOccurrenceId is required.");
             }
 
             EventOccurrence eventOccurrence = _context.EventOccurrences
@@ -170,9 +182,54 @@ namespace Logic.Services
                 throw new ArgumentException("Currently there is no booking period for this event occurence.");
             }
 
+            if (request.SeatIds == null || request.SeatIds.Count == 0)
+            {
+                throw new ArgumentException("At least one seatId is required.");
+            }
+
+            var requestedSeatIds = request.SeatIds
+                .Where(id => !string.IsNullOrWhiteSpace(id))
+                .Select(id => id.Trim())
+                .Distinct()
+                .ToList();
+
+            if (requestedSeatIds.Count == 0)
+            {
+                throw new ArgumentException("At least one seatId is required.");
+            }
+
+            if (bookingSession != null)
+            {
+                if (!string.Equals(bookingSession.EventOccurrendeId, request.EventOccurrenceId, StringComparison.OrdinalIgnoreCase))
+                {
+                    throw new ArgumentException("Booking session does not match the requested event occurrence.");
+                }
+
+                var activeHolds = _context.seatHolds
+                    .Where(h => h.BookingSessionId == bookingSession.Id && h.Status == "Held")
+                    .ToList();
+
+                if (!activeHolds.Any())
+                {
+                    throw new ArgumentException("Booking session does not contain any active seat holds.");
+                }
+
+                var activeHoldSeatIds = activeHolds
+                    .Select(h => h.SeatId)
+                    .Distinct()
+                    .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+                if (!activeHoldSeatIds.SetEquals(requestedSeatIds))
+                {
+                    throw new ArgumentException("Requested seats do not match the active booking session holds.");
+                }
+
+                requestedSeatIds = activeHoldSeatIds.ToList();
+            }
+
             // Check if any requested seats are already booked for this occurrence
             var alreadyBookedSeats = _context.ReservationSeats
-                .Where(rs => rs.Reservation.EventOccurrenceId == request.EventOccurrenceId && rs.Reservation.Status == "Confirmed" && request.SeatIds.Contains(rs.SeatId))
+                .Where(rs => rs.Reservation.EventOccurrenceId == request.EventOccurrenceId && rs.Reservation.Status == "Confirmed" && requestedSeatIds.Contains(rs.SeatId))
                 .Select(rs => rs.SeatId)
                 .ToList();
 
@@ -183,7 +240,7 @@ namespace Logic.Services
 
             List<ReservationSeat> reservationSeats = new List<ReservationSeat>();
             
-            foreach (var seatId in request.SeatIds)
+            foreach (var seatId in requestedSeatIds)
             {
                 var finalPrice = calculateFinalSeatPrice(eventOccurrence.Event.Id, eventOccurrence.Id, seatId);
                 
@@ -206,6 +263,22 @@ namespace Logic.Services
             reservation.CreatedAtUtc = DateTime.UtcNow;
             
             _context.Reservations.Add(reservation);
+
+            if (bookingSession != null)
+            {
+                bookingSession.Status = "Completed";
+                bookingSession.Phase = "Completed";
+
+                var convertedHolds = _context.seatHolds
+                    .Where(h => h.BookingSessionId == bookingSession.Id && h.Status == "Held")
+                    .ToList();
+
+                foreach (var hold in convertedHolds)
+                {
+                    hold.Status = "Converted";
+                }
+            }
+
             _context.SaveChanges();
 
             // Prepare DTO and Email Tickets

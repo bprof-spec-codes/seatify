@@ -150,6 +150,24 @@
   padding: 5rem
   gap: 1rem
 
+.floating-alert
+  position: fixed
+  top: 20px
+  left: 50%
+  transform: translateX(-50%)
+  z-index: 1050
+  max-width: 500px
+  min-width: 300px
+  animation: slideDown 0.3s ease-out
+
+@keyframes slideDown
+  from
+    opacity: 0
+    transform: translateX(-50%) translateY(-10px)
+  to
+    opacity: 1
+    transform: translateX(-50%) translateY(0)
+
 @keyframes fadeIn
   from
     opacity: 0

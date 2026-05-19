@@ -5,7 +5,7 @@ import { catchError, map, switchMap } from 'rxjs/operators';
 import { PublicBookingStateService, SelectedSeat } from '../../services/public-booking-state.service';
 import { LayoutMatrixService } from '../../services/layout-matrix.service';
 import { SeatOverrideService } from '../../services/seat-override.service';
-import { ReservationService } from '../../services/reservation.service';
+import { SeatService, PublicSeatMapResponse } from '../../services/seat.service';
 import { SectorService } from '../../services/sector.service';
 import { EventService } from '../../services/event.service';
 import { BookingSessionService } from '../../services/booking-session.service';
@@ -26,6 +26,7 @@ interface GridCell {
   isBooked: boolean;
   isSelected: boolean;
   isHeld: boolean;
+  isOwnSessionHeld: boolean;
   sectorId: string | null;
 }
 
@@ -60,6 +61,7 @@ export class PublicBookingMapComponent implements OnInit, OnDestroy {
   private bookingSessionId: string | null = null;
   private isHoldRequestInFlight = false;
   private countdownTimerId: number | null = null;
+  private noticeTimeoutId: number | null = null;
 
   private sub = new Subscription();
 
@@ -67,7 +69,7 @@ export class PublicBookingMapComponent implements OnInit, OnDestroy {
     private stateService: PublicBookingStateService,
     private matrixService: LayoutMatrixService,
     private seatOverrideService: SeatOverrideService,
-    private reservationService: ReservationService,
+    private seatService: SeatService,
     private sectorService: SectorService,
     private eventService: EventService,
     private bookingSessionService: BookingSessionService,
@@ -130,13 +132,13 @@ export class PublicBookingMapComponent implements OnInit, OnDestroy {
           this.sub.add(
             forkJoin({
               seatMap: this.seatOverrideService.getEffectiveSeatMapForOccurrence(occ.id, matrixId),
-              reservations: this.reservationService.getReservationsForOccurrence(occ.id).pipe(catchError(() => of([]))),
+              publicSeatMap: this.seatService.getPublicSeatMapByOccurrence(occ.id),
               sectors: this.sectorService.getSectorsByAuditoriumId(occ.auditoriumId).pipe(catchError(() => of([])))
             }).subscribe({
-              next: ({ seatMap, reservations, sectors }) => {
+              next: ({ seatMap, publicSeatMap, sectors }) => {
                 this.sectors = sectors;
                 this.currency = seatMap.currency || 'EUR';
-                this.buildGrid(seatMap, reservations);
+                this.buildGrid(seatMap, publicSeatMap);
                 this.calculatePriceCategories();
                 this.isLoading = false;
               },
@@ -159,16 +161,12 @@ export class PublicBookingMapComponent implements OnInit, OnDestroy {
     );
   }
 
-  buildGrid(seatMap: EffectiveSeatMap, reservations: any[]): void {
+  buildGrid(seatMap: EffectiveSeatMap, publicSeatMap: PublicSeatMapResponse): void {
     this.gridRows = seatMap.rows;
     this.gridColumns = seatMap.columns;
     
-    const bookedSeatIds = new Set<string>();
-    reservations.forEach(res => {
-      if (res.status === 'Confirmed') {
-        res.reservedSeats.forEach((rs: any) => bookedSeatIds.add(rs.seatId));
-      }
-    });
+    const statusBySeatId = new Map<string, PublicSeatMapResponse['seats'][number]>();
+    publicSeatMap.seats.forEach(seat => statusBySeatId.set(seat.seatId, seat));
 
     const cells: GridCell[] = [];
     const seatLookup = new Map<string, EffectiveSeat>();
@@ -178,6 +176,9 @@ export class PublicBookingMapComponent implements OnInit, OnDestroy {
       for (let c = 1; c <= seatMap.columns; c++) {
         const key = `${r}-${c}`;
         const seat = seatLookup.get(key);
+        const publicSeat = seat?.seatId ? statusBySeatId.get(seat.seatId) : undefined;
+        const isBooked = publicSeat?.status === 'Booked';
+        const isHeld = publicSeat?.status === 'Reserved';
         
         cells.push({
           key,
@@ -188,10 +189,11 @@ export class PublicBookingMapComponent implements OnInit, OnDestroy {
           rowLabel: seat?.rowLabel || null,
           seatType: seat?.seatType || 'Aisle',
           price: seat?.finalPrice || 0,
-          isBooked: seat?.seatId ? bookedSeatIds.has(seat.seatId) : false,
+          isBooked,
           isSelected: false,
-          isHeld: false,
-          sectorId: seat?.sectorId || null
+          isHeld,
+           isOwnSessionHeld: false,
+           sectorId: seat?.sectorId || null
         });
       }
     }
@@ -227,9 +229,40 @@ export class PublicBookingMapComponent implements OnInit, OnDestroy {
     return sector ? sector.color : '#ffffff';
   }
 
+  refreshSeatMap(): void {
+    if (!this.occurrenceId) return;
+
+    this.sub.add(
+      this.seatService.getPublicSeatMapByOccurrence(this.occurrenceId).subscribe({
+        next: (publicSeatMap) => {
+          const statusBySeatId = new Map<string, PublicSeatMapResponse['seats'][number]>();
+          publicSeatMap.seats.forEach(seat => statusBySeatId.set(seat.seatId, seat));
+
+          // Update held and booked status for all seats
+          this.gridCells.forEach(cell => {
+            if (cell.seatId) {
+              const publicSeat = statusBySeatId.get(cell.seatId);
+              cell.isBooked = publicSeat?.status === 'Booked';
+              cell.isHeld = publicSeat?.status === 'Reserved';
+                       // Reapply own session holds to mark them with isOwnSessionHeld
+                       if (this.bookingSessionId) {
+                         this.refreshFromSession(this.bookingSessionId);
+                       }
+            }
+          });
+        },
+        error: (err) => {
+          console.error('Failed to refresh seat map:', err);
+        }
+      })
+    );
+  }
+
   toggleSeat(cell: GridCell): void {
-    if (cell.isBooked || cell.isHeld || !cell.seatId || cell.seatType !== 'Seat') return;
+    if (cell.isBooked || !cell.seatId || cell.seatType !== 'Seat') return;
     if (this.isHoldRequestInFlight || !this.occurrenceId) return;
+
+    if (!cell.isSelected && cell.isHeld) return;
 
     this.errorMessage = '';
     this.noticeMessage = '';
@@ -260,8 +293,12 @@ export class PublicBookingMapComponent implements OnInit, OnDestroy {
             cell.isSelected = false;
             this.updateSelection();
             this.noticeMessage = message;
+            this.autoDismissNotice();
+            // Refresh all seats to show latest held status
+            this.refreshSeatMap();
           } else {
             this.noticeMessage = message;
+            this.autoDismissNotice();
           }
         }
       })
@@ -305,6 +342,7 @@ export class PublicBookingMapComponent implements OnInit, OnDestroy {
               this.handleExpiredSession();
             } else {
               this.noticeMessage = message;
+              this.autoDismissNotice();
             }
           }
         })
@@ -317,6 +355,18 @@ export class PublicBookingMapComponent implements OnInit, OnDestroy {
 
   private isHeldMessage(message: string): boolean {
     return message.toLowerCase().includes('held by another session');
+  }
+
+  private autoDismissNotice(): void {
+    // Clear any existing timeout
+    if (this.noticeTimeoutId !== null) {
+      clearTimeout(this.noticeTimeoutId);
+    }
+    // Set new timeout to clear notice after 5 seconds
+    this.noticeTimeoutId = window.setTimeout(() => {
+      this.noticeMessage = '';
+      this.noticeTimeoutId = null;
+    }, 5000);
   }
 
   private ensureBookingSession() {
@@ -365,9 +415,10 @@ export class PublicBookingMapComponent implements OnInit, OnDestroy {
     const heldSeatIds = new Set(session.holds.map(h => h.seatId));
     this.gridCells.forEach(cell => {
       if (!cell.seatId) return;
-      cell.isHeld = false;
+      cell.isHeld = !heldSeatIds.has(cell.seatId) && cell.isHeld;
       cell.isSelected = heldSeatIds.has(cell.seatId);
-    });
+       cell.isOwnSessionHeld = heldSeatIds.has(cell.seatId);
+     });
 
     this.selectedSeats = session.holds.map(hold => ({
       seatId: hold.seatId,
@@ -448,6 +499,9 @@ export class PublicBookingMapComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.clearCountdown();
+    if (this.noticeTimeoutId !== null) {
+      clearTimeout(this.noticeTimeoutId);
+    }
     this.sub.unsubscribe();
   }
 }

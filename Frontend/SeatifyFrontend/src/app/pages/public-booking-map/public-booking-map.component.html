@@ -7,7 +7,7 @@
       Hurry up, your session will expire soon.
     </div>
   </div>
-  <div class="alert alert-warning" *ngIf="noticeMessage">
+  <div class="alert alert-warning floating-alert" *ngIf="noticeMessage">
     {{ noticeMessage }}
   </div>
   <div class="row">
@@ -36,11 +36,13 @@
                    [style.border-color]="cell.isSelected ? 'var(--primary-color)' : '#dfe6e9'"
                    (click)="toggleSeat(cell)"
                    [title]="cell.isBooked ? 'Occupied' : (cell.isHeld ? 'Held by another session' : (cell.seatLabel || '') + (cell.price ? ' - ' + cell.price + ' ' + currency : ''))">
-                <span *ngIf="cell.seatId && cell.seatType === 'Seat' && !cell.isBooked" class="seat-label">
+                <span *ngIf="cell.seatId && cell.seatType === 'Seat' && !cell.isBooked && !cell.isHeld" class="seat-label">
+                  {{ cell.seatLabel }}
+                </span>
+                <span *ngIf="cell.seatId && cell.seatType === 'Seat' && !cell.isBooked && cell.isHeld && cell.isOwnSessionHeld" class="seat-label">
                   {{ cell.seatLabel }}
                 </span>
                 <i *ngIf="cell.isBooked" class="bi bi-x-lg"></i>
-                <i *ngIf="cell.isHeld && !cell.isBooked" class="bi bi-dash-lg"></i>
               </div>
             </div>
           </div>
