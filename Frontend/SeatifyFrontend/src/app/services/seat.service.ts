@@ -3,7 +3,7 @@ import { BehaviorSubject, catchError, map, Observable, tap, throwError } from 'r
 import { SeatMap } from '../models/seat-map';
 import { environment } from '../../environments/environment';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { BulkSeatUpdateDto, Seat, UpdateSeatDto } from '../models/seat';
+import { BulkSeatLabelUpdateDto, BulkSeatUpdateDto, BulkSeatUpdateResponseDto, Seat, UpdateSeatDto, BulkSeatLabelUpdateItemDto } from '../models/seat';
 import { EffectiveSeatMap } from '../models/seat-override';
 import { ConfigService } from './config.service';
 
@@ -115,22 +115,24 @@ export class SeatService {
     if (!currentSeatMap) return
 
     const labelBySeatId = new Map(
-      dto.items.map(item => [item.seatId, item.seatLabel])
+      dto.items.map((item: BulkSeatLabelUpdateItemDto) => [item.seatId, item.seatLabel])
     )
+
+    const updatedSeats = currentSeatMap.seats.map(seat => {
+      if (!labelBySeatId.has(seat.id)) {
+        return seat
+      }
+
+      return {
+        ...seat,
+        seatLabel: labelBySeatId.get(seat.id) ?? undefined,
+        updatedAtUtc: new Date()
+      } as Seat
+    });
 
     const nextSeatMap: SeatMap = {
       ...currentSeatMap,
-      seats: currentSeatMap.seats.map(seat => {
-        if (!labelBySeatId.has(seat.id)) {
-          return seat
-        }
-
-        return {
-          ...seat,
-          seatLabel: labelBySeatId.get(seat.id) ?? undefined,
-          updatedAtUtc: new Date()
-        }
-      })
+      seats: updatedSeats
     }
 
     this.seatMapSource.next(nextSeatMap)
