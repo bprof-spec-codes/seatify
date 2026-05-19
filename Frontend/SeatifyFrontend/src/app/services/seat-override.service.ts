@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, catchError, throwError } from 'rxjs';
-import { environment } from '../../environments/environment';
 import {
   BulkSeatOverrideDto,
   BulkSeatOverrideResponseDto,
@@ -11,8 +10,6 @@ import { ConfigService } from './config.service';
 
 @Injectable({ providedIn: 'root' })
 export class SeatOverrideService {
-  private readonly apiUrl = `${environment.baseApiUrl}/api`;
-
   private readonly seatOverridePath = '/api';
 
   constructor(

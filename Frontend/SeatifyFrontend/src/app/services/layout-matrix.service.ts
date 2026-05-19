@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { environment } from '../../environments/environment';
 import { BehaviorSubject, catchError, map, Observable, tap, throwError } from 'rxjs';
 import { CreateLayoutMatrixDto, LayoutMatrix } from '../models/layout-matrix';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
@@ -9,8 +8,6 @@ import { ConfigService } from './config.service';
   providedIn: 'root'
 })
 export class LayoutMatrixService {
-  private apiUrl = `${environment.baseApiUrl}/api`
-
   private readonly layoutMatricesPath = '/api';
 
   private LayoutMatrixSource = new BehaviorSubject<LayoutMatrix[]>([])

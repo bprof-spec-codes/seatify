@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, catchError, map, Observable, tap, throwError } from 'rxjs';
 import { SeatMap } from '../models/seat-map';
-import { environment } from '../../environments/environment';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BulkSeatLabelUpdateDto, BulkSeatUpdateDto, BulkSeatUpdateResponseDto, Seat, UpdateSeatDto, BulkSeatLabelUpdateItemDto } from '../models/seat';
 import { EffectiveSeatMap } from '../models/seat-override';
@@ -26,8 +25,6 @@ export interface PublicSeatMapResponse {
   providedIn: 'root'
 })
 export class SeatService {
-  private apiUrl = `${environment.baseApiUrl}/api`
-
   private readonly seatPath = '/api';
 
   private seatMapSource = new BehaviorSubject<SeatMap | null>(null)
@@ -54,7 +51,7 @@ export class SeatService {
   }
 
   getPublicSeatMapByOccurrence(eventOccurrenceId: string): Observable<PublicSeatMapResponse> {
-    return this.http.get<PublicSeatMapResponse>(`${this.apiUrl}/public/events/${eventOccurrenceId}/seatmap`)
+    return this.http.get<PublicSeatMapResponse>(`${this.configService.apiBaseUrl}/api/public/events/${eventOccurrenceId}/seatmap`)
       .pipe(catchError(this.handleError));
   }
 
@@ -80,7 +77,7 @@ export class SeatService {
   }
 
   bulkUpdateSeatLabels(dto: BulkSeatLabelUpdateDto): Observable<BulkSeatUpdateResponseDto> {
-    return this.http.patch<BulkSeatUpdateResponseDto>(`${this.apiUrl}/seats/bulk-labels`, dto).pipe(
+    return this.http.patch<BulkSeatUpdateResponseDto>(`${this.api(this.seatPath)}/seats/bulk-labels`, dto).pipe(
       tap(() => this.updateSeatLabelsInCurrentSeatMap(dto)),
       catchError(this.handleError)
     )

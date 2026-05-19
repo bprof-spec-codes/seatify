@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../environments/environment';
 import { Appearance, AppearanceCreateRequest } from '../models/appearance';
 import { ConfigService } from './config.service';
 
@@ -9,8 +8,6 @@ import { ConfigService } from './config.service';
   providedIn: 'root'
 })
 export class AppearanceService {
-  private readonly apiUrl = `${environment.baseApiUrl}/api/appearance`;
-
   constructor(
     private readonly http: HttpClient,
     private readonly configService: ConfigService

@@ -4,7 +4,6 @@ import { BehaviorSubject, catchError, Observable, tap, throwError } from 'rxjs';
 
 import { Venue } from '../models/venue';
 import { Auditorium } from '../models/auditorium';
-import { environment } from '../../environments/environment';
 import { ConfigService } from './config.service';
 
 @Injectable({
@@ -28,10 +27,7 @@ export class VenueService {
   ) { }
 
   private get baseApiUrl(): string {
-    const configuredBaseUrl = this.configService?.cfg?.baseApiUrl;
-    const fallbackBaseUrl = environment.baseApiUrl;
-
-    return (configuredBaseUrl || fallbackBaseUrl || '').replace(/\/$/, '');
+    return this.configService.apiBaseUrl;
   }
 
   private api(path: string): string {

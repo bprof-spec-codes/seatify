@@ -2,16 +2,12 @@ import { Injectable } from '@angular/core';
 import { Auditorium } from '../models/auditorium';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, catchError, Observable, tap, throwError } from 'rxjs';
-import { environment } from '../../environments/environment';
 import { ConfigService } from './config.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuditoriumService {
-  private apiUrl = `${environment.baseApiUrl}/api/auditoriums`;
-  private venuesApiUrl = `${environment.baseApiUrl}/api/venues`;
-
   private readonly auditoriumsPath = '/api/auditoriums';
   private readonly venuesPath = '/api/venues';
 

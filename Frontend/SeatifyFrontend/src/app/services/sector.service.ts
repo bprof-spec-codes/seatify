@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
-import { environment } from '../../environments/environment';
 import { catchError, map, Observable, tap, throwError } from 'rxjs';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { CreateUpdateSectorDto, Sector, SectorViewDto } from '../models/sector';
@@ -10,8 +9,6 @@ import { ConfigService } from './config.service';
   providedIn: 'root'
 })
 export class SectorService {
-  private apiUrl = `${environment.baseApiUrl}/api`
-
   private readonly sectorPath = '/api';
 
   private sectorSource = new BehaviorSubject<Sector[]>([])

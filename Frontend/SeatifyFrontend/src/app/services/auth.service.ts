@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, Observable, catchError, tap, throwError } from 'rxjs';
-import { environment } from '../../environments/environment';
 import { AuthResponse, CurrentUser, LoginRequest, RegisterRequest } from '../models/auth';
 import { ConfigService } from './config.service';
 
@@ -9,7 +8,6 @@ import { ConfigService } from './config.service';
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly apiUrl = `${environment.baseApiUrl}/api/auth`;
   private readonly tokenKey = 'seatify_token';
   private readonly currentUserKey = 'seatify_current_user'
   private readonly expiresAtKey = 'seatify_expires_at'

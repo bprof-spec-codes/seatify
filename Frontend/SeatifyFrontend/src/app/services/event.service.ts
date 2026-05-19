@@ -1,7 +1,6 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, catchError, forkJoin, map, of, switchMap, throwError } from 'rxjs';
-import { environment } from '../../environments/environment';
 import { SeatifyEvent } from '../models/event';
 import { EventCard } from '../models/event-card';
 import { EventOccurrence } from '../models/event-occurrence';
@@ -13,10 +12,6 @@ import { ConfigService } from './config.service';
   providedIn: 'root'
 })
 export class EventService {
-  private readonly apiUrl = `${environment.baseApiUrl}/api`;
-  private readonly eventsApiUrl = `${this.apiUrl}/events`;
-  private readonly eventOccurrencesApiUrl = `${this.apiUrl}/event-occurrences`;
-
   private readonly eventPath = '/api/events';
   private readonly eventOccurrencesPath = '/api/event-occurrences';
 

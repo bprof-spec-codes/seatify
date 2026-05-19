@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../environments/environment';
 import { ConfigService } from './config.service';
 
 export interface BookingCheckoutRequest {
@@ -49,8 +48,6 @@ export interface ReservationView {
   providedIn: 'root'
 })
 export class ReservationService {
-  private apiUrl = `${environment.baseApiUrl}/api`;
-
   private readonly reservationPath = '/api';
 
   constructor(
