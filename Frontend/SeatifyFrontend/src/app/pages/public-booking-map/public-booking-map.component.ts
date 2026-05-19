@@ -20,6 +20,7 @@ interface GridCell {
   column: number;
   seatId: string | null;
   seatLabel: string | null;
+  rowLabel: string | null;
   seatType: string;
   price: number;
   isBooked: boolean;
@@ -185,6 +186,7 @@ export class PublicBookingMapComponent implements OnInit, OnDestroy {
           column: c,
           seatId: seat?.seatId || null,
           seatLabel: seat?.seatLabel || null,
+          rowLabel: seat?.rowLabel || null,
           seatType: seat?.seatType || 'Aisle',
           price: seat?.finalPrice || 0,
           isBooked,
@@ -317,6 +319,7 @@ export class PublicBookingMapComponent implements OnInit, OnDestroy {
       .map(c => ({
         seatId: c.seatId!,
         seatLabel: c.seatLabel || c.seatId!,
+        rowLabel: c.rowLabel || c.seatId!,
         price: c.price
       }));
     
@@ -428,6 +431,7 @@ export class PublicBookingMapComponent implements OnInit, OnDestroy {
     this.selectedSeats = session.holds.map(hold => ({
       seatId: hold.seatId,
       seatLabel: hold.seatLabel || hold.seatId,
+      rowLabel: hold.rowLabel || hold.seatId,
       price: hold.basePrice
     }));
 

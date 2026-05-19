@@ -91,7 +91,7 @@
             <h4 class="h6 text-muted uppercase">Your Selection</h4>
             <div class="selected-items mb-3">
               <div *ngFor="let s of selectedSeats" class="small d-flex justify-content-between mb-1">
-                <span>Seat {{ s.seatLabel }}</span>
+                <span>Seat {{ s.rowLabel }}{{ s.seatLabel }}</span>
                 <span>{{ s.price | price:currency }}</span>
               </div>
             </div>

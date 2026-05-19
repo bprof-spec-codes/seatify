@@ -184,6 +184,11 @@ namespace Logic.Services
                 throw new EventOccurrenceNotFoundException($"EventOccurrence could not be found with this id: {request.EventOccurrenceId}");
             }
 
+            if (!(DateTime.UtcNow > eventOccurrence.BookingOpenAtUtc && DateTime.UtcNow < eventOccurrence.BookingCloseAtUtc))
+            {
+                throw new ArgumentException("Currently there is no booking period for this event occurence.");
+            }
+
             if (request.SeatIds == null || request.SeatIds.Count == 0)
             {
                 throw new ArgumentException("At least one seatId is required.");
