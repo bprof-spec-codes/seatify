@@ -32,6 +32,12 @@ namespace Logic.Services
 
         public bool CreateReservation(string eventOccurrenceId, ReservationCreateDto dto)
         {
+            var eventOccurrence = _context.EventOccurrences.FirstOrDefault(eo => eo.Id == eventOccurrenceId);
+            if (eventOccurrence == null)
+            {
+                return false;
+            }
+
             var reservation = new Reservation
             {
                 EventOccurrenceId = eventOccurrenceId,
@@ -45,10 +51,11 @@ namespace Logic.Services
 
             foreach (var seat in dto.Seats)
             {
+                var finalPrice = calculateFinalSeatPrice(eventOccurrence.EventId, eventOccurrenceId, seat.SeatId);
                 reservation.ReservationSeats.Add(new ReservationSeat
                 {
                     SeatId = seat.SeatId,
-                    FinalPrice = 5000 // mock data for testing
+                    FinalPrice = finalPrice
                 });
             }
 
