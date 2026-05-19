@@ -48,6 +48,7 @@ export const routes: Routes = [
   },
 
   { path: 'checkout', component: CheckoutComponent },
+  { path: 'checkout/:sessionId', component: CheckoutComponent },
 
   {
     path: 'book/:slug/:occurrenceId',

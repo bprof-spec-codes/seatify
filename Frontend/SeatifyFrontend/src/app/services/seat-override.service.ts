@@ -7,24 +7,34 @@ import {
   BulkSeatOverrideResponseDto,
   EffectiveSeatMap
 } from '../models/seat-override';
+import { ConfigService } from './config.service';
 
 @Injectable({ providedIn: 'root' })
 export class SeatOverrideService {
   private readonly apiUrl = `${environment.baseApiUrl}/api`;
 
-  constructor(private http: HttpClient) {}
+  private readonly seatOverridePath = '/api';
+
+  constructor(
+    private http: HttpClient,
+    private configService: ConfigService
+  ) { }
 
   // ─── Event szintű ───────────────────────────────────────────────────────────
 
+  private api(path: string): string {
+    return `${this.configService.cfg.baseApiUrl}${path}`;
+  }
+
   getEffectiveSeatMapForEvent(eventId: string, matrixId: string): Observable<EffectiveSeatMap> {
     return this.http
-      .get<EffectiveSeatMap>(`${this.apiUrl}/events/${eventId}/seat-map/${matrixId}`)
+      .get<EffectiveSeatMap>(`${this.api(this.seatOverridePath)}/events/${eventId}/seat-map/${matrixId}`)
       .pipe(catchError(this.handleError));
   }
 
   bulkUpsertEventOverride(eventId: string, dto: BulkSeatOverrideDto): Observable<BulkSeatOverrideResponseDto> {
     return this.http
-      .patch<BulkSeatOverrideResponseDto>(`${this.apiUrl}/events/${eventId}/seats/bulk`, dto)
+      .patch<BulkSeatOverrideResponseDto>(`${this.api(this.seatOverridePath)}/events/${eventId}/seats/bulk`, dto)
       .pipe(catchError(this.handleError));
   }
 
@@ -32,13 +42,13 @@ export class SeatOverrideService {
 
   getEffectiveSeatMapForOccurrence(occurrenceId: string, matrixId: string): Observable<EffectiveSeatMap> {
     return this.http
-      .get<EffectiveSeatMap>(`${this.apiUrl}/event-occurrences/${occurrenceId}/seat-map/${matrixId}`)
+      .get<EffectiveSeatMap>(`${this.api(this.seatOverridePath)}/event-occurrences/${occurrenceId}/seat-map/${matrixId}`)
       .pipe(catchError(this.handleError));
   }
 
   bulkUpsertOccurrenceOverride(occurrenceId: string, dto: BulkSeatOverrideDto): Observable<BulkSeatOverrideResponseDto> {
     return this.http
-      .patch<BulkSeatOverrideResponseDto>(`${this.apiUrl}/event-occurrences/${occurrenceId}/seats/bulk`, dto)
+      .patch<BulkSeatOverrideResponseDto>(`${this.api(this.seatOverridePath)}/event-occurrences/${occurrenceId}/seats/bulk`, dto)
       .pipe(catchError(this.handleError));
   }
 

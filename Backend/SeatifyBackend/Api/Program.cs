@@ -84,6 +84,7 @@ namespace Api
             builder.Services.AddScoped<ISeatService, SeatService>();
             builder.Services.AddScoped<IOrganizerService, OrganizerService>();
             builder.Services.AddScoped<IEventOccurrenceService, EventOccurrenceService>();
+            builder.Services.AddScoped<IBookingSessionService, BookingSessionService>();
             builder.Services.AddScoped<IReservationService, ReservationService>();
             builder.Services.AddScoped<ILayoutMatrixService, LayoutMatrixService>();
             builder.Services.AddScoped<Logic.Services.IEventService, EventService>();

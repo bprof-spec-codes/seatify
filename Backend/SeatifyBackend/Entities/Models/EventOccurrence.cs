@@ -37,8 +37,5 @@ namespace Entities.Models
 
         public string? AppearanceId { get; set; }
         public virtual Appearance? Appearance { get; set; }
-
-        // TODO: BookingSession
-
     }
 }

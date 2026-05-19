@@ -1,4 +1,13 @@
-<div class="checkout-container" *ngIf="occ">
+<div class="loading-state" *ngIf="isLoading">
+  <div class="spinner-border text-primary" role="status"></div>
+  <p>Loading checkout...</p>
+</div>
+
+<div class="alert alert-danger" *ngIf="!isLoading && errorMessage">
+  {{ errorMessage }}
+</div>
+
+<div class="checkout-container" *ngIf="!isLoading && occ && session">
   <div class="row">
     <div class="col-lg-7">
       <div class="card checkout-card shadow-sm">
