@@ -7,8 +7,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using System.Text;
 using Resend;
+using System.Text;
 
 namespace Api
 {
@@ -84,6 +84,7 @@ namespace Api
             builder.Services.AddScoped<ISeatService, SeatService>();
             builder.Services.AddScoped<IOrganizerService, OrganizerService>();
             builder.Services.AddScoped<IEventOccurrenceService, EventOccurrenceService>();
+            builder.Services.AddScoped<IBookingSessionService, BookingSessionService>();
             builder.Services.AddScoped<IReservationService, ReservationService>();
             builder.Services.AddScoped<ILayoutMatrixService, LayoutMatrixService>();
             builder.Services.AddScoped<Logic.Services.IEventService, EventService>();
@@ -96,13 +97,12 @@ namespace Api
             builder.Services.AddHttpClient<ResendClient>();
             builder.Services.Configure<ResendClientOptions>(o =>
             {
-                o.ApiToken = Environment.GetEnvironmentVariable("RESEND_API_KEY") 
-                    ?? builder.Configuration["Resend:ApiToken"] 
+                o.ApiToken = Environment.GetEnvironmentVariable("RESEND_API_KEY")
+                    ?? builder.Configuration["Resend:ApiToken"]
                     ?? string.Empty;
             });
             builder.Services.AddTransient<IResend, ResendClient>();
 
-            builder.Services.AddScoped<ICheckInService, CheckInService>();
             builder.Services.AddScoped<ICheckInService, CheckInService>();
             builder.Services.AddScoped<IQrService, QrService>();
             builder.Services.AddScoped<IPdfService, PdfService>();
@@ -144,9 +144,22 @@ namespace Api
                 builder.Services.AddDbContext<AppDbContext>(options =>
                     options.UseInMemoryDatabase(databaseName));
             }
+            else if (string.Equals(databaseProvider, "SqlServer", StringComparison.OrdinalIgnoreCase))
+            {
+                var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+                if (string.IsNullOrWhiteSpace(connectionString))
+                {
+                    throw new InvalidOperationException("DefaultConnection connection string is not configured.");
+                }
+
+                builder.Services.AddDbContext<AppDbContext>(options =>
+                    options.UseSqlServer(connectionString));
+            }
             else
             {
-                throw new InvalidOperationException("Unsupported database provider configured.");
+                throw new InvalidOperationException(
+                    $"Unsupported database provider configured: '{databaseProvider}'. Supported providers: InMemory, SqlServer.");
             }
 
             var app = builder.Build();

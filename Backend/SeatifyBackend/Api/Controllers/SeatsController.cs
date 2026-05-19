@@ -159,7 +159,7 @@ namespace Api.Controllers
             }
         }
 
-        [HttpGet("/public/events/{eventOccurrenceId}/seatmap")]
+        [HttpGet("public/events/{eventOccurrenceId}/seatmap")]
         public IActionResult GetSeatMap(string eventOccurrenceId)
         {
             try

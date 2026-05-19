@@ -1,0 +1,3 @@
+{
+    "baseApiUrl": "${BACKEND_URL}"
+}

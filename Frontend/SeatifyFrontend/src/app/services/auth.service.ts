@@ -3,6 +3,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, Observable, catchError, tap, throwError } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { AuthResponse, CurrentUser, LoginRequest, RegisterRequest } from '../models/auth';
+import { ConfigService } from './config.service';
 
 @Injectable({
   providedIn: 'root'
@@ -13,27 +14,36 @@ export class AuthService {
   private readonly currentUserKey = 'seatify_current_user'
   private readonly expiresAtKey = 'seatify_expires_at'
 
+  private readonly authPath = '/api/auth';
+
   private currentUserSubject = new BehaviorSubject<CurrentUser | null>(this.getStoredUser());
   public currentUser$ = this.currentUserSubject.asObservable();
 
-  constructor(private http: HttpClient) { }
+  constructor(
+    private http: HttpClient,
+    private configService: ConfigService
+  ) { }
+
+  private api(path: string): string {
+    return `${this.configService.cfg.baseApiUrl}${path}`;
+  }
 
   login(dto: LoginRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, dto).pipe(
+    return this.http.post<AuthResponse>(`${this.api(this.authPath)}/login`, dto).pipe(
       tap(response => this.storeAuth(response)),
       catchError(error => this.handleError(error))
     );
   }
 
   register(dto: RegisterRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/register`, dto).pipe(
+    return this.http.post<AuthResponse>(`${this.api(this.authPath)}/register`, dto).pipe(
       tap(response => this.storeAuth(response)),
       catchError(error => this.handleError(error))
     );
   }
 
   getMe(): Observable<CurrentUser> {
-    return this.http.get<CurrentUser>(`${this.apiUrl}/me`).pipe(
+    return this.http.get<CurrentUser>(`${this.api(this.authPath)}/me`).pipe(
       tap(user => {
         localStorage.setItem(this.currentUserKey, JSON.stringify(user));
         this.currentUserSubject.next(user);

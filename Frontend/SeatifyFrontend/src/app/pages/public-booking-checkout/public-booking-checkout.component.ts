@@ -5,6 +5,8 @@ import { Subscription } from 'rxjs';
 import { PublicBookingStateService, SelectedSeat } from '../../services/public-booking-state.service';
 import { ReservationService } from '../../services/reservation.service';
 import { EventService } from '../../services/event.service';
+import { BookingSessionService } from '../../services/booking-session.service';
+import { BookingSession } from '../../models/booking.model';
 
 @Component({
   selector: 'app-public-booking-checkout',
@@ -15,10 +17,12 @@ import { EventService } from '../../services/event.service';
 export class PublicBookingCheckoutComponent implements OnInit, OnDestroy {
   checkoutForm: FormGroup;
   occ: any = null;
+  session: BookingSession | null = null;
   selectedSeats: SelectedSeat[] = [];
   totalPrice = 0;
   currency = 'EUR';
 
+  isLoading = true;
   isSubmitting = false;
   errorMessage = '';
 
@@ -29,6 +33,7 @@ export class PublicBookingCheckoutComponent implements OnInit, OnDestroy {
     private stateService: PublicBookingStateService,
     private reservationService: ReservationService,
     private eventService: EventService,
+    private bookingSessionService: BookingSessionService,
     private router: Router,
     private route: ActivatedRoute
   ) {
@@ -40,34 +45,67 @@ export class PublicBookingCheckoutComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.occ = this.stateService.getEventOccurrence();
-    this.selectedSeats = this.stateService.getSelectedSeats();
-    this.totalPrice = this.stateService.getTotalPrice();
-
-    if (this.occ) {
-      this.currency = this.occ.effectiveCurrency;
+    this.isLoading = true;
+    const sessionId = this.resolveSessionId();
+    if (!sessionId) {
+      this.isLoading = false;
+      this.errorMessage = 'Missing booking session. Please start a new booking.';
+      return;
     }
 
-    if (!this.occ || this.selectedSeats.length === 0) {
-      // If refreshed on checkout page, try to recover occurrence but seats are likely gone
-      const occurrenceId = this.route.parent?.snapshot.paramMap.get('occurrenceId');
-      if (occurrenceId && !this.occ) {
-        this.eventService.getOccurrenceById(occurrenceId).subscribe(occ => {
+    this.sub.add(
+      this.bookingSessionService.getActiveSession(sessionId).subscribe({
+        next: (session) => {
+          if (this.isSessionExpired(session)) {
+            this.handleExpiredSession();
+            return;
+          }
+
+          this.session = session;
+          this.stateService.setBookingSessionId(session.id);
+          this.selectedSeats = session.holds.map(hold => ({
+            seatId: hold.seatId,
+            seatLabel: hold.seatLabel || hold.seatId,
+            price: hold.basePrice
+          }));
+          this.totalPrice = this.selectedSeats.reduce((sum, seat) => sum + seat.price, 0);
+
+          this.loadOccurrence(session.eventOccurrenceId);
+        },
+        error: (err) => {
+          this.isLoading = false;
+          this.errorMessage = err.error?.message || 'Failed to load booking session.';
+        }
+      })
+    );
+  }
+
+  private resolveSessionId(): string | null {
+    return this.route.snapshot.queryParamMap.get('sessionId')
+      || this.route.snapshot.queryParamMap.get('bookingSessionId')
+      || this.stateService.getBookingSessionId();
+  }
+
+  private loadOccurrence(occurrenceId: string): void {
+    this.sub.add(
+      this.eventService.getOccurrenceById(occurrenceId).subscribe({
+        next: (occ) => {
           this.occ = occ;
           this.currency = occ.effectiveCurrency;
           this.stateService.setEventOccurrence(occ);
-          if (this.selectedSeats.length === 0) {
-             this.router.navigate(['../'], { relativeTo: this.route });
-          }
-        });
-      } else {
-        this.router.navigate(['../'], { relativeTo: this.route });
-      }
-    }
+          this.persistCheckoutContext();
+          this.isLoading = false;
+        },
+        error: () => {
+          this.isLoading = false;
+          this.errorMessage = 'Failed to load event details.';
+        }
+      })
+    );
   }
 
   onSubmit(): void {
-    if (this.checkoutForm.invalid || this.isSubmitting) {
+    if (this.checkoutForm.invalid || this.isSubmitting || !this.session) {
       this.checkoutForm.markAllAsTouched();
       return;
     }
@@ -76,17 +114,19 @@ export class PublicBookingCheckoutComponent implements OnInit, OnDestroy {
     this.errorMessage = '';
 
     const request = {
-      eventOccurrenceId: this.occ.id,
+      eventOccurrenceId: this.session.eventOccurrenceId,
       customerName: this.checkoutForm.value.fullName || null,
       customerEmail: this.checkoutForm.value.email,
       customerPhone: this.checkoutForm.value.phone || null,
-      seatIds: this.selectedSeats.map(s => s.seatId)
+      seatIds: this.session.holds.map(h => h.seatId),
+      bookingSessionId: this.session.id
     };
 
     this.sub.add(
       this.reservationService.checkoutReservation(request).subscribe({
         next: (res) => {
           this.isSubmitting = false;
+          this.persistCheckoutResult(res);
           (this.stateService as any).lastCheckoutResult = res;
           this.router.navigate(['../success'], { relativeTo: this.route });
         },
@@ -104,6 +144,38 @@ export class PublicBookingCheckoutComponent implements OnInit, OnDestroy {
   }
 
   get f() { return this.checkoutForm.controls; }
+
+  private isSessionExpired(session: BookingSession): boolean {
+    return session.status !== 'Active' || session.phase === 'Expired' || session.phase === 'Cancelled';
+  }
+
+  private handleExpiredSession(): void {
+    this.isLoading = false;
+    this.errorMessage = 'Your booking session has expired. Please select your seats again.';
+    this.stateService.setBookingSessionId(null);
+    this.stateService.setSelectedSeats([]);
+    window.setTimeout(() => {
+      this.router.navigate(['../'], { relativeTo: this.route });
+    }, 2500);
+  }
+
+  private persistCheckoutResult(result: any): void {
+    try {
+      window.sessionStorage.setItem('seatify.lastCheckoutResult', JSON.stringify(result));
+    } catch {
+      // ignore storage failures
+    }
+  }
+
+  private persistCheckoutContext(): void {
+    if (!this.occ) return;
+
+    try {
+      window.sessionStorage.setItem('seatify.lastBookingOccurrence', JSON.stringify(this.occ));
+    } catch {
+      // ignore storage failures
+    }
+  }
 
   ngOnDestroy(): void {
     this.sub.unsubscribe();

@@ -1,0 +1,46 @@
+name: Build and Push Backend Docker Image
+
+on:
+  push:
+    branches:
+      - develop
+    paths:
+      - "Backend/SeatifyBackend/**"
+      - ".github/workflows/test-backend.yml"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push backend image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./Backend/SeatifyBackend
+          file: ./Backend/SeatifyBackend/Api/Dockerfile
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_HUB_USERNAME }}/seatify-backend-test:develop
+            ${{ secrets.DOCKER_HUB_USERNAME }}/seatify-backend-test:${{ github.sha }}
+
+      - name: Deploy on server (atomic symlink switch + systemd restart)
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: seatify.hu
+          username: root
+          key: ${{secrets.SSH_KEY}}
+          passphrase: ${{secrets.SSH_PASS}}
+          script: |
+            ./test_backend_refresh.sh

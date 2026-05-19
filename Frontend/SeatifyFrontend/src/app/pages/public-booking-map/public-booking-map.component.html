@@ -1,4 +1,15 @@
-<div class="map-container" *ngIf="!isLoading && !errorMessage">
+<div class="map-container" *ngIf="!isLoading && !isBlockingError">
+  <div class="session-banner" *ngIf="showCountdown">
+    <div class="session-text">
+      Your seats are reserved for <span class="session-time">{{ countdownText }}</span>
+    </div>
+    <div class="session-note" *ngIf="countdownSeconds <= 60">
+      Hurry up, your session will expire soon.
+    </div>
+  </div>
+  <div class="alert alert-warning floating-alert" *ngIf="noticeMessage">
+    {{ noticeMessage }}
+  </div>
   <div class="row">
     <div class="col-lg-9">
       <div class="map-card card shadow-sm mb-4">
@@ -19,12 +30,16 @@
                    [class.is-seat]="cell.seatId && cell.seatType === 'Seat'"
                    [class.is-aisle]="cell.seatType === 'Aisle'"
                    [class.is-booked]="cell.isBooked"
+                   [class.is-held]="cell.isHeld"
                    [class.is-selected]="cell.isSelected"
-                   [style.background]="cell.isSelected ? 'var(--primary-color)' : (cell.isBooked ? '#b2bec3' : (cell.seatType === 'Seat' ? getSectorColor(cell.sectorId) : 'transparent'))"
+                   [style.background]="cell.isSelected ? 'var(--primary-color)' : (cell.isBooked ? '#b2bec3' : (cell.isHeld ? '#f59e0b' : (cell.seatType === 'Seat' ? getSectorColor(cell.sectorId) : 'transparent')))"
                    [style.border-color]="cell.isSelected ? 'var(--primary-color)' : '#dfe6e9'"
                    (click)="toggleSeat(cell)"
-                   [title]="cell.isBooked ? 'Occupied' : (cell.seatLabel || '') + (cell.price ? ' - ' + cell.price + ' ' + currency : '')">
-                <span *ngIf="cell.seatId && cell.seatType === 'Seat' && !cell.isBooked" class="seat-label">
+                   [title]="cell.isBooked ? 'Occupied' : (cell.isHeld ? 'Held by another session' : (cell.seatLabel || '') + (cell.price ? ' - ' + cell.price + ' ' + currency : ''))">
+                <span *ngIf="cell.seatId && cell.seatType === 'Seat' && !cell.isBooked && !cell.isHeld" class="seat-label">
+                  {{ cell.seatLabel }}
+                </span>
+                <span *ngIf="cell.seatId && cell.seatType === 'Seat' && !cell.isBooked && cell.isHeld && cell.isOwnSessionHeld" class="seat-label">
                   {{ cell.seatLabel }}
                 </span>
                 <i *ngIf="cell.isBooked" class="bi bi-x-lg"></i>
@@ -51,6 +66,7 @@
           <div class="legend-list mb-4">
             <div class="legend-item"><span class="box selected me-2"></span> Selected</div>
             <div class="legend-item"><span class="box occupied me-2"></span> Occupied</div>
+            <div class="legend-item"><span class="box held me-2"></span> Held</div>
             <div class="legend-item"><span class="box aisle me-2"></span> Aisle</div>
           </div>
 
@@ -83,6 +99,6 @@
   <p>Loading seating chart...</p>
 </div>
 
-<div class="alert alert-danger" *ngIf="errorMessage">
+<div class="alert alert-danger" *ngIf="isBlockingError && errorMessage">
   {{ errorMessage }}
 </div>

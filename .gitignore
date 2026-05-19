@@ -30,6 +30,7 @@ bld/
 *.tlog
 *.tmp
 *.temp
+*.lscache
 
 #######################################
 # Rider / JetBrains
@@ -145,6 +146,6 @@ docker-compose.override.yml
 *.pid
 *.seed
 
-# Local ASP.NET Core settings
+# Local ASP.NET Core development settings
 **/appsettings.Development.json
 **/appsettings.Local.json

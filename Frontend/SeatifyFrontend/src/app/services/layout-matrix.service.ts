@@ -3,19 +3,30 @@ import { environment } from '../../environments/environment';
 import { BehaviorSubject, catchError, map, Observable, tap, throwError } from 'rxjs';
 import { CreateLayoutMatrixDto, LayoutMatrix } from '../models/layout-matrix';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { ConfigService } from './config.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LayoutMatrixService {
   private apiUrl = `${environment.baseApiUrl}/api`
+
+  private readonly layoutMatricesPath = '/api';
+
   private LayoutMatrixSource = new BehaviorSubject<LayoutMatrix[]>([])
   LayoutMatrix$ = this.LayoutMatrixSource.asObservable()
 
-  constructor(private http: HttpClient) { }
+  constructor(
+    private http: HttpClient,
+    private configService: ConfigService
+  ) { }
+
+  private api(path: string): string {
+    return `${this.configService.cfg.baseApiUrl}${path}`;
+  }
 
   getLayoutMatrixByAuditoriumId(auditoriumId: string): Observable<LayoutMatrix[]> {
-        return this.http.get<LayoutMatrix[]>(`${this.apiUrl}/auditoriums/${auditoriumId}/layout-matrices`).pipe(
+        return this.http.get<LayoutMatrix[]>(`${this.api(this.layoutMatricesPath)}/auditoriums/${auditoriumId}/layout-matrices`).pipe(
       map(matrices => matrices.map(matrix => this.mapLayoutMatrixDates(matrix))),
       tap(matrices => this.LayoutMatrixSource.next(matrices)),
       catchError(this.handleError)
@@ -23,7 +34,7 @@ export class LayoutMatrixService {
   }
 
   createLayoutMatrix(dto: CreateLayoutMatrixDto, auditoriumId: string): Observable<LayoutMatrix> {
-    return this.http.post<LayoutMatrix>(`${this.apiUrl}/auditoriums/${auditoriumId}/layout-matrices`, dto).pipe(
+    return this.http.post<LayoutMatrix>(`${this.api(this.layoutMatricesPath)}/auditoriums/${auditoriumId}/layout-matrices`, dto).pipe(
       map(createdMatrix => this.mapLayoutMatrixDates(createdMatrix)),
       tap(createdMatrix => {
         const currentMatrices = this.LayoutMatrixSource.getValue();
@@ -34,7 +45,7 @@ export class LayoutMatrixService {
   }
 
   updateLayoutMatrix(matrixId: string, dto: CreateLayoutMatrixDto): Observable<LayoutMatrix> {
-    return this.http.put<LayoutMatrix>(`${this.apiUrl}/layout-matrices/${matrixId}`, dto).pipe(
+    return this.http.put<LayoutMatrix>(`${this.api(this.layoutMatricesPath)}/layout-matrices/${matrixId}`, dto).pipe(
       map(updatedMatrix => this.mapLayoutMatrixDates(updatedMatrix)),
       tap(updatedMatrix => {
         const currentMatrices = this.LayoutMatrixSource.getValue();
@@ -49,7 +60,7 @@ export class LayoutMatrixService {
   }
 
   deleteLayoutMatrix(matrixId: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/layout-matrices/${matrixId}`).pipe(
+    return this.http.delete<void>(`${this.api(this.layoutMatricesPath)}/layout-matrices/${matrixId}`).pipe(
       tap(() => {
         const currentMatrices = this.LayoutMatrixSource.getValue();
         const index = currentMatrices.findIndex(m => m.id === matrixId);

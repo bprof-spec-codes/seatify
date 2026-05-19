@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -34,6 +34,7 @@ import { PublicBookingMapComponent } from './pages/public-booking-map/public-boo
 import { PublicBookingCheckoutComponent } from './pages/public-booking-checkout/public-booking-checkout.component';
 import { PublicBookingSuccessComponent } from './pages/public-booking-success/public-booking-success.component';
 import { PricePipe } from './pipes/price.pipe';
+import { ConfigService } from './services/config.service';
 
 @NgModule({
   declarations: [
@@ -73,7 +74,15 @@ import { PricePipe } from './pipes/price.pipe';
     FormsModule,
   ],
   providers: [
-    provideHttpClient(withInterceptors([authInterceptor]))
+    provideHttpClient(withInterceptors([authInterceptor])),
+    {
+      provide: APP_INITIALIZER,
+      useFactory: (configService: ConfigService) => {
+        return () => configService.load();
+      },
+      deps: [ConfigService],
+      multi: true
+    }
   ],
   bootstrap: [AppComponent]
 })
