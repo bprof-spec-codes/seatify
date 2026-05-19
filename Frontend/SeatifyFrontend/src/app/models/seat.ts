@@ -32,3 +32,17 @@ export interface BulkSeatUpdateDto {
     clearSector?: boolean
     clearPriceOverride?: boolean
 }
+
+export interface BulkSeatLabelUpdateItemDto {
+    seatId: string
+    seatLabel: string | null
+}
+
+export interface BulkSeatLabelUpdateDto {
+    items: BulkSeatLabelUpdateItemDto[]
+}
+
+export interface BulkSeatUpdateResponseDto {
+    updatedCount: number
+    updatedSeatIds: string[]
+}

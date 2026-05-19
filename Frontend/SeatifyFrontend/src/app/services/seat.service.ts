@@ -3,7 +3,7 @@ import { BehaviorSubject, catchError, map, Observable, tap, throwError } from 'r
 import { SeatMap } from '../models/seat-map';
 import { environment } from '../../environments/environment';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { BulkSeatUpdateDto, Seat, UpdateSeatDto } from '../models/seat';
+import { BulkSeatLabelUpdateDto, BulkSeatUpdateDto, BulkSeatUpdateResponseDto, Seat, UpdateSeatDto, BulkSeatLabelUpdateItemDto } from '../models/seat';
 import { EffectiveSeatMap } from '../models/seat-override';
 import { ConfigService } from './config.service';
 
@@ -64,8 +64,10 @@ export class SeatService {
       tap(updatedSeat => {
         const currentSeat = this.seatSource.getValue();
         if (currentSeat && currentSeat.id === seatId) {
-          this.seatSource.next(updatedSeat);
+          this.seatSource.next(updatedSeat)
         }
+
+        this.updateSeatInCurrentSeatMap(updatedSeat)
       }),
       catchError(this.handleError)
     )
@@ -77,20 +79,70 @@ export class SeatService {
     )
   }
 
+  bulkUpdateSeatLabels(dto: BulkSeatLabelUpdateDto): Observable<BulkSeatUpdateResponseDto> {
+    return this.http.patch<BulkSeatUpdateResponseDto>(`${this.apiUrl}/seats/bulk-labels`, dto).pipe(
+      tap(() => this.updateSeatLabelsInCurrentSeatMap(dto)),
+      catchError(this.handleError)
+    )
+  }
 
   clearSeatMap(): void {
-    this.seatMapSource.next(null);
+    this.seatMapSource.next(null)
   }
 
   setSeatMap(seatMap: SeatMap | null): void {
-    this.seatMapSource.next(seatMap);
+    this.seatMapSource.next(seatMap)
+  }
+
+  private updateSeatInCurrentSeatMap(updatedSeat: Seat): void {
+    const currentSeatMap = this.seatMapSource.getValue()
+
+    if (!currentSeatMap) return
+
+    const nextSeatMap: SeatMap = {
+      ...currentSeatMap,
+      seats: currentSeatMap.seats.map(seat =>
+        seat.id === updatedSeat.id ? updatedSeat : seat
+      )
+    }
+
+    this.seatMapSource.next(nextSeatMap)
+  }
+
+  private updateSeatLabelsInCurrentSeatMap(dto: BulkSeatLabelUpdateDto): void {
+    const currentSeatMap = this.seatMapSource.getValue()
+
+    if (!currentSeatMap) return
+
+    const labelBySeatId = new Map(
+      dto.items.map((item: BulkSeatLabelUpdateItemDto) => [item.seatId, item.seatLabel])
+    )
+
+    const updatedSeats = currentSeatMap.seats.map(seat => {
+      if (!labelBySeatId.has(seat.id)) {
+        return seat
+      }
+
+      return {
+        ...seat,
+        seatLabel: labelBySeatId.get(seat.id) ?? undefined,
+        updatedAtUtc: new Date()
+      } as Seat
+    });
+
+    const nextSeatMap: SeatMap = {
+      ...currentSeatMap,
+      seats: updatedSeats
+    }
+
+    this.seatMapSource.next(nextSeatMap)
   }
 
   private mapSeatMapDates(seatMap: SeatMap): SeatMap {
     return {
       ...seatMap,
       seats: seatMap.seats.map(seat => this.mapSeatDates(seat))
-    };
+    }
   }
 
   private mapSeatDates(seat: Seat): Seat {
@@ -98,11 +150,11 @@ export class SeatService {
       ...seat,
       createdAtUtc: new Date(seat.createdAtUtc),
       updatedAtUtc: new Date(seat.updatedAtUtc)
-    };
+    }
   }
 
   private handleError(error: HttpErrorResponse): Observable<never> {
-    console.error('An error occurred: ', error.message);
-    return throwError(() => new Error('Something went wrong; please try again later.'));
+    console.error('An error occurred: ', error.message)
+    return throwError(() => new Error('Something went wrong; please try again later.'))
   }
 }

@@ -61,7 +61,8 @@ namespace Logic.Services
             {
                 Section = reservationSeat.Seat.Sector?.Name ?? "General",
                 Row = reservationSeat.Seat.Row,
-                Number = reservationSeat.Seat.Column
+                Number = reservationSeat.Seat.Column,
+                SeatLabel = reservationSeat.Seat.SeatLabel
             };
 
             var occurrence = reservationSeat.Reservation.EventOccurrence;

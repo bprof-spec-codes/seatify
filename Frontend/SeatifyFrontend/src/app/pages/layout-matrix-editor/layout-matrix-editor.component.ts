@@ -7,13 +7,34 @@ import { CreateLayoutMatrixDto, LayoutMatrix } from '../../models/layout-matrix'
 import { ActivatedRoute } from '@angular/router';
 import { MatrixCellVm } from '../../models/matrix-cell-vm';
 import { SeatService } from '../../services/seat.service';
-import { SeatType, UpdateSeatDto } from '../../models/seat';
+import { BulkSeatLabelUpdateDto, SeatType, UpdateSeatDto } from '../../models/seat';
 import { SeatMap } from '../../models/seat-map';
 import { CreateUpdateSectorDto, Sector } from '../../models/sector';
 import { SectorService } from '../../services/sector.service';
 import { Location } from '@angular/common';
 import { SeatOverrideService } from '../../services/seat-override.service';
 import { EffectiveSeat, EffectiveSeatMap } from '../../models/seat-override';
+
+
+type SeatLabelTarget = 'selected' | 'all'
+type SeatLabelFormat = 'none' | 'arabic' | 'roman' | 'letters' | 'lowercaseLetters'
+type SeatLabelSeparator = 'none' | 'dash' | 'space' | 'dot'
+type SeatLabelPattern = 'rowColumn' | 'columnRow'
+type SeatLabelDirection = 'normal' | 'reverse'
+type SeatSideMode = 'none' | 'english' | 'hungarian'
+
+interface SeatLabelToolModel {
+  target: SeatLabelTarget
+  pattern: SeatLabelPattern
+  rowFormat: SeatLabelFormat
+  columnFormat: SeatLabelFormat
+  rowStart: string
+  columnStart: string
+  rowDirection: SeatLabelDirection
+  columnDirection: SeatLabelDirection
+  separator: SeatLabelSeparator
+  sideMode: SeatSideMode
+}
 
 @Component({
   selector: 'app-layout-matrix-editor',
@@ -56,6 +77,22 @@ export class LayoutMatrixEditorComponent implements OnInit {
 
   seatEditModel: UpdateSeatDto | null = null
   isSavingSeat = false
+
+  isApplyingSeatLabels = false
+  seatLabelErrorMessage: string | null = null
+
+  seatLabelTool: SeatLabelToolModel = {
+    target: 'selected',
+    pattern: 'rowColumn',
+    rowFormat: 'letters',
+    columnFormat: 'arabic',
+    rowStart: 'A',
+    columnStart: '1',
+    rowDirection: 'normal',
+    columnDirection: 'normal',
+    separator: 'dash',
+    sideMode: 'none'
+  }
 
   isSelecting = false
   selectionStartCell: MatrixCellVm | null = null
@@ -813,8 +850,7 @@ export class LayoutMatrixEditorComponent implements OnInit {
     this.isSavingSeat = true
     const overrideSource = this.editorContext
 
-    // Kontextus-specifikus endpoint
-    const save$ = this.editorContext === 'occurrence' && this.contextOccurrenceId
+    const save$: Observable<unknown> = this.editorContext === 'occurrence' && this.contextOccurrenceId
       ? this.seatOverrideService.bulkUpsertOccurrenceOverride(this.contextOccurrenceId, {
           seatIds, sectorId: sectorId ?? undefined, clearSector: sectorId === null
         })
@@ -832,7 +868,7 @@ export class LayoutMatrixEditorComponent implements OnInit {
         this.updateLocalCells({ sectorId, sectorSource: overrideSource })
         this.cdr.markForCheck()
       },
-      error: err => {
+      error: (err: unknown) => {
         this.isSavingSeat = false
         console.error('Failed to bulk update sectors', err)
         this.cdr.markForCheck()
@@ -918,6 +954,318 @@ export class LayoutMatrixEditorComponent implements OnInit {
       }
       return cell
     })
+  }
+
+
+  get seatLabelTargetCount(): number {
+    return this.getSeatLabelTargetCells().length
+  }
+
+  get seatLabelPreviewItems(): { currentLabel: string | null; nextLabel: string }[] {
+    return this.buildSeatLabelUpdates()
+      .slice(0, 6)
+      .map(item => ({
+        currentLabel: item.cell.seatLabel,
+        nextLabel: item.seatLabel
+      }))
+  }
+
+  applyGeneratedSeatLabels(): void {
+    if (this.isApplyingSeatLabels || this.hasBookings) return
+
+    const updates = this.buildSeatLabelUpdates()
+
+    if (updates.length === 0) {
+      this.seatLabelErrorMessage = 'There are no seats available for label generation.'
+      this.cdr.markForCheck()
+      return
+    }
+
+    const dto: BulkSeatLabelUpdateDto = {
+      items: updates.map(item => ({
+        seatId: item.seatId,
+        seatLabel: item.seatLabel
+      }))
+    }
+
+    this.isApplyingSeatLabels = true
+    this.seatLabelErrorMessage = null
+
+    this.seatService.bulkUpdateSeatLabels(dto).subscribe({
+      next: () => {
+        const labelBySeatId = new Map(
+          updates.map(item => [item.seatId, item.seatLabel])
+        )
+
+        this.gridCells = this.gridCells.map(cell => {
+          if (!cell.seatId || !labelBySeatId.has(cell.seatId)) {
+            return cell
+          }
+
+          return {
+            ...cell,
+            seatLabel: labelBySeatId.get(cell.seatId) ?? null
+          }
+        })
+
+        this.updateSeatEditModel()
+        this.isApplyingSeatLabels = false
+        this.cdr.markForCheck()
+      },
+      error: (err: unknown) => {
+        this.isApplyingSeatLabels = false
+        this.seatLabelErrorMessage = 'Failed to save generated seat labels.'
+        console.error('Failed to apply generated seat labels', err)
+        this.cdr.markForCheck()
+      }
+    })
+  }
+
+  resetSeatLabelTool(): void {
+    this.seatLabelTool = {
+      target: 'selected',
+      pattern: 'rowColumn',
+      rowFormat: 'letters',
+      columnFormat: 'arabic',
+      rowStart: 'A',
+      columnStart: '1',
+      rowDirection: 'normal',
+      columnDirection: 'normal',
+      separator: 'dash',
+      sideMode: 'none'
+    }
+
+    this.seatLabelErrorMessage = null
+    this.cdr.markForCheck()
+  }
+
+  private getSeatLabelTargetCells(): MatrixCellVm[] {
+    const sourceCells = this.seatLabelTool.target === 'selected'
+      ? this.selectedCells
+      : this.gridCells
+
+    return sourceCells
+      .filter(cell => !!cell.seatId)
+      .filter(cell => cell.seatType !== SeatType.Aisle)
+      .sort((a, b) => {
+        if (a.row !== b.row) return a.row - b.row
+        return a.column - b.column
+      })
+  }
+
+  private buildSeatLabelUpdates(): { seatId: string; seatLabel: string; cell: MatrixCellVm }[] {
+    const targetCells = this.getSeatLabelTargetCells()
+
+    if (targetCells.length === 0) {
+      return []
+    }
+
+    const orderedRows = Array.from(new Set(targetCells.map(cell => cell.row)))
+      .sort((a, b) => a - b)
+
+    const orderedColumns = Array.from(new Set(targetCells.map(cell => cell.column)))
+      .sort((a, b) => a - b)
+
+    const rowStart = this.parseLabelStart(this.seatLabelTool.rowFormat, this.seatLabelTool.rowStart)
+    const columnStart = this.parseLabelStart(this.seatLabelTool.columnFormat, this.seatLabelTool.columnStart)
+
+    const rowIndexByValue = new Map<number, number>()
+    const columnIndexByValue = new Map<number, number>()
+
+    orderedRows.forEach((row, index) => {
+      const effectiveIndex = this.seatLabelTool.rowDirection === 'reverse'
+        ? orderedRows.length - index - 1
+        : index
+
+      rowIndexByValue.set(row, rowStart + effectiveIndex)
+    })
+
+    orderedColumns.forEach((column, index) => {
+      const effectiveIndex = this.seatLabelTool.columnDirection === 'reverse'
+        ? orderedColumns.length - index - 1
+        : index
+
+      columnIndexByValue.set(column, columnStart + effectiveIndex)
+    })
+
+    return targetCells
+      .filter((cell): cell is MatrixCellVm & { seatId: string } => !!cell.seatId)
+      .map(cell => {
+        const rowNumber = rowIndexByValue.get(cell.row) ?? rowStart
+        const columnNumber = columnIndexByValue.get(cell.column) ?? columnStart
+
+        const rowLabel = this.formatLabelValue(this.seatLabelTool.rowFormat, rowNumber)
+        const columnLabel = this.formatLabelValue(this.seatLabelTool.columnFormat, columnNumber)
+
+        const labelParts = this.seatLabelTool.pattern === 'rowColumn'
+          ? [rowLabel, columnLabel]
+          : [columnLabel, rowLabel]
+
+        const baseLabel = this.joinLabelParts(labelParts)
+        const sidePrefix = this.getSidePrefix(cell, orderedColumns)
+
+        const seatLabel = sidePrefix
+          ? `${sidePrefix} ${baseLabel}`.trim()
+          : baseLabel
+
+        return {
+          seatId: cell.seatId,
+          seatLabel,
+          cell
+        }
+      })
+      .filter(item => item.seatLabel.length > 0)
+  }
+
+  private parseLabelStart(format: SeatLabelFormat, value: string): number {
+    const trimmed = value.trim()
+
+    if (!trimmed) return 1
+
+    if (format === 'letters' || format === 'lowercaseLetters') {
+      return this.lettersToNumber(trimmed)
+    }
+
+    if (format === 'roman') {
+      return this.romanToNumber(trimmed)
+    }
+
+    const parsed = Number(trimmed)
+    return Number.isFinite(parsed) && parsed > 0 ? Math.floor(parsed) : 1
+  }
+
+  private formatLabelValue(format: SeatLabelFormat, value: number): string {
+    switch (format) {
+      case 'none': return ''
+      case 'arabic': return String(value)
+      case 'roman': return this.numberToRoman(value)
+      case 'letters': return this.numberToLetters(value).toUpperCase()
+      case 'lowercaseLetters': return this.numberToLetters(value).toLowerCase()
+      default: return String(value)
+    }
+  }
+
+  private joinLabelParts(parts: string[]): string {
+    const filteredParts = parts.filter(part => !!part)
+
+    if (filteredParts.length === 0) return ''
+    if (filteredParts.length === 1) return filteredParts[0]
+
+    return filteredParts.join(this.getSeparatorText())
+  }
+
+  private getSeparatorText(): string {
+    switch (this.seatLabelTool.separator) {
+      case 'dash': return '-'
+      case 'space': return ' '
+      case 'dot': return '.'
+      case 'none': return ''
+      default: return '-'
+    }
+  }
+
+  private getSidePrefix(cell: MatrixCellVm, orderedColumns: number[]): string {
+    if (this.seatLabelTool.sideMode === 'none') return ''
+
+    const sortedColumns = [...orderedColumns].sort((a, b) => a - b)
+    const columnIndex = sortedColumns.indexOf(cell.column)
+    const middleIndex = (sortedColumns.length - 1) / 2
+    const isLeftSide = columnIndex <= middleIndex
+
+    if (this.seatLabelTool.sideMode === 'hungarian') {
+      return isLeftSide ? 'Bal' : 'Jobb'
+    }
+
+    return isLeftSide ? 'Left' : 'Right'
+  }
+
+  private numberToLetters(value: number): string {
+    let result = ''
+    let current = Math.max(1, value)
+
+    while (current > 0) {
+      current--
+      result = String.fromCharCode(65 + (current % 26)) + result
+      current = Math.floor(current / 26)
+    }
+
+    return result
+  }
+
+  private lettersToNumber(value: string): number {
+    const letters = value.trim().toUpperCase().replace(/[^A-Z]/g, '')
+
+    if (!letters) return 1
+
+    let result = 0
+
+    for (const char of letters) {
+      result = result * 26 + (char.charCodeAt(0) - 64)
+    }
+
+    return Math.max(1, result)
+  }
+
+  private numberToRoman(value: number): string {
+    const romanMap: { value: number; numeral: string }[] = [
+      { value: 1000, numeral: 'M' },
+      { value: 900, numeral: 'CM' },
+      { value: 500, numeral: 'D' },
+      { value: 400, numeral: 'CD' },
+      { value: 100, numeral: 'C' },
+      { value: 90, numeral: 'XC' },
+      { value: 50, numeral: 'L' },
+      { value: 40, numeral: 'XL' },
+      { value: 10, numeral: 'X' },
+      { value: 9, numeral: 'IX' },
+      { value: 5, numeral: 'V' },
+      { value: 4, numeral: 'IV' },
+      { value: 1, numeral: 'I' }
+    ]
+
+    let current = Math.max(1, value)
+    let result = ''
+
+    for (const item of romanMap) {
+      while (current >= item.value) {
+        result += item.numeral
+        current -= item.value
+      }
+    }
+
+    return result
+  }
+
+  private romanToNumber(value: string): number {
+    const roman = value.trim().toUpperCase()
+
+    if (!roman) return 1
+
+    const values: Record<string, number> = {
+      I: 1,
+      V: 5,
+      X: 10,
+      L: 50,
+      C: 100,
+      D: 500,
+      M: 1000
+    }
+
+    let total = 0
+    let previous = 0
+
+    for (let index = roman.length - 1; index >= 0; index--) {
+      const current = values[roman[index]] ?? 0
+
+      if (current < previous) {
+        total -= current
+      } else {
+        total += current
+        previous = current
+      }
+    }
+
+    return total > 0 ? total : 1
   }
 
 
